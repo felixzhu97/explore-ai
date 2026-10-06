@@ -10,6 +10,7 @@ import {
 export class AccountDialogService {
   readonly #dialog = inject(ZardDialogService);
 
+  /** Opens the sign-in dialog. */
   openLogin(): void {
     this.#dialog.create({
       zContent: AccountLoginDialogComponent,
@@ -20,6 +21,7 @@ export class AccountDialogService {
     });
   }
 
+  /** Opens the sign-out confirmation dialog. */
   openLogout(data: AccountLogoutDialogData): void {
     this.#dialog.create({
       zContent: AccountLogoutDialogComponent,

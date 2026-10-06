@@ -23,10 +23,12 @@ export class PipelinesGalleryComponent {
   readonly editSavedTemplate = output<PipelineTemplate>();
   readonly deleteSavedTemplate = output<PipelineTemplate>();
 
+  /** Joins the agent types into an arrow chain. */
   getTemplateOrder(agentTypes: readonly string[]): string {
     return agentTypes.join(' → ');
   }
 
+  /** Tells whether the template is already in the library. */
   isSaved(template: PipelineTemplateDefinitionResponse): boolean {
     return this.savedTemplates().some(item => item.sourceTemplateId === template.id);
   }

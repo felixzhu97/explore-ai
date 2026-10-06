@@ -19,6 +19,7 @@ const INVOKE_RE =
 const QUERY_PARAM_RE =
   /<\s*[^<>]*DSML[^<>]*parameter[^<>]*name\s*=\s*["']query["'][^<>]*>([\s\S]*?)<\/\s*[^<>]*DSML[^<>]*parameter[^<>]*>/i;
 
+/** Removes tool call markup from model output. */
 export function stripToolCallMarkup(content: string): string {
   if (content === '') {
     return '';
@@ -38,6 +39,7 @@ export function stripToolCallMarkup(content: string): string {
     .trim();
 }
 
+/** Finds the DSML tool calls in model output. */
 export function parseDsmlToolInvocations(content: string): DsmlToolInvocation[] {
   if (content === '' || !/DSML/i.test(content)) {
     return [];
@@ -62,6 +64,7 @@ export function parseDsmlToolInvocations(content: string): DsmlToolInvocation[] 
   return found;
 }
 
+/** Turns tool calls into short tool steps. */
 export function toMinimalToolSteps(
   invocations: readonly DsmlToolInvocation[],
   status: ToolStep['status'] = 'running',

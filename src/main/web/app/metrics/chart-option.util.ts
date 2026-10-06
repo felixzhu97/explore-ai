@@ -8,6 +8,7 @@ export interface SharedChartItem {
   value: number;
 }
 
+/** Builds an ECharts option for a bar, line or pie chart. */
 export function buildSharedChartOption(
   type: SharedChartType,
   data: SharedChartItem[],

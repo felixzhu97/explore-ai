@@ -54,6 +54,7 @@ export interface ImageCatalog {
   qualities: string[];
 }
 
+/** Parses a size label such as 1024x1024. */
 export function parseImageSizeLabel(label: string): ImageSize | null {
   const [, width, height] = /^(\d+)x(\d+)$/.exec(label.trim()) ?? [];
   if (!hasText(width) || !hasText(height)) {
@@ -98,6 +99,7 @@ export class ImageService {
     this.loadCatalog();
   }
 
+  /** Loads the image models, sizes and qualities. */
   loadCatalog(): void {
     this.#getImageCatalog().subscribe({
       next: (catalog) => {
@@ -121,14 +123,17 @@ export class ImageService {
     });
   }
 
+  /** Sets the image prompt. */
   setPrompt(text: string): void {
     this.prompt.set(text);
   }
 
+  /** Selects the image size. */
   setSize(size: ImageSize): void {
     this.selectedSize.set(size);
   }
 
+  /** Opens the generated image in the zoom view. */
   openZoom(): void {
     const image = this.generatedImage();
     if (hasText(image)) {
@@ -136,6 +141,7 @@ export class ImageService {
     }
   }
 
+  /** Generates an image from the prompt. */
   generate(): void {
     if (this.prompt().trim() === '' || this.isGenerating()) {
       return;
@@ -178,6 +184,7 @@ export class ImageService {
     });
   }
 
+  /** Downloads the generated image. */
   download(): void {
     const image = this.generatedImage();
     if (!hasText(image)) {

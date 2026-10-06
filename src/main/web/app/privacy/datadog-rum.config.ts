@@ -4,6 +4,7 @@ import { environment } from '../../environments/environment';
 
 let rumInitialized = false;
 
+/** Starts Datadog RUM once when it is set up. */
 export function initDatadogRum(): void {
   if (rumInitialized) {
     return;

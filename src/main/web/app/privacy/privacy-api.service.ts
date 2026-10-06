@@ -7,10 +7,12 @@ import { API_BASE_URL } from '../http/api.constants';
 export class PrivacyApiService {
   readonly #http = inject(HttpClient);
 
+  /** Deletes all chat sessions of this browser. */
   eraseAllSessions(): Observable<void> {
     return this.#http.delete<void>(`${API_BASE_URL}/privacy/sessions`);
   }
 
+  /** Replaces the Client Identity with a new one. */
   resetIdentity(): Observable<void> {
     return this.#http.post<void>(`${API_BASE_URL}/privacy/reset-identity`, null);
   }

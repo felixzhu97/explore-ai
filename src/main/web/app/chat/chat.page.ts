@@ -177,18 +177,21 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     this.chat.abortStream();
   }
 
+  /** Switches to the selected provider. */
   onProviderChange(provider: string | string[]) {
     if (typeof provider === 'string') {
       this.chat.setProvider(provider);
     }
   }
 
+  /** Switches to the selected model. */
   setSelectedModel(modelName: string | string[]) {
     if (typeof modelName === 'string') {
       this.chat.setModel(modelName);
     }
   }
 
+  /** Opens or closes the skills menu. */
   toggleSkillsMenu(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -201,16 +204,19 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     this.isSkillsMenuOpen.set(willOpen);
   }
 
+  /** Turns a skill on or off for the next message. */
   onSkillToggle(event: MouseEvent, skillId: string): void {
     event.preventDefault();
     event.stopPropagation();
     this.chat.toggleSkillId(skillId);
   }
 
+  /** Puts a suggested prompt in the input. */
   onPromptSelect(label: string): void {
     this.input.set(label);
   }
 
+  /** Sends the typed message. */
   send() {
     const text = this.input().trim();
     if (text === '' || this.chat.isLoading()) {
@@ -224,6 +230,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     this.chat.sendMessage(text);
   }
 
+  /** Closes the skills menu when the user clicks outside it. */
   onDocumentClick(event: MouseEvent): void {
     const root = this.skillsPicker()?.nativeElement;
     if (root?.contains(event.target as Node) === true) {

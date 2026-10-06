@@ -23,6 +23,7 @@ export class MarkdownService {
     });
   }
 
+  /** Renders Markdown to safe HTML. */
   render(content: string, streaming = false): SafeHtml {
     if (content === '') {
       return '';
@@ -43,6 +44,7 @@ export class MarkdownService {
     return this.render(content, true);
   }
 
+  /** Renders Markdown to an HTML string. */
   renderToString(content: string): string {
     if (content === '') {
       return '';
@@ -102,6 +104,7 @@ export class MarkdownService {
     return normalized;
   }
 
+  /** Renders code blocks and line breaks to safe HTML. */
   processContent(content: string): SafeHtml {
     const processed = this.escapeHtml(content);
 
@@ -122,6 +125,7 @@ export class MarkdownService {
     return this.#sanitizer.bypassSecurityTrustHtml(`<p>${html}</p>`);
   }
 
+  /** Wraps JSON keys and values in highlight spans. */
   highlightJson(json: string): string {
     return json
       .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
@@ -131,6 +135,7 @@ export class MarkdownService {
       .replace(/: (null)/g, ': <span class="json-null">$1</span>');
   }
 
+  /** Escapes HTML special characters. */
   escapeHtml(text: string): string {
     const map: Record<string, string> = {
       '&': '&amp;',
@@ -142,6 +147,7 @@ export class MarkdownService {
     return text.replace(/[&<>"']/g, m => map[m] ?? m);
   }
 
+  /** Tells whether the content looks like raw JSON. */
   isRawJson(content: string): boolean {
     const trimmed = content.trim();
     return (

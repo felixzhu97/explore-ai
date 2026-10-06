@@ -52,10 +52,12 @@ export const POLICY_SLUGS: readonly PolicySlug[] = [
   'subprocessors',
 ] as const;
 
+/** Tells whether the value is a known policy slug. */
 export function isPolicySlug(value: string | null | undefined): value is PolicySlug {
   return hasText(value) && (POLICY_SLUGS as readonly string[]).includes(value);
 }
 
+/** Maps a current or legacy slug to a policy slug. */
 export function resolvePolicySlug(raw: string | null | undefined): PolicySlug | null {
   if (!hasText(raw)) {
     return null;
@@ -208,10 +210,12 @@ const HUB: Record<Language, PoliciesHubCopy> = {
   },
 };
 
+/** Returns the policies hub text in the language. */
 export function getPoliciesHubCopy(lang: Language): PoliciesHubCopy {
   return HUB[lang];
 }
 
+/** Returns a policy document in the language. */
 export function getPolicyDocCopy(slug: PolicySlug, lang: Language): PolicyDocCopy {
   return POLICY_DOCS[lang][slug];
 }

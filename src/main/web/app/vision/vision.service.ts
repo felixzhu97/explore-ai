@@ -78,10 +78,12 @@ export class VisionService {
 
   readonly canAnalyze = computed(() => Boolean(this.currentState().file));
 
+  /** Switches the vision task. */
   setActiveTask(task: VisionTaskType): void {
     this.activeTask.set(task);
   }
 
+  /** Loads an image file for analysis. */
   processFile(file: File): void {
     if (!file.type.startsWith('image/')) {
       this.#updateState({ error: this.#i18n.t().vision.errors.invalidImage });
@@ -100,14 +102,17 @@ export class VisionService {
     reader.readAsDataURL(file);
   }
 
+  /** Clears the image and result. */
   clearImage(): void {
     this.#updateState({ image: null, file: null, error: null, result: null });
   }
 
+  /** Opens the image in the zoom view. */
   openZoom(image: string): void {
     this.#imageZoom.open(image, this.#i18n.t().vision.imageLabel);
   }
 
+  /** Runs the selected task on the image. */
   analyze(): void {
     const currentFile = this.currentState().file;
     if (currentFile === null || this.isLoading()) {

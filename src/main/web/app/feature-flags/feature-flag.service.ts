@@ -15,6 +15,7 @@ export class FeatureFlagService {
   readonly #flags = signal<Record<FeatureFlagKey, boolean>>(MODULE_FLAG_FALLBACK);
   #ldStarted = false;
 
+  /** Starts LaunchDarkly when it is set up and analytics are allowed. */
   async initialize(): Promise<void> {
     const clientSideId = environment.launchDarklyClientSideId;
     if (clientSideId === '' || !hasAnalyticsConsent()) {
@@ -52,6 +53,7 @@ export class FeatureFlagService {
     this.#syncFlags(client);
   }
 
+  /** Tells whether the flag is on. */
   isEnabled(key: FeatureFlagKey): boolean {
     return this.#flags()[key] === true;
   }

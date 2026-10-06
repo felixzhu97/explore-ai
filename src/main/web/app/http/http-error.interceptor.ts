@@ -33,6 +33,7 @@ export interface ErrorResponse {
 
 export { SKIP_ERROR_NOTIFICATION };
 
+/** Turns HTTP errors into app errors and notifies the user. */
 export const httpErrorInterceptor: HttpInterceptorFn = (request, next) => {
   const notificationService = inject(NotificationService);
   return next(request).pipe(

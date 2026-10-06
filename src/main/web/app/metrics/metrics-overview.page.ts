@@ -169,22 +169,26 @@ export class MetricsOverviewPageComponent {
     () => this.drilldownResource.value()?.total ?? 0,
   );
 
+  /** Switches the time range. */
   setRange(range: MetricsRange): void {
     this.range.set(range);
   }
 
+  /** Opens the domain of the clicked KPI. */
   onKpiClick(kpi: MetricsKpi): void {
     if (hasText(kpi.domain)) {
       this.openDomain(kpi.domain);
     }
   }
 
+  /** Opens the metrics page of a domain. */
   openDomain(domain: string): void {
     void this.#router.navigate(['/metrics', domain], {
       queryParams: { range: this.range() },
     });
   }
 
+  /** Opens the chat or document behind the row. */
   onRowClick(event: InvocationEvent): void {
     if (hasText(event.sessionId)) {
       void this.#router.navigate(['/chat', event.sessionId]);

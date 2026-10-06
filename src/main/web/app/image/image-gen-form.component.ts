@@ -100,6 +100,7 @@ export class ImageGenFormComponent {
   readonly #sizeLabel = linkedSignal(() => this.selectedSize().label);
   protected readonly sizeLabelField = form(this.#sizeLabel);
 
+  /** Emits the size that matches the selected label. */
   onSizeLabelChange(label: string): void {
     const size = this.sizes().find(item => item.label === label);
     if (size !== undefined) {

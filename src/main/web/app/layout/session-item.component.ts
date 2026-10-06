@@ -102,16 +102,19 @@ export class SessionItemComponent {
   readonly deleteRequested = output<void>();
   readonly selected = output<void>();
 
+  /** Emits the selection and drops focus. */
   onSelect(): void {
     this.selected.emit();
     (document.activeElement as HTMLElement | null)?.blur();
   }
 
+  /** Asks to pin or unpin the session. */
   onPin(event: MouseEvent): void {
     event.stopPropagation();
     this.pinToggleRequested.emit();
   }
 
+  /** Asks to delete the session. */
   onDelete(event: MouseEvent): void {
     event.stopPropagation();
     this.deleteRequested.emit();

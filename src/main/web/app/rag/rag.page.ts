@@ -96,6 +96,7 @@ export class RagPageComponent implements OnInit {
     this.ragService.fetchAvailableDocuments();
   }
 
+  /** Queues the files picked in the file input. */
   onFileSelect(event: Event): void {
     const input = event.target as HTMLInputElement;
     const files = input.files;
@@ -105,23 +106,28 @@ export class RagPageComponent implements OnInit {
     input.value = '';
   }
 
+  /** Returns the upload status of a file. */
   getUploadStatus(name: string): UploadStatus | undefined {
     return this.ragService.getUploadStatus(name);
   }
 
+  /** Removes a queued file. */
   removePendingFile(index: number): void {
     this.ragService.removePendingFile(index);
   }
 
+  /** Uploads the queued files. */
   uploadFiles(): void {
     this.ragService.uploadFiles();
   }
 
+  /** Deletes a document. */
   deleteDocument(documentId: string, event: Event): void {
     event.stopPropagation();
     this.ragService.deleteDocument(documentId);
   }
 
+  /** Puts a suggested prompt in the input. */
   onPromptSelect(label: string): void {
     this.ragService.setInput(label);
   }

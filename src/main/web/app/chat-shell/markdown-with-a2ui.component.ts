@@ -137,6 +137,7 @@ export class MarkdownWithA2uiComponent {
     });
   }
 
+  /** Returns a stable key for a segment. */
   trackSegment(index: number, segment: DisplaySegment): string {
     if (segment.type === 'a2ui') {
       return segment.surfaceId;

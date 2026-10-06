@@ -113,6 +113,7 @@ export class PrivacyPreferencesFormComponent implements OnInit {
     });
   }
 
+  /** Saves the privacy choices from the form. */
   savePreferences(): void {
     void submit(this.preferencesForm, () => {
       this.isSaving.set(true);

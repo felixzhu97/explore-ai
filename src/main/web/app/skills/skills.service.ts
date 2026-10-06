@@ -27,6 +27,7 @@ export interface Skill {
   updatedAt: Instant;
 }
 
+/** Maps an API response to a skill. */
 export function toSkill(response: SkillResponse): Skill {
   return {
     ...response,
@@ -64,30 +65,36 @@ export class SkillsService {
   readonly #i18n = inject(I18nService);
   readonly #base = `${API_BASE_URL}/skills`;
 
+  /** Lists the skills. */
   list(): Observable<Skill[]> {
     return this.#http
       .get<SkillResponse[]>(this.#base)
       .pipe(map(skills => skills.map(toSkill)));
   }
 
+  /** Lists the skills that are on. */
   listEnabled(): Observable<Skill[]> {
     return this.list().pipe(map(skills => skills.filter(skill => skill.enabled)));
   }
 
+  /** Lists the built-in skill templates in the UI language. */
   listTemplates(): Observable<SkillTemplateResponse[]> {
     return this.#http.get<SkillTemplateResponse[]>(`${this.#base}/templates`, {
       params: this.#buildLangParams(),
     });
   }
 
+  /** Returns one skill. */
   get(id: string): Observable<Skill> {
     return this.#http.get<SkillResponse>(`${this.#base}/${id}`).pipe(map(toSkill));
   }
 
+  /** Creates a skill. */
   create(request: CreateSkillRequest): Observable<Skill> {
     return this.#http.post<SkillResponse>(this.#base, request).pipe(map(toSkill));
   }
 
+  /** Creates a skill from a template. */
   createFromTemplate(templateId: string): Observable<Skill> {
     return this.#http
       .post<SkillResponse>(
@@ -98,16 +105,19 @@ export class SkillsService {
       .pipe(map(toSkill));
   }
 
+  /** Updates a skill. */
   update(id: string, request: UpdateSkillRequest): Observable<Skill> {
     return this.#http.put<SkillResponse>(`${this.#base}/${id}`, request).pipe(map(toSkill));
   }
 
+  /** Turns a skill on or off. */
   setEnabled(id: string, enabled: boolean): Observable<Skill> {
     return this.#http
       .patch<SkillResponse>(`${this.#base}/${id}/enabled`, { enabled })
       .pipe(map(toSkill));
   }
 
+  /** Deletes a skill. */
   delete(id: string): Observable<void> {
     return this.#http.delete<void>(`${this.#base}/${id}`);
   }

@@ -34,10 +34,12 @@ export class McpPageComponent implements OnInit {
     this.loadDashboard();
   }
 
+  /** Formats the tool count label. */
   formatToolsCountLabel(count: number): string {
     return this.i18n.tReplace(this.i18n.t().mcp.toolsCount, { count });
   }
 
+  /** Sends the question to the MCP chat. */
   submitQuestion(): void {
     const question = this.question().trim();
     if (question === '') {
@@ -58,6 +60,7 @@ export class McpPageComponent implements OnInit {
     });
   }
 
+  /** Loads the MCP health, status and tools. */
   loadDashboard(): void {
     this.isLoading.set(true);
     this.error.set(null);

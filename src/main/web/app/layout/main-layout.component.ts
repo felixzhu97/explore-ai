@@ -42,6 +42,7 @@ export class MainLayoutComponent implements OnInit {
     this.#account.consumeLoginReturn();
   }
 
+  /** Opens the sidebar. */
   openSidebar(): void {
     this.sidebar.open();
   }

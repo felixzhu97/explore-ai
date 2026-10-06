@@ -37,6 +37,7 @@ export const MODULE_NAV_TABS: ModuleNavTab[] = [
   { key: 'eval', labelKey: 'eval', path: '/eval', group: 'lab', flagKey: FEATURE_FLAG_KEYS.MODULE_EVAL },
 ];
 
+/** Tells whether the tab's feature flag is on. */
 export function isNavTabEnabled(
   tab: ModuleNavTab,
   featureFlags: Pick<FeatureFlagService, 'isEnabled'>,

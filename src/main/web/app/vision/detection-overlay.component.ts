@@ -39,6 +39,7 @@ export class DetectionOverlayComponent {
     });
   }
 
+  /** Draws the detection boxes over the image. */
   drawOverlay(): void {
     const image = this.previewImage().nativeElement;
     const canvas = this.overlayCanvas().nativeElement;

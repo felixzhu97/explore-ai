@@ -5,6 +5,7 @@ export function toNativeDate(instant: Instant): Date {
   return new Date(instant.toEpochMilli());
 }
 
+/** Converts a JavaScript Date to an Instant. */
 export function fromNativeDate(date: Date): Instant {
   return Instant.ofEpochMilli(date.getTime());
 }

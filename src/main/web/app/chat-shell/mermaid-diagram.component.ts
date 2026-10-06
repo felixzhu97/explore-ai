@@ -91,6 +91,7 @@ export class MermaidDiagramComponent {
     });
   }
 
+  /** Opens the diagram in a fullscreen dialog. */
   openFullscreen(): void {
     const markup = this.svgMarkup();
     if (markup === '') {

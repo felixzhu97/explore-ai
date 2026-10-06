@@ -136,6 +136,7 @@ export class MediaUploadPanelComponent {
   readonly cleared = output<void>();
   readonly zoomRequested = output<string>();
 
+  /** Opens the file picker when no image is shown. */
   onAreaClick(): void {
     if (!hasText(this.imagePreview())) {
       const input = document.createElement('input');
@@ -146,6 +147,7 @@ export class MediaUploadPanelComponent {
     }
   }
 
+  /** Takes the dropped file. */
   onDrop(event: DragEvent): void {
     event.preventDefault();
     const droppedFile = event.dataTransfer?.files[0];
@@ -154,10 +156,12 @@ export class MediaUploadPanelComponent {
     }
   }
 
+  /** Allows dropping files on the area. */
   onDragOver(event: DragEvent): void {
     event.preventDefault();
   }
 
+  /** Asks to zoom the image. */
   onZoomClick(event: Event): void {
     event.stopPropagation();
     const image = this.imagePreview();
@@ -166,11 +170,13 @@ export class MediaUploadPanelComponent {
     }
   }
 
+  /** Asks to clear the image. */
   onClearClick(event: Event): void {
     event.stopPropagation();
     this.cleared.emit();
   }
 
+  /** Takes the file picked in the file input. */
   onFileInputChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];

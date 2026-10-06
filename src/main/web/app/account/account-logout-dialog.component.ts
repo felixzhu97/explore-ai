@@ -87,11 +87,13 @@ export class AccountLogoutDialogComponent {
     textOr(this.data.displayName.trim(), textOr(this.data.email, 'G'))
   ).charAt(0).toUpperCase();
 
+  /** Closes the dialog and signs out. */
   confirmLogout(): void {
     this.#dialogRef.close();
     this.#account.logout();
   }
 
+  /** Closes the dialog without signing out. */
   cancel(): void {
     this.#dialogRef.close();
   }

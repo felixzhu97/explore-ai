@@ -125,6 +125,7 @@ export class PrivacyPageComponent {
   readonly copy = computed(() => PRIVACY_PAGE_COPY[this.#i18n.language()]);
   readonly isBusy = signal(false);
 
+  /** Deletes all chat sessions after confirmation. */
   eraseSessions(): void {
     if (!confirm(this.copy().eraseConfirm)) {
       return;
@@ -145,6 +146,7 @@ export class PrivacyPageComponent {
     });
   }
 
+  /** Resets the Client Identity after confirmation. */
   resetIdentity(): void {
     if (!confirm(this.copy().resetConfirm)) {
       return;
