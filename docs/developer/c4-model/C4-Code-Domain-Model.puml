@@ -73,7 +73,7 @@ package "Common" as pkg_common_kernel {
     --
     +belongsTo(ownerKey)
     +getOwnerKeyValue()
-    +rebindOwnerKey(ownerKey)
+    +transferTo(accountOwnerKey)
   }
   class AbstractNamedOwnerEntity <<Abstract>> {
     +name: String
@@ -85,6 +85,7 @@ package "Common" as pkg_common_kernel {
     --
     +enable()
     +disable()
+    +changeEnabled(enabled)
   }
   class AbstractEnableableDescribedOwnerEntity <<Abstract>> {
     +description: String
@@ -109,6 +110,13 @@ package "Common" as pkg_common_kernel {
     --
     +{static} forClient(id)
     +{static} forAccount(id)
+    +isClient()
+    +isAccount()
+    +requireMergeableInto(target)
+  }
+  class DomainStrings <<DomainService>> {
+    +{static} normalizeName(raw)
+    +{static} copyNameCandidates(base, maxLength)
   }
   interface OwnerScopedRepository<E, I> <<Repository>> {
     +save(entity)
@@ -133,17 +141,29 @@ package "Chat" as pkg_chat {
   class ChatSession <<AggregateRoot>> {
     +id: ChatSessionId
     +ownerKey: OwnerKey
-    +title: String
+    +title: SessionTitle
     --
     +{static} create(title, ownerKey)
+    +{static} startDefault(ownerKey)
+    +{static} startWithId(id, ownerKey)
     +{static} of(id, title, createdAt, ownerKey)
     +rename(newTitle)
-    +addUserMessage(text)
-    +addAssistantMessage(text)
-    +getRecentMessages(count)
-    +clearMessages()
-    +replaceMessages(messages)
+    +needsGeneratedTitle()
+    +applyGeneratedTitle(title)
+    +restoreMessages(messages)
+    +recordExchange(messages)
+    +lastAssistantMessage(): Optional
+    +firstUserMessage(): Optional
+    +isInactiveSince(cutoff)
     +isEmpty()
+  }
+  class SessionTitle <<ValueObject>> {
+    +value: String
+    --
+    +{static} DEFAULT
+    +{static} of(raw)
+    +{static} fromFirstMessage(text)
+    +isDefault()
   }
   class ChatMessage <<Entity>> {
     +id: MessageId
@@ -152,6 +172,7 @@ package "Chat" as pkg_chat {
     --
     +{static} createUserMessage(text)
     +{static} createAssistantMessage(text)
+    +{static} restore(id, text, type, timestamp)
     +isFromUser()
     +isFromAssistant()
     +withText(newText)
@@ -174,6 +195,7 @@ package "Chat" as pkg_chat {
 }
 
 ChatSession "1" *-- "0..*" ChatMessage
+ChatSession --> SessionTitle
 ChatMessage --> ChatMessageType
 
 ' ── rag ────────────────────────────────────────────────────
@@ -183,19 +205,30 @@ package "RAG" as pkg_rag {
     +ownerKey: OwnerKey
     +title: String
     +status: DocumentStatus
+    +chunkCount: int
     --
-    +markProcessing()
-    +markReady()
-    +markFailed()
-    +updateTitle(newTitle)
+    +{static} startIngestion(title, fileName, fileSize, ownerKey)
+    +completeIngestion(chunkCount)
+    +failIngestion()
+    +newChunk(index, content, sourceMetadata)
+    +isSearchable()
   }
   class DocumentChunk <<Entity>> {
     +id: ChunkId
     +documentId: DocumentId
+    +ownerKey: OwnerKey
     +content: String
     --
     +{static} create(...)
     +withEmbedding(vector)
+    +similarityTo(queryVector)
+    +excerpt()
+  }
+  class ScoredChunk <<ValueObject>> {
+    +chunk: DocumentChunk
+    +score: double
+    --
+    +meets(threshold)
   }
   enum DocumentStatus <<Enum>> {
     UPLOADING
@@ -215,6 +248,7 @@ package "RAG" as pkg_rag {
 
 RagDocument "1" *-- "0..*" DocumentChunk
 RagDocument --> DocumentStatus
+ScoredChunk --> DocumentChunk
 
 ' ── pipeline + skill ───────────────────────────────────────
 package "Pipeline" as pkg_pipeline {
@@ -229,13 +263,29 @@ package "Pipeline" as pkg_pipeline {
     +type: AgentType
     +systemPrompt: String
   }
+  class PipelineNode <<ValueObject>> {
+    +agentType: AgentType
+    --
+    +toDefinition(fallback)
+  }
   class PipelineTemplate <<Entity>> {
     +id: PipelineTemplateId
     +name: String
+    +agentTypes: List (workers only)
+    --
+    +isRunnable()
+    +toLinearPipeline()
+    +composeInvokeMessage(scheduleBrief)
   }
   class SavedAgent <<Entity>> {
     +id: SavedAgentId
     +typeKey: String
+    --
+    +hasType(agentType)
+    +toAgentDefinition()
+  }
+  class AgentCatalog <<DomainService>> {
+    +{static} merge(builtins, library)
   }
   interface PipelineTemplateRepository <<Repository>> {
   }
@@ -256,8 +306,8 @@ package "Skill" as pkg_skill {
     --
     +{static} create(...)
     +update(name, instructions, tools)
-    +enable()
-    +disable()
+    +changeEnabled(enabled)
+    +toPromptSection()
   }
   interface SkillRepository <<Repository>> {
     +findEnabledByOwnerKeyAndIds(ownerKey, ids)
@@ -269,46 +319,132 @@ package "Automation" as pkg_automation {
   class AutomationSchedule <<AggregateRoot>> {
     @DynamicUpdate
     +id: ScheduleId
-    +kind: ScheduleKind
+    +timing: ScheduleTiming
     +pipelineTemplateId: PipelineTemplateId
     +enabled: boolean
     --
     +{static} create(...)
     +{static} createOnce(...)
     +update(...)
-    +enable(nextRunAt)
+    +turnOn(now, cronSchedule)
     +disable()
-    +markExecuted(finishedAt, nextRunAt)
-    +completeOnce(finishedAt)
+    +hasPendingRun(now)
+    +pendingRunAt(): Optional
+    +provisionalNextRunAt(now, cronSchedule)
+    +recordRunFinished(finishedAt, cronSchedule)
+    +resultEmail(textBody, htmlBody)
     +isOnce()
+  }
+  class ScheduleTiming <<ValueObject>> {
+    +kind: ScheduleKind
+    +cronExpression: String
+    +timezone: String
+    --
+    +{static} cron(expression, timezone)
+    +{static} once(timezone)
+  }
+  interface CronSchedule <<DomainService>> {
+    +nextRunAfter(expression, timezone, after)
   }
   class AutomationRun <<Entity>> {
     @DynamicUpdate @Filter(ownerPartition)
     +id: RunId
     +ownerKey: OwnerKey
     +status: RunStatus
+    --
+    +{static} start(scheduleId, ownerKey)
+    +succeed(excerpt, emailStatus)
+    +failBeforeEmail(error)
+    +skipForQuota()
   }
   enum RunStatus <<Enum>> {
-    RUNNING
-    SUCCEEDED
+    SUCCESS
     FAILED
+    SKIPPED
   }
 }
 
 AutomationSchedule "1" o-- "0..*" AutomationRun
+AutomationSchedule --> ScheduleTiming
+AutomationSchedule ..> CronSchedule : next run from
 
 ' ── account ────────────────────────────────────────────────
 package "Account" as pkg_account {
   class AccountUser <<Entity>> {
     +provider: String <<NaturalId>>
     +subject: String <<NaturalId>>
-    +linkedClientId: String
+    +email: ContactEmail
+    +displayName: String
+    +linkedClientId: ClientId
     --
-    +{static} create(provider, subject, email, clientId)
-    +linkSession(email, clientId)
+    +{static} create(identity, email, displayName)
+    +linkBrowser(clientId, email, displayName)
+    +recordSignIn(email, displayName)
     +unlinkBrowser()
+    +ownerKey()
+    +guestOwnerKey(): Optional
+    +displayLabel()
+  }
+  class ExternalIdentity <<ValueObject>> {
+    +provider: String
+    +subject: String
+    --
+    +{static} of(provider, subject)
+    +{static} iam(subject)
+  }
+  class ContactEmail <<ValueObject>> {
+    +value: String
+    --
+    +{static} ofNullable(raw)
+  }
+  class ClientId <<ValueObject>> {
+    +value: String (UUID)
+    --
+    +{static} parse(raw)
+    +{static} generate()
   }
 }
+
+AccountUser --> ExternalIdentity : identified by
+AccountUser --> ContactEmail
+AccountUser --> ClientId : linked browser
+
+' ── billing ────────────────────────────────────────────────
+package "Billing" as pkg_billing {
+  enum Plan <<Enum>> {
+    FREE
+    PRO
+  }
+  class QuotaPolicy <<ValueObject>> {
+    +plan: Plan
+    --
+    +dailyLimit()
+    +ipDailyLimit()
+    +globalDailyLimit(): OptionalInt
+  }
+  class DailyUsage <<ValueObject>> {
+    +day: LocalDate
+    +count: int
+    --
+    +remaining(limit, today)
+  }
+  class QuotaSubject <<ValueObject>> {
+    +key: String
+    --
+    +{static} owner(ownerKey)
+    +{static} address(ip)
+    +{static} GLOBAL
+  }
+  class QuotaDecision <<ValueObject>> {
+    +allowed: boolean
+    +plan: Plan
+    +limit: int
+    +remaining: int
+  }
+}
+
+QuotaPolicy --> Plan
+QuotaDecision --> Plan
 
 ' ── mcp ────────────────────────────────────────────────────
 package "MCP" as pkg_mcp {
@@ -334,10 +470,42 @@ package "Metrics" as pkg_metrics {
     @Immutable
     +domain: AiDomain
     +outcome: InvocationOutcome
-    +ownerKey: OwnerKey
+    +ownerKey: OwnerKey (required at creation)
     +latencyMs: long
     --
-    +{static} builder()
+    +{static} succeeded(domain, operation, latency, ownerKey)
+    +{static} failed(domain, operation, latency, ownerKey, error)
+  }
+  class Latency <<ValueObject>> {
+    +millis: long
+    --
+    +{static} since(startNanos)
+  }
+  class ErrorSummary <<ValueObject>> {
+    +code: String
+    +message: String
+    --
+    +{static} of(throwable)
+  }
+  class TokenUsage <<ValueObject>> {
+    +prompt: Integer
+    +completion: Integer
+    --
+    +total()
+  }
+  class InvocationStats <<ValueObject>> {
+    +requests: long
+    +errors: long
+    --
+    +errorRate()
+    +successRate()
+  }
+  class MetricsWindow <<ValueObject>> {
+    +{static} parse(range)
+    +from(now)
+  }
+  class LatencyStats <<ValueObject>> {
+    +{static} fromSorted(latencies)
   }
   enum AiDomain <<Enum>> {
     CHAT
@@ -387,6 +555,12 @@ Skill ..> OwnerKey : owned by
 AccountUser ..> OwnerKey : links browser
 AiInvocationEvent ..> OwnerKey : attributed to
 AutomationSchedule ..> PipelineTemplate : by id (PipelineTemplateId)
+AiInvocationEvent --> Latency
+AiInvocationEvent --> ErrorSummary
+AiInvocationEvent --> TokenUsage
+PipelineTemplate ..> AgentPipeline : builds linear
+AgentCatalog ..> SavedAgent : overrides builtin
+AgentCatalog ..> AgentDefinition
 AutomationRun ..> OwnerPartition : filtered by
 
 N_LAYERS .. pkg_chat
