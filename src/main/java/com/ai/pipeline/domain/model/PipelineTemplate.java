@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +24,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<PipelineTemplateId> {
+
+  /** Brief used when the user has not written one; the pipelines canvas uses the same text. */
+  public static final String GENERIC_BRIEF =
+      "Follow the configured agent pipeline for the user task.";
 
   @Convert(converter = StringListJsonAttributeConverter.class)
   @Column(nullable = false, columnDefinition = "clob")
@@ -99,9 +104,58 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
     return this;
   }
 
+  /** Tells whether the template can be run, by hand or by a schedule. */
+  public boolean isRunnable() {
+    return isEnabled() && !agentTypes.isEmpty();
+  }
+
+  /** Builds a pipeline that runs the template's agents one after another. */
+  public AgentPipeline toLinearPipeline() {
+    List<AgentPipeline.PipelineNode> nodes = new ArrayList<>();
+    List<AgentPipeline.PipelineEdge> edges = new ArrayList<>();
+    for (int i = 0; i < agentTypes.size(); i++) {
+      String id = "n" + i;
+      nodes.add(AgentPipeline.PipelineNode.of(id, AgentType.of(agentTypes.get(i))));
+      if (i > 0) {
+        edges.add(new AgentPipeline.PipelineEdge("n" + (i - 1), id));
+      }
+    }
+    return AgentPipeline.create(nodes, edges);
+  }
+
+  /**
+   * Builds the first message of a run as {@code topic + "\n\n" + briefPrompt}, like the pipelines
+   * canvas. A blank or generic schedule brief falls back to the template's short topic.
+   */
+  public String composeInvokeMessage(String scheduleBrief) {
+    String instructions = briefPrompt == null ? "" : briefPrompt.trim();
+    String topic;
+    if (isGenericBrief(scheduleBrief)) {
+      topic = shortTopic == null ? "" : shortTopic.trim();
+    } else {
+      topic = scheduleBrief.trim();
+    }
+    if (instructions.isBlank()) {
+      return topic.isBlank() ? GENERIC_BRIEF : topic;
+    }
+    if (!topic.isBlank() && topic.contains(instructions)) {
+      return topic;
+    }
+    if (topic.isBlank()) {
+      return instructions;
+    }
+    return topic + "\n\n" + instructions;
+  }
+
   /** Returns the agent types as a read-only list. */
   public List<String> getAgentTypes() {
     return Collections.unmodifiableList(agentTypes);
+  }
+
+  private static boolean isGenericBrief(String brief) {
+    return brief == null
+        || brief.isBlank()
+        || brief.trim().toLowerCase(Locale.ROOT).equals(GENERIC_BRIEF.toLowerCase(Locale.ROOT));
   }
 
   private static String normalizeShortTopic(String shortTopic) {

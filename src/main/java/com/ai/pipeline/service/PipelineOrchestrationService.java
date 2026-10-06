@@ -263,24 +263,9 @@ public class PipelineOrchestrationService {
 
   private AgentDefinition resolveNode(
       AgentPipeline.PipelineNode node, String ownerKey, String language) {
-    if (node.systemPrompt() != null && !node.systemPrompt().isBlank()) {
-      return node.toDefinition();
-    }
-    AgentDefinition builtin = registry.require(node.agentType(), ownerKey, language);
-    String name = node.name() == null || node.name().isBlank() ? builtin.name() : node.name();
-    String description =
-        node.description() == null || node.description().isBlank()
-            ? builtin.description()
-            : node.description();
-    List<String> tools =
-        node.toolKeys() == null || node.toolKeys().isEmpty() ? builtin.toolKeys() : node.toolKeys();
-    return AgentDefinition.create(
-        node.agentType(),
-        name,
-        description,
-        builtin.systemPrompt(),
-        tools,
-        AgentDefinition.RUNTIME_SINGLE);
+    return node.hasOwnPrompt()
+        ? node.toDefinition()
+        : node.toDefinition(registry.require(node.agentType(), ownerKey, language));
   }
 
   /** Builds an SSE message event. */

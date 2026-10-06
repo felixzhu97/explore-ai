@@ -164,6 +164,29 @@ public final class AgentPipeline {
       return new PipelineNode(id, agentType, agentType.value(), "", "", List.of());
     }
 
+    /** Tells whether the node carries its own system prompt instead of a catalog agent's. */
+    public boolean hasOwnPrompt() {
+      return !systemPrompt.isBlank();
+    }
+
+    /**
+     * Builds the agent definition for this node. A node without its own prompt uses the catalog
+     * agent's prompt, and its description and tools when the node leaves them empty.
+     */
+    public AgentDefinition toDefinition(AgentDefinition fallback) {
+      if (hasOwnPrompt()) {
+        return toDefinition();
+      }
+      Objects.requireNonNull(fallback, "fallback");
+      return AgentDefinition.create(
+          agentType,
+          name,
+          description.isBlank() ? fallback.description() : description,
+          fallback.systemPrompt(),
+          toolKeys.isEmpty() ? fallback.toolKeys() : toolKeys,
+          AgentDefinition.RUNTIME_SINGLE);
+    }
+
     /** Builds an agent definition from this node, defaulting the prompt when none is set. */
     public AgentDefinition toDefinition() {
       String prompt =

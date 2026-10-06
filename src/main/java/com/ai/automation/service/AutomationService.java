@@ -12,6 +12,7 @@ import com.ai.automation.domain.vo.ScheduleKind;
 import com.ai.automation.domain.vo.ScheduleTiming;
 import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
+import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
 import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import java.time.Instant;
@@ -135,7 +136,7 @@ public class AutomationService {
   private void requireWorkflow(String ownerKey, String pipelineTemplateId) {
     pipelineTemplateRepository
         .findByIdAndOwnerKey(PipelineTemplateId.of(pipelineTemplateId), ownerKey)
-        .filter(template -> template.isEnabled())
+        .filter(PipelineTemplate::isRunnable)
         .orElseThrow(() -> new PipelineTemplateNotFoundException(pipelineTemplateId));
   }
 }

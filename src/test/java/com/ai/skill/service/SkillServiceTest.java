@@ -47,6 +47,39 @@ class SkillServiceTest {
   }
 
   @Test
+  @DisplayName("should build the active skills prompt from enabled owned skills only")
+  void shouldBuildTheActiveSkillsPromptFromEnabledOwnedSkillsOnly() {
+    Skill brief =
+        repository.seed(Skill.create(CLIENT_ID, "Brief Style", "", "Be short.", List.of()));
+    Skill off = repository.seed(Skill.create(CLIENT_ID, "Formal", "", "Be formal.", List.of()));
+    off.disable();
+    Skill foreign =
+        repository.seed(Skill.create("c:client-2", "Pirate", "", "Talk like a pirate.", List.of()));
+
+    String prompt =
+        useCase
+            .activeSkillsPrompt(
+                CLIENT_ID,
+                List.of(
+                    brief.getId().value(),
+                    off.getId().value(),
+                    foreign.getId().value(),
+                    "not-a-uuid",
+                    " "))
+            .orElseThrow();
+
+    assertThat(prompt).contains("## Active Skills").contains("### Brief Style");
+    assertThat(prompt).doesNotContain("Formal").doesNotContain("Pirate");
+  }
+
+  @Test
+  @DisplayName("should return no prompt when none of the skill ids resolve")
+  void shouldReturnNoPromptWhenNoneOfTheSkillIdsResolve() {
+    assertThat(useCase.activeSkillsPrompt(CLIENT_ID, List.of("not-a-uuid"))).isEmpty();
+    assertThat(useCase.activeSkillsPrompt(CLIENT_ID, null)).isEmpty();
+  }
+
+  @Test
   @DisplayName("should return skill when get existing")
   void shouldReturnSkillWhenGetExisting() {
     Skill seeded =

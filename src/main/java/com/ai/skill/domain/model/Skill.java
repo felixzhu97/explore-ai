@@ -76,6 +76,15 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
     return this;
   }
 
+  /** Renders the skill as a section of the chat system prompt. */
+  public String toPromptSection() {
+    StringBuilder section = new StringBuilder("### ").append(getName()).append('\n');
+    if (getDescription() != null && !getDescription().isBlank()) {
+      section.append(getDescription()).append('\n');
+    }
+    return section.append(instructions).toString();
+  }
+
   /** Returns the allowed tools as a read-only list. */
   public List<String> getAllowedTools() {
     return Collections.unmodifiableList(allowedTools == null ? List.of() : allowedTools);
