@@ -25,9 +25,9 @@ describe('McpService', () => {
       expect(response.status).toBe('UP');
     });
 
-    const req = httpMock.expectOne('/api/mcp/health');
-    expect(req.request.method).toBe('GET');
-    req.flush({
+    const request = httpMock.expectOne('/api/mcp/health');
+    expect(request.request.method).toBe('GET');
+    request.flush({
       status: 'UP',
       server: 'explore-ai-mcp-server',
       version: '1.0.0',
@@ -41,8 +41,8 @@ describe('McpService', () => {
       expect(tools[0]?.name).toBe('get_weather');
     });
 
-    const req = httpMock.expectOne('/api/mcp/client/tools');
-    expect(req.request.method).toBe('GET');
-    req.flush([{ name: 'get_weather', description: 'Weather lookup' }]);
+    const request = httpMock.expectOne('/api/mcp/client/tools');
+    expect(request.request.method).toBe('GET');
+    request.flush([{ name: 'get_weather', description: 'Weather lookup' }]);
   });
 });

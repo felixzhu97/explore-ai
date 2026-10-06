@@ -32,7 +32,7 @@ import { ZardSidebarMenuButtonDirective } from '../ui/layout/sidebar-menu-button
         [zIconOnly]="isCollapsed()"
         [zFull]="!isCollapsed()"
         [zActive]="moreActive()"
-        [class]="triggerClass()"
+        [class]="getTriggerClass()"
         [attr.aria-expanded]="isPinned()"
         [attr.aria-haspopup]="'menu'"
         [attr.aria-label]="t().nav.more"
@@ -143,7 +143,7 @@ export class SidebarMoreMenuComponent {
     { initialValue: this.#router.url },
   );
 
-  triggerClass(): string {
+  getTriggerClass(): string {
     return this.isCollapsed()
       ? '!size-7 !justify-center'
       : '!h-auto min-h-8 !items-center gap-1.5 !rounded-md !px-2 !py-1.5';

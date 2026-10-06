@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Instant } from '@js-joda/core';
-import { fromNativeDate, systemZoneName, toNativeDate } from './native-date';
+import { fromNativeDate, getSystemZoneName, toNativeDate } from './native-date';
 
 describe('native date bridge', () => {
   const instant = Instant.parse('2026-07-26T08:05:09.123Z');
@@ -14,6 +14,6 @@ describe('native date bridge', () => {
   });
 
   it('should report the browser time zone name', () => {
-    expect(systemZoneName()).toBe(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    expect(getSystemZoneName()).toBe(Intl.DateTimeFormat().resolvedOptions().timeZone);
   });
 });

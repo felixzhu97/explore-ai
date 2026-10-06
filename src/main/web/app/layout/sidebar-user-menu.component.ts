@@ -127,7 +127,7 @@ import { textOr } from '../shared/presence';
                     type="button"
                     role="menuitemradio"
                     z-sidebar-menu-button
-                    [class]="langItemClass(lang)"
+                    [class]="getLanguageItemClass(lang)"
                     [attr.aria-checked]="lang === i18n.language()"
                     (click)="selectLanguage(lang)"
                   >
@@ -312,7 +312,7 @@ export class SidebarUserMenuComponent {
     this.isLanguagePinned.update(open => !open);
   }
 
-  langItemClass(lang: Language): string {
+  getLanguageItemClass(lang: Language): string {
     const selected = lang === this.i18n.language() ? ' bg-sidebar-accent' : '';
     return `${this.secondaryItemClass}${selected}`;
   }

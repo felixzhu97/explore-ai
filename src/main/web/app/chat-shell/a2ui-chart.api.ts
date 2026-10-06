@@ -159,7 +159,7 @@ export const ChartApi = {
       ohlc: z.array(CandleSchema).optional(),
     })
     .strict()
-    .superRefine((data, ctx) => {
+    .superRefine((data, context) => {
       const hasChartData =
         data.chartData !== undefined
         && (Array.isArray(data.chartData) ? data.chartData.length > 0 : true);
@@ -183,7 +183,7 @@ export const ChartApi = {
         case 'bar':
         case 'line':
           if (!hasChartData && !hasSeries) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'bar/line require chartData or categories+series',
             });
@@ -193,7 +193,7 @@ export const ChartApi = {
         case 'doughnut':
         case 'funnel':
           if (!hasChartData) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: `${data.type} requires chartData`,
             });
@@ -201,7 +201,7 @@ export const ChartApi = {
           break;
         case 'combo':
           if (!hasSeries || (data.series?.length ?? 0) < 2) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'combo requires categories and at least two series',
             });
@@ -209,7 +209,7 @@ export const ChartApi = {
           break;
         case 'scatter':
           if (!Array.isArray(data.points) || data.points.length === 0) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'scatter requires points',
             });
@@ -222,7 +222,7 @@ export const ChartApi = {
             || !Array.isArray(data.series)
             || data.series.length === 0
           ) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'radar requires indicators and series',
             });
@@ -235,7 +235,7 @@ export const ChartApi = {
             || !Array.isArray(data.cells)
             || data.cells.length === 0
           ) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'heatmap requires xLabels, yLabels, and cells',
             });
@@ -243,7 +243,7 @@ export const ChartApi = {
           break;
         case 'gauge':
           if (typeof data.value !== 'number' && !hasChartData) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'gauge requires value or chartData',
             });
@@ -253,7 +253,7 @@ export const ChartApi = {
         case 'sunburst':
         case 'tree':
           if (!hasNodes && !(data.type !== 'tree' && hasChartData)) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: `${data.type} requires nodes${
                 data.type === 'tree' ? '' : ' or chartData'}`,
@@ -263,7 +263,7 @@ export const ChartApi = {
         case 'sankey':
         case 'graph':
           if (!hasNodes || !hasLinks) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: `${data.type} requires nodes and links`,
             });
@@ -273,7 +273,7 @@ export const ChartApi = {
           const seriesOk = hasNamedSeries
             && data.series?.every(s => s.values.length >= 5);
           if (!hasBoxes && seriesOk !== true) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'boxplot requires boxes or series with five-number values',
             });
@@ -285,7 +285,7 @@ export const ChartApi = {
             !hasCandles
             && !(hasNamedSeries && data.series?.some(s => s.values.length >= 4) === true)
           ) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'candlestick requires candles/ohlc or series OHLC values',
             });
@@ -293,7 +293,7 @@ export const ChartApi = {
           break;
         case 'parallel':
           if (!hasNamedSeries && !(hasDimensions && hasRows) && !hasChartData) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'parallel requires dimensions+rows, series, or chartData vectors',
             });
@@ -301,7 +301,7 @@ export const ChartApi = {
           break;
         case 'themeRiver':
           if (!hasRiver && !hasSeries) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'themeRiver requires riverData or categories+series',
             });
@@ -313,7 +313,7 @@ export const ChartApi = {
             || !Array.isArray(data.calendarCells)
             || data.calendarCells.length === 0
           ) {
-            ctx.addIssue({
+            context.addIssue({
               code: z.ZodIssueCode.custom,
               message: 'calendar requires range and calendarCells',
             });

@@ -8,9 +8,9 @@ import { of } from 'rxjs';
 import { credentialsInterceptor } from './credentials.interceptor';
 
 describe('credentialsInterceptor', () => {
-  const interceptor: HttpInterceptorFn = (req, next) => {
+  const interceptor: HttpInterceptorFn = (request, next) => {
     return TestBed.runInInjectionContext(() => {
-      return credentialsInterceptor(req, next);
+      return credentialsInterceptor(request, next);
     });
   };
 
@@ -19,11 +19,11 @@ describe('credentialsInterceptor', () => {
   });
 
   it('should set with credentials when request cloned', () => {
-    const req = new HttpRequest('GET', '/api/chat/sessions');
+    const request = new HttpRequest('GET', '/api/chat/sessions');
     let withCredentials = false;
     let csrfHeader = '';
 
-    interceptor(req, (outgoing) => {
+    interceptor(request, (outgoing) => {
       withCredentials = outgoing.withCredentials;
       csrfHeader = outgoing.headers.get('X-Requested-With') ?? '';
       return of(new HttpResponse({ status: 200 }));

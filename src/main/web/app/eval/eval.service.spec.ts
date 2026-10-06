@@ -28,13 +28,13 @@ describe('EvalService', () => {
       expect(response.overallScore).toBe(0.9);
     });
 
-    const req = httpMock.expectOne('/api/eval/chat');
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({
+    const request = httpMock.expectOne('/api/eval/chat');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({
       userMessage: 'hello',
       assistantResponse: 'hi',
     });
-    req.flush({
+    request.flush({
       coherenceScore: 0.9,
       relevanceScore: 0.9,
       helpfulnessScore: 0.9,

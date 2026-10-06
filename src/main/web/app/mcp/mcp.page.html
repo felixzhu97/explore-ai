@@ -21,7 +21,7 @@
             {{ i18n.t().mcp.clientLabel }}
             <span class="font-medium text-foreground">{{ status.status }}</span>
           </span>
-          <span>{{ toolsCountLabel(status.registeredTools) }}</span>
+          <span>{{ formatToolsCountLabel(status.registeredTools) }}</span>
         }
       </div>
     } @else {

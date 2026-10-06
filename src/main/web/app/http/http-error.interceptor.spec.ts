@@ -32,10 +32,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -64,10 +64,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -95,10 +95,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -131,10 +131,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -163,10 +163,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('POST', '/api/test', { test: 'data' });
+      const request = new HttpRequest('POST', '/api/test', { test: 'data' });
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -194,10 +194,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -225,10 +225,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -255,10 +255,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -289,10 +289,10 @@ describe('httpErrorInterceptor', () => {
         },
       });
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('POST', '/api/images/generate', {});
+      const request = new HttpRequest('POST', '/api/images/generate', {});
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       const error = await new Promise<AppError>((resolve) => {
@@ -311,10 +311,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -342,10 +342,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -375,10 +375,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -405,10 +405,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -435,10 +435,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -464,10 +464,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -495,10 +495,10 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/test');
+      const request = new HttpRequest('GET', '/api/test');
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {
@@ -525,12 +525,12 @@ describe('httpErrorInterceptor', () => {
       });
 
       const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const req = new HttpRequest('GET', '/api/chat/sessions/gone/messages', {
+      const request = new HttpRequest('GET', '/api/chat/sessions/gone/messages', {
         context: new HttpContext().set(SKIP_ERROR_NOTIFICATION, true),
       });
 
       const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(req, mockNext);
+        return httpErrorInterceptor(request, mockNext);
       });
 
       await new Promise<void>((resolve, reject) => {

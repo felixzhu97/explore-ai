@@ -17,7 +17,7 @@ import { ZardButtonComponent } from '../ui/button';
 import { requiredText } from '../forms/required-text';
 import { DATE_TIME, formatInstant, ONCE_TERMINAL_NEXT } from '../time/instant-format';
 import { InstantPickerComponent } from '../time/instant-picker.component';
-import { systemZoneName } from '../time/native-date';
+import { getSystemZoneName } from '../time/native-date';
 import {
   AutomationsService,
   type AutomationRun,
@@ -32,7 +32,7 @@ function isFrequencyPreset(value: string): value is FrequencyPreset {
   return value === 'daily' || value === 'weekly' || value === 'custom';
 }
 
-function cronForPreset(preset: FrequencyPreset): string {
+function buildCronForPreset(preset: FrequencyPreset): string {
   switch (preset) {
     case 'daily':
       return '0 0 9 * * *';
@@ -43,7 +43,7 @@ function cronForPreset(preset: FrequencyPreset): string {
   }
 }
 
-function presetFromSchedule(schedule: AutomationSchedule): FrequencyPreset {
+function getPresetFromSchedule(schedule: AutomationSchedule): FrequencyPreset {
   if (schedule.scheduleKind === 'ONCE') {
     return 'custom';
   }
@@ -58,7 +58,7 @@ function presetFromSchedule(schedule: AutomationSchedule): FrequencyPreset {
 }
 
 /** Default run-at: now + 5 minutes, truncated to seconds. */
-function defaultRunAt(): Instant {
+function getDefaultRunAt(): Instant {
   return Instant.now().plus(5, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.SECONDS);
 }
 
@@ -76,15 +76,15 @@ interface AutomationDraft {
   runAt: Instant | null;
 }
 
-function emptyDraft(): AutomationDraft {
+function createEmptyDraft(): AutomationDraft {
   return {
     name: '',
     email: '',
-    timezone: systemZoneName(),
+    timezone: getSystemZoneName(),
     templateId: '',
     brief: '',
     preset: 'daily',
-    runAt: defaultRunAt(),
+    runAt: getDefaultRunAt(),
   };
 }
 
@@ -111,7 +111,7 @@ export class AutomationsPageComponent implements OnInit {
   });
 
   readonly showForm = signal(false);
-  readonly #draft = signal<AutomationDraft>(emptyDraft());
+  readonly #draft = signal<AutomationDraft>(createEmptyDraft());
 
   protected readonly draftForm = form(this.#draft, (path) => {
     requiredText(path.name);
@@ -138,9 +138,9 @@ export class AutomationsPageComponent implements OnInit {
     this.editingId.set(null);
     const first = this.enabledTemplates()[0];
     this.#draft.set({
-      ...emptyDraft(),
+      ...createEmptyDraft(),
       templateId: first?.id ?? '',
-      brief: this.#defaultBriefForTemplate(first),
+      brief: this.#getDefaultBriefForTemplate(first),
     });
     this.showForm.set(true);
   }
@@ -153,7 +153,7 @@ export class AutomationsPageComponent implements OnInit {
     }
     const brief = this.draftForm.brief().value();
     if (brief.trim() === '' || this.#isGenericPlaceholder(brief)) {
-      this.draftForm.brief().value.set(this.#defaultBriefForTemplate(template));
+      this.draftForm.brief().value.set(this.#getDefaultBriefForTemplate(template));
     }
   }
 
@@ -164,13 +164,13 @@ export class AutomationsPageComponent implements OnInit {
     this.#draft.update(draft => ({
       ...draft,
       preset,
-      runAt: preset === 'custom' && draft.runAt === null ? defaultRunAt() : draft.runAt,
+      runAt: preset === 'custom' && draft.runAt === null ? getDefaultRunAt() : draft.runAt,
     }));
   }
 
   save(): void {
     const t = this.i18n.t().automations;
-    const invalidMessage = this.#firstInvalidMessage();
+    const invalidMessage = this.#findFirstInvalidMessage();
     if (hasText(invalidMessage)) {
       this.#notifications.showError(invalidMessage);
       return;
@@ -206,7 +206,7 @@ export class AutomationsPageComponent implements OnInit {
       request = {
         name,
         scheduleKind: 'CRON',
-        cronExpression: cronForPreset(preset),
+        cronExpression: buildCronForPreset(preset),
         timezone,
         pipelineTemplateId,
         recipientEmail: email,
@@ -248,7 +248,7 @@ export class AutomationsPageComponent implements OnInit {
     return isOnceTerminal(schedule.nextRunAt);
   }
 
-  statusLabel(schedule: AutomationSchedule): string {
+  formatStatusLabel(schedule: AutomationSchedule): string {
     const t = this.i18n.t().automations;
     if (this.isOnceCompleted(schedule)) {
       return t.statusCompleted;
@@ -256,7 +256,7 @@ export class AutomationsPageComponent implements OnInit {
     return schedule.enabled ? t.statusEnabled : t.statusDisabled;
   }
 
-  templateName(id: string): string {
+  getTemplateName(id: string): string {
     return this.templates().find(template => template.id === id)?.name ?? id;
   }
 
@@ -265,7 +265,7 @@ export class AutomationsPageComponent implements OnInit {
       const when = this.isOnceCompleted(schedule)
         ? schedule.lastRunAt
         : (schedule.runAt ?? schedule.nextRunAt);
-      return `${this.i18n.t().automations.frequencyCustom}: ${this.displayInstant(when)}`;
+      return `${this.i18n.t().automations.frequencyCustom}: ${this.formatDateTime(when)}`;
     }
     return schedule.cronExpression ?? '—';
   }
@@ -274,10 +274,10 @@ export class AutomationsPageComponent implements OnInit {
     if (this.isOnceCompleted(schedule)) {
       return this.i18n.t().automations.nextRunNone;
     }
-    return this.displayInstant(schedule.nextRunAt);
+    return this.formatDateTime(schedule.nextRunAt);
   }
 
-  displayInstant(value: Instant | null): string {
+  formatDateTime(value: Instant | null): string {
     if (value === null) {
       return '—';
     }
@@ -298,9 +298,9 @@ export class AutomationsPageComponent implements OnInit {
       timezone: schedule.timezone,
       templateId,
       brief: this.#isGenericPlaceholder(schedule.brief)
-        ? this.#defaultBriefForTemplate(template)
+        ? this.#getDefaultBriefForTemplate(template)
         : schedule.brief,
-      preset: presetFromSchedule(schedule),
+      preset: getPresetFromSchedule(schedule),
       runAt: this.#runAtForEdit(schedule),
     });
     this.showForm.set(true);
@@ -364,12 +364,12 @@ export class AutomationsPageComponent implements OnInit {
 
   #runAtForEdit(schedule: AutomationSchedule): Instant {
     if (schedule.scheduleKind !== 'ONCE' || this.isOnceCompleted(schedule)) {
-      return defaultRunAt();
+      return getDefaultRunAt();
     }
     return schedule.runAt ?? schedule.nextRunAt;
   }
 
-  #firstInvalidMessage(): string | null {
+  #findFirstInvalidMessage(): string | null {
     const errors = this.i18n.t().automations.errors;
     const fields = this.draftForm;
     if (fields.name().invalid()) {
@@ -390,7 +390,7 @@ export class AutomationsPageComponent implements OnInit {
     return null;
   }
 
-  #defaultBriefForTemplate(template: PipelineTemplate | undefined): string {
+  #getDefaultBriefForTemplate(template: PipelineTemplate | undefined): string {
     if (template === undefined) {
       return '';
     }

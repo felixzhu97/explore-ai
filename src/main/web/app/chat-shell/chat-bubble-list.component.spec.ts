@@ -120,7 +120,7 @@ describe('ChatBubbleListComponent', () => {
   });
 
   it('should return empty id when message key info is missing', () => {
-    expect(component.messageKey(undefined)).toBe('');
+    expect(component.getMessageKey(undefined)).toBe('');
   });
 
   it('should use single streaming id when streaming ids are not provided', () => {
@@ -178,12 +178,12 @@ describe('ChatBubbleListComponent', () => {
     fixture.componentRef.setInput('collapseLongUserMessages', true);
     fixture.detectChanges();
 
-    const message = component.messageById('user-long')!;
+    const message = component.findMessageById('user-long')!;
     expect(component.isLongUserMessage(message)).toBe(true);
-    expect(component.userMessageText(message).endsWith('…')).toBe(true);
+    expect(component.getUserMessageText(message).endsWith('…')).toBe(true);
 
     component.toggleUserExpanded('user-long');
-    expect(component.userMessageText(message)).toBe(longContent);
+    expect(component.getUserMessageText(message)).toBe(longContent);
   });
 
   it('should render hostname pill when source has url', () => {

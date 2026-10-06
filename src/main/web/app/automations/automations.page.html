@@ -161,11 +161,11 @@
                         [class.bg-black/4]="!schedule.enabled && !isOnceCompleted(schedule)"
                         [class.text-foreground/45]="!schedule.enabled && !isOnceCompleted(schedule)"
                       >
-                        {{ statusLabel(schedule) }}
+                        {{ formatStatusLabel(schedule) }}
                       </span>
                     </div>
                     <p class="mt-1 text-xs text-foreground/55">
-                      {{ templateName(schedule.pipelineTemplateId) }} ·
+                      {{ getTemplateName(schedule.pipelineTemplateId) }} ·
                       {{ schedule.recipientEmail }}
                     </p>
                     <p class="mt-1 text-xs text-foreground/45">
@@ -180,7 +180,7 @@
                       {{ i18n.t().automations.nextRun }}:
                       {{ formatNextRun(schedule) }}
                       · {{ i18n.t().automations.lastRun }}:
-                      {{ displayInstant(schedule.lastRunAt) }}
+                      {{ formatDateTime(schedule.lastRunAt) }}
                     </p>
                   </div>
                   <div class="flex flex-wrap gap-2">
@@ -248,7 +248,7 @@
                                 >{{ i18n.t().automations.emailStatus }}:
                                 {{ run.emailStatus }}</span
                               >
-                              <span>{{ displayInstant(run.startedAt) }}</span>
+                              <span>{{ formatDateTime(run.startedAt) }}</span>
                             </div>
                             @if (run.errorMessage !== null) {
                               <p class="mt-1 text-red-600">{{ run.errorMessage }}</p>

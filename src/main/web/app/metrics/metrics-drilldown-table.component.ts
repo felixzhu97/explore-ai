@@ -50,7 +50,7 @@ import type { InvocationEvent } from './metrics.service';
                     {{ item.latencyMs }} ms
                   </td>
                   <td class="px-3 py-2 text-muted-foreground">
-                    {{ subjectOf(item) }}
+                    {{ getSubject(item) }}
                   </td>
                 </tr>
               }
@@ -75,7 +75,7 @@ export class MetricsDrilldownTableComponent {
     return this.i18n.tReplace(template, { total: this.total() });
   });
 
-  subjectOf(item: InvocationEvent): string {
+  getSubject(item: InvocationEvent): string {
     return textOr(item.model, textOr(item.agentType, textOr(item.toolName, '—')));
   }
 }

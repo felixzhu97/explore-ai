@@ -205,7 +205,7 @@ export interface SeriesQuery {
 export class MetricsService {
   readonly #baseUrl = `${API_BASE_URL}/metrics`;
 
-  overview(
+  getOverview(
     range: () => MetricsRange,
   ): HttpResourceRef<MetricsOverviewResponse | undefined> {
     return httpResource<MetricsOverviewResponse>(() => ({
@@ -214,7 +214,7 @@ export class MetricsService {
     }));
   }
 
-  domain(
+  getDomain(
     domain: () => MetricsDomain | null,
     range: () => MetricsRange,
   ): HttpResourceRef<MetricsDomainResponse | undefined> {
@@ -226,7 +226,7 @@ export class MetricsService {
     });
   }
 
-  series(
+  getSeries(
     query: () => SeriesQuery | undefined,
   ): HttpResourceRef<SeriesResponse | undefined> {
     return httpResource<SeriesResponse>(() => {
@@ -235,7 +235,7 @@ export class MetricsService {
     });
   }
 
-  drilldown(
+  getDrilldown(
     query: () => DrilldownQuery | undefined,
   ): HttpResourceRef<DrilldownPage | undefined> {
     return httpResource<DrilldownPage>(() => {

@@ -2,31 +2,31 @@ import { Service, signal } from '@angular/core';
 
 @Service()
 export class SidebarService {
-  readonly mobileOpen = signal(false);
-  readonly collapsed = signal(false);
+  readonly isMobileOpen = signal(false);
+  readonly isCollapsed = signal(false);
 
   #mobileResizeHandler: (() => void) | null = null;
 
   open() {
     if (window.innerWidth < 768) {
-      this.collapsed.set(false);
+      this.isCollapsed.set(false);
       this.#lockBodyScroll();
     }
-    this.mobileOpen.set(true);
+    this.isMobileOpen.set(true);
   }
 
   close() {
-    this.mobileOpen.set(false);
+    this.isMobileOpen.set(false);
     this.#unlockBodyScroll();
   }
 
   toggle() {
     const isMobile = window.innerWidth < 768;
-    this.mobileOpen.update((open) => {
+    this.isMobileOpen.update((open) => {
       const next = !open;
       if (isMobile) {
         if (next) {
-          this.collapsed.set(false);
+          this.isCollapsed.set(false);
           this.#lockBodyScroll();
         } else {
           this.#unlockBodyScroll();

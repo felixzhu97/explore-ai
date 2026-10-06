@@ -90,8 +90,8 @@ export class ZardSwitchComponent implements ControlValueAccessor {
 
   protected readonly formDisabled = signal(false);
 
-  writeValue(val: boolean): void {
-    this.zChecked.set(val);
+  writeValue(value: boolean): void {
+    this.zChecked.set(value);
   }
 
   registerOnChange(fn: OnChangeType): void {

@@ -50,14 +50,14 @@ describe('MetricsDomainPageComponent', () => {
   }
 
   afterEach(() => {
-    http.match(() => true).forEach(req => req.flush({}));
+    http.match(() => true).forEach(request => request.flush({}));
     http.verify();
   });
 
   async function flushDomainPage(domain: 'chat' | 'rag'): Promise<void> {
     fixture.detectChanges();
-    for (const req of http.match(() => true)) {
-      const url = req.request.url;
+    for (const request of http.match(() => true)) {
+      const url = request.request.url;
       if (url.startsWith(`${API_BASE_URL}/metrics/domains/${domain}`)) {
         const stats = {
           range: '7d' as const,
@@ -92,16 +92,16 @@ describe('MetricsDomainPageComponent', () => {
                 totalFileBytes: 2048,
               },
             };
-        req.flush(response);
+        request.flush(response);
       } else if (url.startsWith(`${API_BASE_URL}/metrics/series`)) {
-        req.flush({
+        request.flush({
           name: 'documents_by_status',
           domain: 'rag',
           range: '7d',
           points: [{ label: 'ready', value: 3 }],
         });
       } else if (url.startsWith(`${API_BASE_URL}/metrics/drilldown`)) {
-        req.flush({ items: [], total: 0, page: 0, size: 20 });
+        request.flush({ items: [], total: 0, page: 0, size: 20 });
       }
     }
     await fixture.whenStable();

@@ -76,7 +76,7 @@ export class SkillsService {
 
   listTemplates(): Observable<SkillTemplateResponse[]> {
     return this.#http.get<SkillTemplateResponse[]>(`${this.#base}/templates`, {
-      params: this.#langParams(),
+      params: this.#buildLangParams(),
     });
   }
 
@@ -93,7 +93,7 @@ export class SkillsService {
       .post<SkillResponse>(
         `${this.#base}/from-template`,
         { templateId },
-        { params: this.#langParams() },
+        { params: this.#buildLangParams() },
       )
       .pipe(map(toSkill));
   }
@@ -112,7 +112,7 @@ export class SkillsService {
     return this.#http.delete<void>(`${this.#base}/${id}`);
   }
 
-  #langParams(): HttpParams {
+  #buildLangParams(): HttpParams {
     return new HttpParams().set('lang', this.#i18n.language());
   }
 }

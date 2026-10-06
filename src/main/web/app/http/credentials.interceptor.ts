@@ -1,9 +1,9 @@
 import { type HttpInterceptorFn } from '@angular/common/http';
 
 /** Include cookies + CSRF custom header on API calls (OWASP). */
-export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
+export const credentialsInterceptor: HttpInterceptorFn = (request, next) => {
   return next(
-    req.clone({
+    request.clone({
       withCredentials: true,
       setHeaders: { 'X-Requested-With': 'XMLHttpRequest' },
     }),

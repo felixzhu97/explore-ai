@@ -7,10 +7,10 @@ import { API_BASE_URL } from '../http/api.constants';
 import { STORAGE_KEYS } from '../storage-keys';
 import { SKIP_ERROR_NOTIFICATION } from '../http/http-error.context';
 import {
-  objectOrNull,
+  readObjectOrNull,
   parseChatStreamEvent,
   streamSsePost,
-  stringField,
+  readStringField,
   type ChatStreamEvent,
   type WebSource,
 } from '../http/sse-client';
@@ -320,7 +320,7 @@ export class ChatService {
         if (this.#isStaleSessionLoad(loadId, sessionId)) {
           return;
         }
-        this.messages.set(withoutEmptyBodies(
+        this.messages.set(removeEmptyBodies(
           history.map(message => this.#toChatMessage(message)),
         ));
         this.isLoadingSession.set(false);
@@ -404,7 +404,7 @@ export class ChatService {
     let fullContent = '';
     const streamRequest: ChatStreamMessage[] = [{ role: 'user', content: userMsg.content }];
 
-    const { abort } = this.#chatStream(
+    const { abort } = this.#streamChat(
       {
         messages: streamRequest,
         sessionId,
@@ -468,7 +468,7 @@ export class ChatService {
             const steps = [...(message.toolSteps ?? [])];
             steps.push({
               name: event.name,
-              label: toolLabel(event.name),
+              label: formatToolLabel(event.name),
               status: 'running',
             });
             return { ...message, toolSteps: steps };
@@ -547,7 +547,7 @@ export class ChatService {
     sorted: ChatSessionSummary[],
     options: { createIfEmpty: boolean },
   ): void {
-    const preferredId = this.#sessionIdFromRoute();
+    const preferredId = this.#getSessionIdFromRoute();
     if (
       preferredId !== null
       && sorted.some(session => session.sessionId === preferredId)
@@ -575,7 +575,7 @@ export class ChatService {
     createIfMissing: boolean,
     options?: { navigateToChat?: boolean },
   ): void {
-    const existingEmpty = this.#newestEmptySession();
+    const existingEmpty = this.#findNewestEmptySession();
     if (existingEmpty !== undefined) {
       this.selectSession(existingEmpty.sessionId, options);
       this.#pruneExtraEmptySessions(existingEmpty.sessionId);
@@ -607,15 +607,15 @@ export class ChatService {
     });
   }
 
-  #newestEmptySession(): ChatSessionSummary | undefined {
+  #findNewestEmptySession(): ChatSessionSummary | undefined {
     return this.#sortSessionsByActivity(
-      this.sessions().filter(session => !this.#sessionRecordHasHistory(session)),
+      this.sessions().filter(session => !this.#hasSessionHistory(session)),
     )[0];
   }
 
   #pruneExtraEmptySessions(keepId: string): void {
     const extras = this.sessions().filter(
-      session => !this.#sessionRecordHasHistory(session) && session.sessionId !== keepId,
+      session => !this.#hasSessionHistory(session) && session.sessionId !== keepId,
     );
     for (const extra of extras) {
       this.#deleteSessionRequest(extra.sessionId).subscribe({
@@ -643,7 +643,7 @@ export class ChatService {
     return loadId !== this.#sessionLoadGeneration || this.activeSessionId() !== sessionId;
   }
 
-  #sessionRecordHasHistory(session: ChatSessionSummary): boolean {
+  #hasSessionHistory(session: ChatSessionSummary): boolean {
     return session.messageCount > 0;
   }
 
@@ -653,7 +653,7 @@ export class ChatService {
       return true;
     }
     const session = this.sessions().find(item => item.sessionId === sessionId);
-    return session !== undefined && this.#sessionRecordHasHistory(session);
+    return session !== undefined && this.#hasSessionHistory(session);
   }
 
   #persistActiveSessionId(sessionId: string | null): void {
@@ -674,7 +674,7 @@ export class ChatService {
     );
   }
 
-  #sessionIdFromRoute(): string | null {
+  #getSessionIdFromRoute(): string | null {
     const tree = this.#router.parseUrl(this.#router.url);
     const primary = tree.root.children['primary'];
     const segments = primary?.segments.map(segment => segment.path) ?? [];
@@ -686,7 +686,7 @@ export class ChatService {
     return typeof session === 'string' && session !== '' ? session : null;
   }
 
-  #currentChatPath(): string {
+  #getCurrentChatPath(): string {
     return this.#router.url.split('?')[0] ?? '';
   }
 
@@ -700,7 +700,7 @@ export class ChatService {
     // Preserve deep link while this session's history is loading (refresh race).
     return this.isLoadingSession()
       && this.activeSessionId() === sessionId
-      && this.#currentChatPath() === `/chat/${sessionId}`;
+      && this.#getCurrentChatPath() === `/chat/${sessionId}`;
   }
 
   #syncChatUrl(
@@ -710,7 +710,7 @@ export class ChatService {
     if (this.#chatRedirectInFlight) {
       return;
     }
-    const currentPath = this.#currentChatPath();
+    const currentPath = this.#getCurrentChatPath();
     const onChat = currentPath === '/chat' || currentPath.startsWith('/chat/');
     // Passive sync (bootstrap) must not leave RAG/Policies/etc. User actions may.
     if (!onChat && options?.navigateToChat !== true) {
@@ -741,7 +741,7 @@ export class ChatService {
 
     void this.#router.navigateByUrl('/chat', { replaceUrl: true }).then((succeeded) => {
       this.#chatRedirectInFlight = false;
-      if (!succeeded && this.#currentChatPath() !== '/chat') {
+      if (!succeeded && this.#getCurrentChatPath() !== '/chat') {
         void this.#router.navigateByUrl('/chat', { replaceUrl: true });
       }
       if (createDraft) {
@@ -758,7 +758,7 @@ export class ChatService {
       next: (history) => {
         if (this.activeSessionId() === sessionId && !this.isLoading()) {
           this.messages.update((previous) => {
-            const fromApi = withoutEmptyBodies(mergeHistoryWithLocalMessages(
+            const fromApi = removeEmptyBodies(mergeHistoryWithLocalMessages(
               history.map(message => this.#toChatMessage(message)),
               previous,
             ));
@@ -771,7 +771,7 @@ export class ChatService {
                     && !apiIds.has(message.id)
                     && hasRenderableBody(message),
                 );
-            return withoutEmptyBodies([...fromApi, ...localOnly]);
+            return removeEmptyBodies([...fromApi, ...localOnly]);
           });
         }
       },
@@ -790,7 +790,7 @@ export class ChatService {
         params: { provider },
       })
       .pipe(
-        map(res => res.models),
+        map(response => response.models),
         catchError(() => of(DEFAULT_MODELS[provider] ?? DEFAULT_MODELS['openai'] ?? [])),
       );
   }
@@ -820,7 +820,7 @@ export class ChatService {
     return this.#http.delete<void>(`${API_BASE_URL}/chat/sessions/${sessionId}`);
   }
 
-  #chatStream(
+  #streamChat(
     request: ChatStreamRequest,
     onChunk: (token: string) => void,
     onDone: () => void,
@@ -909,13 +909,13 @@ export function mergeHistoryWithLocalMessages(
 function streamErrorMessage(data: string): string {
   let body: Record<string, unknown> | null = null;
   try {
-    body = objectOrNull(JSON.parse(data));
+    body = readObjectOrNull(JSON.parse(data));
   } catch {
     // plain-text error payload
   }
   if (body !== null) {
-    const reason = stringField(body['error']);
-    return hasText(reason) ? reason : textOr(stringField(body['message']), 'Stream error');
+    const reason = readStringField(body['error']);
+    return hasText(reason) ? reason : textOr(readStringField(body['message']), 'Stream error');
   }
   return textOr(data, 'Stream error');
 }
@@ -926,11 +926,11 @@ function hasRenderableBody(message: ChatMessage): boolean {
     || hasItems(message.sources);
 }
 
-function withoutEmptyBodies(messages: ChatMessage[]): ChatMessage[] {
+function removeEmptyBodies(messages: ChatMessage[]): ChatMessage[] {
   return messages.filter(hasRenderableBody);
 }
 
-function toolLabel(name: string): string {
+function formatToolLabel(name: string): string {
   const key = name.toLowerCase();
   if (key.includes('searchweb') || key === 'search_web' || (key.includes('search') && key.includes('web'))) {
     return 'Searching…';

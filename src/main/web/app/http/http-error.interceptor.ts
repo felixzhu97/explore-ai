@@ -33,13 +33,13 @@ export interface ErrorResponse {
 
 export { SKIP_ERROR_NOTIFICATION };
 
-export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
+export const httpErrorInterceptor: HttpInterceptorFn = (request, next) => {
   const notificationService = inject(NotificationService);
-  return next(req).pipe(
+  return next(request).pipe(
     catchError((error: HttpErrorResponse): Observable<HttpEvent<unknown>> => {
       const appError = normalizeError(error);
-      logError(req, appError);
-      if (!req.context.get(SKIP_ERROR_NOTIFICATION)) {
+      logError(request, appError);
+      if (!request.context.get(SKIP_ERROR_NOTIFICATION)) {
         notifyUser(appError, notificationService);
       }
       return throwError(() => appError);
@@ -198,10 +198,10 @@ function extractMessage(error: HttpErrorResponse): string | null {
     ?? null;
 }
 
-function logError(req: HttpRequest<unknown>, error: AppError): void {
+function logError(request: HttpRequest<unknown>, error: AppError): void {
   const logEntry = {
-    url: req.url,
-    method: req.method,
+    url: request.url,
+    method: request.method,
     code: error.code,
     message: error.message,
     status: error.status,

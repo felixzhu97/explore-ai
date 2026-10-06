@@ -36,15 +36,15 @@ export type PipelineValidationResult =
   | { ok: true; order: string[] }
   | { ok: false; reason: string };
 
-export function connectorOutId(nodeId: string): string {
+export function buildConnectorOutId(nodeId: string): string {
   return `${nodeId}-out`;
 }
 
-export function connectorInId(nodeId: string): string {
+export function buildConnectorInId(nodeId: string): string {
   return `${nodeId}-in`;
 }
 
-export function nodeIdFromConnector(connectorId: string): string {
+export function parseNodeIdFromConnector(connectorId: string): string {
   return connectorId.replace(/-(out|in)$/, '');
 }
 

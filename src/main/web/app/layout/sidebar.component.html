@@ -9,7 +9,7 @@
   [class]="sidebarClasses()"
 >
   <div class="flex h-13 shrink-0 items-center justify-between border-b border-sidebar-border px-4">
-    @if (!collapsed()) {
+    @if (!isCollapsed()) {
       <span class="text-base font-semibold text-sidebar-foreground md:hidden">AI</span>
       <button
         type="button"
@@ -82,14 +82,14 @@
   </div>
 
   <div class="flex min-h-0 flex-1 flex-col">
-    @if (!collapsed()) {
+    @if (!isCollapsed()) {
       <nav class="relative z-30 shrink-0 overflow-visible p-2">
         <z-sidebar-group>
           <button
             type="button"
             z-sidebar-menu-button
             [title]="t().sidebar.newChat"
-            (click)="newChat()"
+            (click)="startNewChat()"
           >
             <span class="size-3.5 shrink-0">
               <svg
@@ -170,7 +170,7 @@
                       <app-session-item
                         [session]="session"
                         [isActive]="sessionList.activeSessionId() === session.id"
-                        [isCollapsed]="collapsed()"
+                        [isCollapsed]="isCollapsed()"
                         (selected)="onSessionSelect(session.id)"
                         (pinToggleRequested)="onSessionPin(session.id)"
                         (deleteRequested)="onSessionDelete(session.id)"
@@ -211,7 +211,7 @@
                     <app-session-item
                       [session]="session"
                       [isActive]="sessionList.activeSessionId() === session.id"
-                      [isCollapsed]="collapsed()"
+                      [isCollapsed]="isCollapsed()"
                       (selected)="onSessionSelect(session.id)"
                       (pinToggleRequested)="onSessionPin(session.id)"
                       (deleteRequested)="onSessionDelete(session.id)"
@@ -236,7 +236,7 @@
           zIconOnly
           [zFull]="false"
           [title]="t().sidebar.newChat"
-          (click)="newChat()"
+          (click)="startNewChat()"
         >
           <svg
             class="size-3.5"
@@ -279,7 +279,7 @@
   <div
     class="relative z-20 mt-auto shrink-0 overflow-visible border-t border-sidebar-border p-2"
   >
-    <app-sidebar-user-menu [isCollapsed]="collapsed()" />
+    <app-sidebar-user-menu [isCollapsed]="isCollapsed()" />
   </div>
 </aside>
 
@@ -290,8 +290,8 @@
   "
   tabindex="-1"
   role="button"
-  [class.opacity-100]="sidebar.mobileOpen()"
-  [class.pointer-events-auto]="sidebar.mobileOpen()"
+  [class.opacity-100]="sidebar.isMobileOpen()"
+  [class.pointer-events-auto]="sidebar.isMobileOpen()"
   [attr.aria-label]="i18n.t().sidebar.closeOverlay"
   (click)="sidebar.close()"
   (keydown.escape)="sidebar.close()"

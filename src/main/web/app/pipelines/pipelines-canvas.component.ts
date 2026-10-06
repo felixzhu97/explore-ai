@@ -25,9 +25,9 @@ import {
   type CreatePipelineTemplateRequest,
 } from './pipelines.service';
 import {
-  connectorInId,
-  connectorOutId,
-  nodeIdFromConnector,
+  buildConnectorInId,
+  buildConnectorOutId,
+  parseNodeIdFromConnector,
   type PipelineConnection,
   type PipelineGraph,
   type PipelineNode,
@@ -141,7 +141,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#reloadSavedTemplates();
   }
 
-  backToGallery(): void {
+  goBackToGallery(): void {
     this.nodes.set([]);
     this.connections.set([]);
     this.editingNodeId.set(null);
@@ -363,8 +363,8 @@ export class PipelinesCanvasComponent implements OnInit {
     if (!this.isEditMode() || !hasText(event.targetId)) {
       return;
     }
-    const sourceNodeId = nodeIdFromConnector(event.sourceId);
-    const targetNodeId = nodeIdFromConnector(event.targetId);
+    const sourceNodeId = parseNodeIdFromConnector(event.sourceId);
+    const targetNodeId = parseNodeIdFromConnector(event.targetId);
     if (sourceNodeId === targetNodeId) {
       return;
     }
@@ -404,12 +404,12 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#cdr.markForCheck();
   }
 
-  outId(nodeId: string): string {
-    return connectorOutId(nodeId);
+  getOutId(nodeId: string): string {
+    return buildConnectorOutId(nodeId);
   }
 
-  inId(nodeId: string): string {
-    return connectorInId(nodeId);
+  getInId(nodeId: string): string {
+    return buildConnectorInId(nodeId);
   }
 
   openNodeEditor(node: PipelineNode): void {

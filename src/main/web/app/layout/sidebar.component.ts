@@ -20,8 +20,8 @@ import { SESSION_LIST, type SidebarSession } from './session-list.token';
 import {
   isNavTabEnabled,
   MODULE_NAV_TABS,
-  moreNavSections,
-  primaryNavTabs,
+  listMoreNavSections,
+  listPrimaryNavTabs,
   type ModuleNavTab,
 } from './module-nav.config';
 import { FeatureFlagService } from '../feature-flags/feature-flag.service';
@@ -50,28 +50,28 @@ export class AppSidebarComponent implements OnInit {
   readonly sidebar = inject(SidebarService);
   protected readonly sessionList = inject(SESSION_LIST);
 
-  readonly collapsed = this.sidebar.collapsed;
+  readonly isCollapsed = this.sidebar.isCollapsed;
   readonly #isMobile = signal(false);
 
   readonly sidebarClasses = computed(() => {
-    const mobile = this.#isMobile();
-    const collapsed = this.collapsed();
-    const mobileOpen = this.sidebar.mobileOpen();
+    const isMobile = this.#isMobile();
+    const isCollapsed = this.isCollapsed();
+    const isMobileOpen = this.sidebar.isMobileOpen();
 
     const classes: string[] = [];
 
-    if (mobile) {
+    if (isMobile) {
       classes.push('w-[min(88vw,20rem)]');
-    } else if (!collapsed) {
+    } else if (!isCollapsed) {
       classes.push('w-[240px]');
     }
-    if (!mobile && collapsed) {
+    if (!isMobile && isCollapsed) {
       classes.push('w-[64px]');
     }
 
-    if (!mobile) {
+    if (!isMobile) {
       classes.push('translate-x-0');
-    } else if (mobileOpen) {
+    } else if (isMobileOpen) {
       classes.push('translate-x-0');
     } else {
       classes.push('-translate-x-full');
@@ -88,8 +88,8 @@ export class AppSidebarComponent implements OnInit {
     tab => isNavTabEnabled(tab, this.#featureFlags),
   ));
 
-  readonly primaryTabs = computed(() => primaryNavTabs(this.tabs()));
-  readonly moreSections = computed(() => moreNavSections(this.tabs()));
+  readonly primaryTabs = computed(() => listPrimaryNavTabs(this.tabs()));
+  readonly moreSections = computed(() => listMoreNavSections(this.tabs()));
   readonly navIconFn = (key: string): SafeHtml => this.getIcon(key);
 
   readonly displaySessions = computed<SidebarSession[]>(
@@ -97,13 +97,13 @@ export class AppSidebarComponent implements OnInit {
   );
 
   readonly pinnedSessions = computed<SidebarSession[]>(() => {
-    return byNewest(this.displaySessions().filter(session => session.pinned));
+    return compareByNewest(this.displaySessions().filter(session => session.pinned));
   });
 
   readonly isPinnedExpanded = signal(true);
 
   readonly recentSessions = computed<SidebarSession[]>(() => {
-    return byNewest(this.displaySessions().filter(session => !session.pinned));
+    return compareByNewest(this.displaySessions().filter(session => !session.pinned));
   });
 
   readonly isRecentsExpanded = signal(true);
@@ -127,11 +127,11 @@ export class AppSidebarComponent implements OnInit {
 
   toggleCollapse(): void {
     if (!this.#isMobile()) {
-      this.collapsed.update(v => !v);
+      this.isCollapsed.update(v => !v);
     }
   }
 
-  newChat(): void {
+  startNewChat(): void {
     this.sessionList.createSession();
     this.sidebar.close();
   }
@@ -184,7 +184,7 @@ export class AppSidebarComponent implements OnInit {
   onDocumentPointerDown(event: PointerEvent): void {
     const isOutsideSidebar = (event.target as Element).closest('[data-sidebar-panel]') === null;
 
-    if (this.sidebar.mobileOpen() && isOutsideSidebar) {
+    if (this.sidebar.isMobileOpen() && isOutsideSidebar) {
       this.sidebar.close();
     }
   }
@@ -193,11 +193,11 @@ export class AppSidebarComponent implements OnInit {
     const mobile = window.innerWidth < 768;
     this.#isMobile.set(mobile);
     if (mobile) {
-      this.sidebar.collapsed.set(false);
+      this.sidebar.isCollapsed.set(false);
     }
   }
 }
 
-function byNewest(sessions: SidebarSession[]): SidebarSession[] {
+function compareByNewest(sessions: SidebarSession[]): SidebarSession[] {
   return [...sessions].sort((a, b) => b.timestamp.compareTo(a.timestamp));
 }

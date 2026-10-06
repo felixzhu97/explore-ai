@@ -61,7 +61,11 @@ const COLOR = {
   series: ['#007aff', '#34c759', '#af52de', '#ff9500', '#5856d6', '#ff2d55'],
 } as const;
 
-function textStyle(size = 12, weight: number | string = 400, color: string = COLOR.text) {
+function buildTextStyle(
+  size = 12,
+  weight: number | string = 400,
+  color: string = COLOR.text,
+) {
   return {
     fontFamily: CHART_FONT,
     fontSize: size,
@@ -70,7 +74,7 @@ function textStyle(size = 12, weight: number | string = 400, color: string = COL
   };
 }
 
-function titleBlock(title?: string) {
+function buildTitleBlock(title?: string) {
   if (!hasText(title)) {
     return undefined;
   }
@@ -78,24 +82,26 @@ function titleBlock(title?: string) {
     text: title,
     left: 'center' as const,
     top: 4,
-    textStyle: textStyle(14, 600, COLOR.text),
+    textStyle: buildTextStyle(14, 600, COLOR.text),
     padding: [0, 8, 8, 8],
   };
 }
 
-function legendBlock(opts: { top?: number | string; bottom?: number | string } = {}) {
+function buildLegendBlock(
+  options: { top?: number | string; bottom?: number | string } = {},
+) {
   return {
     left: 'center' as const,
     itemWidth: 10,
     itemHeight: 10,
     itemGap: 16,
-    textStyle: textStyle(12, 400, COLOR.secondary),
-    ...opts,
+    textStyle: buildTextStyle(12, 400, COLOR.secondary),
+    ...options,
   };
 }
 
-function axisLabelStyle() {
-  return textStyle(11, 400, COLOR.secondary);
+function buildAxisLabelStyle() {
+  return buildTextStyle(11, 400, COLOR.secondary);
 }
 
 function splitLineStyle() {
@@ -108,39 +114,39 @@ function splitLineStyle() {
   };
 }
 
-function categoryAxis(data: string[]) {
+function buildCategoryAxis(data: string[]) {
   return {
     type: 'category' as const,
     data,
     axisLine: { lineStyle: { color: COLOR.border } },
     axisTick: { show: false },
-    axisLabel: { ...axisLabelStyle(), margin: 10 },
+    axisLabel: { ...buildAxisLabelStyle(), margin: 10 },
   };
 }
 
-function valueAxis(extra: Record<string, unknown> = {}) {
+function buildValueAxis(extra: Record<string, unknown> = {}) {
   return {
     type: 'value' as const,
     axisLine: { show: false },
     axisTick: { show: false },
-    axisLabel: { ...axisLabelStyle(), margin: 8 },
+    axisLabel: { ...buildAxisLabelStyle(), margin: 8 },
     splitLine: splitLineStyle(),
     ...extra,
   };
 }
 
-function seriesColor(index: number): string {
+function getSeriesColor(index: number): string {
   return COLOR.series[index % COLOR.series.length] ?? COLOR.series[0];
 }
 
-function simpleCategoryOption(
+function buildSimpleCategoryOption(
   type: 'bar' | 'line',
   data: ChartItem[],
   title?: string,
 ): EChartsCoreOption {
   return {
     color: [...COLOR.series],
-    title: titleBlock(title),
+    title: buildTitleBlock(title),
     tooltip: { trigger: 'axis' },
     grid: {
       left: 44,
@@ -149,8 +155,8 @@ function simpleCategoryOption(
       bottom: 36,
       containLabel: false,
     },
-    xAxis: categoryAxis(data.map(item => item.label)),
-    yAxis: valueAxis(),
+    xAxis: buildCategoryAxis(data.map(item => item.label)),
+    yAxis: buildValueAxis(),
     series: [
       {
         type,
@@ -164,7 +170,7 @@ function simpleCategoryOption(
   };
 }
 
-function multiSeriesOption(
+function buildMultiSeriesOption(
   defaultKind: 'bar' | 'line',
   categories: string[],
   series: ChartSeriesItem[],
@@ -178,26 +184,26 @@ function multiSeriesOption(
 
   return {
     color: [...COLOR.series],
-    title: titleBlock(title),
+    title: buildTitleBlock(title),
     tooltip: { trigger: 'axis' },
-    legend: legendBlock({ top: hasText(title) ? 30 : 4 }),
+    legend: buildLegendBlock({ top: hasText(title) ? 30 : 4 }),
     grid: {
       left: 44,
       right: useDualAxis ? 52 : 16,
       top: hasText(title) ? 68 : 44,
       bottom: 36,
     },
-    xAxis: categoryAxis(categories),
+    xAxis: buildCategoryAxis(categories),
     yAxis: useDualAxis
       ? [
-          valueAxis(),
-          valueAxis({ splitLine: { show: false } }),
+          buildValueAxis(),
+          buildValueAxis({ splitLine: { show: false } }),
         ]
-      : valueAxis(),
+      : buildValueAxis(),
     series: series.map((item, index) => {
       const kind = item.kind ?? defaultKind;
       const yAxisIndex = useDualAxis && kind === 'line' ? 1 : 0;
-      const color = seriesColor(index);
+      const color = getSeriesColor(index);
       return {
         name: item.name,
         type: kind,
@@ -226,10 +232,10 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
     case 'bar':
     case 'line': {
       if (hasItems(input.categories) && hasItems(input.series)) {
-        return multiSeriesOption(type, input.categories, input.series, title);
+        return buildMultiSeriesOption(type, input.categories, input.series, title);
       }
       if (hasItems(input.chartData)) {
-        return simpleCategoryOption(type, input.chartData, title);
+        return buildSimpleCategoryOption(type, input.chartData, title);
       }
       return null;
     }
@@ -240,7 +246,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       }
       return {
         color: [...COLOR.series],
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: { trigger: 'item' },
         series: [
           {
@@ -249,7 +255,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
             center: ['50%', hasText(title) ? '56%' : '52%'],
             itemStyle: { borderColor: '#fff', borderWidth: 2, borderRadius: 4 },
             label: {
-              ...textStyle(11, 500, COLOR.text),
+              ...buildTextStyle(11, 500, COLOR.text),
               formatter: '{b}',
             },
             labelLine: { length: 10, length2: 8, lineStyle: { color: COLOR.border } },
@@ -267,7 +273,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       }
       return {
         color: [...COLOR.series],
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: { trigger: 'item' },
         series: [
           {
@@ -284,13 +290,13 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
             label: {
               show: true,
               position: 'inside',
-              ...textStyle(12, 600, '#fff'),
+              ...buildTextStyle(12, 600, '#fff'),
               formatter: '{b}',
             },
             data: input.chartData.map((item, index) => ({
               name: item.label,
               value: item.value,
-              itemStyle: { color: seriesColor(index) },
+              itemStyle: { color: getSeriesColor(index) },
             })),
           },
         ],
@@ -304,7 +310,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       ) {
         return null;
       }
-      return multiSeriesOption('bar', input.categories, input.series, title, true);
+      return buildMultiSeriesOption('bar', input.categories, input.series, title, true);
     }
     case 'scatter': {
       if (!hasItems(input.points)) {
@@ -312,11 +318,11 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       }
       return {
         color: [COLOR.accent],
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: { trigger: 'item' },
         grid: { left: 48, right: 20, top: hasText(title) ? 52 : 28, bottom: 40 },
-        xAxis: valueAxis({ nameGap: 8 }),
-        yAxis: valueAxis(),
+        xAxis: buildValueAxis({ nameGap: 8 }),
+        yAxis: buildValueAxis(),
         series: [
           {
             type: 'scatter',
@@ -341,14 +347,14 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       }
       return {
         color: [...COLOR.series],
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: {},
-        legend: legendBlock({ bottom: 4 }),
+        legend: buildLegendBlock({ bottom: 4 }),
         radar: {
           center: ['50%', hasText(title) ? '54%' : '50%'],
           radius: '48%',
           axisName: {
-            ...textStyle(11, 500, COLOR.secondary),
+            ...buildTextStyle(11, 500, COLOR.secondary),
             padding: [4, 4],
           },
           axisNameGap: 10,
@@ -375,8 +381,8 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
             data: input.series.map((item, index) => ({
               name: item.name,
               value: item.values,
-              itemStyle: { color: seriesColor(index) },
-              areaStyle: { color: seriesColor(index), opacity: 0.12 },
+              itemStyle: { color: getSeriesColor(index) },
+              areaStyle: { color: getSeriesColor(index), opacity: 0.12 },
             })),
           },
         ],
@@ -392,10 +398,10 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       const min = Math.min(...values);
       const max = Math.max(...values);
       return {
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: {
           position: 'top',
-          textStyle: textStyle(12, 400, COLOR.text),
+          textStyle: buildTextStyle(12, 400, COLOR.text),
         },
         grid: {
           left: 56,
@@ -404,11 +410,11 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
           bottom: 56,
         },
         xAxis: {
-          ...categoryAxis(input.xLabels),
+          ...buildCategoryAxis(input.xLabels),
           splitArea: { show: false },
         },
         yAxis: {
-          ...categoryAxis(input.yLabels),
+          ...buildCategoryAxis(input.yLabels),
           splitArea: { show: false },
         },
         visualMap: {
@@ -421,7 +427,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
           itemWidth: 12,
           itemHeight: 140,
           text: ['', ''],
-          textStyle: textStyle(11, 400, COLOR.secondary),
+          textStyle: buildTextStyle(11, 400, COLOR.secondary),
           inRange: {
             color: ['#e8f1ff', '#7eb6ff', COLOR.accent],
           },
@@ -451,7 +457,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       const gaugeMax =
         typeof input.max === 'number' && Number.isFinite(input.max) ? input.max : 100;
       return {
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         series: [
           {
             type: 'gauge',
@@ -487,7 +493,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
               lineStyle: { color: COLOR.secondary, width: 1.5 },
             },
             axisLabel: {
-              ...textStyle(11, 400, COLOR.secondary),
+              ...buildTextStyle(11, 400, COLOR.secondary),
               distance: 18,
             },
             pointer: {
@@ -505,12 +511,12 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
               valueAnimation: true,
               formatter: '{value}',
               offsetCenter: [0, '72%'],
-              ...textStyle(28, 600, COLOR.text),
+              ...buildTextStyle(28, 600, COLOR.text),
             },
             title: {
               show: Boolean(input.chartData?.[0]?.label),
               offsetCenter: [0, '88%'],
-              ...textStyle(12, 400, COLOR.secondary),
+              ...buildTextStyle(12, 400, COLOR.secondary),
             },
             data: [
               {
@@ -533,7 +539,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       }
       return {
         color: [...COLOR.series],
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: { trigger: 'item' },
         series: [
           {
@@ -545,7 +551,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
             roam: false,
             nodeClick: false,
             breadcrumb: { show: false },
-            label: { ...textStyle(11, 600, '#fff'), show: true },
+            label: { ...buildTextStyle(11, 600, '#fff'), show: true },
             itemStyle: { borderColor: '#fff', borderWidth: 2, gapWidth: 2 },
             data: nodes,
           },
@@ -563,14 +569,14 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       }
       return {
         color: [...COLOR.series],
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: { trigger: 'item' },
         series: [
           {
             type: 'sunburst',
             radius: [0, '72%'],
             center: ['50%', hasText(title) ? '56%' : '52%'],
-            label: { ...textStyle(11, 500, COLOR.text), rotate: 'radial' },
+            label: { ...buildTextStyle(11, 500, COLOR.text), rotate: 'radial' },
             itemStyle: { borderColor: '#fff', borderWidth: 2 },
             data: nodes,
           },
@@ -587,7 +593,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
           : { name: hasText(title) ? title : 'Root', children: input.nodes };
       return {
         color: [...COLOR.series],
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: { trigger: 'item' },
         series: [
           {
@@ -599,7 +605,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
             orient: 'LR',
             expandAndCollapse: false,
             initialTreeDepth: 3,
-            label: { ...textStyle(11, 500, COLOR.text), position: 'left', verticalAlign: 'middle' },
+            label: { ...buildTextStyle(11, 500, COLOR.text), position: 'left', verticalAlign: 'middle' },
             lineStyle: { color: COLOR.border, width: 1.5 },
             itemStyle: { color: COLOR.accent, borderColor: COLOR.accent },
             data: [root],
@@ -614,7 +620,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       }
       return {
         color: [...COLOR.series],
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: { trigger: 'item' },
         series: [
           {
@@ -626,7 +632,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
             nodeAlign: 'justify',
             emphasis: { focus: 'adjacency' },
             lineStyle: { color: 'gradient', curveness: 0.5, opacity: 0.35 },
-            label: { ...textStyle(11, 500, COLOR.text) },
+            label: { ...buildTextStyle(11, 500, COLOR.text) },
             data: graphNodes.map(node => ({ name: node.name })),
             links: input.links.map(link => ({
               source: link.source,
@@ -645,7 +651,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       const layout = input.layout === 'circular' ? 'circular' : 'force';
       return {
         color: [...COLOR.series],
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: { trigger: 'item' },
         series: [
           {
@@ -653,14 +659,14 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
             layout,
             roam: true,
             draggable: true,
-            label: { ...textStyle(11, 500, COLOR.text), show: true, position: 'right' },
+            label: { ...buildTextStyle(11, 500, COLOR.text), show: true, position: 'right' },
             force: { repulsion: 180, edgeLength: 80 },
             lineStyle: { color: COLOR.border, curveness: 0.15, width: 1.5 },
             itemStyle: { borderColor: '#fff', borderWidth: 1 },
             data: graphNodes.map((node, index) => ({
               name: node.name,
               symbolSize: 28,
-              itemStyle: { color: seriesColor(index) },
+              itemStyle: { color: getSeriesColor(index) },
             })),
             links: input.links.map(link => ({
               source: link.source,
@@ -679,11 +685,11 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       }
       return {
         color: [COLOR.accent],
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: { trigger: 'item' },
         grid: { left: 48, right: 20, top: hasText(title) ? 52 : 28, bottom: 40 },
-        xAxis: categoryAxis(resolved.categories),
-        yAxis: valueAxis(),
+        xAxis: buildCategoryAxis(resolved.categories),
+        yAxis: buildValueAxis(),
         series: [
           {
             type: 'boxplot',
@@ -709,11 +715,11 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
         return null;
       }
       return {
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: { trigger: 'axis' },
         grid: { left: 48, right: 20, top: hasText(title) ? 52 : 28, bottom: 40 },
-        xAxis: categoryAxis(resolved.categories),
-        yAxis: valueAxis({ scale: true }),
+        xAxis: buildCategoryAxis(resolved.categories),
+        yAxis: buildValueAxis({ scale: true }),
         series: [
           {
             type: 'candlestick',
@@ -740,7 +746,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       }
       return {
         color: [COLOR.accent],
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: {},
         parallel: {
           left: 48,
@@ -748,8 +754,8 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
           top: hasText(title) ? 56 : 32,
           bottom: 32,
           parallelAxisDefault: {
-            nameTextStyle: textStyle(11, 500, COLOR.secondary),
-            axisLabel: axisLabelStyle(),
+            nameTextStyle: buildTextStyle(11, 500, COLOR.secondary),
+            axisLabel: buildAxisLabelStyle(),
             axisLine: { lineStyle: { color: COLOR.border } },
           },
         },
@@ -788,13 +794,13 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       ]);
       return {
         color: [...COLOR.series],
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: {
           trigger: 'axis',
           axisPointer: { type: 'line', lineStyle: { color: COLOR.border, width: 1 } },
         },
         legend: {
-          ...legendBlock({ top: hasText(title) ? 28 : 8 }),
+          ...buildLegendBlock({ top: hasText(title) ? 28 : 8 }),
           data: names,
         },
         singleAxis: {
@@ -807,7 +813,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
           boundaryGap: false,
           axisTick: { show: false },
           axisLabel: {
-            ...axisLabelStyle(),
+            ...buildAxisLabelStyle(),
             hideOverlap: true,
             formatter: (value: string | number) => timeline.formatLabel(value),
           },
@@ -835,7 +841,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
       const min = Math.min(...values);
       const max = Math.max(...values);
       return {
-        title: titleBlock(title),
+        title: buildTitleBlock(title),
         tooltip: { trigger: 'item' },
         visualMap: {
           min,
@@ -847,7 +853,7 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
           itemWidth: 12,
           itemHeight: 80,
           inRange: { color: ['#e8f1ff', COLOR.accent] },
-          textStyle: textStyle(11, 400, COLOR.secondary),
+          textStyle: buildTextStyle(11, 400, COLOR.secondary),
         },
         calendar: {
           top: hasText(title) ? 56 : 32,
@@ -859,8 +865,8 @@ export function buildChartOption(input: ChartBuildInput): EChartsCoreOption | nu
           itemStyle: { borderWidth: 2, borderColor: '#fff' },
           splitLine: { show: false },
           yearLabel: { show: false },
-          monthLabel: { ...textStyle(11, 500, COLOR.secondary) },
-          dayLabel: { ...textStyle(10, 400, COLOR.tertiary) },
+          monthLabel: { ...buildTextStyle(11, 500, COLOR.secondary) },
+          dayLabel: { ...buildTextStyle(10, 400, COLOR.tertiary) },
         },
         series: [
           {

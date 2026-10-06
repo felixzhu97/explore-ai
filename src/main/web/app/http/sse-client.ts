@@ -46,27 +46,27 @@ export function parseSseToken(data: string): string | null {
 }
 
 /** The JSON field when it is a string; any other value reads as empty. */
-export function stringField(value: unknown): string {
+export function readStringField(value: unknown): string {
   return typeof value === 'string' ? value : '';
 }
 
 /** The JSON value as an object, or null for arrays, primitives and null. */
-export function objectOrNull(value: unknown): Record<string, unknown> | null {
+export function readObjectOrNull(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
     : null;
 }
 
 function parseWebSource(value: unknown): WebSource | null {
-  const row = objectOrNull(value);
+  const row = readObjectOrNull(value);
   if (row === null) {
     return null;
   }
   const publishedAt = row['publishedAt'];
   return {
-    title: stringField(row['title']),
-    url: stringField(row['url']),
-    snippet: stringField(row['snippet']),
+    title: readStringField(row['title']),
+    url: readStringField(row['url']),
+    snippet: readStringField(row['snippet']),
     publishedAt: typeof publishedAt === 'string' && publishedAt.trim() !== ''
       ? publishedAt.trim()
       : null,
@@ -87,7 +87,7 @@ export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
     } catch {
       return { type: 'message', token: data };
     }
-    const parsed = objectOrNull(json);
+    const parsed = readObjectOrNull(json);
     if (parsed === null) {
       return null;
     }
@@ -96,22 +96,22 @@ export function parseChatStreamEvent(data: string): ChatStreamEvent | null {
       case 'tool_call':
         return {
           type: 'tool_call',
-          name: stringField(parsed['name']),
-          input: stringField(parsed['input']),
+          name: readStringField(parsed['name']),
+          input: readStringField(parsed['input']),
         };
       case 'tool_result':
         return {
           type: 'tool_result',
-          name: stringField(parsed['name']),
+          name: readStringField(parsed['name']),
           ok: parsed['ok'] === true,
-          output: stringField(parsed['output']),
+          output: readStringField(parsed['output']),
         };
       case 'sources': {
         const rawItems: unknown = parsed['items'];
         const items = Array.isArray(rawItems)
           ? rawItems.map(parseWebSource).filter(item => item !== null)
           : [];
-        return { type: 'sources', query: stringField(parsed['query']), items };
+        return { type: 'sources', query: readStringField(parsed['query']), items };
       }
       case 'message': {
         const token = parsed['token'];

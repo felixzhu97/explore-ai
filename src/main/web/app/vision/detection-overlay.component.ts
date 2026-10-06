@@ -52,14 +52,14 @@ export class DetectionOverlayComponent {
     canvas.width = image.clientWidth;
     canvas.height = image.clientHeight;
 
-    const ctx = canvas.getContext('2d');
-    if (ctx === null) {
+    const context = canvas.getContext('2d');
+    if (context === null) {
       return;
     }
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.lineWidth = 2;
-    ctx.font = '12px system-ui, sans-serif';
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.lineWidth = 2;
+    context.font = '12px system-ui, sans-serif';
 
     for (const detection of this.detections()) {
       const [x = 0, y = 0, width = 0, height = 0] = detection.bbox;
@@ -68,17 +68,17 @@ export class DetectionOverlayComponent {
       const scaledWidth = width * scaleX;
       const scaledHeight = height * scaleY;
 
-      ctx.strokeStyle = '#3b82f6';
-      ctx.fillStyle = 'rgba(59, 130, 246, 0.15)';
-      ctx.fillRect(scaledX, scaledY, scaledWidth, scaledHeight);
-      ctx.strokeRect(scaledX, scaledY, scaledWidth, scaledHeight);
+      context.strokeStyle = '#3b82f6';
+      context.fillStyle = 'rgba(59, 130, 246, 0.15)';
+      context.fillRect(scaledX, scaledY, scaledWidth, scaledHeight);
+      context.strokeRect(scaledX, scaledY, scaledWidth, scaledHeight);
 
       const label = `${detection.className} ${(detection.confidence * 100).toFixed(0)}%`;
-      const textWidth = ctx.measureText(label).width;
-      ctx.fillStyle = '#3b82f6';
-      ctx.fillRect(scaledX, Math.max(0, scaledY - 18), textWidth + 8, 18);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(label, scaledX + 4, Math.max(12, scaledY - 5));
+      const textWidth = context.measureText(label).width;
+      context.fillStyle = '#3b82f6';
+      context.fillRect(scaledX, Math.max(0, scaledY - 18), textWidth + 8, 18);
+      context.fillStyle = '#ffffff';
+      context.fillText(label, scaledX + 4, Math.max(12, scaledY - 5));
     }
   }
 }

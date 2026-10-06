@@ -5,7 +5,7 @@ import { type Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import { I18nService } from '../i18n';
 import type { HealthStatus } from '../http/health-status';
-import { objectOrNull, parseSseToken, streamSsePost, stringField } from '../http/sse-client';
+import { readObjectOrNull, parseSseToken, streamSsePost, readStringField } from '../http/sse-client';
 import type { PipelineInvokeRequest } from './pipeline-graph';
 import { hasText, textOr } from '../shared/presence';
 
@@ -23,12 +23,12 @@ export function parsePipelineHandoff(data: string): PipelineHandoffEvent | null 
   } catch {
     return null;
   }
-  const event = objectOrNull(json);
+  const event = readObjectOrNull(json);
   if (event === null) {
     return null;
   }
-  const agentType = stringField(event['agentType']).trim();
-  return hasText(agentType) ? { agentType, reason: stringField(event['reason']) } : null;
+  const agentType = readStringField(event['agentType']).trim();
+  return hasText(agentType) ? { agentType, reason: readStringField(event['reason']) } : null;
 }
 
 export type AgentRuntime = 'single' | 'deep';
@@ -126,20 +126,20 @@ export class PipelinesService {
 
   listAgents(): Observable<AgentInfoResponse[]> {
     return this.#http.get<AgentInfoResponse[]>(`${API_BASE_URL}/pipelines/agent-types`, {
-      params: this.#langParams(),
+      params: this.#buildLangParams(),
     });
   }
 
   getHealth(agentType: string): Observable<AgentHealthResponse> {
     return this.#http.get<AgentHealthResponse>(`${API_BASE_URL}/pipelines/${agentType}/health`, {
-      params: this.#langParams(),
+      params: this.#buildLangParams(),
     });
   }
 
   listTemplateDefinitions(): Observable<PipelineTemplateDefinitionResponse[]> {
     return this.#http.get<PipelineTemplateDefinitionResponse[]>(
       `${API_BASE_URL}/pipelines/template-definitions`,
-      { params: this.#langParams() },
+      { params: this.#buildLangParams() },
     );
   }
 
@@ -160,7 +160,7 @@ export class PipelinesService {
       .post<PipelineTemplateResponse>(
         `${this.#templatesBase}/from-template`,
         { templateId },
-        { params: this.#langParams() },
+        { params: this.#buildLangParams() },
       )
       .pipe(map(toPipelineTemplate));
   }
@@ -217,7 +217,7 @@ export class PipelinesService {
     );
   }
 
-  #langParams(): HttpParams {
+  #buildLangParams(): HttpParams {
     return new HttpParams().set('lang', this.#i18n.language());
   }
 

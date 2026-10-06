@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { LocalDate, ZoneOffset } from '@js-joda/core';
-import { buildRiverTimeline, monthFromLabel, parseRiverDay } from './river-timeline.util';
+import { buildRiverTimeline, parseMonthFromLabel, parseRiverDay } from './river-timeline.util';
 
 describe('parseRiverDay', () => {
   it('should read ISO months, days and date-times', () => {
@@ -22,16 +22,16 @@ describe('parseRiverDay', () => {
   });
 });
 
-describe('monthFromLabel', () => {
+describe('parseMonthFromLabel', () => {
   it('should read bare Chinese months and English month names', () => {
-    expect(monthFromLabel('3月')).toBe(3);
-    expect(monthFromLabel('March')).toBe(3);
-    expect(monthFromLabel('dec')).toBe(12);
+    expect(parseMonthFromLabel('3月')).toBe(3);
+    expect(parseMonthFromLabel('March')).toBe(3);
+    expect(parseMonthFromLabel('dec')).toBe(12);
   });
 
   it('should return null outside 1 to 12 or for other labels', () => {
-    expect(monthFromLabel('13月')).toBeNull();
-    expect(monthFromLabel('Week 1')).toBeNull();
+    expect(parseMonthFromLabel('13月')).toBeNull();
+    expect(parseMonthFromLabel('Week 1')).toBeNull();
   });
 });
 

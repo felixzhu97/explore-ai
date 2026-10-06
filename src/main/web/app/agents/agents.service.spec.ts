@@ -26,8 +26,8 @@ describe('AgentsService', () => {
       expect(agents[0]?.typeKey).toBe('researcher');
     });
 
-    const req = httpMock.expectOne(savedAgentsBase);
-    expect(req.request.method).toBe('GET');
+    const request = httpMock.expectOne(savedAgentsBase);
+    expect(request.request.method).toBe('GET');
     const response: SavedAgentResponse[] = [
       {
         id: '1',
@@ -40,7 +40,7 @@ describe('AgentsService', () => {
         ...STAMPS,
       },
     ];
-    req.flush(response);
+    request.flush(response);
   });
 
   it('should create saved agent', () => {
@@ -55,11 +55,11 @@ describe('AgentsService', () => {
       expect(agent.id).toBe('42');
     });
 
-    const req = httpMock.expectOne(savedAgentsBase);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(body);
+    const request = httpMock.expectOne(savedAgentsBase);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(body);
     const response: SavedAgentResponse = { id: '42', ...body, enabled: true, ...STAMPS };
-    req.flush(response);
+    request.flush(response);
   });
 
   it('should set enabled via patch', () => {
@@ -67,9 +67,9 @@ describe('AgentsService', () => {
       expect(agent.enabled).toBe(false);
     });
 
-    const req = httpMock.expectOne(`${savedAgentsBase}/42/enabled`);
-    expect(req.request.method).toBe('PATCH');
-    expect(req.request.body).toEqual({ enabled: false });
+    const request = httpMock.expectOne(`${savedAgentsBase}/42/enabled`);
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ enabled: false });
     const response: SavedAgentResponse = {
       id: '42',
       typeKey: 'custom',
@@ -80,6 +80,6 @@ describe('AgentsService', () => {
       enabled: false,
       ...STAMPS,
     };
-    req.flush(response);
+    request.flush(response);
   });
 });

@@ -85,8 +85,8 @@ export class ZardInputDirective implements ControlValueAccessor {
   }
 
   protected updateValue(target: EventTarget | null): void {
-    const el = target as ZardInputElement | null;
-    this.value.set(this.readNativeValue(el));
+    const element = target as ZardInputElement | null;
+    this.value.set(this.readNativeValue(element));
     this.onChangeFn(this.value());
   }
 

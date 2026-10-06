@@ -5,7 +5,7 @@ import { type Observable, of, catchError, finalize } from 'rxjs';
 import { API_BASE_URL } from '../http/api.constants';
 import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
-import { objectOrNull, parseSseToken, streamSsePost } from '../http/sse-client';
+import { readObjectOrNull, parseSseToken, streamSsePost } from '../http/sse-client';
 import { textOr } from '../shared/presence';
 
 /** POST /api/rag/chat/stream */
@@ -38,14 +38,14 @@ export function parseRagSources(data: string): RagSourceEvent[] {
     return [];
   }
   return json.flatMap((item: unknown) => {
-    const row = objectOrNull(item);
+    const row = readObjectOrNull(item);
     if (row === null || typeof row['content'] !== 'string' || typeof row['score'] !== 'number') {
       return [];
     }
     return [{
       content: row['content'],
       score: row['score'],
-      metadata: objectOrNull(row['metadata']) ?? {},
+      metadata: readObjectOrNull(row['metadata']) ?? {},
     }];
   });
 }
@@ -212,7 +212,7 @@ export class RagService {
     const newFiles = files.filter(
       f => !this.pendingFiles().some(pf => pf.name === f.name),
     );
-    this.pendingFiles.update(prev => [...prev, ...newFiles]);
+    this.pendingFiles.update(pending => [...pending, ...newFiles]);
     this.#notifications.showInfo(
       this.#i18n.t().rag.fileSelected.replace('{count}', newFiles.length.toString()),
     );
@@ -366,7 +366,7 @@ export class RagService {
       requestBody.documentIds = Array.from(this.selectedDocumentIds());
     }
 
-    this.#ragChat(
+    this.#sendRagChat(
       requestBody,
       (chunk: string) => {
         this.messages.update(messages => messages.map((message) => {
@@ -432,7 +432,7 @@ export class RagService {
     return this.#http.delete<void>(`${API_BASE_URL}/rag/documents/${documentId}`);
   }
 
-  #ragChat(
+  #sendRagChat(
     query: RagChatRequest,
     onChunk: (text: string) => void,
     onSources: (sources: RagSourceEvent[]) => void,

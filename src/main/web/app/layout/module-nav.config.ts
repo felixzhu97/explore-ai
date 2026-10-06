@@ -51,12 +51,12 @@ export function isNavTabEnabled(
  * Top-level sidebar links (Work modules except Chat).
  * Chat is opened via New Chat, so it is omitted from the primary list.
  */
-export function primaryNavTabs(tabs: readonly ModuleNavTab[]): ModuleNavTab[] {
+export function listPrimaryNavTabs(tabs: readonly ModuleNavTab[]): ModuleNavTab[] {
   return tabs.filter(tab => tab.group === 'work' && tab.key !== 'chat');
 }
 
 /** Create + Lab sections for the More flyout; empty sections omitted. */
-export function moreNavSections(tabs: readonly ModuleNavTab[]): ModuleNavSection[] {
+export function listMoreNavSections(tabs: readonly ModuleNavTab[]): ModuleNavSection[] {
   return MORE_NAV_GROUP_ORDER
     .map(group => ({
       group,

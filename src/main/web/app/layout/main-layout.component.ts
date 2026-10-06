@@ -22,8 +22,8 @@ import { AccountService } from '../account/account.service';
       <app-header (sidebarOpenRequested)="openSidebar()" />
       <main
         class="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden transition-all duration-250"
-        [class.md:pl-[240px]]="!sidebar.collapsed()"
-        [class.md:pl-16]="sidebar.collapsed()"
+        [class.md:pl-[240px]]="!sidebar.isCollapsed()"
+        [class.md:pl-16]="sidebar.isCollapsed()"
       >
           <router-outlet/>
       </main>
