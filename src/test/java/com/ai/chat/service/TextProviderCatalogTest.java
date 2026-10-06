@@ -95,4 +95,25 @@ class TextProviderCatalogTest {
     assertThat(models.getFirst().provider()).isEqualTo("openai");
     assertThat(models.getFirst().name()).isEqualTo("deepseek-v4-flash");
   }
+
+  @Test
+  @DisplayName("should allow only catalog models when provider is paid")
+  void shouldAllowOnlyCatalogModelsWhenProviderIsPaid() {
+    var catalog = new TextProviderCatalog(true, "sk-ant-test");
+
+    assertThat(catalog.isModelAllowed("openai", "deepseek-v4-pro")).isTrue();
+    assertThat(catalog.isModelAllowed("anthropic", "claude-sonnet-5")).isTrue();
+    assertThat(catalog.isModelAllowed("openai", "gpt-premium-xl")).isFalse();
+    assertThat(catalog.isModelAllowed("anthropic", "claude-unknown")).isFalse();
+  }
+
+  @Test
+  @DisplayName("should allow any model when provider is local ollama or model is blank")
+  void shouldAllowAnyModelWhenProviderIsLocalOllamaOrModelIsBlank() {
+    var catalog = new TextProviderCatalog(true, "");
+
+    assertThat(catalog.isModelAllowed("ollama", "phi4:14b")).isTrue();
+    assertThat(catalog.isModelAllowed("openai", "")).isTrue();
+    assertThat(catalog.isModelAllowed(null, null)).isTrue();
+  }
 }

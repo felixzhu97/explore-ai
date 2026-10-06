@@ -12,5 +12,9 @@ public class RateLimitProperties {
 
   private boolean enabled = true;
   private int requestsPerWindow = 60;
+
+  /** Per-IP ceiling, so clients that drop the identity cookie still share one budget. */
+  private int ipRequestsPerWindow = 120;
+
   private int windowSeconds = 60;
 }

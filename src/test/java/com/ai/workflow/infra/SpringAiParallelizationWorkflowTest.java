@@ -9,6 +9,8 @@ import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.workflow.domain.model.ParallelizationResult;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,5 +48,26 @@ class SpringAiParallelizationWorkflowTest {
 
     assertThat(result.outputs()).hasSize(2);
     assertThat(result.outputs()).containsExactlyInAnyOrder("fr:Hello", "fr:World");
+  }
+
+  @Test
+  @DisplayName("should cap concurrent calls when requested parallelism is too high")
+  void shouldCapConcurrentCallsWhenRequestedParallelismIsTooHigh() {
+    AtomicInteger running = new AtomicInteger();
+    AtomicInteger peak = new AtomicInteger();
+    when(callResponseSpec.content())
+        .thenAnswer(
+            invocation -> {
+              peak.accumulateAndGet(running.incrementAndGet(), Math::max);
+              Thread.sleep(20);
+              running.decrementAndGet();
+              return "ok";
+            });
+    List<String> items = IntStream.range(0, 16).mapToObj(String::valueOf).toList();
+
+    ParallelizationResult result = workflow.runParallel("Echo:", items, 1_000);
+
+    assertThat(result.outputs()).hasSize(16);
+    assertThat(peak.get()).isLessThanOrEqualTo(8);
   }
 }

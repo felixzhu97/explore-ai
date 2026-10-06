@@ -64,6 +64,7 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
     String serviceClientId = resolveServiceClientId(request);
     if (serviceClientId != null) {
       request.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, serviceClientId);
+      request.setAttribute(ClientIdentity.TRUSTED_SERVICE_ATTRIBUTE, Boolean.TRUE);
       filterChain.doFilter(request, response);
       return;
     }

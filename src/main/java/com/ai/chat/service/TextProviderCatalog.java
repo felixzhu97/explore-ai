@@ -66,6 +66,22 @@ public class TextProviderCatalog {
     };
   }
 
+  /**
+   * Tells whether a model may be requested explicitly. Paid providers only accept catalog models;
+   * Ollama runs locally, so any installed model passes. A blank model means the default and passes.
+   */
+  public boolean isModelAllowed(String provider, String model) {
+    if (model == null || model.isBlank()) {
+      return true;
+    }
+    String key = provider == null || provider.isBlank() ? "openai" : provider.toLowerCase();
+    if ("ollama".equals(key)) {
+      return true;
+    }
+    return MODELS_BY_PROVIDER.getOrDefault(key, List.of()).stream()
+        .anyMatch(info -> info.name().equals(model));
+  }
+
   /** Lists the DeepSeek, Anthropic, and Ollama providers with their models and availability. */
   public List<ProviderInfoResponse> listProviders() {
     return List.of(

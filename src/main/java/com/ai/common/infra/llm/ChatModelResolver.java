@@ -53,7 +53,6 @@ public class ChatModelResolver {
                   + " or enable the provider before chatting.")
               .formatted(provider));
     }
-
     return switch (provider) {
       case "ollama" -> resolveOllama(options.model());
       case "anthropic" -> resolveAnthropic(options.model());
@@ -61,10 +60,21 @@ public class ChatModelResolver {
     };
   }
 
+  private String resolvePaidModel(String provider, String model, String configuredDefault) {
+    if (model == null || model.isBlank()) {
+      return configuredDefault;
+    }
+    if (!model.equals(configuredDefault) && !providerCatalog.isModelAllowed(provider, model)) {
+      throw new IllegalArgumentException(
+          "The requested model is not available for provider '%s'.".formatted(provider));
+    }
+    return model;
+  }
+
   private ResolvedChatModel resolveOpenAi(String model) {
     ChatModel chatModel =
         defaultChatModel instanceof OpenAiChatModel openAi ? openAi : defaultChatModel;
-    String effectiveModel = model == null || model.isBlank() ? defaultOpenAiModel : model;
+    String effectiveModel = resolvePaidModel("openai", model, defaultOpenAiModel);
     ChatOptions.Builder<?> chatOptions = OpenAiChatOptions.builder().model(effectiveModel);
     return new ResolvedChatModel(chatModel, chatOptions, "openai");
   }
@@ -87,7 +97,7 @@ public class ChatModelResolver {
       throw new IllegalArgumentException(
           "Anthropic chat model is not configured. Set ANTHROPIC_API_KEY before chatting.");
     }
-    String effectiveModel = model == null || model.isBlank() ? defaultAnthropicModel : model;
+    String effectiveModel = resolvePaidModel("anthropic", model, defaultAnthropicModel);
     ChatOptions.Builder<?> chatOptions = AnthropicChatOptions.builder().model(effectiveModel);
     return new ResolvedChatModel(anthropic, chatOptions, "anthropic");
   }

@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.Ordered;
@@ -30,6 +31,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class UsageQuotaFilter extends OncePerRequestFilter {
 
+  private static final List<String> METERED_PREFIXES =
+      List.of(
+          "/api/chat",
+          "/api/text-analysis",
+          "/api/rag",
+          "/api/pipelines",
+          "/api/automations",
+          "/api/skills",
+          "/api/tools",
+          "/api/images",
+          "/api/audio",
+          "/api/vision",
+          "/api/mcp",
+          "/api/workflows",
+          "/api/eval");
+
   private final DailyUsageQuotaService dailyUsageQuotaService;
 
   @Override
@@ -44,17 +61,7 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
     if (path == null || !path.startsWith("/api/")) {
       return true;
     }
-    return !(path.startsWith("/api/chat")
-        || path.startsWith("/api/text-analysis")
-        || path.startsWith("/api/rag")
-        || path.startsWith("/api/pipelines")
-        || path.startsWith("/api/automations")
-        || path.startsWith("/api/skills")
-        || path.startsWith("/api/tools")
-        || path.startsWith("/api/images")
-        || path.startsWith("/api/audio")
-        || path.startsWith("/api/vision")
-        || path.startsWith("/api/mcp"));
+    return METERED_PREFIXES.stream().noneMatch(path::startsWith);
   }
 
   @Override
@@ -65,7 +72,8 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
     String clientId =
         attr instanceof String id && !id.isBlank() ? id : "ip:" + request.getRemoteAddr();
     int limit = dailyUsageQuotaService.getDailyLimit();
-    final boolean allowed = dailyUsageQuotaService.tryConsume(clientId);
+    final boolean allowed =
+        dailyUsageQuotaService.tryConsume(clientId, ClientIdentity.resolveLimitAddress(request));
     response.setHeader("X-Quota-Limit", String.valueOf(limit));
     response.setHeader(
         "X-Quota-Remaining", String.valueOf(dailyUsageQuotaService.countRemaining(clientId)));

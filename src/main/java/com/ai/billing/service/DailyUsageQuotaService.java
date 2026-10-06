@@ -1,23 +1,35 @@
 package com.ai.billing.service;
 
 import com.ai.billing.infra.config.BillingProperties;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 /** Shared in-process daily quota counter for HTTP filter and background automations. */
 @Service
 @EnableConfigurationProperties(BillingProperties.class)
-@RequiredArgsConstructor
 public class DailyUsageQuotaService {
 
+  private static final String GLOBAL_KEY = "global";
+  private static final int MAX_TRACKED_KEYS = 100_000;
+
   private final BillingProperties properties;
-  private final Map<String, DayCounter> counters = new ConcurrentHashMap<>();
+  private final Cache<String, DayCounter> counters =
+      Caffeine.newBuilder()
+          .expireAfterAccess(Duration.ofDays(2))
+          .maximumSize(MAX_TRACKED_KEYS)
+          .build();
+
+  public DailyUsageQuotaService(BillingProperties properties) {
+    this.properties = properties;
+  }
 
   /** Tells whether the daily quota is enforced. */
   public boolean isEnabled() {
@@ -35,30 +47,37 @@ public class DailyUsageQuotaService {
   }
 
   /**
-   * Atomically consumes one unit of daily quota when enabled.
+   * Atomically consumes one unit of the client's and the global daily quota when enabled.
    *
-   * @return false when the client is over the daily limit
+   * @return false when any limit is exhausted
    */
   public boolean tryConsume(String clientId) {
+    return tryConsume(clientId, null);
+  }
+
+  /**
+   * Atomically consumes one unit of the client, IP and global daily quota when enabled. Nothing is
+   * consumed when any of them is exhausted.
+   *
+   * @param address client IP, or {@code null} to skip the per-IP limit
+   * @return false when any limit is exhausted
+   */
+  public boolean tryConsume(String clientId, String address) {
     if (!properties.isQuotaEnabled()) {
       return true;
     }
-    String day = LocalDate.now(ZoneOffset.UTC).toString();
-    DayCounter counter =
-        counters.compute(
-            clientId,
-            (k, existing) -> {
-              if (existing == null || !existing.day.equals(day)) {
-                return new DayCounter(day);
-              }
-              return existing;
-            });
-    int used = counter.count.incrementAndGet();
-    if (used > properties.resolveDailyLimit()) {
-      counter.count.decrementAndGet();
-      return false;
+    String day = today();
+    List<DayCounter> consumed = new ArrayList<>(3);
+    boolean allowed =
+        consume(clientId, properties.resolveDailyLimit(), day, consumed)
+            && (address == null
+                || consume("ip:" + address, properties.resolveIpDailyLimit(), day, consumed))
+            && (properties.getGlobalDailyRequests() <= 0
+                || consume(GLOBAL_KEY, properties.getGlobalDailyRequests(), day, consumed));
+    if (!allowed) {
+      consumed.forEach(counter -> counter.count.decrementAndGet());
     }
-    return true;
+    return allowed;
   }
 
   /** Returns the client's unused requests for the current UTC day. */
@@ -66,12 +85,31 @@ public class DailyUsageQuotaService {
     if (!properties.isQuotaEnabled()) {
       return properties.resolveDailyLimit();
     }
-    String day = LocalDate.now(ZoneOffset.UTC).toString();
-    DayCounter counter = counters.get(clientId);
-    if (counter == null || !counter.day.equals(day)) {
+    DayCounter counter = counters.getIfPresent(clientId);
+    if (counter == null || !counter.day.equals(today())) {
       return properties.resolveDailyLimit();
     }
     return Math.max(0, properties.resolveDailyLimit() - counter.count.get());
+  }
+
+  private boolean consume(String key, int limit, String day, List<DayCounter> consumed) {
+    DayCounter counter =
+        counters
+            .asMap()
+            .compute(
+                key,
+                (k, existing) ->
+                    existing == null || !existing.day.equals(day) ? new DayCounter(day) : existing);
+    if (counter.count.incrementAndGet() > limit) {
+      counter.count.decrementAndGet();
+      return false;
+    }
+    consumed.add(counter);
+    return true;
+  }
+
+  private static String today() {
+    return LocalDate.now(ZoneOffset.UTC).toString();
   }
 
   private static final class DayCounter {
