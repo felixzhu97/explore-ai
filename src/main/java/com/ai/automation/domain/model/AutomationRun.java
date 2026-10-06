@@ -4,13 +4,10 @@ import com.ai.automation.domain.vo.EmailDeliveryStatus;
 import com.ai.automation.domain.vo.RunId;
 import com.ai.automation.domain.vo.RunStatus;
 import com.ai.automation.domain.vo.ScheduleId;
-import com.ai.common.domain.model.AbstractTimedRunEntity;
-import com.ai.common.domain.model.OwnerPartition;
+import com.ai.common.domain.model.AbstractOwnerKeyedRunEntity;
 import com.ai.common.domain.vo.OwnerKey;
-import com.ai.common.domain.vo.OwnerKeyAttributeConverter;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -22,26 +19,20 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Filter;
 
 /** Automation execution run record partitioned by owner_key. */
 @Entity
 @DynamicUpdate
-@Filter(name = OwnerPartition.FILTER_NAME)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class AutomationRun extends AbstractTimedRunEntity<RunId> {
+public class AutomationRun extends AbstractOwnerKeyedRunEntity<RunId> {
 
   public static final int MAX_RESULT_EXCERPT = 16_384;
+  private static final String QUOTA_EXCEEDED = "Daily plan quota exceeded";
 
   @Embedded
   @AttributeOverride(name = "value", column = @Column(name = "schedule_id", nullable = false))
   private ScheduleId scheduleId;
-
-  @NotNull
-  @Convert(converter = OwnerKeyAttributeConverter.class)
-  @Column(nullable = false, length = 80)
-  private OwnerKey ownerKey;
 
   @NotNull
   @Enumerated(EnumType.STRING)
@@ -69,9 +60,8 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
       String errorMessage,
       String resultExcerpt,
       EmailDeliveryStatus emailStatus) {
-    super(id, startedAt, finishedAt);
+    super(id, OwnerKey.parse(ownerKey), startedAt, finishedAt);
     this.scheduleId = Objects.requireNonNull(scheduleId, "scheduleId");
-    this.ownerKey = OwnerKey.parse(ownerKey);
     this.status = Objects.requireNonNull(status, "status");
     this.errorMessage = errorMessage;
     this.resultExcerpt = resultExcerpt;
@@ -102,19 +92,19 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
     this.errorMessage = null;
   }
 
-  /** Marks the run failed with a truncated error message and stamps its finish time. */
-  public void fail(String errorMessage, EmailDeliveryStatus emailStatus) {
-    requireRunning();
-    this.status = RunStatus.FAILED;
-    this.errorMessage = truncateMessage(errorMessage);
-    this.emailStatus = Objects.requireNonNull(emailStatus, "emailStatus");
-    markFinished(Instant.now());
+  /** Marks the run failed before any email was sent, keeping a truncated error message. */
+  public void failBeforeEmail(String errorMessage) {
+    finishWithoutEmail(RunStatus.FAILED, errorMessage);
   }
 
-  /** Marks the run skipped with the given reason and no email, and stamps its finish time. */
-  public void skip(String reason) {
+  /** Marks the run skipped because the owner used up the daily plan quota. */
+  public void skipForQuota() {
+    finishWithoutEmail(RunStatus.SKIPPED, QUOTA_EXCEEDED);
+  }
+
+  private void finishWithoutEmail(RunStatus finalStatus, String reason) {
     requireRunning();
-    this.status = RunStatus.SKIPPED;
+    this.status = finalStatus;
     this.errorMessage = truncateMessage(reason);
     this.emailStatus = EmailDeliveryStatus.SKIPPED;
     markFinished(Instant.now());
@@ -124,11 +114,6 @@ public class AutomationRun extends AbstractTimedRunEntity<RunId> {
     if (isFinished()) {
       throw new IllegalStateException("Automation run already finished: " + getId().value());
     }
-  }
-
-  /** Returns the persisted owner_key value (c:… or u:…). */
-  public String getOwnerKeyValue() {
-    return ownerKey.value();
   }
 
   private static String truncate(String value) {

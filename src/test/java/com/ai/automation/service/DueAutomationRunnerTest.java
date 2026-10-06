@@ -16,6 +16,7 @@ import com.ai.automation.domain.repository.AutomationRunRepository;
 import com.ai.automation.domain.repository.AutomationScheduleRepository;
 import com.ai.automation.domain.repository.EmailGateway;
 import com.ai.automation.domain.repository.PipelineGateway;
+import com.ai.automation.domain.service.CronSchedule;
 import com.ai.automation.domain.vo.RunStatus;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.automation.infra.config.AutomationProperties;
@@ -41,7 +42,11 @@ class DueAutomationRunnerTest {
   @Mock private EmailGateway emailGateway;
   @Mock private DailyUsageQuotaService dailyUsageQuotaService;
 
-  private final CronScheduleCalculator cronCalculator = new CronScheduleCalculator();
+  private static final Instant FAR_FUTURE = Instant.parse("2100-01-01T00:00:00Z");
+
+  /** Arms the first run in the past so the schedule is due, then moves runs far ahead. */
+  private final CronSchedule cronSchedule = (expression, timezone, after) -> FAR_FUTURE;
+
   private final AutomationProperties properties = new AutomationProperties();
   private DueAutomationRunner useCase;
 
@@ -54,7 +59,7 @@ class DueAutomationRunnerTest {
             pipelineGateway,
             emailGateway,
             new AutomationMailFormatter(),
-            cronCalculator,
+            cronSchedule,
             dailyUsageQuotaService,
             properties);
   }
@@ -71,7 +76,8 @@ class DueAutomationRunnerTest {
             "11111111-1111-1111-1111-111111111111",
             "user@example.com",
             "Do the work",
-            past);
+            Instant.now(),
+            (expression, timezone, after) -> past);
     when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(eq(schedule.getId()), eq(past), any())).thenReturn(true);
     when(dailyUsageQuotaService.tryConsume("c:client-1")).thenReturn(true);
@@ -100,7 +106,8 @@ class DueAutomationRunnerTest {
             "11111111-1111-1111-1111-111111111111",
             "user@example.com",
             "Do the work",
-            past);
+            Instant.now(),
+            (expression, timezone, after) -> past);
     when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(any(ScheduleId.class), eq(past), any())).thenReturn(true);
     when(dailyUsageQuotaService.tryConsume("c:client-1")).thenReturn(false);
@@ -125,12 +132,11 @@ class DueAutomationRunnerTest {
             "11111111-1111-1111-1111-111111111111",
             "user@example.com",
             "Do once",
-            Instant.now().plusSeconds(120));
+            Instant.now().plusSeconds(120),
+            Instant.now());
     ReflectionTestUtils.setField(schedule, "nextRunAt", past);
     when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
-    when(scheduleRepository.claim(
-            eq(schedule.getId()), eq(past), eq(AutomationSchedule.ONCE_TERMINAL_NEXT)))
-        .thenReturn(true);
+    when(scheduleRepository.claim(eq(schedule.getId()), eq(past), any())).thenReturn(true);
     when(dailyUsageQuotaService.tryConsume("c:client-1")).thenReturn(true);
     when(pipelineGateway.runSavedTemplate(anyString(), anyString(), anyString(), anyString()))
         .thenReturn("once result");
@@ -141,7 +147,6 @@ class DueAutomationRunnerTest {
         ArgumentCaptor.forClass(AutomationSchedule.class);
     verify(scheduleRepository).save(scheduleCaptor.capture());
     assertThat(scheduleCaptor.getValue().isEnabled()).isFalse();
-    assertThat(scheduleCaptor.getValue().getNextRunAt())
-        .isEqualTo(AutomationSchedule.ONCE_TERMINAL_NEXT);
+    assertThat(scheduleCaptor.getValue().pendingRunAt()).isEmpty();
   }
 }

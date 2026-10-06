@@ -23,18 +23,13 @@ public record AutomationScheduleResponse(
     Instant updatedAt) {
   /** Builds a response from a schedule, exposing {@code runAt} only for pending one-off runs. */
   public static AutomationScheduleResponse from(AutomationSchedule schedule) {
-    Instant runAt = null;
-    if (schedule.getScheduleKind() == ScheduleKind.ONCE
-        && !AutomationSchedule.ONCE_TERMINAL_NEXT.equals(schedule.getNextRunAt())) {
-      runAt = schedule.getNextRunAt();
-    }
     return new AutomationScheduleResponse(
         schedule.getId().value(),
         schedule.getName(),
-        schedule.getScheduleKind(),
-        schedule.getCronExpression(),
-        runAt,
-        schedule.getTimezone(),
+        schedule.getTiming().getScheduleKind(),
+        schedule.getTiming().getCronExpression(),
+        schedule.pendingRunAt().orElse(null),
+        schedule.getTiming().getTimezone(),
         schedule.isEnabled(),
         schedule.getActionType(),
         schedule.getPipelineTemplateId().value(),

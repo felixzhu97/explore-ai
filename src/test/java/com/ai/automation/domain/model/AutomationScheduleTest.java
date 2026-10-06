@@ -3,188 +3,232 @@ package com.ai.automation.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ai.automation.domain.service.CronSchedule;
 import com.ai.automation.domain.vo.AutomationActionType;
 import com.ai.automation.domain.vo.ScheduleKind;
+import com.ai.automation.domain.vo.ScheduleTiming;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("AutomationSchedule")
 class AutomationScheduleTest {
 
-  @Test
-  void shouldCreateEnabledScheduleWhenInputsValid() {
-    Instant next = Instant.parse("2026-08-07T01:00:00Z");
-    AutomationSchedule schedule =
-        AutomationSchedule.create(
-            "c:client-1",
-            "Daily research",
-            "0 0 9 * * *",
-            "Asia/Shanghai",
-            "11111111-1111-1111-1111-111111111111",
-            "user@example.com",
-            "Summarize market moves",
-            next);
+  private static final String OWNER = "c:client-1";
+  private static final String TEMPLATE_ID = "11111111-1111-1111-1111-111111111111";
+  private static final Instant NOW = Instant.parse("2026-08-07T00:00:00Z");
 
-    assertThat(schedule.isEnabled()).isTrue();
-    assertThat(schedule.getScheduleKind()).isEqualTo(ScheduleKind.CRON);
-    assertThat(schedule.getActionType()).isEqualTo(AutomationActionType.RUN_PIPELINE_TEMPLATE);
-    assertThat(schedule.getRecipientEmail()).isEqualTo("user@example.com");
-    assertThat(schedule.getNextRunAt()).isEqualTo(next);
+  /** Fires every hour on the hour, ignoring the expression. */
+  private static final CronSchedule HOURLY =
+      (expression, timezone, after) ->
+          after.plus(Duration.ofHours(1)).truncatedTo(ChronoUnit.HOURS);
+
+  private static AutomationSchedule cronSchedule() {
+    return AutomationSchedule.create(
+        OWNER,
+        "Daily research",
+        "0 0 * * * *",
+        "Asia/Shanghai",
+        TEMPLATE_ID,
+        "User@Example.com",
+        "Summarize market moves",
+        NOW,
+        HOURLY);
+  }
+
+  private static AutomationSchedule onceSchedule(Instant runAt) {
+    return AutomationSchedule.createOnce(
+        OWNER, "One shot", "UTC", TEMPLATE_ID, "user@example.com", "Do once", runAt, NOW);
+  }
+
+  @Nested
+  @DisplayName("create")
+  class Create {
+
+    @Test
+    @DisplayName("should arm the first cron run when a cron schedule is created")
+    void shouldArmTheFirstCronRunWhenACronScheduleIsCreated() {
+      AutomationSchedule schedule = cronSchedule();
+
+      assertThat(schedule.isEnabled()).isTrue();
+      assertThat(schedule.getTiming().getScheduleKind()).isEqualTo(ScheduleKind.CRON);
+      assertThat(schedule.getActionType()).isEqualTo(AutomationActionType.RUN_PIPELINE_TEMPLATE);
+      assertThat(schedule.getRecipientEmail()).isEqualTo("user@example.com");
+      assertThat(schedule.getNextRunAt()).isEqualTo(Instant.parse("2026-08-07T01:00:00Z"));
+    }
+
+    @Test
+    @DisplayName("should reject the schedule when the email is invalid")
+    void shouldRejectTheScheduleWhenTheEmailIsInvalid() {
+      assertThatThrownBy(
+              () ->
+                  AutomationSchedule.create(
+                      OWNER,
+                      "Daily research",
+                      "0 0 9 * * *",
+                      "Asia/Shanghai",
+                      TEMPLATE_ID,
+                      "not-an-email",
+                      "Summarize market moves",
+                      NOW,
+                      HOURLY))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessageContaining("email");
+    }
+
+    @Test
+    @DisplayName("should keep the run time when a one-off schedule is created")
+    void shouldKeepTheRunTimeWhenAOneOffScheduleIsCreated() {
+      Instant runAt = NOW.plusSeconds(300);
+
+      AutomationSchedule schedule = onceSchedule(runAt);
+
+      assertThat(schedule.isOnce()).isTrue();
+      assertThat(schedule.getTiming().getCronExpression()).isNull();
+      assertThat(schedule.getNextRunAt()).isEqualTo(runAt);
+      assertThat(schedule.pendingRunAt()).contains(runAt);
+    }
+
+    @Test
+    @DisplayName("should reject a one-off schedule when runAt is in the past")
+    void shouldRejectAOneOffScheduleWhenRunAtIsInThePast() {
+      assertThatThrownBy(() -> onceSchedule(NOW.minusSeconds(10)))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessageContaining("runAt");
+    }
+
+    @Test
+    @DisplayName("should reject a one-off schedule when runAt is missing")
+    void shouldRejectAOneOffScheduleWhenRunAtIsMissing() {
+      assertThatThrownBy(() -> onceSchedule(null))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage("runAt is required for ONCE schedules");
+    }
+  }
+
+  @Nested
+  @DisplayName("turnOn")
+  class TurnOn {
+
+    @Test
+    @DisplayName("should re-arm the next cron run when a disabled schedule is turned on")
+    void shouldReArmTheNextCronRunWhenADisabledScheduleIsTurnedOn() {
+      AutomationSchedule schedule = cronSchedule();
+      schedule.disable();
+      Instant later = NOW.plus(Duration.ofDays(1));
+
+      schedule.turnOn(later, HOURLY);
+
+      assertThat(schedule.isEnabled()).isTrue();
+      assertThat(schedule.getNextRunAt()).isEqualTo(later.plus(Duration.ofHours(1)));
+    }
+
+    @Test
+    @DisplayName("should reject turning on a one-off schedule when its run already happened")
+    void shouldRejectTurningOnAOneOffScheduleWhenItsRunAlreadyHappened() {
+      AutomationSchedule schedule = onceSchedule(NOW.plusSeconds(60));
+      schedule.recordRunFinished(NOW.plusSeconds(90), HOURLY);
+
+      assertThatThrownBy(() -> schedule.turnOn(NOW.plusSeconds(120), HOURLY))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessageContaining("already completed");
+      assertThat(schedule.isEnabled()).isFalse();
+    }
+
+    @Test
+    @DisplayName("should refuse the inherited enable so the next run cannot go stale")
+    void shouldRefuseTheInheritedEnableSoTheNextRunCannotGoStale() {
+      AutomationSchedule schedule = cronSchedule();
+      schedule.disable();
+
+      assertThatThrownBy(schedule::enable).isInstanceOf(UnsupportedOperationException.class);
+      assertThatThrownBy(() -> schedule.changeEnabled(true))
+          .isInstanceOf(UnsupportedOperationException.class);
+      assertThat(schedule.isEnabled()).isFalse();
+    }
+  }
+
+  @Nested
+  @DisplayName("runs")
+  class Runs {
+
+    @Test
+    @DisplayName("should claim a one-off run with no further run when it is picked up")
+    void shouldClaimAOneOffRunWithNoFurtherRunWhenItIsPickedUp() {
+      AutomationSchedule schedule = onceSchedule(NOW.plusSeconds(60));
+
+      Instant provisional = schedule.provisionalNextRunAt(NOW.plusSeconds(60), HOURLY);
+
+      assertThat(provisional).isAfter(NOW.plus(Duration.ofDays(365 * 1000L)));
+    }
+
+    @Test
+    @DisplayName("should claim the next cron run when a cron schedule is picked up")
+    void shouldClaimTheNextCronRunWhenACronScheduleIsPickedUp() {
+      AutomationSchedule schedule = cronSchedule();
+
+      assertThat(schedule.provisionalNextRunAt(NOW, HOURLY))
+          .isEqualTo(Instant.parse("2026-08-07T01:00:00Z"));
+    }
+
+    @Test
+    @DisplayName("should turn off a one-off schedule when its run finishes")
+    void shouldTurnOffAOneOffScheduleWhenItsRunFinishes() {
+      AutomationSchedule schedule = onceSchedule(NOW.plusSeconds(60));
+      Instant finished = NOW.plusSeconds(90);
+
+      schedule.recordRunFinished(finished, HOURLY);
+
+      assertThat(schedule.isEnabled()).isFalse();
+      assertThat(schedule.getLastRunAt()).isEqualTo(finished);
+      assertThat(schedule.pendingRunAt()).isEmpty();
+      assertThat(schedule.hasPendingRun(finished)).isFalse();
+    }
+
+    @Test
+    @DisplayName("should move a cron schedule to its next run when a run finishes")
+    void shouldMoveACronScheduleToItsNextRunWhenARunFinishes() {
+      AutomationSchedule schedule = cronSchedule();
+      Instant finished = Instant.parse("2026-08-07T01:05:00Z");
+
+      schedule.recordRunFinished(finished, HOURLY);
+
+      assertThat(schedule.isEnabled()).isTrue();
+      assertThat(schedule.getLastRunAt()).isEqualTo(finished);
+      assertThat(schedule.getNextRunAt()).isEqualTo(Instant.parse("2026-08-07T02:00:00Z"));
+      assertThat(schedule.hasPendingRun(finished)).isTrue();
+    }
+
+    @Test
+    @DisplayName("should address the result email to the recipient with the schedule name")
+    void shouldAddressTheResultEmailToTheRecipientWithTheScheduleName() {
+      EmailMessage email = cronSchedule().resultEmail("text", "<p>html</p>");
+
+      assertThat(email.to()).isEqualTo("user@example.com");
+      assertThat(email.subject()).isEqualTo("[ExploreAI] Daily research");
+      assertThat(email.htmlBody()).isEqualTo("<p>html</p>");
+    }
   }
 
   @Test
-  void shouldRejectInvalidEmailWhenCreate() {
-    assertThatThrownBy(
-            () ->
-                AutomationSchedule.create(
-                    "c:client-1",
-                    "Daily research",
-                    "0 0 9 * * *",
-                    "Asia/Shanghai",
-                    "11111111-1111-1111-1111-111111111111",
-                    "not-an-email",
-                    "Summarize market moves",
-                    Instant.now()))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("email");
-  }
+  @DisplayName("should turn a finished one-off schedule back on when it gets a new run time")
+  void shouldTurnAFinishedOneOffScheduleBackOnWhenItGetsANewRunTime() {
+    AutomationSchedule schedule = onceSchedule(NOW.plusSeconds(60));
+    schedule.recordRunFinished(NOW.plusSeconds(90), HOURLY);
+    Instant newRunAt = NOW.plusSeconds(600);
 
-  @Test
-  void shouldDisableScheduleWhenDisableCalled() {
-    AutomationSchedule schedule =
-        AutomationSchedule.create(
-            "c:client-1",
-            "Daily research",
-            "0 0 9 * * *",
-            "Asia/Shanghai",
-            "11111111-1111-1111-1111-111111111111",
-            "user@example.com",
-            "Summarize market moves",
-            Instant.now());
-
-    schedule.disable();
-
-    assertThat(schedule.isEnabled()).isFalse();
-  }
-
-  @Test
-  @DisplayName("should re-arm next run when enabling a disabled schedule")
-  void shouldReArmNextRunWhenEnablingDisabledSchedule() {
-    AutomationSchedule schedule =
-        AutomationSchedule.create(
-            "c:client-1",
-            "Daily research",
-            "0 0 9 * * *",
-            "Asia/Shanghai",
-            "11111111-1111-1111-1111-111111111111",
-            "user@example.com",
-            "Summarize market moves",
-            Instant.now());
-    schedule.disable();
-    Instant nextRunAt = Instant.now().plus(1, ChronoUnit.DAYS);
-
-    schedule.enable(nextRunAt);
-
-    assertThat(schedule.isEnabled()).isTrue();
-    assertThat(schedule.getNextRunAt()).isEqualTo(nextRunAt);
-  }
-
-  @Test
-  void shouldCreateOnceScheduleWhenRunAtInFuture() {
-    Instant runAt = Instant.now().plus(5, ChronoUnit.MINUTES);
-    AutomationSchedule schedule =
-        AutomationSchedule.createOnce(
-            "c:client-1",
-            "One shot",
-            "Asia/Shanghai",
-            "11111111-1111-1111-1111-111111111111",
-            "user@example.com",
-            "Do once",
-            runAt);
-
-    assertThat(schedule.isOnce()).isTrue();
-    assertThat(schedule.getActionType()).isEqualTo(AutomationActionType.RUN_PIPELINE_TEMPLATE);
-    assertThat(schedule.getCronExpression()).isNull();
-    assertThat(schedule.getNextRunAt()).isEqualTo(runAt);
-  }
-
-  @Test
-  void shouldRejectPastRunAtWhenCreateOnce() {
-    assertThatThrownBy(
-            () ->
-                AutomationSchedule.createOnce(
-                    "c:client-1",
-                    "One shot",
-                    "Asia/Shanghai",
-                    "11111111-1111-1111-1111-111111111111",
-                    "user@example.com",
-                    "Do once",
-                    Instant.now().minusSeconds(10)))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("runAt");
-  }
-
-  @Test
-  @DisplayName("should reject a one-off schedule when runAt is missing")
-  void shouldRejectAOneOffScheduleWhenRunAtIsMissing() {
-    assertThatThrownBy(
-            () ->
-                AutomationSchedule.createOnce(
-                    "c:client-1",
-                    "One shot",
-                    "Asia/Shanghai",
-                    "11111111-1111-1111-1111-111111111111",
-                    "user@example.com",
-                    "Do once",
-                    null))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("runAt is required for ONCE schedules");
-  }
-
-  @Test
-  void shouldDisableAfterCompleteOnce() {
-    AutomationSchedule schedule =
-        AutomationSchedule.createOnce(
-            "c:client-1",
-            "One shot",
-            "UTC",
-            "11111111-1111-1111-1111-111111111111",
-            "user@example.com",
-            "Do once",
-            Instant.now().plusSeconds(60));
-
-    schedule.completeOnce(Instant.now());
-
-    assertThat(schedule.isEnabled()).isFalse();
-    assertThat(schedule.getNextRunAt()).isEqualTo(AutomationSchedule.ONCE_TERMINAL_NEXT);
-    assertThat(schedule.getLastRunAt()).isNotNull();
-  }
-
-  @Test
-  void shouldReenableWhenUpdateOnceAfterComplete() {
-    AutomationSchedule schedule =
-        AutomationSchedule.createOnce(
-            "c:client-1",
-            "One shot",
-            "UTC",
-            "11111111-1111-1111-1111-111111111111",
-            "user@example.com",
-            "Do once",
-            Instant.now().plusSeconds(60));
-    schedule.completeOnce(Instant.now());
-
-    Instant newRunAt = Instant.now().plus(10, ChronoUnit.MINUTES);
     schedule.update(
         "One shot again",
-        ScheduleKind.ONCE,
-        null,
-        "UTC",
-        "11111111-1111-1111-1111-111111111111",
+        ScheduleTiming.once("UTC"),
+        newRunAt,
+        TEMPLATE_ID,
         "user@example.com",
         "Do once again",
-        newRunAt);
+        NOW.plusSeconds(120),
+        HOURLY);
 
     assertThat(schedule.isEnabled()).isTrue();
     assertThat(schedule.getNextRunAt()).isEqualTo(newRunAt);

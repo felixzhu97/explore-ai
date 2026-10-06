@@ -6,8 +6,10 @@ import com.ai.automation.domain.model.AutomationRun;
 import com.ai.automation.domain.model.AutomationSchedule;
 import com.ai.automation.domain.repository.AutomationRunRepository;
 import com.ai.automation.domain.repository.AutomationScheduleRepository;
+import com.ai.automation.domain.service.CronSchedule;
 import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.automation.domain.vo.ScheduleKind;
+import com.ai.automation.domain.vo.ScheduleTiming;
 import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
@@ -28,7 +30,7 @@ public class AutomationService {
   private final AutomationScheduleRepository scheduleRepository;
   private final AutomationRunRepository runRepository;
   private final PipelineTemplateRepository pipelineTemplateRepository;
-  private final CronScheduleCalculator cronCalculator;
+  private final CronSchedule cronSchedule;
   private final AutomationProperties properties;
 
   /** Lists the owner's schedules. */
@@ -60,17 +62,21 @@ public class AutomationService {
           "Schedule limit reached (" + properties.getMaxSchedulesPerClient() + ")");
     }
     requireWorkflow(ownerKey, pipelineTemplateId);
+    Instant now = Instant.now();
     AutomationSchedule schedule =
-        buildNew(
-            scheduleKind,
-            ownerKey,
-            name,
-            cronExpression,
-            runAt,
-            timezone,
-            pipelineTemplateId,
-            recipientEmail,
-            brief);
+        scheduleKind == ScheduleKind.ONCE
+            ? AutomationSchedule.createOnce(
+                ownerKey, name, timezone, pipelineTemplateId, recipientEmail, brief, runAt, now)
+            : AutomationSchedule.create(
+                ownerKey,
+                name,
+                cronExpression,
+                timezone,
+                pipelineTemplateId,
+                recipientEmail,
+                brief,
+                now,
+                cronSchedule);
     return scheduleRepository.save(schedule);
   }
 
@@ -89,16 +95,15 @@ public class AutomationService {
       String brief) {
     AutomationSchedule schedule = requireOwned(ownerKey, scheduleId);
     requireWorkflow(ownerKey, pipelineTemplateId);
-    Instant next = resolveNextRunAt(scheduleKind, cronExpression, runAt, timezone);
     schedule.update(
         name,
-        scheduleKind,
-        cronExpression,
-        timezone,
+        ScheduleTiming.of(scheduleKind, cronExpression, timezone),
+        runAt,
         pipelineTemplateId,
         recipientEmail,
         brief,
-        next);
+        Instant.now(),
+        cronSchedule);
     return scheduleRepository.save(schedule);
   }
 
@@ -107,19 +112,7 @@ public class AutomationService {
   public AutomationSchedule setEnabled(String ownerKey, String scheduleId, boolean enabled) {
     AutomationSchedule schedule = requireOwned(ownerKey, scheduleId);
     if (enabled) {
-      if (schedule.isOnce()) {
-        if (!schedule.getNextRunAt().isAfter(Instant.now())
-            || schedule.getNextRunAt().equals(AutomationSchedule.ONCE_TERMINAL_NEXT)) {
-          throw new IllegalArgumentException(
-              "One-shot schedule already completed; set a new runAt before enabling");
-        }
-        schedule.enable(schedule.getNextRunAt());
-      } else {
-        Instant next =
-            cronCalculator.calculateNextRunAt(
-                schedule.getCronExpression(), schedule.getTimezone(), Instant.now());
-        schedule.enable(next);
-      }
+      schedule.turnOn(Instant.now(), cronSchedule);
     } else {
       schedule.disable();
     }
@@ -131,35 +124,6 @@ public class AutomationService {
   public void delete(String ownerKey, String scheduleId) {
     requireOwned(ownerKey, scheduleId);
     scheduleRepository.deleteByIdAndOwnerKey(ScheduleId.of(scheduleId), ownerKey);
-  }
-
-  private AutomationSchedule buildNew(
-      ScheduleKind kind,
-      String ownerKey,
-      String name,
-      String cronExpression,
-      Instant runAt,
-      String timezone,
-      String pipelineTemplateId,
-      String recipientEmail,
-      String brief) {
-    if (kind == ScheduleKind.ONCE) {
-      return AutomationSchedule.createOnce(
-          ownerKey, name, timezone, pipelineTemplateId, recipientEmail, brief, runAt);
-    }
-    cronCalculator.validate(cronExpression, timezone);
-    Instant next = cronCalculator.calculateNextRunAt(cronExpression, timezone, Instant.now());
-    return AutomationSchedule.create(
-        ownerKey, name, cronExpression, timezone, pipelineTemplateId, recipientEmail, brief, next);
-  }
-
-  private Instant resolveNextRunAt(
-      ScheduleKind kind, String cronExpression, Instant runAt, String timezone) {
-    if (kind == ScheduleKind.ONCE) {
-      return AutomationSchedule.requireFutureRunAt(runAt, Instant.now());
-    }
-    cronCalculator.validate(cronExpression, timezone);
-    return cronCalculator.calculateNextRunAt(cronExpression, timezone, Instant.now());
   }
 
   private AutomationSchedule requireOwned(String ownerKey, String scheduleId) {

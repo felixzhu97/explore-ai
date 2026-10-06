@@ -53,17 +53,18 @@ class AutomationJpaTest extends AbstractDataJpaTest {
         AutomationSchedule.create(
             OWNER_KEY,
             "Claimed",
-            "0 9 * * *",
+            "0 0 9 * * *",
             "UTC",
             WORKFLOW_ID,
             "user@example.com",
             "Send daily summary",
-            nextRun);
+            Instant.now(),
+            (expression, timezone, after) -> nextRun);
     scheduleRepository.saveAndFlush(schedule);
     final Long versionBefore = schedule.getVersion();
     em.clear();
 
-    Instant provisional = AutomationSchedule.ONCE_TERMINAL_NEXT;
+    Instant provisional = nextRun.plusSeconds(86_400);
     int first =
         scheduleRepository.claimNextRun(schedule.getId(), nextRun, provisional, Instant.now());
     int second =
@@ -81,7 +82,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
   @DisplayName("should keep the same managed instance when saving a new run")
   void shouldKeepTheSameManagedInstanceWhenSavingNewRun() {
     AutomationRun run = AutomationRun.start(ScheduleId.generate(), OWNER_KEY);
-    run.skip("quota");
+    run.skipForQuota();
 
     AutomationRun saved = jpaRunRepository.save(run);
 
@@ -101,12 +102,13 @@ class AutomationJpaTest extends AbstractDataJpaTest {
         AutomationSchedule.create(
             OWNER_KEY,
             "Daily digest",
-            "0 9 * * *",
+            "0 0 9 * * *",
             "UTC",
             WORKFLOW_ID,
             "user@example.com",
             "Send daily summary",
-            nextRun);
+            Instant.now(),
+            (expression, timezone, after) -> nextRun);
 
     scheduleRepository.saveAndFlush(schedule);
     em.clear();
@@ -161,22 +163,24 @@ class AutomationJpaTest extends AbstractDataJpaTest {
         AutomationSchedule.create(
             OWNER_KEY,
             "First",
-            "0 8 * * *",
+            "0 0 8 * * *",
             "UTC",
             WORKFLOW_ID,
             "first@example.com",
             "First brief",
-            nextRun);
+            Instant.now(),
+            (expression, timezone, after) -> nextRun);
     AutomationSchedule second =
         AutomationSchedule.create(
             OWNER_KEY,
             "Second",
-            "0 10 * * *",
+            "0 0 10 * * *",
             "UTC",
             WORKFLOW_ID,
             "second@example.com",
             "Second brief",
-            nextRun.plusSeconds(60));
+            Instant.now(),
+            (expression, timezone, after) -> nextRun.plusSeconds(60));
     scheduleRepository.saveAndFlush(first);
     scheduleRepository.saveAndFlush(second);
     em.clear();
