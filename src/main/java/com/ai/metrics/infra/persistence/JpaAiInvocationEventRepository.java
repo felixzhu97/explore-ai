@@ -4,7 +4,10 @@ import com.ai.common.domain.vo.OwnerKey;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.ErrorSummary;
 import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.vo.Latency;
+import com.ai.metrics.domain.vo.TokenUsage;
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -13,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -25,25 +29,35 @@ import org.springframework.transaction.annotation.Transactional;
 public class JpaAiInvocationEventRepository implements AiInvocationEventRepository {
 
   private static final RowMapper<AiInvocationEvent> ROW_MAPPER =
-      (rs, rowNum) ->
-          AiInvocationEvent.builder()
-              .id(java.util.UUID.fromString(rs.getString("id")))
-              .occurredAt(rs.getObject("occurred_at", Instant.class))
-              .domain(AiDomain.require(rs.getString("domain")))
-              .operation(rs.getString("operation"))
-              .outcome(InvocationOutcome.parse(rs.getString("outcome")))
-              .latencyMs(rs.getLong("latency_ms"))
-              .provider(rs.getString("provider"))
-              .model(rs.getString("model"))
-              .sessionId(rs.getString("session_id"))
-              .documentId(rs.getString("document_id"))
-              .agentType(rs.getString("agent_type"))
-              .toolName(rs.getString("tool_name"))
-              .promptTokens((Integer) rs.getObject("prompt_tokens"))
-              .completionTokens((Integer) rs.getObject("completion_tokens"))
-              .errorCode(rs.getString("error_code"))
-              .errorMessage(rs.getString("error_message"))
-              .build();
+      (rs, rowNum) -> {
+        AiDomain domain = AiDomain.require(rs.getString("domain"));
+        String operation = rs.getString("operation");
+        Latency latency = Latency.ofMillis(rs.getLong("latency_ms"));
+        OwnerKey owner = OwnerKey.parse(rs.getString("owner_key"));
+        AiInvocationEvent.Builder event =
+            InvocationOutcome.parse(rs.getString("outcome")) == InvocationOutcome.SUCCESS
+                ? AiInvocationEvent.succeeded(domain, operation, latency, owner)
+                : AiInvocationEvent.failed(
+                    domain,
+                    operation,
+                    latency,
+                    owner,
+                    ErrorSummary.of(rs.getString("error_code"), rs.getString("error_message")));
+        return event
+            .id(UUID.fromString(rs.getString("id")))
+            .occurredAt(rs.getObject("occurred_at", Instant.class))
+            .provider(rs.getString("provider"))
+            .model(rs.getString("model"))
+            .sessionId(rs.getString("session_id"))
+            .documentId(rs.getString("document_id"))
+            .agentType(rs.getString("agent_type"))
+            .toolName(rs.getString("tool_name"))
+            .tokens(
+                new TokenUsage(
+                    (Integer) rs.getObject("prompt_tokens"),
+                    (Integer) rs.getObject("completion_tokens")))
+            .build();
+      };
 
   private final EntityManager entityManager;
   private final JdbcTemplate jdbcTemplate;
@@ -132,7 +146,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
             """
                 SELECT id, occurred_at, domain, operation, outcome, latency_ms,
                        provider, model, session_id, document_id, agent_type, tool_name,
-                       prompt_tokens, completion_tokens, error_code, error_message
+                       prompt_tokens, completion_tokens, error_code, error_message, owner_key
                 FROM ai_invocation_event
                 """
                 + where
@@ -146,7 +160,6 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
   @Override
   @Transactional
   public void save(AiInvocationEvent event) {
-    event.assignOwnerKey(resolveOwnerKey(event.getSessionId()));
     entityManager.persist(event);
     entityManager.flush();
   }
@@ -172,17 +185,5 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
   @Transactional
   public int deleteOlderThan(Instant cutoff) {
     return jdbcTemplate.update("DELETE FROM ai_invocation_event WHERE occurred_at < ?", cutoff);
-  }
-
-  private String resolveOwnerKey(String sessionId) {
-    if (sessionId == null || sessionId.isBlank()) {
-      return OwnerKey.UNOWNED.value();
-    }
-    List<String> keys =
-        jdbcTemplate.query(
-            "SELECT owner_key FROM chat_session WHERE CAST(id AS VARCHAR) = ?",
-            (rs, rowNum) -> rs.getString(1),
-            sessionId.trim());
-    return keys.isEmpty() ? OwnerKey.UNOWNED.value() : keys.getFirst();
   }
 }

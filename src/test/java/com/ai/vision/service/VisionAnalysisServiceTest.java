@@ -2,8 +2,14 @@ package com.ai.vision.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ai.common.domain.vo.OwnerKey;
+import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.vision.domain.model.CaptionResult;
 import com.ai.vision.domain.model.Detection;
@@ -25,6 +31,8 @@ import org.springframework.mock.web.MockMultipartFile;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("VisionAnalysisService")
 class VisionAnalysisServiceTest {
+
+  private static final OwnerKey OWNER = OwnerKey.forClient("11111111-1111-4111-8111-111111111111");
 
   @Mock private ImageCaptioner captioner;
 
@@ -49,10 +57,13 @@ class VisionAnalysisServiceTest {
     when(captioner.captionImage(any(BufferedImage.class)))
         .thenReturn(new CaptionResult("A red bicycle"));
 
-    var response = useCase.captionImage(pngFile("photo.png"));
+    var response = useCase.captionImage(pngFile("photo.png"), OWNER);
 
     assertThat(response.caption()).isEqualTo("A red bicycle");
     assertThat(response.processingTimeMs()).isGreaterThanOrEqualTo(0);
+    verify(invocationRecorder)
+        .recordSuccess(
+            eq(AiDomain.VISION), anyString(), any(Latency.class), eq(OWNER), any(), any(), any());
   }
 
   @Test
@@ -61,7 +72,7 @@ class VisionAnalysisServiceTest {
     when(detector.detect(any(BufferedImage.class)))
         .thenReturn(List.of(new Detection("cat", 0.91, 1, 2, 3, 4)));
 
-    var response = useCase.detect(pngFile("photo.png"));
+    var response = useCase.detect(pngFile("photo.png"), OWNER);
 
     assertThat(response.detections()).hasSize(1);
     assertThat(response.detections().getFirst().className()).isEqualTo("cat");
@@ -73,7 +84,7 @@ class VisionAnalysisServiceTest {
   void shouldReturnOcrTextFromOcrEnginePort() throws Exception {
     when(ocrEngine.extract(any(BufferedImage.class))).thenReturn(new OcrResult("Hello World"));
 
-    var response = useCase.recognizeText(pngFile("scan.png"));
+    var response = useCase.recognizeText(pngFile("scan.png"), OWNER);
 
     assertThat(response.fullText()).isEqualTo("Hello World");
   }

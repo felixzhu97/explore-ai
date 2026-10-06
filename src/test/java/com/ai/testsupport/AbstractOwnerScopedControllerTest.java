@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 
 import com.ai.account.controller.OwnerContext;
+import com.ai.common.domain.vo.OwnerKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -19,6 +20,7 @@ public abstract class AbstractOwnerScopedControllerTest {
   @BeforeEach
   void stubOwnerContext() {
     lenient().when(ownerContext.requireValue(any())).thenReturn(ownerKey());
+    lenient().when(ownerContext.require(any())).thenReturn(OwnerKey.parse(ownerKey()));
   }
 
   /** Owner key returned by stubbed {@link OwnerContext#requireValue}. */

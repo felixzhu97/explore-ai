@@ -2,6 +2,8 @@ package com.ai.metrics.infra.persistence;
 
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
 import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.InvocationStats;
+import com.ai.metrics.domain.vo.LatencyStats;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -20,14 +22,26 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   private final JdbcTemplate jdbcTemplate;
 
   @Override
-  public long countInvocations(Optional<AiDomain> domain, Instant from, Instant to) {
-    return countWhere("SELECT COUNT(*) FROM ai_invocation_event", domain, from, to);
-  }
-
-  @Override
-  public long countErrors(Optional<AiDomain> domain, Instant from, Instant to) {
-    return countWhere(
-        "SELECT COUNT(*) FROM ai_invocation_event WHERE outcome = 'error'", domain, from, to, true);
+  public InvocationStats countInvocationStats(Optional<AiDomain> domain, Instant from, Instant to) {
+    StringBuilder sql =
+        new StringBuilder(
+            """
+                SELECT COUNT(*) AS requests,
+                       COALESCE(SUM(CASE WHEN outcome = 'error' THEN 1 ELSE 0 END), 0) AS errors
+                FROM ai_invocation_event
+                WHERE 1=1
+                """);
+    List<Object> args = new ArrayList<>();
+    appendDomainAndRange(sql, args, domain, from, to, true);
+    return jdbcTemplate.query(
+        sql.toString(),
+        rs -> {
+          if (!rs.next()) {
+            return new InvocationStats(0L, 0L);
+          }
+          return new InvocationStats(rs.getLong("requests"), rs.getLong("errors"));
+        },
+        args.toArray());
   }
 
   @Override
@@ -40,11 +54,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     List<Long> latencies =
         jdbcTemplate.query(
             sql.toString(), (rs, rowNum) -> rs.getLong("latency_ms"), args.toArray());
-    if (latencies.isEmpty()) {
-      return new LatencyStats(null, null);
-    }
-    return new LatencyStats(
-        calculatePercentile(latencies, 0.50), calculatePercentile(latencies, 0.95));
+    return LatencyStats.fromSorted(latencies);
   }
 
   @Override
@@ -170,7 +180,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     List<TimePoint> points = new ArrayList<>();
     byDay.forEach(
         (day, values) ->
-            points.add(new TimePoint(day, Math.round(calculatePercentile(values, 0.95)))));
+            points.add(new TimePoint(day, Math.round(LatencyStats.percentile(values, 0.95)))));
     return points;
   }
 
@@ -279,23 +289,6 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
         sql, (rs, rowNum) -> new NamedCount(rs.getString("name"), rs.getLong("cnt")), from, to);
   }
 
-  private long countWhere(String baseSql, Optional<AiDomain> domain, Instant from, Instant to) {
-    return countWhere(baseSql, domain, from, to, baseSql.toLowerCase().contains("where"));
-  }
-
-  private long countWhere(
-      String baseSql,
-      Optional<AiDomain> domain,
-      Instant from,
-      Instant to,
-      boolean alreadyHasWhere) {
-    StringBuilder sql = new StringBuilder(baseSql);
-    List<Object> args = new ArrayList<>();
-    appendDomainAndRange(sql, args, domain, from, to, alreadyHasWhere);
-    Long count = jdbcTemplate.queryForObject(sql.toString(), Long.class, args.toArray());
-    return toZeroIfNull(count);
-  }
-
   private void appendDomainAndRange(
       StringBuilder sql,
       List<Object> args,
@@ -316,22 +309,5 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   private static long toZeroIfNull(Long value) {
     return value == null ? 0L : value;
-  }
-
-  private static double calculatePercentile(List<Long> sortedValues, double percentile) {
-    if (sortedValues.isEmpty()) {
-      return 0.0;
-    }
-    if (sortedValues.size() == 1) {
-      return sortedValues.getFirst();
-    }
-    double rank = percentile * (sortedValues.size() - 1);
-    int low = (int) Math.floor(rank);
-    int high = (int) Math.ceil(rank);
-    if (low == high) {
-      return sortedValues.get(low);
-    }
-    double weight = rank - low;
-    return sortedValues.get(low) * (1 - weight) + sortedValues.get(high) * weight;
   }
 }

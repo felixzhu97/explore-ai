@@ -1,10 +1,13 @@
 package com.ai.metrics.service;
 
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.vo.ErrorSummary;
+import com.ai.metrics.domain.vo.Latency;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +44,7 @@ public class AiInvocationRecorder {
               event.getDomain().value(),
               "outcome",
               event.getOutcome().value())
-          .record(java.time.Duration.ofMillis(event.getLatencyMs()));
+          .record(Duration.ofMillis(event.getLatencyMs()));
     } catch (Exception ex) {
       log.warn(
           "Failed to record AI invocation event domain={} operation={}",
@@ -55,43 +58,34 @@ public class AiInvocationRecorder {
   public void recordSuccess(
       AiDomain domain,
       String operation,
-      long latencyMs,
+      Latency latency,
+      OwnerKey owner,
       String provider,
       String model,
       String sessionId) {
     record(
-        AiInvocationEvent.builder()
-            .domain(domain)
-            .operation(operation)
-            .outcome(InvocationOutcome.SUCCESS)
-            .latencyMs(latencyMs)
+        AiInvocationEvent.succeeded(domain, operation, latency, owner)
             .provider(provider)
             .model(model)
             .sessionId(sessionId)
             .build());
   }
 
-  /** Records a failed invocation together with its error code and message. */
+  /** Records a failed invocation with a normalized summary of the error. */
   public void recordError(
       AiDomain domain,
       String operation,
-      long latencyMs,
+      Latency latency,
+      OwnerKey owner,
       String provider,
       String model,
       String sessionId,
-      String errorCode,
-      String errorMessage) {
+      Throwable error) {
     record(
-        AiInvocationEvent.builder()
-            .domain(domain)
-            .operation(operation)
-            .outcome(InvocationOutcome.ERROR)
-            .latencyMs(latencyMs)
+        AiInvocationEvent.failed(domain, operation, latency, owner, ErrorSummary.of(error))
             .provider(provider)
             .model(model)
             .sessionId(sessionId)
-            .errorCode(errorCode)
-            .errorMessage(errorMessage)
             .build());
   }
 }

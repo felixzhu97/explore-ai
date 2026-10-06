@@ -3,6 +3,7 @@ package com.ai.metrics.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.repository.MetricsHealthGateway;
 import com.ai.metrics.domain.repository.MetricsHealthGateway.AgentsHealth;
@@ -10,6 +11,7 @@ import com.ai.metrics.domain.repository.MetricsHealthGateway.McpHealth;
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.vo.Latency;
 import com.ai.metrics.domain.vo.ModuleStatus;
 import com.ai.metrics.service.model.DomainInventory;
 import com.ai.metrics.service.model.DrilldownPage;
@@ -87,11 +89,8 @@ class MetricsServiceTest {
   @DisplayName("should filter drilldown by domain and day")
   void shouldFilterDrilldownByDomainAndDay() {
     eventRepository.events.add(
-        AiInvocationEvent.builder()
-            .domain(AiDomain.CHAT)
-            .operation("chat.stream")
-            .outcome(InvocationOutcome.SUCCESS)
-            .latencyMs(12)
+        AiInvocationEvent.succeeded(
+                AiDomain.CHAT, "chat.stream", Latency.ofMillis(12), OwnerKey.UNOWNED)
             .sessionId("s1")
             .build());
 

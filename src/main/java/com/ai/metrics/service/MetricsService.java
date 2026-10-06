@@ -5,6 +5,8 @@ import com.ai.metrics.domain.repository.MetricsHealthGateway;
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.vo.InvocationStats;
+import com.ai.metrics.domain.vo.MetricsWindow;
 import com.ai.metrics.service.model.DomainInventory;
 import com.ai.metrics.service.model.DrilldownPage;
 import com.ai.metrics.service.model.MetricsDomainSnapshot;
@@ -32,11 +34,11 @@ public class MetricsService {
 
   /** Returns cross-domain request, error, latency, token, and inventory totals for the range. */
   public MetricsOverview getOverview(String range) {
-    RangeWindow window = parseRange(range);
-    Instant activeSince = Instant.now().minus(24, ChronoUnit.HOURS);
+    RangeWindow window = RangeWindow.endingNow(range);
+    Instant activeSince = window.to().minus(24, ChronoUnit.HOURS);
 
-    long requests = queryRepository.countInvocations(Optional.empty(), window.from(), window.to());
-    long errors = queryRepository.countErrors(Optional.empty(), window.from(), window.to());
+    InvocationStats stats =
+        queryRepository.countInvocationStats(Optional.empty(), window.from(), window.to());
     final var latency =
         queryRepository.calculateLatencyPercentiles(Optional.empty(), window.from(), window.to());
     final var tokens = queryRepository.sumTokens(Optional.empty(), window.from(), window.to());
@@ -44,9 +46,6 @@ public class MetricsService {
     var rag = queryRepository.getRagInventory();
     var agents = healthGateway.checkAgentsHealth();
     var mcp = healthGateway.checkMcpHealth();
-
-    double errorRate = requests == 0 ? 0.0 : (double) errors / requests;
-    final double successRate = 1.0 - errorRate;
 
     final List<NamedCount> byDomain =
         queryRepository.countByDomain(window.from(), window.to()).stream()
@@ -58,10 +57,10 @@ public class MetricsService {
 
     return new MetricsOverview(
         window.range(),
-        requests,
-        errors,
-        successRate,
-        errorRate,
+        stats.requests(),
+        stats.errors(),
+        stats.successRate(),
+        stats.errorRate(),
         latency.p50Ms(),
         latency.p95Ms(),
         tokens.promptTokens(),
@@ -72,7 +71,7 @@ public class MetricsService {
 
   /** Returns the named chart series, optionally filtered by domain, over the given range. */
   public SeriesSnapshot getSeries(String name, String domainRaw, String range) {
-    RangeWindow window = parseRange(range);
+    RangeWindow window = RangeWindow.endingNow(range);
     Optional<AiDomain> domain = AiDomain.parse(domainRaw);
     String seriesName = name == null ? "" : name.trim().toLowerCase(Locale.ROOT);
 
@@ -140,7 +139,7 @@ public class MetricsService {
     int safeSize = size <= 0 ? 20 : size;
     int safePage = Math.max(0, page);
     if (fromInstant.isEmpty() && toInstant.isEmpty() && (day == null || day.isBlank())) {
-      RangeWindow window = parseRange(range == null || range.isBlank() ? "7d" : range);
+      RangeWindow window = RangeWindow.endingNow(range);
       fromInstant = Optional.of(window.from());
       toInstant = Optional.of(window.to());
     }
@@ -165,20 +164,19 @@ public class MetricsService {
   /** Returns request stats, domain-specific inventory, and trend series for one AI domain. */
   public MetricsDomainSnapshot getDomain(String domainRaw, String range) {
     AiDomain domain = AiDomain.require(domainRaw);
-    RangeWindow window = parseRange(range);
+    RangeWindow window = RangeWindow.endingNow(range);
     Optional<AiDomain> filter = Optional.of(domain);
 
-    long requests = queryRepository.countInvocations(filter, window.from(), window.to());
-    long errors = queryRepository.countErrors(filter, window.from(), window.to());
+    InvocationStats stats =
+        queryRepository.countInvocationStats(filter, window.from(), window.to());
     var latency = queryRepository.calculateLatencyPercentiles(filter, window.from(), window.to());
     var tokens = queryRepository.sumTokens(filter, window.from(), window.to());
-    double errorRate = requests == 0 ? 0.0 : (double) errors / requests;
 
     DomainInventory inventory =
         switch (domain) {
           case CHAT ->
               new DomainInventory.Chat(
-                  queryRepository.getChatInventory(Instant.now().minus(24, ChronoUnit.HOURS)));
+                  queryRepository.getChatInventory(window.to().minus(24, ChronoUnit.HOURS)));
           case RAG -> new DomainInventory.Rag(queryRepository.getRagInventory());
           case AGENTS -> new DomainInventory.Agents(healthGateway.checkAgentsHealth());
           case TOOLS ->
@@ -186,15 +184,15 @@ public class MetricsService {
                   queryRepository.listTopTools(filter, window.from(), window.to(), 10).stream()
                       .map(nc -> new NamedCount(nc.name(), nc.count()))
                       .toList());
-          case VISION, WORKFLOW -> new DomainInventory.Requests(requests, errors);
+          case VISION, WORKFLOW -> new DomainInventory.Requests(stats.requests(), stats.errors());
         };
 
     return new MetricsDomainSnapshot(
         domain.value(),
         window.range(),
-        requests,
-        errors,
-        errorRate,
+        stats.requests(),
+        stats.errors(),
+        stats.errorRate(),
         latency.p50Ms(),
         latency.p95Ms(),
         tokens.promptTokens(),
@@ -208,20 +206,6 @@ public class MetricsService {
     return points.stream().map(p -> new SeriesPoint(p.day(), p.value())).toList();
   }
 
-  private RangeWindow parseRange(String range) {
-    String normalized =
-        range == null || range.isBlank() ? "7d" : range.trim().toLowerCase(Locale.ROOT);
-    long days =
-        switch (normalized) {
-          case "30d" -> 30;
-          case "7d" -> 7;
-          default -> throw new IllegalArgumentException("Unsupported range: " + range);
-        };
-    Instant to = Instant.now();
-    Instant from = to.minus(days, ChronoUnit.DAYS);
-    return new RangeWindow(normalized, from, to);
-  }
-
   private Optional<Instant> parseInstant(String raw) {
     if (raw == null || raw.isBlank()) {
       return Optional.empty();
@@ -233,5 +217,11 @@ public class MetricsService {
     return value == null || value.isBlank() ? null : value.trim();
   }
 
-  private record RangeWindow(String range, Instant from, Instant to) {}
+  private record RangeWindow(String range, Instant from, Instant to) {
+    static RangeWindow endingNow(String range) {
+      MetricsWindow window = MetricsWindow.parse(range);
+      Instant now = Instant.now();
+      return new RangeWindow(window.range(), window.from(now), now);
+    }
+  }
 }

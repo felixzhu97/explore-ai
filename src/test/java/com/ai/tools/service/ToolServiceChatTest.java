@@ -2,15 +2,18 @@ package com.ai.tools.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.domain.tool.DocumentSearchTool;
 import com.ai.common.domain.tool.WebSearchTool;
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
+import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.tools.domain.model.WeatherReport;
 import com.ai.tools.infra.tools.WeatherTools;
@@ -25,6 +28,8 @@ import org.springframework.ai.chat.client.ChatClient;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ToolService chat and search")
 class ToolServiceChatTest {
+
+  private static final OwnerKey OWNER = OwnerKey.forClient("11111111-1111-4111-8111-111111111111");
 
   @Mock private ChatClientProvider chatClientProvider;
   @Mock private WeatherTools weatherTools;
@@ -59,8 +64,10 @@ class ToolServiceChatTest {
     when(requestSpec.call()).thenReturn(callResponseSpec);
     when(callResponseSpec.content()).thenReturn("answer");
 
-    assertThat(toolService.chatWithTools("what is weather?")).isEqualTo("answer");
-    verify(invocationRecorder).recordSuccess(any(), anyString(), anyLong(), any(), any(), any());
+    assertThat(toolService.chatWithTools("what is weather?", OWNER)).isEqualTo("answer");
+    verify(invocationRecorder)
+        .recordSuccess(
+            eq(AiDomain.TOOLS), anyString(), any(Latency.class), eq(OWNER), any(), any(), any());
   }
 
   @Test

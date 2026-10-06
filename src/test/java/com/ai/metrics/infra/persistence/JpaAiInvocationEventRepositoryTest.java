@@ -8,12 +8,16 @@ import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.vo.Latency;
+import com.ai.metrics.domain.vo.TokenUsage;
 import jakarta.persistence.EntityManager;
 import java.sql.ResultSet;
 import java.time.Instant;
@@ -45,41 +49,26 @@ class JpaAiInvocationEventRepositoryTest {
   }
 
   @Test
-  @DisplayName("should persist event with resolved owner key")
-  void shouldPersistEventWithResolvedOwnerKey() {
+  @DisplayName("should persist event with the owner fixed at creation")
+  void shouldPersistEventWithTheOwnerFixedAtCreation() {
     UUID id = UUID.randomUUID();
-    Instant occurredAt = Instant.parse("2026-07-26T10:00:00Z");
-    String sessionId = "22222222-2222-2222-2222-222222222222";
+    OwnerKey owner = OwnerKey.forClient("22222222-2222-4222-8222-222222222222");
     AiInvocationEvent event =
-        AiInvocationEvent.builder()
+        AiInvocationEvent.succeeded(AiDomain.CHAT, "chat.stream", Latency.ofMillis(42), owner)
             .id(id)
-            .occurredAt(occurredAt)
-            .domain(AiDomain.CHAT)
-            .operation("chat.stream")
-            .outcome(InvocationOutcome.SUCCESS)
-            .latencyMs(42)
+            .occurredAt(Instant.parse("2026-07-26T10:00:00Z"))
             .provider("openai")
             .model("gpt-4")
-            .sessionId(sessionId)
-            .documentId("doc-1")
-            .agentType("researcher")
-            .toolName("weather")
-            .promptTokens(10)
-            .completionTokens(20)
-            .errorCode("E1")
-            .errorMessage("failed")
+            .tokens(new TokenUsage(10, 20))
             .build();
-
-    when(jdbcTemplate.query(
-            startsWith("SELECT owner_key FROM chat_session"), any(RowMapper.class), eq(sessionId)))
-        .thenReturn(List.of("c:owner-1"));
 
     repository.save(event);
 
     ArgumentCaptor<AiInvocationEvent> saved = ArgumentCaptor.forClass(AiInvocationEvent.class);
     verify(entityManager).persist(saved.capture());
     verify(entityManager, never()).merge(any());
-    assertThat(saved.getValue().getOwnerKey().value()).isEqualTo("c:owner-1");
+    verifyNoInteractions(jdbcTemplate);
+    assertThat(saved.getValue().getOwnerKey()).isEqualTo(owner);
     assertThat(saved.getValue().getId().value()).isEqualTo(id.toString());
   }
 
@@ -110,8 +99,7 @@ class JpaAiInvocationEventRepositoryTest {
               when(rs.getString("tool_name")).thenReturn(null);
               when(rs.getObject("prompt_tokens")).thenReturn(1);
               when(rs.getObject("completion_tokens")).thenReturn(2);
-              when(rs.getString("error_code")).thenReturn(null);
-              when(rs.getString("error_message")).thenReturn(null);
+              when(rs.getString("owner_key")).thenReturn("c:33333333-3333-4333-8333-333333333333");
               return List.of(mapper.mapRow(rs, 0));
             });
 
@@ -133,6 +121,8 @@ class JpaAiInvocationEventRepositoryTest {
     assertThat(page.total()).isEqualTo(25L);
     assertThat(page.items()).hasSize(1);
     assertThat(page.items().getFirst().getDomain()).isEqualTo(AiDomain.CHAT);
+    assertThat(page.items().getFirst().getOwnerKey().value())
+        .isEqualTo("c:33333333-3333-4333-8333-333333333333");
 
     ArgumentCaptor<Object[]> countArgs = ArgumentCaptor.forClass(Object[].class);
     verify(jdbcTemplate)

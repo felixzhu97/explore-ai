@@ -1,11 +1,13 @@
 package com.ai.vision.controller;
 
+import com.ai.account.controller.OwnerContext;
 import com.ai.vision.controller.dto.CaptionResponse;
 import com.ai.vision.controller.dto.DetectResponse;
 import com.ai.vision.controller.dto.OcrResponse;
 import com.ai.vision.controller.dto.VisionHealthResponse;
 import com.ai.vision.domain.exception.VisionInvalidFileException;
 import com.ai.vision.service.VisionAnalysisService;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class VisionController {
 
   private final VisionAnalysisService visionAnalysisService;
+  private final OwnerContext ownerContext;
 
   /** Returns the vision module health. */
   @GetMapping("/health")
@@ -37,25 +40,31 @@ public class VisionController {
   /** Describes the uploaded image. */
   @PostMapping("/caption")
   public CaptionResponse captionImage(
-      @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+      @RequestParam(value = "file", required = false) MultipartFile file,
+      HttpServletRequest request)
+      throws IOException {
     validateFile(file);
-    return visionAnalysisService.captionImage(file);
+    return visionAnalysisService.captionImage(file, ownerContext.require(request));
   }
 
   /** Detects objects in the uploaded image. */
   @PostMapping("/detect")
-  public DetectResponse detect(@RequestParam(value = "file", required = false) MultipartFile file)
+  public DetectResponse detect(
+      @RequestParam(value = "file", required = false) MultipartFile file,
+      HttpServletRequest request)
       throws IOException {
     validateFile(file);
-    return visionAnalysisService.detect(file);
+    return visionAnalysisService.detect(file, ownerContext.require(request));
   }
 
   /** Reads the text in the uploaded image. */
   @PostMapping("/ocr")
   public OcrResponse recognizeText(
-      @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
+      @RequestParam(value = "file", required = false) MultipartFile file,
+      HttpServletRequest request)
+      throws IOException {
     validateFile(file);
-    return visionAnalysisService.recognizeText(file);
+    return visionAnalysisService.recognizeText(file, ownerContext.require(request));
   }
 
   private void validateFile(MultipartFile file) {

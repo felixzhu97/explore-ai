@@ -5,9 +5,12 @@ import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.domain.vo.OwnerKeyAttributeConverter;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.AiDomainAttributeConverter;
+import com.ai.metrics.domain.vo.ErrorSummary;
 import com.ai.metrics.domain.vo.InvocationEventId;
 import com.ai.metrics.domain.vo.InvocationOutcome;
 import com.ai.metrics.domain.vo.InvocationOutcomeAttributeConverter;
+import com.ai.metrics.domain.vo.Latency;
+import com.ai.metrics.domain.vo.TokenUsage;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -16,13 +19,17 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
-/** Append-only record of a single AI invocation for metrics and drill-down. */
+/**
+ * Append-only record of a single AI invocation for metrics and drill-down. Owner, outcome and error
+ * are fixed at creation, so success events never carry an error and failures always do.
+ */
 @Entity
 @Immutable
 @Getter
@@ -94,35 +101,51 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
             ? InvocationEventId.of(builder.id.toString())
             : InvocationEventId.generate(),
         Objects.requireNonNullElseGet(builder.occurredAt, Instant::now));
-    this.domain = Objects.requireNonNull(builder.domain, "domain");
-    this.operation = requireNonBlank(builder.operation, "operation");
-    this.outcome = Objects.requireNonNull(builder.outcome, "outcome");
-    this.latencyMs = Math.max(0L, builder.latencyMs);
+    this.domain = builder.domain;
+    this.operation = builder.operation;
+    this.outcome = builder.outcome;
+    this.latencyMs = builder.latency.millis();
+    this.ownerKey = builder.ownerKey;
+    this.errorCode = builder.error == null ? null : builder.error.code();
+    this.errorMessage = builder.error == null ? null : builder.error.message();
     this.provider = toNullIfBlank(builder.provider);
     this.model = toNullIfBlank(builder.model);
     this.sessionId = toNullIfBlank(builder.sessionId);
     this.documentId = toNullIfBlank(builder.documentId);
     this.agentType = toNullIfBlank(builder.agentType);
     this.toolName = toNullIfBlank(builder.toolName);
-    this.promptTokens = builder.promptTokens;
-    this.completionTokens = builder.completionTokens;
-    this.errorCode = toNullIfBlank(builder.errorCode);
-    this.errorMessage = truncate(toNullIfBlank(builder.errorMessage), 512);
-    this.ownerKey = toOwnerKey(builder.ownerKey);
+    this.promptTokens = builder.tokens.prompt();
+    this.completionTokens = builder.tokens.completion();
   }
 
-  /** Creates an event builder. */
-  public static Builder builder() {
-    return new Builder();
+  /** Starts a successful invocation event; optional context goes on the returned builder. */
+  public static Builder succeeded(
+      AiDomain domain, String operation, Latency latency, OwnerKey ownerKey) {
+    return new Builder(domain, operation, InvocationOutcome.SUCCESS, latency, ownerKey, null);
   }
 
-  /** Sets owner partition key before persistence. */
-  public void assignOwnerKey(String ownerKey) {
-    this.ownerKey = toOwnerKey(ownerKey);
+  /** Starts a failed invocation event; optional context goes on the returned builder. */
+  public static Builder failed(
+      AiDomain domain, String operation, Latency latency, OwnerKey ownerKey, ErrorSummary error) {
+    return new Builder(
+        domain,
+        operation,
+        InvocationOutcome.ERROR,
+        latency,
+        ownerKey,
+        Objects.requireNonNull(error, "error"));
   }
 
-  private static OwnerKey toOwnerKey(String ownerKey) {
-    return ownerKey == null || ownerKey.isBlank() ? OwnerKey.UNOWNED : OwnerKey.parse(ownerKey);
+  /** Returns how long the invocation took. */
+  public Latency latency() {
+    return Latency.ofMillis(latencyMs);
+  }
+
+  /** Returns the error of a failed invocation, or empty when it succeeded. */
+  public Optional<ErrorSummary> error() {
+    return outcome == InvocationOutcome.ERROR
+        ? Optional.of(ErrorSummary.of(errorCode, errorMessage))
+        : Optional.empty();
   }
 
   private static String requireNonBlank(String value, String name) {
@@ -136,66 +159,48 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
     return value == null || value.isBlank() ? null : value.trim();
   }
 
-  private static String truncate(String value, int max) {
-    if (value == null || value.length() <= max) {
-      return value;
-    }
-    return value.substring(0, max);
-  }
-
-  /** Fluent builder whose {@code build()} validates and normalizes the collected event fields. */
+  /** Optional context of an event started by {@link #succeeded} or {@link #failed}. */
   public static final class Builder {
+    private final AiDomain domain;
+    private final String operation;
+    private final InvocationOutcome outcome;
+    private final Latency latency;
+    private final OwnerKey ownerKey;
+    private final ErrorSummary error;
     private UUID id;
     private Instant occurredAt;
-    private AiDomain domain;
-    private String operation;
-    private InvocationOutcome outcome;
-    private long latencyMs;
     private String provider;
     private String model;
     private String sessionId;
     private String documentId;
     private String agentType;
     private String toolName;
-    private Integer promptTokens;
-    private Integer completionTokens;
-    private String errorCode;
-    private String errorMessage;
-    private String ownerKey;
+    private TokenUsage tokens = TokenUsage.UNKNOWN;
 
-    /** Sets the event id. */
+    private Builder(
+        AiDomain domain,
+        String operation,
+        InvocationOutcome outcome,
+        Latency latency,
+        OwnerKey ownerKey,
+        ErrorSummary error) {
+      this.domain = Objects.requireNonNull(domain, "domain");
+      this.operation = requireNonBlank(operation, "operation");
+      this.outcome = outcome;
+      this.latency = Objects.requireNonNull(latency, "latency");
+      this.ownerKey = Objects.requireNonNull(ownerKey, "ownerKey");
+      this.error = error;
+    }
+
+    /** Sets the id of a stored event. */
     public Builder id(UUID id) {
       this.id = id;
       return this;
     }
 
-    /** Sets when the call happened. */
+    /** Sets when a stored event happened. */
     public Builder occurredAt(Instant occurredAt) {
       this.occurredAt = occurredAt;
-      return this;
-    }
-
-    /** Sets the AI domain. */
-    public Builder domain(AiDomain domain) {
-      this.domain = domain;
-      return this;
-    }
-
-    /** Sets the operation name. */
-    public Builder operation(String operation) {
-      this.operation = operation;
-      return this;
-    }
-
-    /** Sets the outcome. */
-    public Builder outcome(InvocationOutcome outcome) {
-      this.outcome = outcome;
-      return this;
-    }
-
-    /** Sets the latency in milliseconds. */
-    public Builder latencyMs(long latencyMs) {
-      this.latencyMs = latencyMs;
       return this;
     }
 
@@ -235,33 +240,9 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
       return this;
     }
 
-    /** Sets the prompt token count. */
-    public Builder promptTokens(Integer promptTokens) {
-      this.promptTokens = promptTokens;
-      return this;
-    }
-
-    /** Sets the completion token count. */
-    public Builder completionTokens(Integer completionTokens) {
-      this.completionTokens = completionTokens;
-      return this;
-    }
-
-    /** Sets the error code. */
-    public Builder errorCode(String errorCode) {
-      this.errorCode = errorCode;
-      return this;
-    }
-
-    /** Sets the error message. */
-    public Builder errorMessage(String errorMessage) {
-      this.errorMessage = errorMessage;
-      return this;
-    }
-
-    /** Sets the owner key. */
-    public Builder ownerKey(String ownerKey) {
-      this.ownerKey = ownerKey;
+    /** Sets the token counts. */
+    public Builder tokens(TokenUsage tokens) {
+      this.tokens = Objects.requireNonNull(tokens, "tokens");
       return this;
     }
 

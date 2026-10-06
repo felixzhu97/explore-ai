@@ -439,10 +439,10 @@ Package: `com.ai.metrics`. Route `/metrics` (Work nav). API `/api/metrics`.
 | Metrics Drill-down       | 指标下钻    | Filtered page of invocation events                                 | Application    | `DrilldownPage`                | `GET /api/metrics/drilldown`               |
 | AI Invocation Recorder   | AI 调用记录器 | Records invocation events without failing the business path        | Application    | `AiInvocationRecorder`         | Chat / RAG / Agents / Tools / Vision inject |
 | Latency                  | 耗时       | Elapsed milliseconds of an invocation, never negative              | Value Object   | `Latency.since(startNanos)`    | — |
-| Error Summary            | 错误摘要     | Error code plus a sanitized, length-capped message                 | Value Object   | `ErrorSummary.of(throwable)`   | Never stores raw prompt text |
+| Error Summary            | 错误摘要     | Error code plus a normalized, length-capped message                | Value Object   | `ErrorSummary.of(throwable)`   | Single line; message ≤ 512 chars |
 | Token Usage              | Token 用量  | Prompt and completion token counts                                 | Value Object   | `TokenUsage`                   | Rejects negative counts |
-| Invocation Stats         | 调用统计     | Request and error counts with derived error and success rates      | Value Object   | `InvocationStats`              | — |
-| Metrics Window           | 指标时间窗    | Time range such as `24h`, `7d`, `30d`                              | Value Object   | `MetricsWindow`                | Default `7d` |
+| Invocation Stats         | 调用统计     | Request and error counts with derived error and success rates      | Value Object   | `InvocationStats`              | Both counts come from one read |
+| Metrics Window           | 指标时间窗    | Time range ending now: `7d` or `30d`                               | Value Object   | `MetricsWindow`                | Default `7d` |
 | Latency Stats            | 耗时统计     | Percentiles over sorted latencies                                  | Value Object   | `LatencyStats`                 | p50 / p95 |
 
 Shared BI vocabulary (Dashboard, KPI, Dimension, Drill-down, …): see **Appendix C**.

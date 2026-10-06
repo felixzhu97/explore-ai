@@ -2,10 +2,12 @@ package com.ai.tools.service;
 
 import com.ai.common.domain.tool.DocumentSearchTool;
 import com.ai.common.domain.tool.WebSearchTool;
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.tools.domain.model.WeatherReport;
 import com.ai.tools.domain.vo.WeatherForecast;
@@ -59,7 +61,7 @@ public class ToolService {
   }
 
   /** Answers the question via a tool-enabled OpenAI chat client and records the invocation. */
-  public String chatWithTools(String question) {
+  public String chatWithTools(String question, OwnerKey owner) {
     log.info("ToolService.chatWithTools: question length={}", LogSanitizer.lengthOf(question));
     long startedAt = System.nanoTime();
     try {
@@ -67,23 +69,11 @@ public class ToolService {
           chatClientProvider.createStateless(TextChatOptions.of("openai", null, true));
       String content = chatClient.prompt().user(question).call().content();
       invocationRecorder.recordSuccess(
-          AiDomain.TOOLS,
-          "tool.chat",
-          (System.nanoTime() - startedAt) / 1_000_000L,
-          "openai",
-          null,
-          null);
+          AiDomain.TOOLS, "tool.chat", Latency.since(startedAt), owner, "openai", null, null);
       return content;
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
-          AiDomain.TOOLS,
-          "tool.chat",
-          (System.nanoTime() - startedAt) / 1_000_000L,
-          "openai",
-          null,
-          null,
-          ex.getClass().getSimpleName(),
-          ex.getMessage());
+          AiDomain.TOOLS, "tool.chat", Latency.since(startedAt), owner, "openai", null, null, ex);
       throw ex;
     }
   }

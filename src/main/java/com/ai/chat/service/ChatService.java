@@ -8,6 +8,7 @@ import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.common.domain.exception.AiServiceException;
+import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.infra.llm.ToolCallMarkupFilter;
 import com.ai.common.infra.llm.ToolEventChannel;
 import com.ai.common.infra.logging.LogSanitizer;
@@ -16,6 +17,7 @@ import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.vo.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -157,7 +159,8 @@ public class ChatService {
                           invocationRecorder.recordSuccess(
                               AiDomain.CHAT,
                               "chat.stream",
-                              measureElapsedMs(startedAt),
+                              Latency.since(startedAt),
+                              OwnerKey.parse(ownerKey),
                               options.provider(),
                               options.model(),
                               sessionId);
@@ -177,12 +180,12 @@ public class ChatService {
                           invocationRecorder.recordError(
                               AiDomain.CHAT,
                               "chat.stream",
-                              measureElapsedMs(startedAt),
+                              Latency.since(startedAt),
+                              OwnerKey.parse(ownerKey),
                               options.provider(),
                               options.model(),
                               sessionId,
-                              error.getClass().getSimpleName(),
-                              error.getMessage());
+                              error);
                         });
               } finally {
                 ToolEventChannel.clearCurrentSessionId();
@@ -217,7 +220,10 @@ public class ChatService {
     return chat(userMessage, TextChatOptions.defaults());
   }
 
-  /** Sends one stateless message with retries and records the invocation. */
+  /**
+   * Sends one stateless message with retries and records the invocation. Only system callers such
+   * as evals and the MCP server use it, so the event has no visitor owner.
+   */
   public String chat(String userMessage, TextChatOptions options) {
     log.info("Chat request with retry: message length={}", LogSanitizer.lengthOf(userMessage));
     long startedAt = System.nanoTime();
@@ -235,7 +241,8 @@ public class ChatService {
       invocationRecorder.recordSuccess(
           AiDomain.CHAT,
           "chat.call",
-          measureElapsedMs(startedAt),
+          Latency.since(startedAt),
+          OwnerKey.UNOWNED,
           options.provider(),
           options.model(),
           null);
@@ -244,12 +251,12 @@ public class ChatService {
       invocationRecorder.recordError(
           AiDomain.CHAT,
           "chat.call",
-          measureElapsedMs(startedAt),
+          Latency.since(startedAt),
+          OwnerKey.UNOWNED,
           options.provider(),
           options.model(),
           null,
-          ex.getClass().getSimpleName(),
-          ex.getMessage());
+          ex);
       throw ex;
     }
   }
@@ -275,10 +282,6 @@ public class ChatService {
   /** Clears the model memory of a conversation. */
   public void clearConversationMemory(String conversationId) {
     chatMemory.clear(conversationId);
-  }
-
-  private static long measureElapsedMs(long startedAtNanos) {
-    return (System.nanoTime() - startedAtNanos) / 1_000_000L;
   }
 
   private Flux<String> repairIfToolMarkupOnly(
