@@ -52,6 +52,7 @@ export class AccountService {
 
   readonly showLogout = computed(() => this.#accountState()?.mode === 'authenticated');
 
+  /** Loads the current account unless a load is already running. */
   load(): void {
     if (this.#isLoadingState()) {
       return;
@@ -72,6 +73,7 @@ export class AccountService {
       });
   }
 
+  /** Loads the current account again. */
   reload(): void {
     this.load();
   }
@@ -97,6 +99,7 @@ export class AccountService {
     this.startOAuthLogin('google', assign);
   }
 
+  /** Signs out and reloads the account. */
   logout(): void {
     this.#http.post<void>(`${API_BASE_URL}/account/logout`, {}).subscribe({
       next: () => {

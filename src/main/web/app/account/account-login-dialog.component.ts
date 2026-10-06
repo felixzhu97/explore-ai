@@ -99,6 +99,7 @@ export class AccountLoginDialogComponent {
     </svg>`,
   );
 
+  /** Closes the dialog and starts sign-in with the provider. */
   continueWith(provider: 'google' | 'github' | 'explore-iam'): void {
     this.#dialogRef.close();
     this.#account.startOAuthLogin(provider);

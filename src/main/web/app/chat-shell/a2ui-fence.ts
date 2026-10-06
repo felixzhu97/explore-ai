@@ -17,6 +17,7 @@ export function buildStableSurfaceId(raw: string): string {
   return `a2ui-${(hash >>> 0).toString(16)}`;
 }
 
+/** Parses A2UI messages from NDJSON, skipping bad lines. */
 export function parseA2uiNdjson(raw: string): A2uiMessage[] {
   const messages: A2uiMessage[] = [];
   for (const line of raw.split('\n')) {
@@ -45,6 +46,7 @@ function normalizeMessageVersion(message: A2uiMessage): A2uiMessage {
   return message;
 }
 
+/** Moves all messages onto the given surface id. */
 export function remapSurfaceIds(
   messages: A2uiMessage[],
   surfaceId: string,

@@ -39,6 +39,7 @@ export class VisionPageComponent {
   readonly #selectedTask = linkedSignal(() => this.vision.activeTask());
   protected readonly taskField = form(this.#selectedTask);
 
+  /** Switches the vision task. */
   onTaskChange(value: string): void {
     if (isVisionTask(value)) {
       this.vision.setActiveTask(value);

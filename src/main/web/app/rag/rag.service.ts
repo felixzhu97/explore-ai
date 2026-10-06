@@ -122,6 +122,7 @@ export class RagService {
   // Streaming state
   readonly streamingMessageIds = signal<Set<string>>(new Set());
 
+  /** Loads the uploaded documents. */
   fetchAvailableDocuments(): void {
     this.isLoadingDocuments.set(true);
     this.#getDocuments().subscribe({
@@ -145,6 +146,7 @@ export class RagService {
     });
   }
 
+  /** Selects or unselects a document for answers. */
   toggleDocumentSelection(documentId: string): void {
     this.selectedDocumentIds.update((ids) => {
       const next = new Set(ids);
@@ -157,6 +159,7 @@ export class RagService {
     });
   }
 
+  /** Selects every document. */
   selectAllDocuments(): void {
     const documents = this.availableDocuments();
     const ids = new Set<string>();
@@ -164,10 +167,12 @@ export class RagService {
     this.selectedDocumentIds.set(ids);
   }
 
+  /** Unselects every document. */
   clearDocumentSelection(): void {
     this.selectedDocumentIds.set(new Set());
   }
 
+  /** Deletes a document. */
   deleteDocument(documentId: string): void {
     if (documentId === '' || documentId === 'undefined' || documentId === 'null') {
       this.#notifications.showError('Cannot delete: document ID is invalid');
@@ -208,6 +213,7 @@ export class RagService {
     });
   }
 
+  /** Queues new files for upload, skipping duplicates. */
   onFileSelect(files: File[]): void {
     const newFiles = files.filter(
       f => !this.pendingFiles().some(pf => pf.name === f.name),
@@ -218,14 +224,17 @@ export class RagService {
     );
   }
 
+  /** Removes a queued file. */
   removePendingFile(index: number): void {
     this.pendingFiles.update(files => files.filter((_, i) => i !== index));
   }
 
+  /** Returns the upload status of a file. */
   getUploadStatus(filename: string): UploadStatus | undefined {
     return this.uploadStatuses().get(filename);
   }
 
+  /** Uploads the queued files. */
   uploadFiles(): void {
     if (this.pendingFiles().length === 0) {
       return;
@@ -323,6 +332,7 @@ export class RagService {
     this.input.set(text);
   }
 
+  /** Sends the question and streams an answer from the documents. */
   sendMessage(): void {
     if (this.input().trim() === '') {
       return;

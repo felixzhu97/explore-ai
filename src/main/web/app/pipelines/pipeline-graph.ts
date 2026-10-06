@@ -36,18 +36,22 @@ export type PipelineValidationResult =
   | { ok: true; order: string[] }
   | { ok: false; reason: string };
 
+/** Builds the output connector id of a node. */
 export function buildConnectorOutId(nodeId: string): string {
   return `${nodeId}-out`;
 }
 
+/** Builds the input connector id of a node. */
 export function buildConnectorInId(nodeId: string): string {
   return `${nodeId}-in`;
 }
 
+/** Reads the node id from a connector id. */
 export function parseNodeIdFromConnector(connectorId: string): string {
   return connectorId.replace(/-(out|in)$/, '');
 }
 
+/** Checks that the graph is a single connected chain without cycles. */
 export function validatePipeline(graph: PipelineGraph): PipelineValidationResult {
   const { nodes, connections } = graph;
   if (nodes.length === 0) {
@@ -138,6 +142,7 @@ function hasOrphan(ids: string[], outgoing: Map<string, Set<string>>): boolean {
   return visited.size !== ids.length;
 }
 
+/** Builds the run request for the graph. */
 export function toPipelineInvokeRequest(
   message: string,
   graph: PipelineGraph,

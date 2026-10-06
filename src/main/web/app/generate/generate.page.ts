@@ -51,6 +51,7 @@ export class GeneratePageComponent {
   readonly #selectedTab = linkedSignal(() => this.activeTab());
   protected readonly tabField = form(this.#selectedTab);
 
+  /** Navigates to the selected tab. */
   onTabChange(value: string): void {
     const tab: GenerateTab = value === 'tts' ? 'tts' : 'image';
     void this.#router.navigate(['/generate', tab]);

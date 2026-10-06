@@ -90,6 +90,7 @@ export interface ChatSessionSummary {
   lastActivityAt: Instant;
 }
 
+/** Maps an API response to a session summary. */
 export function toChatSessionSummary(response: SessionResponse): ChatSessionSummary {
   return {
     ...response,
@@ -144,6 +145,7 @@ export class ChatService {
   /** Blocks selectSession/sync while a `/chat` redirect is in flight. */
   #chatRedirectInFlight = false;
 
+  /** Loads the providers and picks an available one. */
   loadProviders(): void {
     this.#getProviders().subscribe({
       next: (data) => {
@@ -173,6 +175,7 @@ export class ChatService {
     });
   }
 
+  /** Loads the models of the provider. */
   loadModels(provider: string): void {
     this.isLoadingModels.set(true);
     this.#getModels(provider).subscribe({
@@ -192,6 +195,7 @@ export class ChatService {
     });
   }
 
+  /** Switches provider unless it is unavailable. */
   setProvider(provider: string): void {
     const info = this.providers().find(p => p.name === provider);
     if (info?.status === 'unavailable') {
@@ -205,25 +209,30 @@ export class ChatService {
     this.loadModels(provider);
   }
 
+  /** Tells whether the selected provider can be used. */
   isSelectedProviderAvailable(): boolean {
     const provider = this.providers().find(p => p.name === this.selectedProvider());
     return provider === undefined || provider.status === 'available';
   }
 
+  /** Selects the model. */
   setModel(model: string): void {
     this.selectedModel.set(model);
   }
 
+  /** Turns tool calling on or off. */
   setToolsEnabled(enabled: boolean): void {
     this.toolsEnabled.set(enabled);
   }
 
+  /** Sets the skills the user can pick and drops stale picks. */
   setAvailableSkills(skills: { id: string; name: string }[]): void {
     this.availableSkills.set(skills);
     const enabledIds = new Set(skills.map(skill => skill.id));
     this.selectedSkillIds.update(ids => ids.filter(id => enabledIds.has(id)));
   }
 
+  /** Picks or unpicks a skill. */
   toggleSkillId(skillId: string): void {
     this.selectedSkillIds.update((ids) => {
       if (ids.includes(skillId)) {
@@ -233,10 +242,12 @@ export class ChatService {
     });
   }
 
+  /** Tells whether the skill is picked. */
   isSkillSelected(skillId: string): boolean {
     return this.selectedSkillIds().includes(skillId);
   }
 
+  /** Loads the chat sessions. */
   loadSessions(): void {
     this.#refreshSessions({ createIfEmpty: false });
   }
@@ -262,6 +273,7 @@ export class ChatService {
     this.initializeSessions();
   }
 
+  /** Loads the sessions once and opens the right one. */
   initializeSessions(): void {
     if (this.#sessionsInitialized || this.#initializationInProgress) {
       return;
@@ -270,10 +282,12 @@ export class ChatService {
     this.#refreshSessions({ createIfEmpty: true, finalizeBootstrap: true });
   }
 
+  /** Starts a new chat session. */
   createSession(): void {
     this.#ensureEmptyDraft(true, { navigateToChat: true });
   }
 
+  /** Opens a chat session and loads its messages. */
   selectSession(sessionId: string, options?: { navigateToChat?: boolean }): void {
     if (sessionId === '' || this.#chatRedirectInFlight) {
       return;
@@ -336,6 +350,7 @@ export class ChatService {
     });
   }
 
+  /** Deletes a chat session. */
   deleteSession(sessionId: string): void {
     this.#deleteSessionRequest(sessionId).subscribe({
       next: () => {
@@ -352,6 +367,7 @@ export class ChatService {
     });
   }
 
+  /** Sends a message and streams the answer. */
   sendMessage(content: string): void {
     const sessionId = this.activeSessionId();
     if (
@@ -492,6 +508,7 @@ export class ChatService {
     this.#streamAbort = abort;
   }
 
+  /** Stops the answer that is streaming. */
   abortStream(): void {
     if (this.#streamAbort === null) {
       return;

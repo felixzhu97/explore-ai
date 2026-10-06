@@ -183,6 +183,7 @@ export class MetricsDomainPageComponent {
     () => this.drilldownResource.value()?.total ?? 0,
   );
 
+  /** Clears the day and model filters. */
   clearFilters(): void {
     void this.#router.navigate([], {
       relativeTo: this.#route,
@@ -191,6 +192,7 @@ export class MetricsDomainPageComponent {
     this.page.set(0);
   }
 
+  /** Switches the time range. */
   setRange(range: MetricsRange): void {
     void this.#router.navigate([], {
       relativeTo: this.#route,
@@ -200,6 +202,7 @@ export class MetricsDomainPageComponent {
     this.page.set(0);
   }
 
+  /** Filters by the clicked day. */
   onRequestClick(payload: ChartClickPayload): void {
     void this.#router.navigate([], {
       relativeTo: this.#route,
@@ -209,6 +212,7 @@ export class MetricsDomainPageComponent {
     this.page.set(0);
   }
 
+  /** Filters by the clicked model. */
   onModelClick(payload: ChartClickPayload): void {
     void this.#router.navigate([], {
       relativeTo: this.#route,
@@ -218,6 +222,7 @@ export class MetricsDomainPageComponent {
     this.page.set(0);
   }
 
+  /** Opens the chat or document behind the row. */
   onRowClick(event: InvocationEvent): void {
     if (hasText(event.sessionId)) {
       void this.#router.navigate(['/chat', event.sessionId]);

@@ -30,6 +30,7 @@ export interface SavedAgent {
   updatedAt: Instant;
 }
 
+/** Maps an API response to a saved agent. */
 export function toSavedAgent(response: SavedAgentResponse): SavedAgent {
   return {
     ...response,
@@ -66,30 +67,35 @@ export class AgentsService {
     });
   }
 
+  /** Lists the saved agents. */
   listSavedAgents(): Observable<SavedAgent[]> {
     return this.#http
       .get<SavedAgentResponse[]>(this.#savedAgentsBase)
       .pipe(map(agents => agents.map(toSavedAgent)));
   }
 
+  /** Creates a saved agent. */
   create(request: CreateSavedAgentRequest): Observable<SavedAgent> {
     return this.#http
       .post<SavedAgentResponse>(this.#savedAgentsBase, request)
       .pipe(map(toSavedAgent));
   }
 
+  /** Updates a saved agent. */
   update(id: string, request: UpdateSavedAgentRequest): Observable<SavedAgent> {
     return this.#http
       .put<SavedAgentResponse>(`${this.#savedAgentsBase}/${id}`, request)
       .pipe(map(toSavedAgent));
   }
 
+  /** Turns a saved agent on or off. */
   setEnabled(id: string, enabled: boolean): Observable<SavedAgent> {
     return this.#http
       .patch<SavedAgentResponse>(`${this.#savedAgentsBase}/${id}/enabled`, { enabled })
       .pipe(map(toSavedAgent));
   }
 
+  /** Deletes a saved agent. */
   delete(id: string): Observable<void> {
     return this.#http.delete<void>(`${this.#savedAgentsBase}/${id}`);
   }

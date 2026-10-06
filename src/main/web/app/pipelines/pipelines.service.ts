@@ -94,6 +94,7 @@ export interface PipelineTemplate {
   updatedAt: Instant;
 }
 
+/** Maps an API response to a saved pipeline. */
 export function toPipelineTemplate(response: PipelineTemplateResponse): PipelineTemplate {
   return {
     ...response,
@@ -124,18 +125,21 @@ export class PipelinesService {
   readonly #i18n = inject(I18nService);
   readonly #templatesBase = `${API_BASE_URL}/pipelines/templates`;
 
+  /** Lists the agents in the UI language. */
   listAgents(): Observable<AgentInfoResponse[]> {
     return this.#http.get<AgentInfoResponse[]>(`${API_BASE_URL}/pipelines/agent-types`, {
       params: this.#buildLangParams(),
     });
   }
 
+  /** Returns the health of an agent. */
   getHealth(agentType: string): Observable<AgentHealthResponse> {
     return this.#http.get<AgentHealthResponse>(`${API_BASE_URL}/pipelines/${agentType}/health`, {
       params: this.#buildLangParams(),
     });
   }
 
+  /** Lists the built-in pipeline templates. */
   listTemplateDefinitions(): Observable<PipelineTemplateDefinitionResponse[]> {
     return this.#http.get<PipelineTemplateDefinitionResponse[]>(
       `${API_BASE_URL}/pipelines/template-definitions`,
@@ -143,18 +147,21 @@ export class PipelinesService {
     );
   }
 
+  /** Lists the saved pipelines. */
   listTemplates(): Observable<PipelineTemplate[]> {
     return this.#http
       .get<PipelineTemplateResponse[]>(this.#templatesBase)
       .pipe(map(templates => templates.map(toPipelineTemplate)));
   }
 
+  /** Saves a new pipeline. */
   createTemplate(request: CreatePipelineTemplateRequest): Observable<PipelineTemplate> {
     return this.#http
       .post<PipelineTemplateResponse>(this.#templatesBase, request)
       .pipe(map(toPipelineTemplate));
   }
 
+  /** Saves a copy of a built-in template. */
   createTemplateFromDefinition(templateId: string): Observable<PipelineTemplate> {
     return this.#http
       .post<PipelineTemplateResponse>(
@@ -165,6 +172,7 @@ export class PipelinesService {
       .pipe(map(toPipelineTemplate));
   }
 
+  /** Updates a saved pipeline. */
   updateTemplate(
     id: string,
     request: UpdatePipelineTemplateRequest,
@@ -174,16 +182,19 @@ export class PipelinesService {
       .pipe(map(toPipelineTemplate));
   }
 
+  /** Turns a saved pipeline on or off. */
   setTemplateEnabled(id: string, enabled: boolean): Observable<PipelineTemplate> {
     return this.#http
       .patch<PipelineTemplateResponse>(`${this.#templatesBase}/${id}/enabled`, { enabled })
       .pipe(map(toPipelineTemplate));
   }
 
+  /** Deletes a saved pipeline. */
   deleteTemplate(id: string): Observable<void> {
     return this.#http.delete<void>(`${this.#templatesBase}/${id}`);
   }
 
+  /** Streams a single agent or supervisor run. */
   invokeStream(
     agentType: string,
     request: AgentInvokeRequest,
@@ -200,6 +211,7 @@ export class PipelinesService {
     return this.#openSse(path, request, onChunk, onHandoff, onDone, onError);
   }
 
+  /** Streams a pipeline run. */
   invokePipelineStream(
     request: PipelineInvokeRequest,
     onChunk: (token: string) => void,

@@ -48,6 +48,7 @@ export class ChartPanelComponent {
     return buildSharedChartOption(this.type(), this.data(), title);
   });
 
+  /** Emits the label and value of the clicked point. */
   onChartClick(event: ECElementEvent): void {
     const label = event.name;
     const raw = Array.isArray(event.value) ? event.value[1] : event.value;

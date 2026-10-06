@@ -37,18 +37,22 @@ export class SpeechToTextPageComponent implements OnDestroy {
     this.speechToText.disconnect();
   }
 
+  /** Connects to the transcription socket. */
   connect(): void {
     this.speechToText.connect();
   }
 
+  /** Disconnects from the transcription socket. */
   disconnect(): void {
     this.speechToText.disconnect();
   }
 
+  /** Asks the server to stop transcribing. */
   sendStop(): void {
     this.speechToText.sendStop();
   }
 
+  /** Sends an empty audio payload to test the socket. */
   sendTestPayload(): void {
     this.speechToText.sendTestAudioPayload();
   }

@@ -47,6 +47,7 @@ export class ChatWelcomePanelComponent {
 
   readonly promptSelected = output<string>();
 
+  /** Emits the selected suggested prompt. */
   onPromptClick(prompt: NxPrompt): void {
     if (hasText(prompt.label)) {
       this.promptSelected.emit(prompt.label);

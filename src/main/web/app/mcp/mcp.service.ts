@@ -37,18 +37,22 @@ export interface McpChatResponse {
 export class McpService {
   readonly #http = inject(HttpClient);
 
+  /** Returns the MCP module health. */
   getHealth(): Observable<McpHealthResponse> {
     return this.#http.get<McpHealthResponse>(`${API_BASE_URL}/mcp/health`);
   }
 
+  /** Returns the MCP client status. */
   getClientStatus(): Observable<McpClientStatusResponse> {
     return this.#http.get<McpClientStatusResponse>(`${API_BASE_URL}/mcp/client/status`);
   }
 
+  /** Lists the MCP client tools. */
   listTools(): Observable<McpToolResponse[]> {
     return this.#http.get<McpToolResponse[]>(`${API_BASE_URL}/mcp/client/tools`);
   }
 
+  /** Asks a question through the MCP chat. */
   sendChat(question: string): Observable<McpChatResponse> {
     const request: McpChatRequest = { question };
     return this.#http.post<McpChatResponse>(`${API_BASE_URL}/mcp/client/chat`, request);

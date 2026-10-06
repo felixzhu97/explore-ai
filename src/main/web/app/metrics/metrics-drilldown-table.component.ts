@@ -75,6 +75,7 @@ export class MetricsDrilldownTableComponent {
     return this.i18n.tReplace(template, { total: this.total() });
   });
 
+  /** Returns the model, agent or tool of the event. */
   getSubject(item: InvocationEvent): string {
     return textOr(item.model, textOr(item.agentType, textOr(item.toolName, '—')));
   }

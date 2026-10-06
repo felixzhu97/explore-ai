@@ -27,23 +27,28 @@ export class ChatSessionListService implements SessionList {
 
   readonly activeSessionId = this.#chatService.activeSessionId;
 
+  /** Loads the chat sessions once. */
   initializeSessions(): void {
     this.#chatService.initializeSessions();
   }
 
+  /** Starts a new chat session. */
   createSession(): void {
     this.#chatService.createSession();
   }
 
+  /** Opens a chat session. */
   selectSession(sessionId: string): void {
     this.#chatService.selectSession(sessionId, { navigateToChat: true });
   }
 
+  /** Deletes a chat session and unpins it. */
   deleteSession(sessionId: string): void {
     this.#removePinnedId(sessionId);
     this.#chatService.deleteSession(sessionId);
   }
 
+  /** Pins or unpins a chat session. */
   togglePin(sessionId: string): void {
     const current = this.#pinnedIds();
     if (current.includes(sessionId)) {

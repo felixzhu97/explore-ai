@@ -152,6 +152,7 @@ export interface InvocationEvent {
   errorMessage: string | null;
 }
 
+/** Maps an API response to an invocation event. */
 export function toInvocationEvent(response: InvocationEventResponse): InvocationEvent {
   return { ...response, occurredAt: Instant.parse(response.occurredAt) };
 }
@@ -170,6 +171,7 @@ export interface DrilldownPage {
   size: number;
 }
 
+/** Maps an API response to a drilldown page. */
 export function toDrilldownPage(response: DrilldownPageResponse): DrilldownPage {
   return { ...response, items: response.items.map(toInvocationEvent) };
 }
@@ -188,6 +190,7 @@ export interface DrilldownQuery {
 
 export const METRICS_DOMAINS: MetricsDomain[] = ['chat', 'rag', 'agents', 'tools', 'vision', 'workflow'];
 
+/** Tells whether the value is a known metrics domain. */
 export function isMetricsDomain(
   value: string | null | undefined,
 ): value is MetricsDomain {
@@ -205,6 +208,7 @@ export interface SeriesQuery {
 export class MetricsService {
   readonly #baseUrl = `${API_BASE_URL}/metrics`;
 
+  /** Loads the overview for the range. */
   getOverview(
     range: () => MetricsRange,
   ): HttpResourceRef<MetricsOverviewResponse | undefined> {
@@ -214,6 +218,7 @@ export class MetricsService {
     }));
   }
 
+  /** Loads the metrics of a domain. */
   getDomain(
     domain: () => MetricsDomain | null,
     range: () => MetricsRange,
@@ -226,6 +231,7 @@ export class MetricsService {
     });
   }
 
+  /** Loads a daily series. */
   getSeries(
     query: () => SeriesQuery | undefined,
   ): HttpResourceRef<SeriesResponse | undefined> {
@@ -235,6 +241,7 @@ export class MetricsService {
     });
   }
 
+  /** Loads one page of invocation events. */
   getDrilldown(
     query: () => DrilldownQuery | undefined,
   ): HttpResourceRef<DrilldownPage | undefined> {

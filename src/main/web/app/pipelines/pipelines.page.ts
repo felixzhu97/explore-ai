@@ -99,6 +99,7 @@ export class PipelinesPageComponent implements OnDestroy {
     this.#streamAbort?.();
   }
 
+  /** Resizes the results panel while dragging the splitter. */
   onDocumentPointerMove(event: PointerEvent): void {
     if (!this.isDraggingSplitter()) {
       return;
@@ -118,6 +119,7 @@ export class PipelinesPageComponent implements OnDestroy {
     this.resultsRatio.set(clamped / rect.width);
   }
 
+  /** Stops dragging the splitter and keeps the size. */
   onDocumentPointerUp(): void {
     if (this.isDraggingSplitter()) {
       this.isDraggingSplitter.set(false);
@@ -125,10 +127,12 @@ export class PipelinesPageComponent implements OnDestroy {
     }
   }
 
+  /** Runs the pipeline with the task. */
   runPipeline(event: { graph: PipelineGraph; task: string }): void {
     this.#executePipeline(event.graph, event.task);
   }
 
+  /** Clears the hint when the graph changes. */
   onGraphChange(graph: PipelineGraph): void {
     if (graph.nodes.length === 0) {
       this.#activeBriefPrompt = null;
@@ -136,14 +140,17 @@ export class PipelinesPageComponent implements OnDestroy {
     this.pipelineHint.set(null);
   }
 
+  /** Shows the template hint. */
   onTemplateHint(hint: string | null): void {
     this.pipelineHint.set(hint);
   }
 
+  /** Remembers the brief of the applied template. */
   onTemplateApplied(event: { topic: string; brief: string }): void {
     this.#activeBriefPrompt = event.brief;
   }
 
+  /** Starts dragging the splitter. */
   onSplitterPointerDown(event: PointerEvent): void {
     if (this.isResultsCollapsed()) {
       return;
@@ -153,6 +160,7 @@ export class PipelinesPageComponent implements OnDestroy {
     (event.target as HTMLElement).setPointerCapture(event.pointerId);
   }
 
+  /** Collapses or restores the results panel. */
   toggleResultsCollapsed(): void {
     if (this.isResultsCollapsed()) {
       this.isResultsCollapsed.set(false);

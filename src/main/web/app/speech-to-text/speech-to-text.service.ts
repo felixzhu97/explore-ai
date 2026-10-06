@@ -47,6 +47,7 @@ export class SpeechToTextService {
   readonly lastMessage = signal<string | null>(null);
   readonly error = signal<string | null>(null);
 
+  /** Opens a new transcription socket. */
   connect(): void {
     this.disconnect();
     this.connectionState.set('connecting');
@@ -87,14 +88,17 @@ export class SpeechToTextService {
     };
   }
 
+  /** Asks the server to stop transcribing. */
   sendStop(): void {
     this.#sendJson({ type: 'stop' });
   }
 
+  /** Sends an empty audio payload to test the socket. */
   sendTestAudioPayload(): void {
     this.#sendJson({ type: 'audio', data: '' });
   }
 
+  /** Closes the transcription socket. */
   disconnect(): void {
     if (this.#socket !== null) {
       this.#socket.close();

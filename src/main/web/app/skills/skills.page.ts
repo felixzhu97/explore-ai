@@ -82,12 +82,14 @@ export class SkillsPageComponent implements OnInit {
     this.reload();
   }
 
+  /** Opens the create form with an empty draft. */
   startCreate(): void {
     this.editingId.set(null);
     this.#draft.set(EMPTY_DRAFT);
     this.showForm.set(true);
   }
 
+  /** Tells whether the template is already in the library. */
   isInLibrary(template: SkillTemplateResponse): boolean {
     const owned = this.ownedNames();
     const aliases = [template.name, ...template.nameAliases]
@@ -97,6 +99,7 @@ export class SkillsPageComponent implements OnInit {
     );
   }
 
+  /** Adds a template to the library. */
   addFromTemplate(template: SkillTemplateResponse): void {
     if (hasText(this.addingTemplateId())) {
       return;
@@ -116,6 +119,7 @@ export class SkillsPageComponent implements OnInit {
     });
   }
 
+  /** Opens the create form filled from a template. */
   customizeTemplate(template: SkillTemplateResponse): void {
     this.editingId.set(null);
     this.#draft.set({
@@ -126,6 +130,7 @@ export class SkillsPageComponent implements OnInit {
     this.showForm.set(true);
   }
 
+  /** Creates or updates the skill from the draft. */
   save(): void {
     if (this.draftForm().invalid()) {
       this.error.set(this.i18n.t().skills.errors.nameRequired);
@@ -158,11 +163,13 @@ export class SkillsPageComponent implements OnInit {
     });
   }
 
+  /** Closes the form without saving. */
   cancelForm(): void {
     this.showForm.set(false);
     this.editingId.set(null);
   }
 
+  /** Opens the form to edit a skill. */
   startEdit(skill: Skill): void {
     this.editingId.set(skill.id);
     this.#draft.set({
@@ -173,6 +180,7 @@ export class SkillsPageComponent implements OnInit {
     this.showForm.set(true);
   }
 
+  /** Turns a skill on or off. */
   toggleEnabled(skill: Skill): void {
     this.#skillsApi.setEnabled(skill.id, !skill.enabled).subscribe({
       next: () => this.reload(),
@@ -180,6 +188,7 @@ export class SkillsPageComponent implements OnInit {
     });
   }
 
+  /** Deletes a skill after confirmation. */
   remove(skill: Skill): void {
     const message = this.i18n.tReplace(this.i18n.t().skills.deleteConfirm, {
       name: skill.name,
@@ -193,6 +202,7 @@ export class SkillsPageComponent implements OnInit {
     });
   }
 
+  /** Loads the skills and templates. */
   reload(): void {
     this.isLoading.set(true);
     this.error.set(null);

@@ -292,6 +292,7 @@ export class SidebarUserMenuComponent {
     return this.i18n.t().account.plan.replace('{plan}', pretty);
   });
 
+  /** Pins or unpins the help submenu. */
   toggleHelpPinned(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -299,12 +300,14 @@ export class SidebarUserMenuComponent {
     this.isHelpPinned.update(open => !open);
   }
 
+  /** Closes the menu and the sidebar after a choice. */
   onItemClick(): void {
     this.#closeSubmenus();
     this.isMenuOpen.set(false);
     this.#sidebar.close();
   }
 
+  /** Pins or unpins the language submenu. */
   toggleLangPinned(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -312,23 +315,27 @@ export class SidebarUserMenuComponent {
     this.isLanguagePinned.update(open => !open);
   }
 
+  /** Returns the CSS classes of a language item. */
   getLanguageItemClass(lang: Language): string {
     const selected = lang === this.i18n.language() ? ' bg-sidebar-accent' : '';
     return `${this.secondaryItemClass}${selected}`;
   }
 
+  /** Switches the UI language and closes the menu. */
   selectLanguage(lang: Language): void {
     this.i18n.setLanguage(lang);
     this.#closeSubmenus();
     this.isMenuOpen.set(false);
   }
 
+  /** Closes the menu and opens sign-in. */
   onLogin(): void {
     this.#closeSubmenus();
     this.isMenuOpen.set(false);
     this.#accountDialog.openLogin();
   }
 
+  /** Closes the menu and opens sign-out. */
   onLogout(): void {
     this.#closeSubmenus();
     this.isMenuOpen.set(false);
@@ -338,6 +345,7 @@ export class SidebarUserMenuComponent {
     });
   }
 
+  /** Opens or closes the user menu. */
   toggleMenu(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -350,6 +358,7 @@ export class SidebarUserMenuComponent {
     });
   }
 
+  /** Closes the menu on a click outside it. */
   onDocumentPointerDown(event: PointerEvent): void {
     if ((event.target as Element).closest('app-sidebar-user-menu') === null) {
       this.isMenuOpen.set(false);

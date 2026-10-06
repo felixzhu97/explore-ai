@@ -134,6 +134,7 @@ export class AutomationsPageComponent implements OnInit {
     this.reload();
   }
 
+  /** Opens the create form with the first enabled pipeline. */
   startCreate(): void {
     this.editingId.set(null);
     const first = this.enabledTemplates()[0];
@@ -145,6 +146,7 @@ export class AutomationsPageComponent implements OnInit {
     this.showForm.set(true);
   }
 
+  /** Selects a pipeline and fills in its default brief. */
   onTemplateChange(templateId: string): void {
     this.draftForm.templateId().value.set(templateId);
     const template = this.enabledTemplates().find(item => item.id === templateId);
@@ -157,6 +159,7 @@ export class AutomationsPageComponent implements OnInit {
     }
   }
 
+  /** Applies a frequency preset to the draft. */
   onPresetChange(preset: string): void {
     if (!isFrequencyPreset(preset)) {
       return;
@@ -168,6 +171,7 @@ export class AutomationsPageComponent implements OnInit {
     }));
   }
 
+  /** Creates or updates the schedule from the draft. */
   save(): void {
     const t = this.i18n.t().automations;
     const invalidMessage = this.#findFirstInvalidMessage();
@@ -232,6 +236,7 @@ export class AutomationsPageComponent implements OnInit {
     });
   }
 
+  /** Closes the form without saving. */
   cancelForm(): void {
     this.showForm.set(false);
     this.editingId.set(null);
@@ -248,6 +253,7 @@ export class AutomationsPageComponent implements OnInit {
     return isOnceTerminal(schedule.nextRunAt);
   }
 
+  /** Formats the status shown on a schedule. */
   formatStatusLabel(schedule: AutomationSchedule): string {
     const t = this.i18n.t().automations;
     if (this.isOnceCompleted(schedule)) {
@@ -256,10 +262,12 @@ export class AutomationsPageComponent implements OnInit {
     return schedule.enabled ? t.statusEnabled : t.statusDisabled;
   }
 
+  /** Returns the pipeline name, or the id when it is unknown. */
   getTemplateName(id: string): string {
     return this.templates().find(template => template.id === id)?.name ?? id;
   }
 
+  /** Describes when the schedule runs. */
   scheduleSummary(schedule: AutomationSchedule): string {
     if (schedule.scheduleKind === 'ONCE') {
       const when = this.isOnceCompleted(schedule)
@@ -270,6 +278,7 @@ export class AutomationsPageComponent implements OnInit {
     return schedule.cronExpression ?? '—';
   }
 
+  /** Formats the next run time. */
   formatNextRun(schedule: AutomationSchedule): string {
     if (this.isOnceCompleted(schedule)) {
       return this.i18n.t().automations.nextRunNone;
@@ -277,6 +286,7 @@ export class AutomationsPageComponent implements OnInit {
     return this.formatDateTime(schedule.nextRunAt);
   }
 
+  /** Formats a date and time, or a dash when empty. */
   formatDateTime(value: Instant | null): string {
     if (value === null) {
       return '—';
@@ -287,6 +297,7 @@ export class AutomationsPageComponent implements OnInit {
     return formatInstant(value, DATE_TIME);
   }
 
+  /** Opens the form to edit a schedule. */
   startEdit(schedule: AutomationSchedule): void {
     this.editingId.set(schedule.id);
     const templateId = schedule.pipelineTemplateId;
@@ -306,6 +317,7 @@ export class AutomationsPageComponent implements OnInit {
     this.showForm.set(true);
   }
 
+  /** Turns a schedule on or off. */
   toggleEnabled(schedule: AutomationSchedule): void {
     if (this.isOnceCompleted(schedule) && !schedule.enabled) {
       this.#notifications.showWarning(this.i18n.t().automations.onceCompletedHint);
@@ -320,6 +332,7 @@ export class AutomationsPageComponent implements OnInit {
     });
   }
 
+  /** Loads and shows the run history of a schedule. */
   showHistory(schedule: AutomationSchedule): void {
     this.historyScheduleId.set(schedule.id);
     this.#automationsApi.listRuns(schedule.id).subscribe({
@@ -331,6 +344,7 @@ export class AutomationsPageComponent implements OnInit {
     });
   }
 
+  /** Deletes a schedule after confirmation. */
   remove(schedule: AutomationSchedule): void {
     if (!confirm(this.i18n.t().automations.deleteConfirm)) {
       return;
@@ -343,6 +357,7 @@ export class AutomationsPageComponent implements OnInit {
     });
   }
 
+  /** Loads the pipelines and schedules. */
   reload(): void {
     this.isLoading.set(true);
     this.error.set(null);

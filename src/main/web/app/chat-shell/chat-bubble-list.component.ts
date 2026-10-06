@@ -357,10 +357,12 @@ export class ChatBubbleListComponent implements OnDestroy {
     this.cancelCloseSourceRef();
   }
 
+  /** Returns a source of a message by index. */
   getSourceAt(messageId: string, index: number): ChatSourceView | undefined {
     return this.findMessageById(messageId)?.sources?.[index];
   }
 
+  /** Cancels a pending close of the source card. */
   cancelCloseSourceRef(): void {
     if (this.#closeTimer !== null) {
       clearTimeout(this.#closeTimer);
@@ -368,6 +370,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     }
   }
 
+  /** Closes the source card after a short delay. */
   scheduleCloseSourceRef(): void {
     this.cancelOpenSourceRef();
     this.cancelCloseSourceRef();
@@ -377,18 +380,22 @@ export class ChatBubbleListComponent implements OnDestroy {
     }, CLOSE_DELAY_MS);
   }
 
+  /** Closes the source card when the user follows its link. */
   onJumpClick(): void {
     this.closeSourceRef();
   }
 
+  /** Finds a message by id. */
   findMessageById(id: string): ChatMessageView | undefined {
     return this.messageByIdMap().get(id);
   }
 
+  /** Returns the list key as a string. */
   getMessageKey(info?: { key?: string | number }): string {
     return String(info?.key ?? '');
   }
 
+  /** Returns the user message, shortened when collapsed. */
   getUserMessageText(message: ChatMessageView): string {
     if (!this.isLongUserMessage(message) || this.isUserExpanded(message.id)) {
       return message.content;
@@ -396,6 +403,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     return `${message.content.slice(0, USER_COLLAPSE_CHARS).trimEnd()}…`;
   }
 
+  /** Tells whether a user message is long enough to collapse. */
   isLongUserMessage(message: ChatMessageView): boolean {
     return (
       this.collapseLongUserMessages()
@@ -403,6 +411,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     );
   }
 
+  /** Expands or collapses a long user message. */
   toggleUserExpanded(messageId: string): void {
     this.#expandedUserIds.update((current) => {
       const next = new Set(current);
@@ -415,10 +424,12 @@ export class ChatBubbleListComponent implements OnDestroy {
     });
   }
 
+  /** Tells whether a long user message is expanded. */
   isUserExpanded(messageId: string): boolean {
     return this.#expandedUserIds().has(messageId);
   }
 
+  /** Tells whether the message is still streaming. */
   isStreaming(messageId: string): boolean {
     const singleId = this.streamingMessageId();
     if (singleId === messageId) {
@@ -427,10 +438,12 @@ export class ChatBubbleListComponent implements OnDestroy {
     return this.streamingMessageIds().has(messageId);
   }
 
+  /** Formats the 'based on N sources' label. */
   formatBasedOn(count: number): string {
     return this.footerLabels().basedOn.replace('{count}', String(count));
   }
 
+  /** Returns the CSS classes of a source chip. */
   getChipClass(messageId: string, index: number): string {
     const base =
       'inline-flex max-w-40 cursor-pointer items-center gap-1 rounded-full px-1.5 py-0.5 text-xs transition-colors';
@@ -440,11 +453,13 @@ export class ChatBubbleListComponent implements OnDestroy {
     return `${base} bg-black/5 text-text-secondary`;
   }
 
+  /** Tells whether the chip's source card is open. */
   isChipOpen(messageId: string, index: number): boolean {
     const ref = this.openRef();
     return ref?.messageId === messageId && ref.index === index;
   }
 
+  /** Returns the accessible label of a source chip. */
   getChipAriaLabel(index: number, source: ChatSourceView): string {
     const title = `${String(index + 1)}. ${getSourceTitle(source, this.footerLabels().sources)}`;
     if (hasText(source.url)) {
@@ -453,16 +468,19 @@ export class ChatBubbleListComponent implements OnDestroy {
     return title;
   }
 
+  /** Highlights the chip and opens its card after a delay. */
   onChipPointerEnter(event: Event, messageId: string, index: number): void {
     this.#hoveredChip.set({ messageId, index });
     this.scheduleShowSourceRef(event, messageId, index);
   }
 
+  /** Clears the highlight and closes the card after a delay. */
   onChipPointerLeave(): void {
     this.#hoveredChip.set(null);
     this.scheduleCloseSourceRef();
   }
 
+  /** Opens the source in a new tab. */
   onChipClick(event: MouseEvent, source: ChatSourceView): void {
     event.stopPropagation();
     const url = source.url?.trim();
@@ -473,10 +491,12 @@ export class ChatBubbleListComponent implements OnDestroy {
     this.closeSourceRef();
   }
 
+  /** Returns the favicon URL of a source. */
   getFaviconUrl(source: ChatSourceView): string | null {
     return getSourceFaviconUrl(source);
   }
 
+  /** Tells whether the chip is hovered or open. */
   isChipHighlighted(messageId: string, index: number): boolean {
     const hover = this.#hoveredChip();
     if (hover?.messageId === messageId && hover.index === index) {
@@ -486,14 +506,17 @@ export class ChatBubbleListComponent implements OnDestroy {
     return this.isChipOpen(messageId, index);
   }
 
+  /** Returns the first letter shown for a source. */
   getSourceInitial(source: ChatSourceView): string {
     return getSourceInitial(source, this.footerLabels().sources);
   }
 
+  /** Returns the short label of a source. */
   getSourceLabel(source: ChatSourceView): string {
     return getSourceLabel(source, this.footerLabels().sources);
   }
 
+  /** Closes the source card on a click outside it. */
   onDocumentPointerDown(event: PointerEvent): void {
     if (this.openRef() === null) {
       return;
@@ -509,10 +532,12 @@ export class ChatBubbleListComponent implements OnDestroy {
     this.closeSourceRef();
   }
 
+  /** Closes the source card. */
   onEscape(): void {
     this.closeSourceRef();
   }
 
+  /** Opens the chip's source card after a short delay. */
   scheduleShowSourceRef(event: Event, messageId: string, index: number): void {
     this.cancelCloseSourceRef();
     this.cancelOpenSourceRef();
@@ -531,6 +556,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     }, OPEN_DELAY_MS);
   }
 
+  /** Cancels a pending open of the source card. */
   cancelOpenSourceRef(): void {
     if (this.#openTimer !== null) {
       clearTimeout(this.#openTimer);
@@ -538,6 +564,7 @@ export class ChatBubbleListComponent implements OnDestroy {
     }
   }
 
+  /** Closes the source card now. */
   closeSourceRef(): void {
     this.cancelOpenSourceRef();
     this.cancelCloseSourceRef();

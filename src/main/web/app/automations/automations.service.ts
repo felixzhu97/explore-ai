@@ -95,6 +95,7 @@ function parseOptionalInstant(value: string | null): Instant | null {
   return value === null ? null : Instant.parse(value);
 }
 
+/** Maps an API response to a schedule. */
 export function toAutomationSchedule(
   response: AutomationScheduleResponse,
 ): AutomationSchedule {
@@ -108,6 +109,7 @@ export function toAutomationSchedule(
   };
 }
 
+/** Maps an API response to a run. */
 export function toAutomationRun(response: AutomationRunResponse): AutomationRun {
   return {
     ...response,
@@ -121,12 +123,14 @@ export class AutomationsService {
   readonly #http = inject(HttpClient);
   readonly #base = `${API_BASE_URL}/automations/schedules`;
 
+  /** Lists the schedules. */
   list(): Observable<AutomationSchedule[]> {
     return this.#http
       .get<AutomationScheduleResponse[]>(this.#base)
       .pipe(map(schedules => schedules.map(toAutomationSchedule)));
   }
 
+  /** Lists the latest runs of a schedule. */
   listRuns(id: string, limit = 20): Observable<AutomationRun[]> {
     const params = new HttpParams().set('limit', String(limit));
     return this.#http
@@ -134,12 +138,14 @@ export class AutomationsService {
       .pipe(map(runs => runs.map(toAutomationRun)));
   }
 
+  /** Creates a schedule. */
   create(request: CreateAutomationScheduleRequest): Observable<AutomationSchedule> {
     return this.#http
       .post<AutomationScheduleResponse>(this.#base, request)
       .pipe(map(toAutomationSchedule));
   }
 
+  /** Updates a schedule. */
   update(
     id: string,
     request: UpdateAutomationScheduleRequest,
@@ -149,12 +155,14 @@ export class AutomationsService {
       .pipe(map(toAutomationSchedule));
   }
 
+  /** Turns a schedule on or off. */
   setEnabled(id: string, enabled: boolean): Observable<AutomationSchedule> {
     return this.#http
       .patch<AutomationScheduleResponse>(`${this.#base}/${id}/enabled`, { enabled })
       .pipe(map(toAutomationSchedule));
   }
 
+  /** Deletes a schedule. */
   delete(id: string): Observable<void> {
     return this.#http.delete<void>(`${this.#base}/${id}`);
   }

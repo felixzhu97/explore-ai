@@ -44,6 +44,7 @@ export class MermaidDiagramZoomDialogComponent {
 
   readonly safeSvg = this.#sanitizer.bypassSecurityTrustHtml(this.data.svgMarkup);
 
+  /** Downloads the diagram as SVG. */
   download(): void {
     downloadSvgMarkup(this.data.svgMarkup, 'diagram.svg');
   }

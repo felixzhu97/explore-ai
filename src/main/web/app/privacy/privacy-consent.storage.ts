@@ -9,6 +9,7 @@ export interface PrivacyConsentState {
   decidedAt?: string | undefined;
 }
 
+/** Reads the saved privacy choices. */
 export function readPrivacyConsent(): PrivacyConsentState {
   if (typeof localStorage === 'undefined') {
     return { decided: false, analytics: false, contactEmail: '' };
@@ -30,11 +31,13 @@ export function readPrivacyConsent(): PrivacyConsentState {
   }
 }
 
+/** Saves the analytics choice and keeps the contact email. */
 export function writePrivacyConsent(analytics: boolean): PrivacyConsentState {
   const current = readPrivacyConsent();
   return writePrivacyPreferences({ analytics, contactEmail: current.contactEmail });
 }
 
+/** Saves the privacy choices. */
 export function writePrivacyPreferences(preferences: {
   analytics: boolean;
   contactEmail: string;
@@ -51,11 +54,13 @@ export function writePrivacyPreferences(preferences: {
   return next;
 }
 
+/** Tells whether the user allowed analytics. */
 export function hasAnalyticsConsent(): boolean {
   const state = readPrivacyConsent();
   return state.decided && state.analytics;
 }
 
+/** Tells whether the user still has to choose. */
 export function needsPrivacyConsentDecision(): boolean {
   return !readPrivacyConsent().decided;
 }

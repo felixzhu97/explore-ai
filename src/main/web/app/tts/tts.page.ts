@@ -67,16 +67,19 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Selects the voice. */
   setVoice(voice: string | string[]) {
     if (typeof voice === 'string') {
       this.voice.set(voice);
     }
   }
 
+  /** Sets the speaking speed. */
   setSpeed(speed: number) {
     this.speed.set(speed);
   }
 
+  /** Turns the text into speech and starts playback. */
   synthesize() {
     if (this.text().trim() === '' || this.isSynthesizing()) {
       return;
@@ -127,6 +130,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
       });
   }
 
+  /** Plays or pauses the audio. */
   togglePlayPause() {
     if (this.#audioElement === null) {
       return;
@@ -144,6 +148,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Downloads the audio. */
   download() {
     const blob = this.audioBlob();
     if (blob !== null) {
@@ -151,6 +156,7 @@ export class TtsPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Loads the voices and picks the default one. */
   loadVoices() {
     this.#tts.getVoices().subscribe({
       next: (voices) => {

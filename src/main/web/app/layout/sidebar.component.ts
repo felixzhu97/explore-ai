@@ -125,26 +125,31 @@ export class AppSidebarComponent implements OnInit {
     this.sessionList.initializeSessions();
   }
 
+  /** Collapses or expands the sidebar on desktop. */
   toggleCollapse(): void {
     if (!this.#isMobile()) {
       this.isCollapsed.update(v => !v);
     }
   }
 
+  /** Starts a new chat and closes the mobile sidebar. */
   startNewChat(): void {
     this.sessionList.createSession();
     this.sidebar.close();
   }
 
+  /** Tells whether the path is the current page. */
   isNavActive(path: string): boolean {
     const [url = ''] = this.#currentUrl().split('?');
     return url === path || url.startsWith(`${path}/`);
   }
 
+  /** Closes the mobile sidebar after navigation. */
   onNavClick(): void {
     this.sidebar.close();
   }
 
+  /** Returns the icon of a module. */
   getIcon(key: string): SafeHtml {
     const icons: Record<string, string> = {
       rag: `<svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>`,
@@ -164,23 +169,28 @@ export class AppSidebarComponent implements OnInit {
     return this.#sanitizer.bypassSecurityTrustHtml(iconSvg);
   }
 
+  /** Opens a session and closes the mobile sidebar. */
   onSessionSelect(sessionId: string): void {
     this.sessionList.selectSession(sessionId);
     this.sidebar.close();
   }
 
+  /** Pins or unpins a session. */
   onSessionPin(sessionId: string): void {
     this.sessionList.togglePin(sessionId);
   }
 
+  /** Deletes a session. */
   onSessionDelete(sessionId: string): void {
     this.sessionList.deleteSession(sessionId);
   }
 
+  /** Updates the mobile layout on resize. */
   onResize(): void {
     this.#updateMobileState();
   }
 
+  /** Closes the mobile sidebar on a click outside it. */
   onDocumentPointerDown(event: PointerEvent): void {
     const isOutsideSidebar = (event.target as Element).closest('[data-sidebar-panel]') === null;
 

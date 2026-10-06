@@ -78,6 +78,7 @@ export class AgentsPageComponent implements OnInit {
     this.reload();
   }
 
+  /** Opens the create form with an empty draft. */
   startCreate(): void {
     this.editingId.set(null);
     this.isFormTypeKeyLocked.set(false);
@@ -85,16 +86,19 @@ export class AgentsPageComponent implements OnInit {
     this.showForm.set(true);
   }
 
+  /** Tells whether the draft includes the tool. */
   isToolSelected(toolKey: string): boolean {
     return this.#draft().toolKeys.includes(toolKey);
   }
 
+  /** Adds or removes the tool in the draft. */
   toggleTool(toolKey: string): void {
     this.draftForm.toolKeys().value.update(current => (current.includes(toolKey)
       ? current.filter(key => key !== toolKey)
       : [...current, toolKey]));
   }
 
+  /** Creates or updates the agent from the draft. */
   save(): void {
     if (this.draftForm().invalid()) {
       this.error.set(this.i18n.t().agents.errors.nameRequired);
@@ -128,6 +132,7 @@ export class AgentsPageComponent implements OnInit {
     });
   }
 
+  /** Closes the form without saving. */
   cancelForm(): void {
     this.showForm.set(false);
     this.editingId.set(null);
@@ -152,6 +157,7 @@ export class AgentsPageComponent implements OnInit {
     this.showForm.set(true);
   }
 
+  /** Opens the form to edit a saved agent. */
   startEditSavedAgent(agent: SavedAgent): void {
     this.editingId.set(agent.id);
     this.isFormTypeKeyLocked.set(true);
@@ -165,6 +171,7 @@ export class AgentsPageComponent implements OnInit {
     this.showForm.set(true);
   }
 
+  /** Turns a saved agent on or off. */
   toggleEnabled(agent: SavedAgent): void {
     this.#agentsApi.setEnabled(agent.id, !agent.enabled).subscribe({
       next: () => this.reload(),
@@ -172,6 +179,7 @@ export class AgentsPageComponent implements OnInit {
     });
   }
 
+  /** Deletes a saved agent after confirmation. */
   delete(agent: SavedAgent): void {
     const message = this.i18n.t().agents.deleteConfirm.replace('{name}', agent.name);
     if (!globalThis.confirm(message)) {
@@ -183,6 +191,7 @@ export class AgentsPageComponent implements OnInit {
     });
   }
 
+  /** Loads the agent catalog and saved agents. */
   reload(): void {
     this.isLoading.set(true);
     this.error.set(null);
@@ -202,6 +211,7 @@ export class AgentsPageComponent implements OnInit {
     });
   }
 
+  /** Finds the saved agent for the agent type. */
   findSavedAgentForType(typeKey: string): SavedAgent | undefined {
     return this.savedAgents().find(item => item.typeKey === typeKey);
   }

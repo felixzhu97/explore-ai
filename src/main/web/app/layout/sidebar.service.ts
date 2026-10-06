@@ -7,6 +7,7 @@ export class SidebarService {
 
   #mobileResizeHandler: (() => void) | null = null;
 
+  /** Opens the sidebar and locks page scroll on mobile. */
   open() {
     if (window.innerWidth < 768) {
       this.isCollapsed.set(false);
@@ -15,11 +16,13 @@ export class SidebarService {
     this.isMobileOpen.set(true);
   }
 
+  /** Closes the mobile sidebar and unlocks page scroll. */
   close() {
     this.isMobileOpen.set(false);
     this.#unlockBodyScroll();
   }
 
+  /** Opens or closes the mobile sidebar. */
   toggle() {
     const isMobile = window.innerWidth < 768;
     this.isMobileOpen.update((open) => {

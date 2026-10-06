@@ -144,6 +144,7 @@ export class SseEventAssembler {
   #eventType = '';
   #dataLines: string[] = [];
 
+  /** Adds one SSE line and returns an event when it is complete. */
   pushLine(line: string): SseEventPayload | null {
     if (line === '') {
       return this.flush();
@@ -165,6 +166,7 @@ export class SseEventAssembler {
     return null;
   }
 
+  /** Returns the pending event and starts a new one. */
   flush(): SseEventPayload | null {
     if (this.#dataLines.length === 0) {
       this.#eventType = '';
@@ -187,6 +189,7 @@ export interface SseStreamHandlers {
   onError: (error: Error) => void;
 }
 
+/** Posts a request and reads the SSE response stream. */
 export function streamSsePost(
   url: string,
   body: unknown,

@@ -141,6 +141,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#reloadSavedTemplates();
   }
 
+  /** Clears the canvas and returns to the gallery. */
   goBackToGallery(): void {
     this.nodes.set([]);
     this.connections.set([]);
@@ -158,6 +159,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#cdr.markForCheck();
   }
 
+  /** Opens the agent picker in edit mode. */
   openAgentPicker(): void {
     if (!this.isEditMode()) {
       return;
@@ -166,6 +168,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.showAgentPicker.set(true);
   }
 
+  /** Switches to use mode when the canvas has agents. */
   switchToUse(): void {
     if (this.nodes().length === 0) {
       this.#notifications.showWarning(
@@ -185,6 +188,7 @@ export class PipelinesCanvasComponent implements OnInit {
     });
   }
 
+  /** Switches to edit mode when the canvas has agents. */
   switchToEdit(): void {
     if (this.nodes().length === 0) {
       return;
@@ -193,6 +197,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#cdr.markForCheck();
   }
 
+  /** Asks to run the pipeline with the task. */
   run(): void {
     if (!this.isUseMode()) {
       return;
@@ -200,16 +205,19 @@ export class PipelinesCanvasComponent implements OnInit {
     this.runRequested.emit({ graph: this.graph(), task: this.task().trim() });
   }
 
+  /** Tells whether the node draft includes the tool. */
   isEditToolSelected(toolKey: string): boolean {
     return this.#nodeDraft().toolKeys.includes(toolKey);
   }
 
+  /** Adds or removes the tool in the node draft. */
   toggleEditTool(toolKey: string): void {
     this.nodeForm.toolKeys().value.update(current => (current.includes(toolKey)
       ? current.filter(key => key !== toolKey)
       : [...current, toolKey]));
   }
 
+  /** Saves the node draft to the canvas. */
   saveNodeEdit(): void {
     const nodeId = this.editingNodeId();
     if (!hasText(nodeId)) {
@@ -233,14 +241,17 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#cdr.markForCheck();
   }
 
+  /** Closes the node editor without saving. */
   cancelNodeEdit(): void {
     this.editingNodeId.set(null);
   }
 
+  /** Closes the agent picker. */
   closeAgentPicker(): void {
     this.showAgentPicker.set(false);
   }
 
+  /** Adds the picked agent to the canvas. */
   pickAgent(agent: AgentInfoResponse): void {
     if (!this.isEditMode() || agent.supervisor) {
       return;
@@ -254,6 +265,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#cdr.markForCheck();
   }
 
+  /** Starts an empty workflow in edit mode. */
   addWorkflow(): void {
     this.cancelNodeEdit();
     this.showAgentPicker.set(false);
@@ -273,6 +285,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#cdr.markForCheck();
   }
 
+  /** Loads a built-in template in use mode. */
   useTemplate(template: PipelineTemplateDefinitionResponse): void {
     this.#applyTemplate({
       id: template.id,
@@ -284,6 +297,7 @@ export class PipelinesCanvasComponent implements OnInit {
     }, 'use');
   }
 
+  /** Loads a built-in template in edit mode. */
   editTemplate(template: PipelineTemplateDefinitionResponse): void {
     this.#applyTemplate({
       id: template.id,
@@ -295,6 +309,7 @@ export class PipelinesCanvasComponent implements OnInit {
     }, 'edit');
   }
 
+  /** Saves a copy of a built-in template to the library. */
   addFromTemplate(template: PipelineTemplateDefinitionResponse): void {
     if (this.addingTemplateId() !== null || this.isSaved(template)) {
       return;
@@ -317,6 +332,7 @@ export class PipelinesCanvasComponent implements OnInit {
     });
   }
 
+  /** Loads a saved pipeline in use mode. */
   useSavedTemplate(template: PipelineTemplate): void {
     this.#applyTemplate({
       id: template.id,
@@ -329,6 +345,7 @@ export class PipelinesCanvasComponent implements OnInit {
     }, 'use');
   }
 
+  /** Loads a saved pipeline in edit mode. */
   editSavedTemplate(template: PipelineTemplate): void {
     this.#applyTemplate({
       id: template.id,
@@ -341,6 +358,7 @@ export class PipelinesCanvasComponent implements OnInit {
     }, 'edit');
   }
 
+  /** Deletes a saved pipeline after confirmation. */
   deleteSavedTemplate(template: PipelineTemplate): void {
     const message = this.i18n.t().pipelines.templates.deleteConfirm.replace(
       '{name}',
@@ -359,6 +377,7 @@ export class PipelinesCanvasComponent implements OnInit {
     });
   }
 
+  /** Connects two nodes, replacing their old links. */
   onCreateConnection(event: FCreateConnectionEvent): void {
     if (!this.isEditMode() || !hasText(event.targetId)) {
       return;
@@ -388,6 +407,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#cdr.markForCheck();
   }
 
+  /** Stores the new node positions. */
   onMoveNodes(event: FMoveNodesEvent): void {
     if (!this.isEditMode()) {
       return;
@@ -404,14 +424,17 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#cdr.markForCheck();
   }
 
+  /** Returns the output connector id of a node. */
   getOutId(nodeId: string): string {
     return buildConnectorOutId(nodeId);
   }
 
+  /** Returns the input connector id of a node. */
   getInId(nodeId: string): string {
     return buildConnectorInId(nodeId);
   }
 
+  /** Opens the editor for a node. */
   openNodeEditor(node: PipelineNode): void {
     if (!this.isEditMode()) {
       return;
@@ -426,6 +449,7 @@ export class PipelinesCanvasComponent implements OnInit {
     });
   }
 
+  /** Removes a node and its links. */
   removeNode(nodeId: string): void {
     if (!this.isEditMode()) {
       return;
@@ -442,6 +466,7 @@ export class PipelinesCanvasComponent implements OnInit {
     this.#cdr.markForCheck();
   }
 
+  /** Tells whether the template is already in the library. */
   isSaved(template: PipelineTemplateDefinitionResponse): boolean {
     return this.savedTemplates().some(item => item.sourceTemplateId === template.id);
   }

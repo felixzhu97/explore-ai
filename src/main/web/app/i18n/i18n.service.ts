@@ -11,11 +11,13 @@ export class I18nService {
   readonly t = computed<Translations>(() => translations[this.#languageState()]);
   readonly languageName = computed(() => languageNames[this.#languageState()]);
 
+  /** Switches the UI language and remembers it. */
   setLanguage(lang: Language): void {
     this.#languageState.set(lang);
     localStorage.setItem(STORAGE_KEYS.LANGUAGE, lang);
   }
 
+  /** Fills the {placeholders} in a translated string. */
   tReplace(template: string, values: Record<string, string | number>): string {
     return template.replace(/\{(\w+)\}/g, (_, key: string) => String(values[key] ?? `{${key}}`));
   }

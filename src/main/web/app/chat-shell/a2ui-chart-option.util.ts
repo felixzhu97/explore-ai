@@ -1218,6 +1218,7 @@ function toFiniteNumber(value: unknown): number | null {
   return Number.isFinite(numeric) ? numeric : null;
 }
 
+/** Keeps only the strings in a list. */
 export function toStringList(value: unknown): string[] {
   if (!Array.isArray(value)) {
     return [];
@@ -1225,6 +1226,7 @@ export function toStringList(value: unknown): string[] {
   return value.filter((item): item is string => typeof item === 'string');
 }
 
+/** Reads chart series from untyped data. */
 export function toChartSeries(value: unknown): ChartSeriesItem[] {
   if (!Array.isArray(value)) {
     return [];
@@ -1256,6 +1258,7 @@ export function toChartSeries(value: unknown): ChartSeriesItem[] {
     .filter((item): item is ChartSeriesItem => item !== null);
 }
 
+/** Reads scatter points from untyped data. */
 export function toScatterPoints(value: unknown): ChartScatterPoint[] {
   if (!Array.isArray(value)) {
     return [];
@@ -1277,6 +1280,7 @@ export function toScatterPoints(value: unknown): ChartScatterPoint[] {
     .filter((item): item is ChartScatterPoint => item !== null);
 }
 
+/** Reads radar indicators from untyped data. */
 export function toRadarIndicators(value: unknown): ChartRadarIndicator[] {
   if (!Array.isArray(value)) {
     return [];
@@ -1297,6 +1301,7 @@ export function toRadarIndicators(value: unknown): ChartRadarIndicator[] {
     .filter((item): item is ChartRadarIndicator => item !== null);
 }
 
+/** Reads heatmap cells from untyped data. */
 export function toHeatmapCells(value: unknown): ChartHeatmapCell[] {
   if (!Array.isArray(value)) {
     return [];
@@ -1343,6 +1348,7 @@ function toTreeNode(value: unknown): ChartTreeNode | null {
   return node;
 }
 
+/** Reads tree nodes from untyped data. */
 export function toTreeNodes(value: unknown): ChartTreeNode[] {
   if (!Array.isArray(value)) {
     return [];
@@ -1350,6 +1356,7 @@ export function toTreeNodes(value: unknown): ChartTreeNode[] {
   return value.map(toTreeNode).filter((node): node is ChartTreeNode => node !== null);
 }
 
+/** Reads graph links from untyped data. */
 export function toChartLinks(value: unknown): ChartLink[] {
   if (!Array.isArray(value)) {
     return [];
@@ -1371,6 +1378,7 @@ export function toChartLinks(value: unknown): ChartLink[] {
     .filter((item): item is ChartLink => item !== null);
 }
 
+/** Reads box plot rows from untyped data. */
 export function toBoxes(value: unknown): ChartBox[] {
   if (!Array.isArray(value)) {
     return [];
@@ -1378,6 +1386,7 @@ export function toBoxes(value: unknown): ChartBox[] {
   return value.map(parseBox).filter((item): item is ChartBox => item !== null);
 }
 
+/** Reads candlesticks from untyped data. */
 export function toCandles(value: unknown): ChartCandle[] {
   if (!Array.isArray(value)) {
     return [];
@@ -1385,6 +1394,7 @@ export function toCandles(value: unknown): ChartCandle[] {
   return value.map(parseCandle).filter((item): item is ChartCandle => item !== null);
 }
 
+/** Reads rows of numbers from untyped data. */
 export function toNumberRows(value: unknown): number[][] {
   if (!Array.isArray(value)) {
     return [];
@@ -1413,6 +1423,7 @@ export function toNumberRows(value: unknown): number[][] {
     .filter((row): row is number[] => row !== null);
 }
 
+/** Reads theme river points from untyped data. */
 export function toRiverData(value: unknown): ChartRiverDatum[] {
   if (!Array.isArray(value)) {
     return [];
@@ -1443,6 +1454,7 @@ export function toRiverData(value: unknown): ChartRiverDatum[] {
     .filter((item): item is ChartRiverDatum => item !== null);
 }
 
+/** Reads calendar cells from untyped data. */
 export function toCalendarCells(value: unknown): ChartCalendarCell[] {
   if (!Array.isArray(value)) {
     return [];
@@ -1463,6 +1475,7 @@ export function toCalendarCells(value: unknown): ChartCalendarCell[] {
     .filter((item): item is ChartCalendarCell => item !== null);
 }
 
+/** Reads a calendar range from untyped data. */
 export function toChartRange(value: unknown): string | [string, string] | undefined {
   if (typeof value === 'string' && value !== '') {
     return value;
@@ -1474,6 +1487,7 @@ export function toChartRange(value: unknown): string | [string, string] | undefi
   return undefined;
 }
 
+/** Reads a graph layout, or undefined when unknown. */
 export function toGraphLayout(value: unknown): 'force' | 'circular' | undefined {
   return value === 'force' || value === 'circular' ? value : undefined;
 }

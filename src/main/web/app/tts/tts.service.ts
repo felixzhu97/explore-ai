@@ -29,6 +29,7 @@ export interface TextToSpeechRequest {
 export class TtsService {
   readonly #http = inject(HttpClient);
 
+  /** Lists the voices. */
   getVoices(): Observable<VoiceResponse[]> {
     return this.#http
       .get<VoicesResponse>(`${API_BASE_URL}/audio/voices`)
@@ -38,10 +39,12 @@ export class TtsService {
       );
   }
 
+  /** Turns text into speech audio. */
   synthesizeSpeech(request: TextToSpeechRequest): Observable<Blob> {
     return this.#http.post(`${API_BASE_URL}/audio/speech`, request, { responseType: 'blob' });
   }
 
+  /** Downloads the audio file. */
   download(blob: Blob, filename: string): void {
     downloadBlob(blob, filename);
   }

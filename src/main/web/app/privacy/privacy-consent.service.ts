@@ -16,14 +16,17 @@ export class PrivacyConsentService {
   readonly consent = signal<PrivacyConsentState>(readPrivacyConsent());
   readonly needsDecision = signal(needsPrivacyConsentDecision());
 
+  /** Allows analytics. */
   acceptAnalytics(): void {
     this.#applyChoice(true);
   }
 
+  /** Declines analytics. */
   rejectAnalytics(): void {
     this.#applyChoice(false);
   }
 
+  /** Saves the privacy choices and applies them. */
   savePreferences(preferences: { analytics: boolean; contactEmail: string }): void {
     const next = writePrivacyPreferences(preferences);
     this.consent.set(next);

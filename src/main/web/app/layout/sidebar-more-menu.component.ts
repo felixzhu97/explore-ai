@@ -143,27 +143,32 @@ export class SidebarMoreMenuComponent {
     { initialValue: this.#router.url },
   );
 
+  /** Returns the CSS classes of the trigger button. */
   getTriggerClass(): string {
     return this.isCollapsed()
       ? '!size-7 !justify-center'
       : '!h-auto min-h-8 !items-center gap-1.5 !rounded-md !px-2 !py-1.5';
   }
 
+  /** Pins or unpins the menu open. */
   togglePinned(event: MouseEvent): void {
     event.stopPropagation();
     this.isPinned.update(open => !open);
   }
 
+  /** Tells whether the path is the current page. */
   isTabActive(path: string): boolean {
     const [url = ''] = this.#currentUrl().split('?');
     return url === path || url.startsWith(`${path}/`);
   }
 
+  /** Closes the menu after navigation. */
   onNavigate(): void {
     this.isPinned.set(false);
     this.navigated.emit();
   }
 
+  /** Closes the pinned menu on a click outside it. */
   onDocumentPointerDown(event: PointerEvent): void {
     if (!this.isPinned()) {
       return;

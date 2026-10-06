@@ -27,6 +27,7 @@ export class EvalPageComponent {
 
   readonly result = signal<EvaluationResponse | null>(null);
 
+  /** Sends the draft for scoring. */
   submit(): void {
     if (this.draftForm().invalid()) {
       return;
