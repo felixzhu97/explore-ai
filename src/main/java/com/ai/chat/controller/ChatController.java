@@ -95,7 +95,7 @@ public class ChatController {
   public ResponseEntity<SessionResponse> createSession(
       @Valid @RequestBody(required = false) CreateSessionRequest body,
       HttpServletRequest httpRequest) {
-    String title = body != null && body.title() != null ? body.title() : "New Chat";
+    String title = body == null ? null : body.title();
     var session = chatService.createSession(title, ownerContext.requireValue(httpRequest));
     return ResponseEntity.ok(SessionResponse.from(session));
   }

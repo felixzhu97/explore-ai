@@ -3,6 +3,8 @@ package com.ai.chat.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ai.chat.domain.vo.ChatSessionId;
+import com.ai.chat.domain.vo.SessionTitle;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -129,58 +131,48 @@ class ChatSessionTest {
   }
 
   @Nested
-  @DisplayName("getLastUserMessage()")
-  class GetLastUserMessage {
+  @DisplayName("firstUserMessage()")
+  class FirstUserMessage {
 
     @Test
-    @DisplayName("should return last user message")
-    void shouldReturnLastUserMessage() {
+    @DisplayName("should return the message that opened the conversation")
+    void shouldReturnTheMessageThatOpenedTheConversation() {
       ChatSession session = ChatSession.create("Test", "c:client-a");
       session.addUserMessage("First");
       session.addAssistantMessage("Response");
       session.addUserMessage("Second");
 
-      ChatMessage lastUser = session.getLastUserMessage();
-
-      assertThat(lastUser.getText()).isEqualTo("Second");
+      assertThat(session.firstUserMessage()).map(ChatMessage::getText).contains("First");
     }
 
     @Test
-    @DisplayName("should return null when no user messages")
-    void shouldReturnNullWhenNoUserMessages() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-
-      ChatMessage lastUser = session.getLastUserMessage();
-
-      assertThat(lastUser).isNull();
+    @DisplayName("should be empty when the user has not written yet")
+    void shouldBeEmptyWhenTheUserHasNotWrittenYet() {
+      assertThat(ChatSession.create("Test", "c:client-a").firstUserMessage()).isEmpty();
     }
   }
 
   @Nested
-  @DisplayName("getLastAssistantMessage()")
-  class GetLastAssistantMessage {
+  @DisplayName("lastAssistantMessage()")
+  class LastAssistantMessage {
 
     @Test
-    @DisplayName("should return last assistant message")
-    void shouldReturnLastAssistantMessage() {
+    @DisplayName("should return the newest assistant reply")
+    void shouldReturnTheNewestAssistantReply() {
       ChatSession session = ChatSession.create("Test", "c:client-a");
       session.addUserMessage("Question");
       session.addAssistantMessage("First Response");
       session.addAssistantMessage("Second Response");
 
-      ChatMessage lastAssistant = session.getLastAssistantMessage();
-
-      assertThat(lastAssistant.getText()).isEqualTo("Second Response");
+      assertThat(session.lastAssistantMessage())
+          .map(ChatMessage::getText)
+          .contains("Second Response");
     }
 
     @Test
-    @DisplayName("should return null when no assistant messages")
-    void shouldReturnNullWhenNoAssistantMessages() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-
-      ChatMessage lastAssistant = session.getLastAssistantMessage();
-
-      assertThat(lastAssistant).isNull();
+    @DisplayName("should be empty when the assistant has not replied yet")
+    void shouldBeEmptyWhenTheAssistantHasNotRepliedYet() {
+      assertThat(ChatSession.create("Test", "c:client-a").lastAssistantMessage()).isEmpty();
     }
   }
 
@@ -420,23 +412,52 @@ class ChatSessionTest {
   }
 
   @Nested
-  @DisplayName("hasDefaultTitle()")
-  class HasDefaultTitle {
+  @DisplayName("generated title")
+  class GeneratedTitle {
 
     @Test
-    @DisplayName("should return true for default title")
-    void shouldReturnTrueForDefaultTitle() {
-      ChatSession session = ChatSession.create(null, "c:client-a");
+    @DisplayName("should need a generated title when an untitled session has its first exchange")
+    void shouldNeedAGeneratedTitleWhenAnUntitledSessionHasItsFirstExchange() {
+      ChatSession session = ChatSession.startDefault("c:client-a");
+      assertThat(session.needsGeneratedTitle()).isFalse();
 
-      assertThat(session.hasDefaultTitle()).isTrue();
+      session.addUserMessage("How do I deploy K8s?");
+      session.addAssistantMessage("Use kubectl apply.");
+
+      assertThat(session.needsGeneratedTitle()).isTrue();
     }
 
     @Test
-    @DisplayName("should return false for custom title")
-    void shouldReturnFalseForCustomTitle() {
+    @DisplayName("should not need a generated title when the user named the session")
+    void shouldNotNeedAGeneratedTitleWhenTheUserNamedTheSession() {
       ChatSession session = ChatSession.create("Custom", "c:client-a");
+      session.addUserMessage("Hi");
+      session.addAssistantMessage("Hello");
 
-      assertThat(session.hasDefaultTitle()).isFalse();
+      assertThat(session.needsGeneratedTitle()).isFalse();
+    }
+
+    @Test
+    @DisplayName("should apply a generated title without recording activity")
+    void shouldApplyAGeneratedTitleWithoutRecordingActivity() {
+      Instant createdAt = Instant.parse("2026-01-01T00:00:00Z");
+      ChatSession session = ChatSession.of(ChatSessionId.generate(), null, createdAt, "c:client-a");
+
+      boolean applied = session.applyGeneratedTitle(SessionTitle.generated("\"K8s deploy\""));
+
+      assertThat(applied).isTrue();
+      assertThat(session.getTitle()).isEqualTo("K8s deploy");
+      assertThat(session.getLastActivityAt()).isEqualTo(createdAt);
+    }
+
+    @Test
+    @DisplayName("should keep the user's title when a generated title arrives late")
+    void shouldKeepTheUsersTitleWhenAGeneratedTitleArrivesLate() {
+      ChatSession session = ChatSession.startDefault("c:client-a");
+      session.rename("Mine");
+
+      assertThat(session.applyGeneratedTitle(SessionTitle.generated("Theirs"))).isFalse();
+      assertThat(session.getTitle()).isEqualTo("Mine");
     }
   }
 

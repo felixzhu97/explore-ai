@@ -18,6 +18,7 @@ import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
+import com.ai.chat.domain.vo.SessionTitle;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
@@ -109,7 +110,8 @@ class ChatServiceTest {
       catchThrowable(() -> useCase.chatWithSession("Hello", CLIENT_A));
 
       verify(repository, atLeastOnce()).save(saved.capture());
-      assertThat(saved.getAllValues().getFirst().hasDefaultTitle()).isTrue();
+      assertThat(saved.getAllValues().getFirst().getTitle())
+          .isEqualTo(SessionTitle.DEFAULT.value());
     }
   }
 
@@ -190,8 +192,11 @@ class ChatServiceTest {
     @DisplayName("should delete owned session")
     void shouldDeleteSessionWhenOwned() {
       ChatSession session =
-          ChatSession.createWithId(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), "Test", CLIENT_A);
+          ChatSession.of(
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
+              "Test",
+              java.time.Instant.now(),
+              CLIENT_A);
       when(repository.findByIdAndOwnerKey(
               ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
           .thenReturn(Optional.of(session));
@@ -222,8 +227,11 @@ class ChatServiceTest {
     @DisplayName("should erase all sessions for client")
     void shouldEraseAllSessionsWhenClientRequestsPrivacyDelete() {
       ChatSession owned =
-          ChatSession.createWithId(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), "Test", CLIENT_A);
+          ChatSession.of(
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
+              "Test",
+              java.time.Instant.now(),
+              CLIENT_A);
       when(repository.findByOwnerKey(CLIENT_A)).thenReturn(List.of(owned));
 
       useCase.deleteAllSessions(CLIENT_A);

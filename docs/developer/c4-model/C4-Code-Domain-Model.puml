@@ -163,6 +163,7 @@ package "Chat" as pkg_chat {
     +{static} DEFAULT
     +{static} of(raw)
     +{static} fromFirstMessage(text)
+    +{static} generated(modelTitle)
     +isDefault()
   }
   class ChatMessage <<Entity>> {

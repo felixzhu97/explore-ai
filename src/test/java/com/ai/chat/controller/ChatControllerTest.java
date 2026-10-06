@@ -164,7 +164,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should create session with default title when not provided")
     void shouldCreateSessionWithDefaultTitleWhenNotProvided() {
       ChatSession session = createTestSession("33333333-3333-3333-3333-333333333333", "New Chat");
-      when(chatService.createSession("New Chat", ownerKey())).thenReturn(session);
+      when(chatService.createSession(null, ownerKey())).thenReturn(session);
 
       assertThat(
               mvc.post()
@@ -182,7 +182,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should create session with default title when body is null")
     void shouldCreateSessionWithDefaultTitleWhenBodyIsNull() {
       ChatSession session = createTestSession("33333333-3333-3333-3333-333333333333", "New Chat");
-      when(chatService.createSession("New Chat", ownerKey())).thenReturn(session);
+      when(chatService.createSession(null, ownerKey())).thenReturn(session);
 
       assertThat(mvc.post().uri("/api/chat/sessions").contentType(MediaType.APPLICATION_JSON))
           .hasStatusOk();
@@ -340,6 +340,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
   }
 
   private static ChatSession createTestSession(String id, String title) {
-    return ChatSession.createWithId(ChatSessionId.of(id), title, OwnerKeyFixtures.CLIENT_FULL_KEY);
+    return ChatSession.of(
+        ChatSessionId.of(id), title, java.time.Instant.now(), OwnerKeyFixtures.CLIENT_FULL_KEY);
   }
 }
