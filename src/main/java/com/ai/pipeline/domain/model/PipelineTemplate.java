@@ -3,6 +3,7 @@ package com.ai.pipeline.domain.model;
 import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
 import com.ai.common.domain.vo.DomainStrings;
 import com.ai.common.domain.vo.StringListJsonAttributeConverter;
+import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -13,7 +14,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -124,7 +124,11 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
       if (type == null || type.isBlank()) {
         continue;
       }
-      normalized.add(type.trim().toLowerCase(Locale.ROOT));
+      AgentType agentType = AgentType.of(type);
+      if (agentType.isSupervisor()) {
+        throw new IllegalArgumentException("Pipeline templates can only contain worker agents");
+      }
+      normalized.add(agentType.value());
     }
     if (normalized.isEmpty()) {
       throw new IllegalArgumentException("Agent types cannot be empty");
