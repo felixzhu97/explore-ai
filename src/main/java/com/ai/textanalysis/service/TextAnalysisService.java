@@ -30,7 +30,7 @@ public class TextAnalysisService {
 
   /** Analyzes the text. */
   public TextAnalysis analyzeText(String text) {
-    log.info("TextAnalysisService.analyzeText: {}", LogSanitizer.truncate(text));
+    log.info("TextAnalysisService.analyzeText: length={}", LogSanitizer.lengthOf(text));
     return textAnalysisGateway.analyze(AnalysisText.of(text), LanguageHint.none());
   }
 }

@@ -48,7 +48,7 @@ public class ToolService {
 
   /** Searches the uploaded documents. */
   public String searchDocuments(String query, List<String> documentIds) {
-    log.info("ToolService.searchDocuments: {}", LogSanitizer.truncate(query));
+    log.info("ToolService.searchDocuments: query length={}", LogSanitizer.lengthOf(query));
     return documentSearchTool.searchDocuments(query, documentIds);
   }
 
@@ -60,7 +60,7 @@ public class ToolService {
 
   /** Answers the question via a tool-enabled OpenAI chat client and records the invocation. */
   public String chatWithTools(String question) {
-    log.info("ToolService.chatWithTools: {}", LogSanitizer.truncate(question));
+    log.info("ToolService.chatWithTools: question length={}", LogSanitizer.lengthOf(question));
     long startedAt = System.nanoTime();
     try {
       ChatClient chatClient =
@@ -90,7 +90,7 @@ public class ToolService {
 
   /** Searches the web. */
   public String searchWeb(String query) {
-    log.info("ToolService.searchWeb: {}", LogSanitizer.truncate(query));
+    log.info("ToolService.searchWeb: query length={}", LogSanitizer.lengthOf(query));
     return webSearchTool.searchWeb(query);
   }
 }

@@ -40,7 +40,7 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     subtitle: 'How ExploreAI handles anonymous browser data',
     noticeHeading: 'Notice',
     noticeIdentity:
-      'A functional HttpOnly cookie (Client Identity) scopes chat sessions to this browser. It is required for session isolation and is not used for advertising.',
+      'A functional HttpOnly cookie (Client Identity) scopes chat sessions to this browser. It is required for session isolation and is not used for advertising. Your IP address is kept in memory for at most 2 days, only to enforce rate limits and daily quotas; it is never stored or logged.',
     noticeChat:
       'Chat messages are sent to language-model and optional search providers to generate replies. Do not submit sensitive personal data you do not want processed.',
     noticeRetention:
@@ -48,10 +48,16 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     processorsHeading: 'Sub-processors',
     processors: [
       { name: 'DeepSeek', purpose: 'Large language model inference for chat' },
+      { name: 'Anthropic', purpose: 'Claude model inference when you select a Claude model' },
       { name: 'OpenAI', purpose: 'Optional image generation and text-to-speech' },
       { name: 'Serper', purpose: 'Web search tool results' },
+      { name: 'Resend', purpose: 'Delivery of automation result emails to the address you enter' },
+      { name: 'Google', purpose: 'Sign-in with Google, only when you choose it' },
+      { name: 'GitHub', purpose: 'Sign-in with GitHub, only when you choose it' },
       { name: 'LaunchDarkly', purpose: 'Feature flags (only with analytics consent)' },
       { name: 'Datadog', purpose: 'Optional RUM / APM (only with analytics consent)' },
+      { name: 'Render', purpose: 'Backend hosting in the United States; processes every API request' },
+      { name: 'Vercel', purpose: 'Website hosting and routing of API requests to the backend' },
     ],
     analyticsHeading: 'Analytics preference',
     analyticsHelp:
@@ -84,7 +90,7 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     subtitle: 'ExploreAI 如何处理本浏览器的匿名数据',
     noticeHeading: '告知',
     noticeIdentity:
-      '功能性 HttpOnly Cookie（客户端身份）用于将会话限定在本浏览器，服务于会话隔离，不用于广告。',
+      '功能性 HttpOnly Cookie（客户端身份）用于将会话限定在本浏览器，服务于会话隔离，不用于广告。您的 IP 地址仅为执行限流和每日额度而在内存中保留最多 2 天，不会被存储或写入日志。',
     noticeChat:
       '聊天内容会发送至大模型及可选的搜索服务以生成回复。请勿提交您不希望被处理的敏感个人信息。',
     noticeRetention:
@@ -92,10 +98,16 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     processorsHeading: '子处理方',
     processors: [
       { name: 'DeepSeek', purpose: '聊天用大语言模型推理' },
+      { name: 'Anthropic', purpose: '选择 Claude 模型时的模型推理' },
       { name: 'OpenAI', purpose: '可选的图像生成与语音合成' },
       { name: 'Serper', purpose: '网络搜索工具结果' },
+      { name: 'Resend', purpose: '向您填写的地址发送自动化结果邮件' },
+      { name: 'Google', purpose: '使用 Google 登录（仅在您选择时）' },
+      { name: 'GitHub', purpose: '使用 GitHub 登录（仅在您选择时）' },
       { name: 'LaunchDarkly', purpose: '功能开关（仅在同意分析时）' },
       { name: 'Datadog', purpose: '可选 RUM / APM（仅在同意分析时）' },
+      { name: 'Render', purpose: '后端托管（美国），处理所有 API 请求' },
+      { name: 'Vercel', purpose: '网站托管，并将 API 请求转发到后端' },
     ],
     analyticsHeading: '分析偏好',
     analyticsHelp:
@@ -127,7 +139,7 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     subtitle: 'ExploreAI が匿名のブラウザデータを扱う方法',
     noticeHeading: 'お知らせ',
     noticeIdentity:
-      '機能的な HttpOnly Cookie（クライアント識別子）により、チャットセッションはこのブラウザに限定されます。セッション分離に必要であり、広告には使用しません。',
+      '機能的な HttpOnly Cookie（クライアント識別子）により、チャットセッションはこのブラウザに限定されます。セッション分離に必要であり、広告には使用しません。IP アドレスはレート制限と1日の利用上限のためだけに最大 2 日間メモリ上に保持され、保存やログ記録は行いません。',
     noticeChat:
       'チャットメッセージは返信生成のため、言語モデルおよび任意の検索プロバイダーに送信されます。処理されたくない機微な個人データは送信しないでください。',
     noticeRetention:
@@ -135,10 +147,16 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     processorsHeading: 'サブプロセッサー',
     processors: [
       { name: 'DeepSeek', purpose: 'チャット向け大規模言語モデル推論' },
+      { name: 'Anthropic', purpose: 'Claude モデルを選択した場合のモデル推論' },
       { name: 'OpenAI', purpose: '任意の画像生成と音声合成' },
       { name: 'Serper', purpose: 'ウェブ検索ツールの結果' },
+      { name: 'Resend', purpose: '入力したアドレスへの自動化結果メールの配信' },
+      { name: 'Google', purpose: 'Google でのログイン（選択した場合のみ）' },
+      { name: 'GitHub', purpose: 'GitHub でのログイン（選択した場合のみ）' },
       { name: 'LaunchDarkly', purpose: '機能フラグ（分析同意時のみ）' },
       { name: 'Datadog', purpose: '任意の RUM / APM（分析同意時のみ）' },
+      { name: 'Render', purpose: 'バックエンドのホスティング（米国）。すべての API リクエストを処理' },
+      { name: 'Vercel', purpose: 'ウェブサイトのホスティングと API リクエストのバックエンドへの転送' },
     ],
     analyticsHeading: '分析の設定',
     analyticsHelp:
@@ -171,7 +189,7 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     subtitle: 'Comment ExploreAI traite les données anonymes du navigateur',
     noticeHeading: 'Avis',
     noticeIdentity:
-      'Un cookie HttpOnly fonctionnel (identité client) limite les sessions de chat à ce navigateur. Il est requis pour l’isolation des sessions et n’est pas utilisé à des fins publicitaires.',
+      'Un cookie HttpOnly fonctionnel (identité client) limite les sessions de chat à ce navigateur. Il est requis pour l’isolation des sessions et n’est pas utilisé à des fins publicitaires. Votre adresse IP est conservée en mémoire au plus 2 jours, uniquement pour appliquer les limites de débit et les quotas quotidiens ; elle n’est jamais stockée ni journalisée.',
     noticeChat:
       'Les messages de chat sont envoyés à des fournisseurs de modèles de langage et, le cas échéant, de recherche pour générer des réponses. N’envoyez pas de données personnelles sensibles que vous ne souhaitez pas voir traitées.',
     noticeRetention:
@@ -179,10 +197,16 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     processorsHeading: 'Sous-traitants',
     processors: [
       { name: 'DeepSeek', purpose: 'Inférence de grand modèle de langage pour le chat' },
+      { name: 'Anthropic', purpose: 'Inférence des modèles Claude lorsque vous en sélectionnez un' },
       { name: 'OpenAI', purpose: 'Génération d’images et synthèse vocale optionnelles' },
       { name: 'Serper', purpose: 'Résultats de l’outil de recherche web' },
+      { name: 'Resend', purpose: 'Envoi des e-mails de résultats d’automatisation à l’adresse que vous saisissez' },
+      { name: 'Google', purpose: 'Connexion avec Google, uniquement si vous la choisissez' },
+      { name: 'GitHub', purpose: 'Connexion avec GitHub, uniquement si vous la choisissez' },
       { name: 'LaunchDarkly', purpose: 'Indicateurs de fonctionnalités (uniquement avec consentement analytique)' },
       { name: 'Datadog', purpose: 'RUM / APM optionnels (uniquement avec consentement analytique)' },
+      { name: 'Render', purpose: 'Hébergement du backend aux États-Unis ; traite chaque requête API' },
+      { name: 'Vercel', purpose: 'Hébergement du site et acheminement des requêtes API vers le backend' },
     ],
     analyticsHeading: 'Préférence d’analyse',
     analyticsHelp:
@@ -215,7 +239,7 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     subtitle: 'Cómo ExploreAI trata los datos anónimos del navegador',
     noticeHeading: 'Aviso',
     noticeIdentity:
-      'Una cookie HttpOnly funcional (identidad del cliente) limita las sesiones de chat a este navegador. Es necesaria para el aislamiento de sesiones y no se usa para publicidad.',
+      'Una cookie HttpOnly funcional (identidad del cliente) limita las sesiones de chat a este navegador. Es necesaria para el aislamiento de sesiones y no se usa para publicidad. Su dirección IP se conserva en memoria como máximo 2 días, solo para aplicar límites de frecuencia y cuotas diarias; nunca se almacena ni se registra.',
     noticeChat:
       'Los mensajes de chat se envían a proveedores de modelos de lenguaje y, opcionalmente, de búsqueda para generar respuestas. No envíe datos personales sensibles que no desee que se procesen.',
     noticeRetention:
@@ -223,10 +247,16 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     processorsHeading: 'Subencargados del tratamiento',
     processors: [
       { name: 'DeepSeek', purpose: 'Inferencia de modelo de lenguaje grande para el chat' },
+      { name: 'Anthropic', purpose: 'Inferencia de modelos Claude cuando elige uno' },
       { name: 'OpenAI', purpose: 'Generación de imágenes y texto a voz opcionales' },
       { name: 'Serper', purpose: 'Resultados de la herramienta de búsqueda web' },
+      { name: 'Resend', purpose: 'Envío de correos con resultados de automatizaciones a la dirección que indique' },
+      { name: 'Google', purpose: 'Inicio de sesión con Google, solo si lo elige' },
+      { name: 'GitHub', purpose: 'Inicio de sesión con GitHub, solo si lo elige' },
       { name: 'LaunchDarkly', purpose: 'Indicadores de funciones (solo con consentimiento de analítica)' },
       { name: 'Datadog', purpose: 'RUM / APM opcionales (solo con consentimiento de analítica)' },
+      { name: 'Render', purpose: 'Alojamiento del backend en Estados Unidos; procesa cada solicitud de API' },
+      { name: 'Vercel', purpose: 'Alojamiento del sitio web y enrutamiento de solicitudes de API al backend' },
     ],
     analyticsHeading: 'Preferencia de analítica',
     analyticsHelp:

@@ -66,7 +66,7 @@ public class H2SpringAiVectorStore implements VectorStore {
     if (query == null || query.isBlank()) {
       return List.of();
     }
-    log.info("RAG retrieval for query: {}", LogSanitizer.truncate(query));
+    log.info("RAG retrieval: query length={}", LogSanitizer.lengthOf(query));
 
     Filter.Expression filter = request.getFilterExpression();
     Optional<String> ownerKey =
