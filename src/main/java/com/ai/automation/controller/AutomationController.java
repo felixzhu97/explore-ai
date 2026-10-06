@@ -32,12 +32,14 @@ public class AutomationController {
   private final AutomationService automationService;
   private final OwnerContext ownerContext;
 
+  /** Lists the owner's automation schedules. */
   @GetMapping
   public List<AutomationScheduleResponse> list(HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return automationService.list(ownerKey).stream().map(AutomationScheduleResponse::from).toList();
   }
 
+  /** Lists recent runs of a schedule. */
   @GetMapping("/{id}/runs")
   public List<AutomationRunResponse> listRuns(
       @PathVariable String id,
@@ -49,6 +51,7 @@ public class AutomationController {
         .toList();
   }
 
+  /** Creates an automation schedule. */
   @PostMapping
   public ResponseEntity<AutomationScheduleResponse> create(
       @Valid @RequestBody CreateAutomationScheduleRequest body, HttpServletRequest request) {
@@ -68,6 +71,7 @@ public class AutomationController {
                     body.brief())));
   }
 
+  /** Updates an automation schedule. */
   @PutMapping("/{id}")
   public AutomationScheduleResponse update(
       @PathVariable String id,
@@ -88,6 +92,7 @@ public class AutomationController {
             body.brief()));
   }
 
+  /** Turns an automation schedule on or off. */
   @PatchMapping("/{id}/enabled")
   public AutomationScheduleResponse setEnabled(
       @PathVariable String id,
@@ -98,6 +103,7 @@ public class AutomationController {
         automationService.setEnabled(ownerKey, id, body.enabled()));
   }
 
+  /** Deletes an automation schedule. */
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);

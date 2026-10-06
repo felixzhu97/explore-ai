@@ -17,16 +17,19 @@ import org.springframework.context.annotation.Configuration;
     havingValue = "true",
     matchIfMissing = false)
 public class EvalConfig {
+  /** Creates the chat client used to judge answers. */
   @Bean
   public ChatClient evaluationChatClient(ChatClientProvider chatClientProvider) {
     return chatClientProvider.createBareStateless(TextChatOptions.withoutTools());
   }
 
+  /** Creates the relevancy evaluator. */
   @Bean
   public RelevancyEvaluator relevancyEvaluator(ChatModel chatModel) {
     return new RelevancyEvaluator(ChatClient.builder(chatModel));
   }
 
+  /** Creates the fact-checking evaluator. */
   @Bean
   public FactCheckingEvaluator factCheckingEvaluator(ChatModel chatModel) {
     return FactCheckingEvaluator.builder(ChatClient.builder(chatModel)).build();

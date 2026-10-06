@@ -14,10 +14,12 @@ public final class AccountUserId extends AbstractUuidId {
     super(value);
   }
 
+  /** Wraps an existing account id. */
   public static AccountUserId of(String value) {
     return new AccountUserId(value);
   }
 
+  /** Creates a new random account id. */
   public static AccountUserId generate() {
     return new AccountUserId(generateUuidString());
   }

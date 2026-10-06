@@ -36,16 +36,19 @@ public abstract class AbstractEnableableNamedOwnerEntity<IdT extends AbstractUui
     this.enabled = enabled;
   }
 
+  /** Turns the entity on. */
   public void enable() {
     this.enabled = true;
     touchUpdatedAt();
   }
 
+  /** Turns the entity off. */
   public void disable() {
     this.enabled = false;
     touchUpdatedAt();
   }
 
+  /** Tells whether the entity is on. */
   public boolean isEnabled() {
     return enabled;
   }

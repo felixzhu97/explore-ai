@@ -25,6 +25,7 @@ public record RoutingPlan(AgentType primaryAgent, String reason, List<Subtask> s
     }
   }
 
+  /** Creates a plan that routes to one agent. */
   public static RoutingPlan single(AgentType agentType, String reason) {
     return new RoutingPlan(agentType, reason, List.of());
   }

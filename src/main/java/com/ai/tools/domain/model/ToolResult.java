@@ -11,18 +11,22 @@ public class ToolResult {
     this.content = content;
   }
 
+  /** Creates a successful result. */
   public static ToolResult success(String content) {
     return new ToolResult(true, content);
   }
 
+  /** Creates a failed result. */
   public static ToolResult failure(String message) {
     return new ToolResult(false, message);
   }
 
+  /** Tells whether the tool call succeeded. */
   public boolean isSuccess() {
     return success;
   }
 
+  /** Returns the result text. */
   public String content() {
     return content;
   }

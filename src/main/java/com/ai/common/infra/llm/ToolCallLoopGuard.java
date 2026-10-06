@@ -48,6 +48,7 @@ final class ToolCallLoopGuard {
 
   private ToolCallLoopGuard() {}
 
+  /** Tells whether the messages include tool results. */
   static boolean hasToolResults(List<Message> messages) {
     return filterToolResponseMessages(messages).size() > 0;
   }
@@ -67,6 +68,7 @@ final class ToolCallLoopGuard {
     return streamToolNames(toolMessages).anyMatch(ToolCallLoopGuard::isTerminalTool);
   }
 
+  /** Tells whether every tool result came from a bridge tool. */
   static boolean hasOnlyBridgeToolResults(List<Message> messages) {
     List<ToolResponseMessage> toolMessages = filterToolResponseMessages(messages);
     if (toolMessages.isEmpty()) {
@@ -75,6 +77,7 @@ final class ToolCallLoopGuard {
     return streamToolNames(toolMessages).allMatch(ToolCallLoopGuard::isBridgeTool);
   }
 
+  /** Returns options that stop further tool calls. */
   static ChatOptions disableFurtherToolUse(ChatOptions options) {
     if (!(options instanceof ToolCallingChatOptions)) {
       return options;
@@ -91,18 +94,21 @@ final class ToolCallLoopGuard {
     return options;
   }
 
+  /** Adds a reminder to write the final answer. */
   static List<Message> withFinalAnswerReminder(List<Message> history) {
     List<Message> next = new ArrayList<>(history);
     next.add(new SystemMessage(AFTER_TOOLS_REMINDER));
     return List.copyOf(next);
   }
 
+  /** Adds a reminder to continue after a bridge tool. */
   static List<Message> withContinuationReminder(List<Message> history) {
     List<Message> next = new ArrayList<>(history);
     next.add(new SystemMessage(AFTER_BRIDGE_REMINDER));
     return List.copyOf(next);
   }
 
+  /** Adds the reminder that fits the current tool stage. */
   static List<Message> withStageReminder(List<Message> history) {
     if (shouldForceFinalAnswer(history)) {
       return withFinalAnswerReminder(history);
@@ -113,6 +119,7 @@ final class ToolCallLoopGuard {
     return history;
   }
 
+  /** Turns off tools when the model must give its final answer. */
   static org.springframework.ai.chat.client.ChatClientRequest disableToolsIfNeeded(
       org.springframework.ai.chat.client.ChatClientRequest request) {
     List<Message> instructions = request.prompt().getInstructions();

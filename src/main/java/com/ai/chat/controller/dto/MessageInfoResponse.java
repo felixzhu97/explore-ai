@@ -6,6 +6,7 @@ import java.util.List;
 
 public record MessageInfoResponse(
     String id, ChatRole role, String content, Instant timestamp, List<WebSourceResponse> sources) {
+  /** Maps a message to a response without web sources. */
   public static MessageInfoResponse from(ChatMessage message) {
     return from(message, List.of());
   }

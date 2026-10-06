@@ -36,6 +36,7 @@ public class PipelineController {
   private final PipelineService pipelineService;
   private final OwnerContext ownerContext;
 
+  /** Lists the agents. */
   @GetMapping("/agent-types")
   public ResponseEntity<List<AgentInfoResponse>> listAgents(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
@@ -48,12 +49,14 @@ public class PipelineController {
     return ResponseEntity.ok(agents);
   }
 
+  /** Returns the pipeline module health. */
   @GetMapping("/health")
   public ResponseEntity<PipelineModuleHealthResponse> getModuleHealth() {
     return ResponseEntity.ok(
         new PipelineModuleHealthResponse(HealthStatus.UP, pipelineService.countBuiltins()));
   }
 
+  /** Returns one agent. */
   @GetMapping("/{agentType}")
   public ResponseEntity<AgentInfoResponse> getAgent(
       @PathVariable String agentType,
@@ -69,6 +72,7 @@ public class PipelineController {
     }
   }
 
+  /** Returns the health of one agent. */
   @GetMapping("/{agentType}/health")
   public ResponseEntity<AgentHealthResponse> getHealth(
       @PathVariable String agentType,
@@ -84,6 +88,7 @@ public class PipelineController {
     }
   }
 
+  /** Streams a supervisor run. */
   @PostMapping(value = "/supervisor/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokeSupervisor(
       @Valid @RequestBody AgentInvokeRequest request,
@@ -94,6 +99,7 @@ public class PipelineController {
         request.message(), ownerKey, resolveLanguage(lang, httpRequest));
   }
 
+  /** Streams a pipeline run. */
   @PostMapping(value = "/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokePipeline(
       @Valid @RequestBody PipelineInvokeRequest request,
@@ -123,6 +129,7 @@ public class PipelineController {
         resolveLanguage(lang, httpRequest));
   }
 
+  /** Streams a single agent run. */
   @PostMapping(value = "/{agentType}/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokeAgent(
       @PathVariable String agentType,

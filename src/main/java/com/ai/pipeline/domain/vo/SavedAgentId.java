@@ -14,10 +14,12 @@ public final class SavedAgentId extends AbstractUuidId {
     super(value);
   }
 
+  /** Wraps an existing id. */
   public static SavedAgentId of(String value) {
     return new SavedAgentId(value);
   }
 
+  /** Creates a new random id. */
   public static SavedAgentId generate() {
     return new SavedAgentId(generateUuidString());
   }

@@ -19,6 +19,7 @@ public record VoiceSelection(String voice, String model) {
     return new VoiceSelection(effectiveVoice, effectiveModel);
   }
 
+  /** Tells whether this selection uses the default voice and model. */
   public boolean isDefault() {
     VoiceCatalog catalog = VoiceCatalog.defaults();
     return catalog.defaultVoice().equals(voice) && catalog.defaultModel().equals(model);

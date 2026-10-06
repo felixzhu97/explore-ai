@@ -26,14 +26,17 @@ public class McpService {
   private final McpToolCallbackRegistry toolCallbackRegistry;
   private final ChatClientProvider chatClientProvider;
 
+  /** Counts the registered tools. */
   public int getTotalToolCount() {
     return mcpClientGateway.countTools();
   }
 
+  /** Lists the connected servers by name. */
   public Map<String, McpServerConnection> getConnectedServers() {
     return mcpClientGateway.listServers();
   }
 
+  /** Lists the registered tool definitions. */
   public List<McpToolDefinition> getToolDefinitions() {
     return mcpClientGateway.listTools();
   }
@@ -50,10 +53,12 @@ public class McpService {
         .content();
   }
 
+  /** Registers the server's tool callbacks. */
   public void registerToolCallbacks(ToolCallback[] tools, String serverName) {
     toolCallbackRegistry.registerToolCallbacks(tools, serverName);
   }
 
+  /** Removes all registered tools. */
   public void clearTools() {
     mcpClientGateway.clearTools();
   }

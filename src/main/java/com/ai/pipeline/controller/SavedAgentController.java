@@ -30,12 +30,14 @@ public class SavedAgentController {
   private final SavedAgentService savedAgentService;
   private final OwnerContext ownerContext;
 
+  /** Lists the owner's saved agents. */
   @GetMapping
   public List<SavedAgentResponse> listLibrary(HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return savedAgentService.listLibrary(ownerKey).stream().map(SavedAgentResponse::from).toList();
   }
 
+  /** Saves a new agent. */
   @PostMapping
   public ResponseEntity<SavedAgentResponse> create(
       @Valid @RequestBody CreateSavedAgentRequest body, HttpServletRequest request) {
@@ -52,6 +54,7 @@ public class SavedAgentController {
                     body.toolKeys())));
   }
 
+  /** Updates a saved agent. */
   @PutMapping("/{id}")
   public SavedAgentResponse update(
       @PathVariable String id,
@@ -63,6 +66,7 @@ public class SavedAgentController {
             ownerKey, id, body.name(), body.description(), body.systemPrompt(), body.toolKeys()));
   }
 
+  /** Turns a saved agent on or off. */
   @PatchMapping("/{id}/enabled")
   public SavedAgentResponse setEnabled(
       @PathVariable String id,
@@ -72,6 +76,7 @@ public class SavedAgentController {
     return SavedAgentResponse.from(savedAgentService.setEnabled(ownerKey, id, body.enabled()));
   }
 
+  /** Deletes a saved agent. */
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);

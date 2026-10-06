@@ -22,6 +22,7 @@ public class LaunchDarklyConfig {
 
   private LDClient ldClient;
 
+  /** Creates the LaunchDarkly client and waits for it to start. */
   @Bean
   @ConditionalOnExpression("'${launchdarkly.sdk-key:}'.length() > 0")
   public LDClient ldClient(LaunchDarklyProperties properties) {
@@ -30,12 +31,14 @@ public class LaunchDarklyConfig {
     return ldClient;
   }
 
+  /** Reads feature flags from LaunchDarkly. */
   @Bean
   @ConditionalOnBean(LDClient.class)
   public FeatureFlagRepository launchDarklyFeatureFlagRepository(LDClient client) {
     return new LaunchDarklyFeatureFlagRepository(client);
   }
 
+  /** Closes the LaunchDarkly client. */
   @PreDestroy
   public void shutdown() throws IOException {
     if (ldClient != null) {

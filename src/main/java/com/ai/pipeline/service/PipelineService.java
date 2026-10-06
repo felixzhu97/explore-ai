@@ -18,33 +18,40 @@ public class PipelineService {
   private final AgentRegistry registry;
   private final PipelineOrchestrationService orchestrator;
 
+  /** Lists the agents. */
   public List<AgentDefinition> listAgents(String ownerKey, String language) {
     return orchestrator.listAgents(ownerKey, language);
   }
 
+  /** Counts the built-in agents. */
   public int countBuiltins() {
     return registry.listBuiltins("en").size();
   }
 
+  /** Returns an agent with its health. */
   public AgentDefinition getHealth(String agentType, String ownerKey, String language) {
     return orchestrator.getHealth(AgentType.of(agentType), ownerKey, language);
   }
 
+  /** Streams a supervisor run. */
   public Flux<ServerSentEvent<String>> invokeSupervisor(
       String message, String ownerKey, String language) {
     return orchestrator.invokeSupervisor(message, ownerKey, language);
   }
 
+  /** Streams a pipeline run. */
   public Flux<ServerSentEvent<String>> invokePipeline(
       String message, AgentPipeline pipeline, String ownerKey, String language) {
     return orchestrator.invokePipeline(message, pipeline, ownerKey, language);
   }
 
+  /** Streams a single agent run. */
   public Flux<ServerSentEvent<String>> invokeAgent(
       String agentType, String message, String ownerKey, String language) {
     return orchestrator.invokeAgent(AgentType.of(agentType), message, ownerKey, language);
   }
 
+  /** Runs a pipeline and returns the final answer. */
   public String invokePipelineSync(
       String message, AgentPipeline pipeline, String ownerKey, String language) {
     return orchestrator.invokePipelineSync(message, pipeline, ownerKey, language);

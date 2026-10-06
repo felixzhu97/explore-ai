@@ -39,6 +39,7 @@ public abstract class AbstractEntity<IdT extends AbstractUuidId> {
     this.updatedAt = Objects.requireNonNull(updatedAt, "updatedAt cannot be null");
   }
 
+  /** Sets the last update time to now. */
   protected void touchUpdatedAt() {
     this.updatedAt = Instant.now();
   }

@@ -29,6 +29,7 @@ public class OAuthExploreIamProperties {
   /** When true and issuer-uri is set, accept IAM JWT Bearer tokens. */
   private boolean resourceServerEnabled = true;
 
+  /** Tells whether Explore IAM login is enabled and fully configured. */
   public boolean isReady() {
     return enabled
         && clientId != null

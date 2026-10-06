@@ -22,14 +22,17 @@ public final class SkillTemplateCatalog {
 
   private SkillTemplateCatalog() {}
 
+  /** Lists the skill templates in English. */
   public static List<SkillTemplate> listAll() {
     return listAll(DEFAULT_LANGUAGE);
   }
 
+  /** Lists the skill templates in the language. */
   public static List<SkillTemplate> listAll(String language) {
     return BY_LANGUAGE.getOrDefault(normalizeLanguage(language), BY_LANGUAGE.get(DEFAULT_LANGUAGE));
   }
 
+  /** Finds an English skill template by id. */
   public static Optional<SkillTemplate> findById(String templateId) {
     return findById(templateId, DEFAULT_LANGUAGE);
   }

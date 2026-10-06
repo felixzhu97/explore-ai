@@ -12,6 +12,7 @@ public record PipelineHandoffEvent(String agentType, String reason) {
 
   private static final ObjectMapper JSON = new ObjectMapper();
 
+  /** Creates a handoff event. */
   public static PipelineHandoffEvent of(String agentType, String reason) {
     return new PipelineHandoffEvent(agentType, reason == null ? "" : reason);
   }

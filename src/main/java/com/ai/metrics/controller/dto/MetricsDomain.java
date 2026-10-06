@@ -17,6 +17,7 @@ public enum MetricsDomain {
     return aiDomain().value();
   }
 
+  /** Maps a domain to its API value. */
   public static MetricsDomain from(AiDomain domain) {
     return valueOf(domain.name());
   }

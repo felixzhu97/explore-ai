@@ -36,6 +36,7 @@ public enum AiDomain {
     return Optional.empty();
   }
 
+  /** Parses a domain value, rejecting unknown values. */
   public static AiDomain require(String raw) {
     return parse(raw).orElseThrow(() -> new IllegalArgumentException("Unknown AI domain: " + raw));
   }

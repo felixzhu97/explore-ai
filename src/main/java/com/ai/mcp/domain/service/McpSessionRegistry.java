@@ -12,18 +12,21 @@ public class McpSessionRegistry {
 
   private final Map<UUID, McpSession> sessions = new ConcurrentHashMap<>();
 
+  /** Opens and stores a session for the server. */
   public McpSession registerSession(String serverName, int toolCount) {
     McpSession session = McpSession.open(serverName, toolCount);
     sessions.put(session.id(), session);
     return session;
   }
 
+  /** Finds a session by server name. */
   public Optional<McpSession> findByServerName(String serverName) {
     return sessions.values().stream()
         .filter(session -> session.serverName().equals(serverName))
         .findFirst();
   }
 
+  /** Finds an active session by server name. */
   public Optional<McpSession> findActiveByServerName(String serverName) {
     return sessions.values().stream()
         .filter(session -> session.serverName().equals(serverName) && session.isActive())
@@ -38,14 +41,17 @@ public class McpSessionRegistry {
     }
   }
 
+  /** Lists the active sessions. */
   public List<McpSession> listActiveSessions() {
     return sessions.values().stream().filter(McpSession::isActive).toList();
   }
 
+  /** Counts the active sessions. */
   public int countActiveSessions() {
     return (int) sessions.values().stream().filter(McpSession::isActive).count();
   }
 
+  /** Removes all sessions. */
   public void clear() {
     sessions.clear();
   }

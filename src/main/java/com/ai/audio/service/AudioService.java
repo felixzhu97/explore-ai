@@ -25,10 +25,12 @@ public class AudioService {
   private final TextToSpeechGateway textToSpeechGateway;
   private final TtsConfiguration ttsConfiguration;
 
+  /** Lists the voices available for text-to-speech. */
   public List<VoiceInfo> getAvailableVoices() {
     return VoiceCatalog.defaults().voiceInfos();
   }
 
+  /** Lists the text-to-speech models. */
   public List<String> getAvailableTtsModels() {
     return VoiceCatalog.defaults().models();
   }

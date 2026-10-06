@@ -6,6 +6,7 @@ import java.util.List;
 
 /** Persists automation run records and lists a schedule's recent runs for its owner. */
 public interface AutomationRunRepository {
+  /** Lists the newest runs of the owner's schedule. */
   List<AutomationRun> findByScheduleIdAndOwnerKey(
       ScheduleId scheduleId, String ownerKey, int limit);
 

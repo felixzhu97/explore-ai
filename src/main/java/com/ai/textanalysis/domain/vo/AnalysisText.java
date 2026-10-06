@@ -33,6 +33,7 @@ public record AnalysisText(String value) {
     }
   }
 
+  /** Wraps the text to analyze. */
   public static AnalysisText of(String text) {
     return new AnalysisText(text);
   }

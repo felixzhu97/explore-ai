@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 @Configuration
 @EnableConfigurationProperties(ImageProperties.class)
 public class ImageModelConfig {
+  /** Creates the OpenAI image model. */
   @Bean
   @Primary
   @ConditionalOnProperty(name = "app.ai.image.enabled", havingValue = "true", matchIfMissing = true)

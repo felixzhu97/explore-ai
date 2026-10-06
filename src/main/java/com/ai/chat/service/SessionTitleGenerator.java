@@ -55,6 +55,7 @@ public class SessionTitleGenerator {
 
   record SessionTitleResponse(String title) {}
 
+  /** Builds a short title from the user message. */
   String buildFallbackTitle(String userMessage) {
     if (userMessage == null || userMessage.isBlank()) {
       return ChatSession.DEFAULT_TITLE;

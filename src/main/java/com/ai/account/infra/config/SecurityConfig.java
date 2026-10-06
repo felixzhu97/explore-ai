@@ -41,11 +41,13 @@ import org.springframework.security.web.context.SecurityContextRepository;
 @EnableWebSecurity
 public class SecurityConfig {
 
+  /** Stores the security context in the HTTP session. */
   @Bean
   SecurityContextRepository securityContextRepository() {
     return new HttpSessionSecurityContextRepository();
   }
 
+  /** Maps JWT scopes to {@code SCOPE_} authorities. */
   @Bean
   JwtAuthenticationConverter iamJwtAuthenticationConverter() {
     JwtGrantedAuthoritiesConverter scopes = new JwtGrantedAuthoritiesConverter();
@@ -56,6 +58,7 @@ public class SecurityConfig {
     return converter;
   }
 
+  /** Builds the security chain used when OAuth login is configured. */
   @Bean
   @Order(1)
   @ConditionalOnBean(ClientRegistrationRepository.class)
@@ -97,6 +100,7 @@ public class SecurityConfig {
     return http.build();
   }
 
+  /** Builds the security chain used when only guest access is available. */
   @Bean
   @Order(2)
   @ConditionalOnMissingBean(name = "oauthSecurityFilterChain")

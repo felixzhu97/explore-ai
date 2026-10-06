@@ -27,6 +27,7 @@ public class OwnerContext {
     return currentOwnerResolver.resolve(clientId, authentication);
   }
 
+  /** Returns the owner key for the request or fails when it is missing. */
   public String requireValue(HttpServletRequest request) {
     return require(request).value();
   }

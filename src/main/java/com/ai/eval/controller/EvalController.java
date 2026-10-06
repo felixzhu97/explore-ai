@@ -31,6 +31,7 @@ public class EvalController {
 
   private final ChatQualityEvaluator evaluator;
 
+  /** Scores a chat answer. */
   @PostMapping("/chat")
   public ResponseEntity<EvaluationResponse> evaluateChat(
       @Valid @RequestBody EvaluationRequest request) {

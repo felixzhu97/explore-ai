@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties(LaunchDarklyProperties.class)
 public class FeatureFlagFallbackConfig {
+  /** Uses configured fallback flags when LaunchDarkly is off. */
   @Bean
   @ConditionalOnMissingBean(FeatureFlagRepository.class)
   @ConditionalOnExpression("'${launchdarkly.sdk-key:}'.length() == 0")

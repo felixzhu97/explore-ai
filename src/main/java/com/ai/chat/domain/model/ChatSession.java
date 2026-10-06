@@ -54,23 +54,28 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     return title.trim();
   }
 
+  /** Creates a new chat session for the owner. */
   public static ChatSession create(String title, String ownerKey) {
     return new ChatSession(
         ChatSessionId.generate(), title, Instant.now(), OwnerKey.parse(ownerKey));
   }
 
+  /** Creates a new chat session with a given id. */
   public static ChatSession createWithId(ChatSessionId id, String title, String ownerKey) {
     return new ChatSession(id, title, Instant.now(), OwnerKey.parse(ownerKey));
   }
 
+  /** Rebuilds a stored chat session. */
   public static ChatSession of(ChatSessionId id, String title, Instant createdAt, String ownerKey) {
     return new ChatSession(id, title, createdAt, OwnerKey.parse(ownerKey));
   }
 
+  /** Returns when the session was last active. */
   public Instant getLastActivityAt() {
     return getUpdatedAt();
   }
 
+  /** Tells whether the session still has the default title. */
   public boolean hasDefaultTitle() {
     return DEFAULT_TITLE.equals(title);
   }
@@ -100,26 +105,32 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     return message;
   }
 
+  /** Returns the messages as a read-only list. */
   public List<ChatMessage> getMessages() {
     return Collections.unmodifiableList(messages);
   }
 
+  /** Counts all messages. */
   public int getMessageCount() {
     return messages.size();
   }
 
+  /** Counts the user messages. */
   public int getUserMessageCount() {
     return (int) messages.stream().filter(ChatMessage::isFromUser).count();
   }
 
+  /** Counts the assistant messages. */
   public int getAssistantMessageCount() {
     return (int) messages.stream().filter(ChatMessage::isFromAssistant).count();
   }
 
+  /** Returns the newest user message, or null. */
   public ChatMessage getLastUserMessage() {
     return getLastMessageByRole(ChatMessage::isFromUser);
   }
 
+  /** Returns the newest assistant message, or null. */
   public ChatMessage getLastAssistantMessage() {
     return getLastMessageByRole(ChatMessage::isFromAssistant);
   }
@@ -138,10 +149,12 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
     return Collections.unmodifiableList(messages.subList(start, size));
   }
 
+  /** Tells whether the session has no messages. */
   public boolean isEmpty() {
     return messages.isEmpty();
   }
 
+  /** Removes all messages. */
   public void clearMessages() {
     messages.clear();
     updateLastActivity();

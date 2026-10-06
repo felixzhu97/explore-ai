@@ -9,6 +9,7 @@ import java.util.List;
  */
 public record WebSourcesEvent(String type, String query, List<Source> items) {
 
+  /** Creates a web sources event. */
   public static WebSourcesEvent of(String query, List<Source> items) {
     return new WebSourcesEvent("sources", query, List.copyOf(items));
   }

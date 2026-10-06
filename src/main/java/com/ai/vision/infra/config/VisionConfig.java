@@ -22,6 +22,7 @@ public class VisionConfig {
     configureJnaLibraryPath(Path.of("/usr/local/lib"));
   }
 
+  /** Adds the native library folders to the JNA path. */
   @PostConstruct
   void configureNativeLibraries() {
     configureJnaLibraryPath(Path.of("/opt/homebrew/lib"));

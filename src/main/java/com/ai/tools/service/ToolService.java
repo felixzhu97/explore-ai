@@ -32,6 +32,7 @@ public class ToolService {
   private final WebSearchTool webSearchTool;
   private final AiInvocationRecorder invocationRecorder;
 
+  /** Looks up today's weather in the city. */
   public String lookupWeather(String city) {
     log.info("ToolService.lookupWeather: {}", city);
     return weatherReport.lookupCurrent(WeatherQuery.of(city)).content();
@@ -45,11 +46,13 @@ public class ToolService {
         .content();
   }
 
+  /** Searches the uploaded documents. */
   public String searchDocuments(String query, List<String> documentIds) {
     log.info("ToolService.searchDocuments: {}", LogSanitizer.truncate(query));
     return documentSearchTool.searchDocuments(query, documentIds);
   }
 
+  /** Lists the uploaded documents. */
   public String listDocuments() {
     log.info("ToolService.listDocuments");
     return documentSearchTool.listDocuments();
@@ -85,6 +88,7 @@ public class ToolService {
     }
   }
 
+  /** Searches the web. */
   public String searchWeb(String query) {
     log.info("ToolService.searchWeb: {}", LogSanitizer.truncate(query));
     return webSearchTool.searchWeb(query);

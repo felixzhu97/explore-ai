@@ -28,6 +28,7 @@ public class TextAnalysisService {
     return textAnalysisGateway.analyze(AnalysisText.of(text), LanguageHint.of(language));
   }
 
+  /** Analyzes the text. */
   public TextAnalysis analyzeText(String text) {
     log.info("TextAnalysisService.analyzeText: {}", LogSanitizer.truncate(text));
     return textAnalysisGateway.analyze(AnalysisText.of(text), LanguageHint.none());

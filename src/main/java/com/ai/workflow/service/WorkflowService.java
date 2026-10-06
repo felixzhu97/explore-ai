@@ -26,22 +26,27 @@ public class WorkflowService {
   private final OrchestratorWorkersWorkflow orchestratorWorkersWorkflow;
   private final EvaluatorOptimizerWorkflow evaluatorOptimizerWorkflow;
 
+  /** Runs the prompts one after another. */
   public ChainResult runChain(String userInput, String[] systemPrompts) {
     return chainWorkflow.runChain(userInput, systemPrompts);
   }
 
+  /** Runs the prompt over the items in parallel. */
   public ParallelizationResult runParallel(String prompt, List<String> items, int parallelism) {
     return parallelizationWorkflow.runParallel(prompt, items, parallelism);
   }
 
+  /** Sends the input to the best route. */
   public RoutingResult route(String input, Map<String, String> routes) {
     return routingWorkflow.route(input, routes);
   }
 
+  /** Runs the orchestrator-workers workflow. */
   public OrchestratorWorkersResult runOrchestratorWorkers(String task) {
     return orchestratorWorkersWorkflow.process(task);
   }
 
+  /** Runs the evaluator-optimizer workflow. */
   public EvaluatorOptimizerResult runEvaluatorOptimizer(String task) {
     return evaluatorOptimizerWorkflow.runLoop(task);
   }

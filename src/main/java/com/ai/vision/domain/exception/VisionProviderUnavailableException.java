@@ -10,6 +10,7 @@ public class VisionProviderUnavailableException extends RuntimeException {
     this.provider = provider;
   }
 
+  /** Returns the provider that is unavailable. */
   public String getProvider() {
     return provider;
   }

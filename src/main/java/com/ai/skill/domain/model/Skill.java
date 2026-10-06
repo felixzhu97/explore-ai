@@ -76,6 +76,7 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
     return this;
   }
 
+  /** Returns the allowed tools as a read-only list. */
   public List<String> getAllowedTools() {
     return Collections.unmodifiableList(allowedTools == null ? List.of() : allowedTools);
   }

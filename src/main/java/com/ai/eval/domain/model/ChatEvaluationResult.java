@@ -16,6 +16,7 @@ public record ChatEvaluationResult(
     boolean relevancyPassed,
     Boolean factualityPassed,
     List<String> evaluatorFeedback) {
+  /** Creates a result builder. */
   public static Builder builder() {
     return new Builder();
   }
@@ -35,61 +36,73 @@ public record ChatEvaluationResult(
     private Boolean factualityPassed;
     private List<String> evaluatorFeedback = List.of();
 
+    /** Sets the coherence score, clamped to 0–1. */
     public Builder coherenceScore(double score) {
       this.coherenceScore = Math.max(0, Math.min(1, score));
       return this;
     }
 
+    /** Sets the relevance score, clamped to 0–1. */
     public Builder relevanceScore(double score) {
       this.relevanceScore = Math.max(0, Math.min(1, score));
       return this;
     }
 
+    /** Sets the helpfulness score, clamped to 0–1. */
     public Builder helpfulnessScore(double score) {
       this.helpfulnessScore = Math.max(0, Math.min(1, score));
       return this;
     }
 
+    /** Sets the factuality score, clamped to 0–1, or null. */
     public Builder factualityScore(Double score) {
       this.factualityScore = score == null ? null : Math.max(0, Math.min(1, score));
       return this;
     }
 
+    /** Sets whether a factuality score is available. */
     public Builder factualityAvailable(boolean available) {
       this.factualityAvailable = available;
       return this;
     }
 
+    /** Sets the overall score, clamped to 0–1. */
     public Builder overallScore(double score) {
       this.overallScore = Math.max(0, Math.min(1, score));
       return this;
     }
 
+    /** Sets whether safety issues were found. */
     public Builder hasSafetyIssues(boolean hasIssues) {
       this.hasSafetyIssues = hasIssues;
       return this;
     }
 
+    /** Sets the safety flags. */
     public Builder safetyFlags(List<String> flags) {
       this.safetyFlags = List.copyOf(flags);
       return this;
     }
 
+    /** Sets the suggestions. */
     public Builder suggestions(List<String> suggestions) {
       this.suggestions = List.copyOf(suggestions);
       return this;
     }
 
+    /** Sets whether the relevancy check passed. */
     public Builder relevancyPassed(boolean pass) {
       this.relevancyPassed = pass;
       return this;
     }
 
+    /** Sets whether the factuality check passed, or null. */
     public Builder factualityPassed(Boolean pass) {
       this.factualityPassed = pass;
       return this;
     }
 
+    /** Sets the evaluator feedback. */
     public Builder evaluatorFeedback(List<String> feedback) {
       this.evaluatorFeedback = feedback == null ? List.of() : List.copyOf(feedback);
       return this;

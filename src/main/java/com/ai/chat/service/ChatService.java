@@ -89,11 +89,13 @@ public class ChatService {
     return session.getMessages();
   }
 
+  /** Sends a message in the session and returns the reply. */
   public String chatWithSession(String sessionId, String userMessage, String ownerKey) {
     ChatSession session = loadOrCreateSession(sessionId, ownerKey);
     return exchangeMessages(session, sessionId, userMessage, TextChatOptions.defaults());
   }
 
+  /** Sends a message in the owner's default session and returns the reply. */
   public String chatWithSession(String userMessage, String ownerKey) {
     ChatSession session = getOrCreateDefaultSession(ownerKey);
     return exchangeMessages(
@@ -216,6 +218,7 @@ public class ChatService {
     }
   }
 
+  /** Sends one stateless message with default options. */
   public String chat(String userMessage) {
     return chat(userMessage, TextChatOptions.defaults());
   }
@@ -287,6 +290,7 @@ public class ChatService {
         LogSanitizer.fingerprint(ownerKey));
   }
 
+  /** Clears the model memory of a conversation. */
   public void clearConversationMemory(String conversationId) {
     chatMemory.clear(conversationId);
   }

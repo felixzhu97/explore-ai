@@ -105,6 +105,7 @@ public class AccountService {
             });
   }
 
+  /** Tells whether at least one login provider is available. */
   public boolean isLoginAvailable() {
     return !loginProviders().isEmpty();
   }

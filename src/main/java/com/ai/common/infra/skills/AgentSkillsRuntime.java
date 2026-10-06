@@ -30,14 +30,17 @@ public class AgentSkillsRuntime {
     }
   }
 
+  /** Tells whether skills are on and at least one is loaded. */
   public boolean isEnabled() {
     return enabled && !skills.isEmpty();
   }
 
+  /** Returns the loaded skills. */
   public List<AgentSkill> getSkills() {
     return skills;
   }
 
+  /** Returns the skill tool when skills are on. */
   public Optional<ToolCallback> findSkillToolCallback() {
     return (!isEnabled() || skillToolCallback == null)
         ? Optional.empty()

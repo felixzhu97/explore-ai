@@ -13,14 +13,17 @@ public record AgentType(String value) {
     value = value.trim().toLowerCase(Locale.ROOT);
   }
 
+  /** Creates an agent type. */
   public static AgentType of(String value) {
     return new AgentType(value);
   }
 
+  /** Returns the supervisor type. */
   public static AgentType supervisor() {
     return new AgentType("supervisor");
   }
 
+  /** Tells whether this is the supervisor type. */
   public boolean isSupervisor() {
     return "supervisor".equals(value);
   }

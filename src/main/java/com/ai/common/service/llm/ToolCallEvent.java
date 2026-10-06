@@ -8,6 +8,7 @@ package com.ai.common.service.llm;
  */
 public record ToolCallEvent(String type, String name, String input) {
 
+  /** Creates a tool call event. */
   public static ToolCallEvent of(String name, String input) {
     return new ToolCallEvent("tool_call", name, input == null ? "" : input);
   }

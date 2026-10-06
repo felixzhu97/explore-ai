@@ -14,10 +14,12 @@ public final class MessageId extends AbstractUuidId {
     super(value);
   }
 
+  /** Wraps an existing message id. */
   public static MessageId of(String value) {
     return new MessageId(value);
   }
 
+  /** Creates a new random message id. */
   public static MessageId generate() {
     return new MessageId(generateUuidString());
   }

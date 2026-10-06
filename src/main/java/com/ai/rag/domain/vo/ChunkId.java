@@ -14,10 +14,12 @@ public final class ChunkId extends AbstractUuidId {
     super(value);
   }
 
+  /** Wraps an existing id. */
   public static ChunkId of(String value) {
     return new ChunkId(value);
   }
 
+  /** Creates a new random id. */
   public static ChunkId generate() {
     return new ChunkId(generateUuidString());
   }

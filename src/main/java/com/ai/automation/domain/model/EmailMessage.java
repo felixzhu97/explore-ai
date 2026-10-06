@@ -22,6 +22,7 @@ public record EmailMessage(String to, String subject, String textBody, String ht
     }
   }
 
+  /** Tells whether the email has an HTML body. */
   public boolean hasHtmlBody() {
     return htmlBody != null && !htmlBody.isBlank();
   }

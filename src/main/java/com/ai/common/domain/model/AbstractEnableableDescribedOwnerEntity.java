@@ -47,6 +47,7 @@ public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends Abstrac
     this.description = DomainStrings.normalizeDescription(description);
   }
 
+  /** Updates the description. */
   protected void updateDescription(String nextDescription) {
     this.description = DomainStrings.normalizeDescription(nextDescription);
     touchUpdatedAt();

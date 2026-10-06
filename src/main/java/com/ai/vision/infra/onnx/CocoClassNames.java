@@ -96,6 +96,7 @@ public final class CocoClassNames {
     return CLASSES[classId];
   }
 
+  /** Counts the COCO classes. */
   public static int countClasses() {
     return CLASSES.length;
   }

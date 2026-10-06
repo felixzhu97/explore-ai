@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 /** Spring AI ETL wiring for document ingest ({@link TokenTextSplitter}). */
 @Configuration
 public class RagEtlConfig {
+  /** Creates the token text splitter. */
   @Bean
   public TokenTextSplitter ragTokenTextSplitter(RagProperties properties) {
     return TokenTextSplitter.builder().withChunkSize(properties.getChunk().getSize()).build();

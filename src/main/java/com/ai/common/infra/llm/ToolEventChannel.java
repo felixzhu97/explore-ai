@@ -40,14 +40,17 @@ public final class ToolEventChannel {
     return id == null ? Optional.empty() : Optional.ofNullable(OWNER_BY_ID.get(id));
   }
 
+  /** Binds the stream channel to the current thread. */
   public static void setCurrentSessionId(String channelId) {
     CURRENT_ID.set(channelId);
   }
 
+  /** Unbinds the stream channel from the current thread. */
   public static void clearCurrentSessionId() {
     CURRENT_ID.remove();
   }
 
+  /** Returns the stream channel bound to the current thread. */
   public static String getCurrentSessionId() {
     return CURRENT_ID.get();
   }
@@ -65,6 +68,7 @@ public final class ToolEventChannel {
     sink.tryEmitNext(jsonPayload);
   }
 
+  /** Exposes the sink as a Flux. */
   public static Flux<String> asFlux(Sinks.Many<String> sink) {
     return sink.asFlux();
   }

@@ -17,7 +17,9 @@ public interface AgentRegistry {
   /** Workers eligible for supervisor routing (excludes supervisor and deep). */
   List<AgentDefinition> listWorkers(String ownerKey, String language);
 
+  /** Finds an agent by type. */
   Optional<AgentDefinition> findByType(AgentType type, String ownerKey, String language);
 
+  /** Returns an agent by type, failing when it is missing. */
   AgentDefinition require(AgentType type, String ownerKey, String language);
 }

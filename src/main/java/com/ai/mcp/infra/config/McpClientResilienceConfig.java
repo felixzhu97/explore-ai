@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
     matchIfMissing = false)
 public class McpClientResilienceConfig {
 
+  /** Sets the request timeout on MCP clients. */
   @Bean
   @ConditionalOnProperty(prefix = "spring.ai.mcp.client", name = "enabled", havingValue = "true")
   McpClientCustomizer<McpClient.SyncSpec> mcpClientTimeoutCustomizer(

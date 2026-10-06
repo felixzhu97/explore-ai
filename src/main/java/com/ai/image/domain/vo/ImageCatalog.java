@@ -25,26 +25,32 @@ public record ImageCatalog(List<String> models, List<String> sizes, List<String>
     qualities = List.copyOf(qualities);
   }
 
+  /** Returns the default catalog. */
   public static ImageCatalog defaults() {
     return DEFAULT;
   }
 
+  /** Tells whether the model is supported. */
   public boolean supportsModel(String model) {
     return models.contains(model);
   }
 
+  /** Tells whether the quality is supported. */
   public boolean supportsQuality(String quality) {
     return qualities.contains(quality);
   }
 
+  /** Tells whether the size is supported. */
   public boolean supportsSize(int width, int height) {
     return sizes.contains(width + "x" + height);
   }
 
+  /** Returns the default model. */
   public String defaultModel() {
     return models.getFirst();
   }
 
+  /** Returns the default quality. */
   public String defaultQuality() {
     return qualities.getFirst();
   }

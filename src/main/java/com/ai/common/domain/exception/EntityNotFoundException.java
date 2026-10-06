@@ -12,10 +12,12 @@ public class EntityNotFoundException extends AbstractDomainException {
     this.resourceId = resourceId;
   }
 
+  /** Returns the kind of resource that was not found. */
   public String getResourceType() {
     return resourceType;
   }
 
+  /** Returns the id that was not found. */
   public String getResourceId() {
     return resourceId;
   }

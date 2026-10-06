@@ -10,6 +10,7 @@ public class ChatSessionNotFoundException extends RuntimeException {
     this.sessionId = sessionId;
   }
 
+  /** Returns the id of the missing session. */
   public String getSessionId() {
     return sessionId;
   }

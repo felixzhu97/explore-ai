@@ -33,6 +33,7 @@ public class ChatDataRetentionJob {
   private final ChatWebSourcesRepository chatWebSourcesRepository;
   private final AiInvocationEventRepository invocationEventRepository;
 
+  /** Deletes chat data older than the retention period. */
   @Scheduled(cron = "${app.data-retention.cron:0 0 3 * * *}")
   public void purgeExpiredData() {
     if (!properties.isEnabled()) {

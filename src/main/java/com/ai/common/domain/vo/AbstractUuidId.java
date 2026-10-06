@@ -21,6 +21,7 @@ public abstract class AbstractUuidId implements EntityId {
     this.value = UUID.fromString(requireUuid(value));
   }
 
+  /** Returns the value when it is a valid UUID, otherwise fails. */
   protected static String requireUuid(String value) {
     if (value == null || value.isBlank()) {
       throw new IllegalArgumentException("Id value cannot be null or blank");
@@ -30,10 +31,12 @@ public abstract class AbstractUuidId implements EntityId {
     return trimmed;
   }
 
+  /** Creates a new random UUID string. */
   protected static String generateUuidString() {
     return UUID.randomUUID().toString();
   }
 
+  /** Returns the id as a UUID. */
   public UUID asUuid() {
     return value;
   }

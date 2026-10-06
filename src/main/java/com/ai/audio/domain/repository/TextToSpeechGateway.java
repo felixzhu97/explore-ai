@@ -6,5 +6,6 @@ import com.ai.audio.domain.vo.VoiceSelection;
 
 /** Repository that synthesizes speech audio for text with a chosen voice and speed. */
 public interface TextToSpeechGateway {
+  /** Synthesizes speech for the text with the chosen voice and speed. */
   SynthesizedAudio synthesize(SpeechText text, VoiceSelection voiceSelection, Double speed);
 }

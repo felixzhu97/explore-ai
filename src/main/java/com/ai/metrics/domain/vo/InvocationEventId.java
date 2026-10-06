@@ -14,10 +14,12 @@ public final class InvocationEventId extends AbstractUuidId {
     super(value);
   }
 
+  /** Wraps an existing id. */
   public static InvocationEventId of(String value) {
     return new InvocationEventId(value);
   }
 
+  /** Creates a new random id. */
   public static InvocationEventId generate() {
     return new InvocationEventId(generateUuidString());
   }

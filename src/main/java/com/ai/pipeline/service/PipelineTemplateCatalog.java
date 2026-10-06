@@ -22,14 +22,17 @@ public final class PipelineTemplateCatalog {
 
   private PipelineTemplateCatalog() {}
 
+  /** Lists the pipeline templates in English. */
   public static List<PipelineTemplateDefinition> listAll() {
     return listAll(DEFAULT_LANGUAGE);
   }
 
+  /** Lists the pipeline templates in the language. */
   public static List<PipelineTemplateDefinition> listAll(String language) {
     return BY_LANGUAGE.getOrDefault(normalizeLanguage(language), BY_LANGUAGE.get(DEFAULT_LANGUAGE));
   }
 
+  /** Finds an English pipeline template by id. */
   public static Optional<PipelineTemplateDefinition> findById(String templateId) {
     return findById(templateId, DEFAULT_LANGUAGE);
   }

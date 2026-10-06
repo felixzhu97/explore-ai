@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ApplicationConfig {
+  /** Creates the language detection service. */
   @Bean
   public LanguageDetectionService languageDetectionService() {
     return new LanguageDetectionService();

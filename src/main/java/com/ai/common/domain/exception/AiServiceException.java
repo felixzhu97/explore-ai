@@ -20,6 +20,7 @@ public class AiServiceException extends RuntimeException {
     this.errorCode = errorCode;
   }
 
+  /** Returns the error code. */
   public String getErrorCode() {
     return errorCode;
   }

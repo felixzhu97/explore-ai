@@ -125,6 +125,7 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
     return available;
   }
 
+  /** Closes the ONNX sessions. */
   @PreDestroy
   void closeSessions() {
     closeQuietly(visionSession);

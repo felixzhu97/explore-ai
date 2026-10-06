@@ -20,17 +20,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
  */
 @Configuration
 public class ChatConfig {
+  /** Uses the OpenAI-compatible model as the primary chat model. */
   @Bean
   @Primary
   public ChatModel primaryChatModel(@Qualifier("openAiChatModel") ChatModel openAiChatModel) {
     return openAiChatModel;
   }
 
+  /** Stores chat memory in the database. */
   @Bean
   public ChatMemoryRepository chatMemoryRepository(JdbcTemplate jdbcTemplate) {
     return JdbcChatMemoryRepository.builder().jdbcTemplate(jdbcTemplate).build();
   }
 
+  /** Keeps the most recent messages of each conversation in memory. */
   @Bean
   @Primary
   public ChatMemory chatMemory(
@@ -44,6 +47,7 @@ public class ChatConfig {
     return new SanitizingChatMemory(window);
   }
 
+  /** Loads the prompt templates. */
   @Bean
   public PromptTemplates promptTemplates() {
     return new PromptTemplates();

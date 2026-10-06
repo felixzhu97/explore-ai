@@ -80,6 +80,7 @@ public class AgentSkillLoader {
     }
   }
 
+  /** Returns the skills location with a trailing slash. */
   static String normalizeResourceLocation(String resourceLocation) {
     String location =
         resourceLocation == null || resourceLocation.isBlank()
@@ -88,6 +89,7 @@ public class AgentSkillLoader {
     return location.endsWith("/") ? location : location + "/";
   }
 
+  /** Parses a skill file, or returns empty when it is invalid. */
   static Optional<AgentSkill> parseSkill(Resource resource) throws IOException {
     String content = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
     if (!content.startsWith("---")) {

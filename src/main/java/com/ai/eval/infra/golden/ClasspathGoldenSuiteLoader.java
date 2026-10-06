@@ -50,6 +50,7 @@ public class ClasspathGoldenSuiteLoader implements GoldenSuiteRepository {
     return loadAll().stream().filter(c -> domains.contains(c.domain())).toList();
   }
 
+  /** Reads the golden cases from a JSONL resource. */
   List<GoldenEvalCase> readResource(Resource resource) throws IOException {
     List<GoldenEvalCase> cases = new ArrayList<>();
     try (BufferedReader reader =
@@ -80,6 +81,7 @@ public class ClasspathGoldenSuiteLoader implements GoldenSuiteRepository {
     return cases;
   }
 
+  /** Parses one JSONL line into a golden case. */
   GoldenEvalCase parseLine(String json, int lineNo, String filename) throws IOException {
     JsonNode root = objectMapper.readTree(json);
     if (!root.hasNonNull("input") || !root.has("ideal") || root.get("ideal").isNull()) {

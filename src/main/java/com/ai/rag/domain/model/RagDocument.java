@@ -61,18 +61,21 @@ public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
     return title.length() > 255 ? title.substring(0, 255) : title.trim();
   }
 
+  /** Marks the document as processing. */
   public void markProcessing() {
     validateTransitionTo(DocumentStatus.PROCESSING);
     this.status = DocumentStatus.PROCESSING;
     touchUpdatedAt();
   }
 
+  /** Marks the document as ready. */
   public void markReady() {
     validateTransitionTo(DocumentStatus.READY);
     this.status = DocumentStatus.READY;
     touchUpdatedAt();
   }
 
+  /** Marks the document as failed. */
   public void markFailed() {
     validateTransitionTo(DocumentStatus.FAILED);
     this.status = DocumentStatus.FAILED;

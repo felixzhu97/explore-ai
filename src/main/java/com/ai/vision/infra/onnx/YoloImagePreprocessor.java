@@ -8,6 +8,7 @@ final class YoloImagePreprocessor {
 
   private YoloImagePreprocessor() {}
 
+  /** Turns the image into a YOLO input tensor. */
   static float[] preprocess(BufferedImage image, int inputSize) {
     BufferedImage resized = resize(image, inputSize, inputSize);
     float[] tensor = new float[3 * inputSize * inputSize];

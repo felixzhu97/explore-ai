@@ -11,6 +11,7 @@ public record WeatherQuery(String city, String normalizedCity) {
     normalizedCity = city.toLowerCase();
   }
 
+  /** Creates a weather query for the city. */
   public static WeatherQuery of(String city) {
     return new WeatherQuery(city, city);
   }

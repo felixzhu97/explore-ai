@@ -16,6 +16,7 @@ public class ServiceAuthProperties {
    */
   private String apiKey = "";
 
+  /** Tells whether service-to-service auth is on. */
   public boolean isEnabled() {
     return apiKey != null && !apiKey.isBlank();
   }

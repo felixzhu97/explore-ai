@@ -17,6 +17,7 @@ public final class LogSanitizer {
 
   private LogSanitizer() {}
 
+  /** Cuts text to the default log length. */
   public static String truncate(String text) {
     return truncate(text, DEFAULT_MAX_LENGTH);
   }

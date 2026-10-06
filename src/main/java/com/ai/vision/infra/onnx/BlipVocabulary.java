@@ -20,6 +20,7 @@ final class BlipVocabulary {
 
   private BlipVocabulary() {}
 
+  /** Loads the vocabulary from the tokenizer folder. */
   static BlipVocabulary load(Path tokenizerDir) throws IOException {
     Path vocabFile = tokenizerDir.resolve("vocab.txt");
     if (!Files.exists(vocabFile)) {
@@ -39,6 +40,7 @@ final class BlipVocabulary {
     return vocabulary;
   }
 
+  /** Turns token ids back into text. */
   String decode(List<Long> tokenIds) {
     StringBuilder builder = new StringBuilder();
     for (Long tokenId : tokenIds) {
@@ -57,10 +59,12 @@ final class BlipVocabulary {
     return builder.toString().trim();
   }
 
+  /** Returns the token id that starts decoding. */
   int decoderStartTokenId() {
     return tokenToId.getOrDefault("[DEC]", CLS_TOKEN_ID);
   }
 
+  /** Returns the end-of-sequence token id. */
   int eosTokenId() {
     return SEP_TOKEN_ID;
   }

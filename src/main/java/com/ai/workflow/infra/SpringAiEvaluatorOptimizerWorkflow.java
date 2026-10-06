@@ -63,6 +63,7 @@ public class SpringAiEvaluatorOptimizerWorkflow implements EvaluatorOptimizerWor
     this.maxIterations = maxIterations;
   }
 
+  /** Creates a workflow with custom prompts for tests. */
   static SpringAiEvaluatorOptimizerWorkflow forTest(
       ChatClientProvider chatClientProvider,
       String generatorPrompt,

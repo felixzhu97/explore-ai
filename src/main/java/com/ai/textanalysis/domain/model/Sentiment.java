@@ -18,10 +18,12 @@ public enum Sentiment {
     }
   }
 
+  /** Tells whether the sentiment is negative. */
   public boolean isNegative() {
     return this == NEGATIVE;
   }
 
+  /** Tells whether the sentiment is positive. */
   public boolean isPositive() {
     return this == POSITIVE;
   }

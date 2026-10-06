@@ -16,18 +16,22 @@ public class SkillService {
 
   private final SkillRepository skillRepository;
 
+  /** Lists the owner's skills. */
   public List<Skill> list(String ownerKey) {
     return skillRepository.findAllByOwnerKey(ownerKey);
   }
 
+  /** Lists the built-in skill templates. */
   public List<SkillTemplate> listTemplates(String language) {
     return SkillTemplateCatalog.listAll(language);
   }
 
+  /** Returns the owner's skill. */
   public Skill get(String ownerKey, String id) {
     return findOwnedSkill(ownerKey, id);
   }
 
+  /** Creates a skill, rejecting a taken name. */
   public Skill create(
       String ownerKey,
       String name,
@@ -78,6 +82,7 @@ public class SkillService {
     return skillRepository.save(skill);
   }
 
+  /** Deletes the owner's skill. */
   public void delete(String ownerKey, String id) {
     findOwnedSkill(ownerKey, id);
     skillRepository.deleteByIdAndOwnerKey(SkillId.of(id), ownerKey);

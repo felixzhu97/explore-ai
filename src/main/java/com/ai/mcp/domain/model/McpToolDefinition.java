@@ -9,6 +9,7 @@ public record McpToolDefinition(String name, String description) {
     description = description != null ? description.trim() : "";
   }
 
+  /** Creates a tool definition. */
   public static McpToolDefinition create(String name, String description) {
     return new McpToolDefinition(name, description);
   }

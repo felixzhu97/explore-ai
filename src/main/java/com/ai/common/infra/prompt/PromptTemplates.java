@@ -50,32 +50,39 @@ public class PromptTemplates {
     this.afterToolsReminder = ClasspathPromptLoader.load("guards/after-tools.st");
   }
 
+  /** Returns the shared style instructions. */
   public String getSharedStyleInstructions() {
     return sharedStyle;
   }
 
+  /** Returns the reminder added after tool calls. */
   public String getAfterToolsReminder() {
     return afterToolsReminder;
   }
 
+  /** Returns the default system prompt. */
   public String getDefaultSystemPrompt() {
     return defaultSystemPrompt;
   }
 
+  /** Returns the RAG system prompt. */
   public String getRagSystemPrompt() {
     return ragSystemPrompt;
   }
 
+  /** Builds a prompt that summarizes the text. */
   public String buildSummarizationPrompt(String text) {
     log.debug("Building summarization prompt for text of length: {}", text.length());
     return summarizationTemplate.render(Map.of("text", text));
   }
 
+  /** Builds a prompt that translates the text. */
   public String buildTranslationPrompt(String text, String targetLanguage) {
     log.debug("Building translation prompt to {}", targetLanguage);
     return translationTemplate.render(Map.of("text", text, "targetLanguage", targetLanguage));
   }
 
+  /** Builds a prompt that answers the question from the context. */
   public String buildQuestionAnswerPrompt(String context, String question) {
     log.debug("Building Q&A prompt with context length: {}", context.length());
     return questionAnswerTemplate.render(Map.of("context", context, "question", question));
@@ -89,6 +96,7 @@ public class PromptTemplates {
     return defaultSystemPrompt + "\n\n" + customInstructions;
   }
 
+  /** Loads the system prompt of an agent. */
   public String loadAgentSystemPrompt(String agentKey) {
     String body = ClasspathPromptLoader.load("agent/" + agentKey + ".st");
     return ClasspathPromptLoader.joinSections(body, sharedStyle);

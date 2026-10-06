@@ -12,6 +12,7 @@ public class AgentNotFoundException extends RuntimeException {
     this.agentType = agentType;
   }
 
+  /** Returns the agent type that was not found. */
   public AgentType agentType() {
     return agentType;
   }

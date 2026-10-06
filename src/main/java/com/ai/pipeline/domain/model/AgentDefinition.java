@@ -36,11 +36,13 @@ public final class AgentDefinition {
     this.healthy = healthy;
   }
 
+  /** Creates a single-run agent without tools. */
   public static AgentDefinition create(
       AgentType type, String name, String description, String systemPrompt) {
     return create(type, name, description, systemPrompt, List.of(), RUNTIME_SINGLE);
   }
 
+  /** Creates a healthy agent with tools and a runtime. */
   public static AgentDefinition create(
       AgentType type,
       String name,
@@ -51,38 +53,47 @@ public final class AgentDefinition {
     return new AgentDefinition(type, name, description, systemPrompt, toolKeys, runtime, true);
   }
 
+  /** Returns the agent type. */
   public AgentType type() {
     return type;
   }
 
+  /** Returns the display name. */
   public String name() {
     return name;
   }
 
+  /** Returns the description. */
   public String description() {
     return description;
   }
 
+  /** Returns the system prompt. */
   public String systemPrompt() {
     return systemPrompt;
   }
 
+  /** Returns the tool keys. */
   public List<String> toolKeys() {
     return toolKeys;
   }
 
+  /** Returns the runtime. */
   public String runtime() {
     return runtime;
   }
 
+  /** Tells whether the agent is healthy. */
   public boolean healthy() {
     return healthy;
   }
 
+  /** Tells whether the agent can be a pipeline worker. */
   public boolean isWorker() {
     return !type.isSupervisor() && !isDeep();
   }
 
+  /** Tells whether the agent uses the deep runtime. */
   public boolean isDeep() {
     return RUNTIME_DEEP.equals(runtime) || "deep".equals(type.value());
   }

@@ -210,22 +210,26 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
     touchUpdatedAt();
   }
 
+  /** Enables the schedule with its next run time. */
   public void enable(Instant nextRunAt) {
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");
     enable();
   }
 
+  /** Records a finished run and sets the next run time. */
   public void markExecuted(Instant finishedAt, Instant nextRunAt) {
     this.lastRunAt = Objects.requireNonNull(finishedAt, "finishedAt");
     this.nextRunAt = Objects.requireNonNull(nextRunAt, "nextRunAt");
     touchUpdatedAt();
   }
 
+  /** Records the only run of a one-time schedule and disables it. */
   public void completeOnce(Instant finishedAt) {
     markExecuted(finishedAt, ONCE_TERMINAL_NEXT);
     disable();
   }
 
+  /** Tells whether the schedule runs only once. */
   public boolean isOnce() {
     return scheduleKind == ScheduleKind.ONCE;
   }

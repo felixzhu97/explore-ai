@@ -111,6 +111,7 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
     this.ownerKey = toOwnerKey(builder.ownerKey);
   }
 
+  /** Creates an event builder. */
   public static Builder builder() {
     return new Builder();
   }
@@ -162,91 +163,109 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
     private String errorMessage;
     private String ownerKey;
 
+    /** Sets the event id. */
     public Builder id(UUID id) {
       this.id = id;
       return this;
     }
 
+    /** Sets when the call happened. */
     public Builder occurredAt(Instant occurredAt) {
       this.occurredAt = occurredAt;
       return this;
     }
 
+    /** Sets the AI domain. */
     public Builder domain(AiDomain domain) {
       this.domain = domain;
       return this;
     }
 
+    /** Sets the operation name. */
     public Builder operation(String operation) {
       this.operation = operation;
       return this;
     }
 
+    /** Sets the outcome. */
     public Builder outcome(InvocationOutcome outcome) {
       this.outcome = outcome;
       return this;
     }
 
+    /** Sets the latency in milliseconds. */
     public Builder latencyMs(long latencyMs) {
       this.latencyMs = latencyMs;
       return this;
     }
 
+    /** Sets the provider. */
     public Builder provider(String provider) {
       this.provider = provider;
       return this;
     }
 
+    /** Sets the model. */
     public Builder model(String model) {
       this.model = model;
       return this;
     }
 
+    /** Sets the chat session id. */
     public Builder sessionId(String sessionId) {
       this.sessionId = sessionId;
       return this;
     }
 
+    /** Sets the document id. */
     public Builder documentId(String documentId) {
       this.documentId = documentId;
       return this;
     }
 
+    /** Sets the agent type. */
     public Builder agentType(String agentType) {
       this.agentType = agentType;
       return this;
     }
 
+    /** Sets the tool name. */
     public Builder toolName(String toolName) {
       this.toolName = toolName;
       return this;
     }
 
+    /** Sets the prompt token count. */
     public Builder promptTokens(Integer promptTokens) {
       this.promptTokens = promptTokens;
       return this;
     }
 
+    /** Sets the completion token count. */
     public Builder completionTokens(Integer completionTokens) {
       this.completionTokens = completionTokens;
       return this;
     }
 
+    /** Sets the error code. */
     public Builder errorCode(String errorCode) {
       this.errorCode = errorCode;
       return this;
     }
 
+    /** Sets the error message. */
     public Builder errorMessage(String errorMessage) {
       this.errorMessage = errorMessage;
       return this;
     }
 
+    /** Sets the owner key. */
     public Builder ownerKey(String ownerKey) {
       this.ownerKey = ownerKey;
       return this;
     }
 
+    /** Builds the event. */
     public AiInvocationEvent build() {
       return new AiInvocationEvent(this);
     }

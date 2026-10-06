@@ -15,6 +15,7 @@ public class AgentSkillsProperties {
   private List<String> ids = new ArrayList<>();
   @Setter private String resourceLocation = "classpath:agent/skills/";
 
+  /** Sets the enabled skill ids, treating null as empty. */
   public void setIds(List<String> ids) {
     this.ids = ids == null ? new ArrayList<>() : ids;
   }

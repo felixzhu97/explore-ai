@@ -16,6 +16,7 @@ public class SavedAgentService {
 
   private final SavedAgentRepository repository;
 
+  /** Lists the owner's saved agents. */
   public List<SavedAgent> listLibrary(String ownerKey) {
     return repository.findAllByOwnerKey(ownerKey);
   }
@@ -34,6 +35,7 @@ public class SavedAgentService {
     return repository.save(agent);
   }
 
+  /** Updates the owner's saved agent. */
   public SavedAgent update(
       String ownerKey,
       String id,
@@ -57,6 +59,7 @@ public class SavedAgentService {
     return repository.save(agent);
   }
 
+  /** Deletes the owner's saved agent. */
   public void delete(String ownerKey, String id) {
     findOwned(ownerKey, id);
     repository.deleteByIdAndOwnerKey(SavedAgentId.of(id), ownerKey);

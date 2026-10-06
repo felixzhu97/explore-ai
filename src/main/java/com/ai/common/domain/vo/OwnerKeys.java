@@ -5,6 +5,7 @@ public final class OwnerKeys {
 
   private OwnerKeys() {}
 
+  /** Returns the guest owner key for the client id. */
   public static OwnerKey requireClient(String clientId) {
     return OwnerKey.forClient(clientId);
   }
@@ -20,6 +21,7 @@ public final class OwnerKeys {
     return ownerKey.value().substring(OwnerKey.CLIENT_PREFIX.length());
   }
 
+  /** Returns the value stored in the database, or null. */
   public static String toStorageValue(OwnerKey ownerKey) {
     return ownerKey == null ? null : ownerKey.value();
   }

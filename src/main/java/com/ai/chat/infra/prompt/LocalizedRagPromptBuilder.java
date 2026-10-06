@@ -18,6 +18,7 @@ public class LocalizedRagPromptBuilder {
   private final LanguageDetectionService languageDetectionService;
   private final PromptTemplates promptTemplates;
 
+  /** Builds the RAG prompt in the question's language. */
   public String build(String question, String context) {
     String languageCode = languageDetectionService.detect(question);
     return build(question, context, languageCode);

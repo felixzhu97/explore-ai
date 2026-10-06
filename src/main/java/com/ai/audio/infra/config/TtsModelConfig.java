@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 @Configuration
 @EnableConfigurationProperties(TtsProperties.class)
 public class TtsModelConfig {
+  /** Creates the OpenAI text-to-speech model. */
   @Bean
   @Primary
   @ConditionalOnExpression(

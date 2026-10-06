@@ -8,36 +8,52 @@ import java.util.Optional;
 
 /** Read-side repository for aggregated invocation counts, latencies, tokens, and inventories. */
 public interface MetricsQueryRepository {
+  /** Counts calls in the time range. */
   long countInvocations(Optional<AiDomain> domain, Instant from, Instant to);
 
+  /** Counts failed calls in the time range. */
   long countErrors(Optional<AiDomain> domain, Instant from, Instant to);
 
+  /** Counts calls per domain. */
   List<NamedCount> countByDomain(Instant from, Instant to);
 
+  /** Counts calls per model. */
   List<NamedCount> countByModel(Optional<AiDomain> domain, Instant from, Instant to);
 
+  /** Counts calls per agent type. */
   List<NamedCount> countByAgentType(Instant from, Instant to);
 
+  /** Calculates the latency percentiles. */
   LatencyStats calculateLatencyPercentiles(Optional<AiDomain> domain, Instant from, Instant to);
 
+  /** Sums the prompt and completion tokens. */
   TokenTotals sumTokens(Optional<AiDomain> domain, Instant from, Instant to);
 
+  /** Lists the most used tools. */
   List<NamedCount> listTopTools(Optional<AiDomain> domain, Instant from, Instant to, int limit);
 
+  /** Counts calls per day. */
   List<TimePoint> countDailyRequests(Optional<AiDomain> domain, Instant from, Instant to);
 
+  /** Counts failed calls per day. */
   List<TimePoint> countDailyErrors(Optional<AiDomain> domain, Instant from, Instant to);
 
+  /** Calculates the p95 latency per day. */
   List<TimePoint> calculateDailyLatencyP95(Optional<AiDomain> domain, Instant from, Instant to);
 
+  /** Counts new chat sessions per day. */
   List<TimePoint> countDailySessionsCreated(Instant from, Instant to);
 
+  /** Counts new chat messages per day. */
   List<TimePoint> countDailyMessagesCreated(Instant from, Instant to);
 
+  /** Counts uploaded documents per day. */
   List<TimePoint> countDailyDocumentsUploaded(Instant from, Instant to);
 
+  /** Returns the chat session and message totals. */
   ChatInventory getChatInventory(Instant activeSince);
 
+  /** Returns the document and chunk totals. */
   RagInventory getRagInventory();
 
   record LatencyStats(Double p50Ms, Double p95Ms) {}

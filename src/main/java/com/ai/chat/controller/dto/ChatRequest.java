@@ -13,10 +13,12 @@ public record ChatRequest(
     }
   }
 
+  /** Creates a request without a session. */
   public static ChatRequest of(String message) {
     return new ChatRequest(message, null);
   }
 
+  /** Creates a request for a session. */
   public static ChatRequest of(String message, String sessionId) {
     return new ChatRequest(message, sessionId);
   }

@@ -15,6 +15,7 @@ public record ImageSize(int width, int height) {
     return size;
   }
 
+  /** Tells whether the size is supported. */
   public boolean isSupported() {
     return ImageCatalog.defaults().supportsSize(width, height);
   }

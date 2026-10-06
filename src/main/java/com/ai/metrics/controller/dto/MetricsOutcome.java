@@ -13,6 +13,7 @@ public enum MetricsOutcome {
     return InvocationOutcome.valueOf(name()).value();
   }
 
+  /** Maps an outcome to its API value. */
   public static MetricsOutcome from(InvocationOutcome outcome) {
     return valueOf(outcome.name());
   }

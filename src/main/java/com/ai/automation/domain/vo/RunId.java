@@ -14,10 +14,12 @@ public final class RunId extends AbstractUuidId {
     super(value);
   }
 
+  /** Wraps an existing run id. */
   public static RunId of(String value) {
     return new RunId(value);
   }
 
+  /** Creates a new random run id. */
   public static RunId generate() {
     return new RunId(generateUuidString());
   }

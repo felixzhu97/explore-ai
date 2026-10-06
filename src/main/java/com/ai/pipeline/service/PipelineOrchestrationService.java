@@ -33,10 +33,12 @@ public class PipelineOrchestrationService {
   private final WorkerAgentInvoker workerInvoker;
   private final AiInvocationRecorder invocationRecorder;
 
+  /** Lists the agents. */
   public List<AgentDefinition> listAgents(String ownerKey, String language) {
     return registry.listAll(ownerKey, language);
   }
 
+  /** Returns an agent with its health. */
   public AgentDefinition getHealth(AgentType type, String ownerKey, String language) {
     return registry.require(type, ownerKey, language);
   }
@@ -281,19 +283,23 @@ public class PipelineOrchestrationService {
         AgentDefinition.RUNTIME_SINGLE);
   }
 
+  /** Builds an SSE message event. */
   static ServerSentEvent<String> buildMessageEvent(String data) {
     return ServerSentEvent.<String>builder().event("message").data(data).build();
   }
 
+  /** Builds an SSE handoff event. */
   static ServerSentEvent<String> buildHandoffEvent(String agentType, String reason) {
     String payload = PipelineHandoffEvent.of(agentType, reason).toJson();
     return ServerSentEvent.<String>builder().event("agent_handoff").data(payload).build();
   }
 
+  /** Builds the SSE done event. */
   static ServerSentEvent<String> buildDoneEvent() {
     return ServerSentEvent.<String>builder().event("done").data("[DONE]").build();
   }
 
+  /** Builds an SSE error event. */
   static ServerSentEvent<String> buildErrorEvent(String message) {
     return ServerSentEvent.<String>builder().event("error").data(message).build();
   }

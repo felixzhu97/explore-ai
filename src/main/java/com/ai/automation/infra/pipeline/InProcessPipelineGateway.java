@@ -67,6 +67,7 @@ public class InProcessPipelineGateway implements PipelineGateway {
     return topic + "\n\n" + instructions;
   }
 
+  /** Tells whether the brief is empty or the generic placeholder. */
   static boolean isGenericPlaceholder(String brief) {
     if (brief == null || brief.isBlank()) {
       return true;
@@ -75,6 +76,7 @@ public class InProcessPipelineGateway implements PipelineGateway {
     return normalized.equals(GENERIC_PLACEHOLDER.toLowerCase(Locale.ROOT));
   }
 
+  /** Builds a pipeline that runs the agents one after another. */
   static AgentPipeline toLinearPipeline(List<String> agentTypes) {
     List<AgentPipeline.PipelineNode> nodes = new ArrayList<>();
     List<AgentPipeline.PipelineEdge> edges = new ArrayList<>();
