@@ -11,7 +11,7 @@ import com.ai.chat.controller.dto.ProviderStatus;
 import com.ai.chat.service.ChatService;
 import com.ai.chat.service.TextProviderCatalog;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.skill.domain.repository.SkillRepository;
+import com.ai.skill.service.SkillService;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
@@ -31,7 +31,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
 
   @MockitoBean private TextProviderCatalog providerCatalog;
 
-  @MockitoBean private SkillRepository skillRepository;
+  @MockitoBean private SkillService skillService;
 
   @Nested
   @DisplayName("GET /api/chat/providers")
@@ -192,12 +192,9 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should attach skill system prompt when skillIds provided")
     void shouldAttachSkillSystemPromptWhenSkillIdsProvided() {
-      com.ai.skill.domain.model.Skill skill =
-          com.ai.skill.domain.model.Skill.create(
-              ownerKey(), "Brief Style", "Short answers.", "Be concise.", List.of());
-      com.ai.skill.domain.vo.SkillId skillId = skill.getId();
-      when(skillRepository.findEnabledByOwnerKeyAndIds(eq(ownerKey()), any()))
-          .thenReturn(List.of(skill));
+      String skillId = "11111111-2222-3333-4444-555555555555";
+      when(skillService.activeSkillsPrompt(ownerKey(), List.of(skillId)))
+          .thenReturn(java.util.Optional.of("## Active Skills\n### Brief Style\nBe concise."));
       when(chatService.streamChat(any(), any(TextChatOptions.class), eq(ownerKey())))
           .thenReturn(Flux.just("ok"));
 
@@ -215,7 +212,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
                         "skillIds": ["%s"]
                       }
                       """
-                          .formatted(skillId.value()))
+                          .formatted(skillId))
                   .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey()))
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();

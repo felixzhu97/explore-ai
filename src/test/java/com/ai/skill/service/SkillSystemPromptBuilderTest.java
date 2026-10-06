@@ -27,6 +27,15 @@ class SkillSystemPromptBuilderTest {
   }
 
   @Test
+  @DisplayName("should render a skill section without a blank description line")
+  void shouldRenderASkillSectionWithoutABlankDescriptionLine() {
+    Skill skill =
+        Skill.create("c:client-1", "Brief Style", "  ", "Lead with the answer.", List.of());
+
+    assertThat(skill.toPromptSection()).isEqualTo("### Brief Style\nLead with the answer.");
+  }
+
+  @Test
   @DisplayName("should return null when skills empty")
   void shouldReturnNullWhenSkillsEmpty() {
     assertThat(SkillSystemPromptBuilder.build(List.of())).isNull();

@@ -6,8 +6,12 @@ import com.ai.skill.domain.exception.SkillNotFoundException;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.repository.SkillRepository;
 import com.ai.skill.domain.vo.SkillId;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /** Skill use case that enforces per-owner unique names and derives names from templates. */
@@ -15,11 +19,32 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SkillService {
 
+  private static final Logger log = LoggerFactory.getLogger(SkillService.class);
+
   private final SkillRepository skillRepository;
 
   /** Lists the owner's skills. */
   public List<Skill> list(String ownerKey) {
     return skillRepository.findAllByOwnerKey(ownerKey);
+  }
+
+  /**
+   * Builds the "Active Skills" system prompt from the owner's enabled skills among {@code
+   * skillIds}; unknown, invalid or disabled ids are ignored.
+   */
+  public Optional<String> activeSkillsPrompt(String ownerKey, List<String> skillIds) {
+    List<SkillId> ids = parseSkillIds(skillIds);
+    if (ids.isEmpty()) {
+      return Optional.empty();
+    }
+    List<Skill> skills = skillRepository.findEnabledByOwnerKeyAndIds(ownerKey, ids);
+    if (skills.size() < ids.size()) {
+      log.debug(
+          "Ignored unknown or disabled skill ids: requested={}, resolved={}",
+          ids.size(),
+          skills.size());
+    }
+    return Optional.ofNullable(SkillSystemPromptBuilder.build(skills));
   }
 
   /** Lists the built-in skill templates. */
@@ -108,5 +133,23 @@ public class SkillService {
                     baseName,
                     SkillId.generate().value().substring(0, 8),
                     DomainStrings.DEFAULT_NAME_MAX));
+  }
+
+  private static List<SkillId> parseSkillIds(List<String> skillIds) {
+    List<SkillId> parsed = new ArrayList<>();
+    if (skillIds == null) {
+      return parsed;
+    }
+    for (String skillId : skillIds) {
+      if (skillId == null || skillId.isBlank()) {
+        continue;
+      }
+      try {
+        parsed.add(SkillId.of(skillId.trim()));
+      } catch (IllegalArgumentException ignored) {
+        log.debug("Ignoring invalid skill id");
+      }
+    }
+    return parsed;
   }
 }

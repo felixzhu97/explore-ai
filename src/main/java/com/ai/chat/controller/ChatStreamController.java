@@ -9,18 +9,12 @@ import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.service.ChatService;
 import com.ai.chat.service.TextProviderCatalog;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.skill.domain.model.Skill;
-import com.ai.skill.domain.repository.SkillRepository;
-import com.ai.skill.domain.vo.SkillId;
-import com.ai.skill.service.SkillSystemPromptBuilder;
+import com.ai.skill.service.SkillService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,10 +31,8 @@ public class ChatStreamController {
 
   private final ChatService chatService;
   private final TextProviderCatalog providerCatalog;
-  private final SkillRepository skillRepository;
+  private final SkillService skillService;
   private final OwnerContext ownerContext;
-
-  private static final Logger log = LoggerFactory.getLogger(ChatStreamController.class);
 
   /** Lists the chat providers and whether they are available. */
   @GetMapping("/providers")
@@ -94,41 +86,10 @@ public class ChatStreamController {
     if (skillIds == null || skillIds.isEmpty()) {
       return baseOptions;
     }
-
-    String ownerKey = ownerContext.requireValue(httpRequest);
-    List<SkillId> parsedSkillIds = parseSkillIds(skillIds);
-    if (parsedSkillIds.isEmpty()) {
-      return baseOptions;
-    }
-
-    List<Skill> skills = skillRepository.findEnabledByOwnerKeyAndIds(ownerKey, parsedSkillIds);
-    if (skills.size() < parsedSkillIds.size()) {
-      log.debug(
-          "Ignored unknown or disabled skill ids: requested={}, resolved={}",
-          parsedSkillIds.size(),
-          skills.size());
-    }
-
-    String skillSystemPrompt = SkillSystemPromptBuilder.build(skills);
-    if (skillSystemPrompt == null || skillSystemPrompt.isBlank()) {
-      return baseOptions;
-    }
-    return baseOptions.withSkillSystemPrompt(skillSystemPrompt);
-  }
-
-  private List<SkillId> parseSkillIds(List<String> skillIds) {
-    List<SkillId> parsed = new ArrayList<>();
-    for (String skillId : skillIds) {
-      if (skillId == null || skillId.isBlank()) {
-        continue;
-      }
-      try {
-        parsed.add(SkillId.of(skillId.trim()));
-      } catch (IllegalArgumentException ignored) {
-        log.debug("Ignoring invalid skill id: {}", skillId);
-      }
-    }
-    return parsed;
+    return skillService
+        .activeSkillsPrompt(ownerContext.requireValue(httpRequest), skillIds)
+        .map(baseOptions::withSkillSystemPrompt)
+        .orElse(baseOptions);
   }
 
   private String extractLastUserMessage(List<ChatStreamRequest.Message> messages) {
