@@ -39,4 +39,24 @@ class OwnerKeyTest {
     assertThatThrownBy(() -> OwnerKey.forAccount("")).isInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> OwnerKey.parse("x:nope")).isInstanceOf(IllegalArgumentException.class);
   }
+
+  @Test
+  @DisplayName("should allow merging a guest key into an account key")
+  void shouldAllowMergingAGuestKeyIntoAnAccountKey() {
+    OwnerKey.forClient("guest-1").requireMergeableInto(OwnerKey.forAccount("user-1"));
+  }
+
+  @Test
+  @DisplayName("should reject merging when source is not a guest or target is not an account")
+  void shouldRejectMergingWhenSourceIsNotAGuestOrTargetIsNotAnAccount() {
+    OwnerKey guest = OwnerKey.forClient("guest-1");
+    OwnerKey account = OwnerKey.forAccount("user-1");
+
+    assertThatThrownBy(() -> account.requireMergeableInto(OwnerKey.forAccount("user-2")))
+        .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> guest.requireMergeableInto(OwnerKey.forClient("guest-2")))
+        .isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> OwnerKey.UNOWNED.requireMergeableInto(account))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
 }

@@ -59,4 +59,12 @@ public record OwnerKey(String value) {
   public boolean isClient() {
     return value.startsWith(CLIENT_PREFIX);
   }
+
+  /** Rejects any merge other than a live guest's rows moving into a signed-in account. */
+  public void requireMergeableInto(OwnerKey target) {
+    Objects.requireNonNull(target, "target");
+    if (!isClient() || equals(UNOWNED) || !target.isAccount()) {
+      throw new IllegalArgumentException("Only guest data can move into a signed-in account");
+    }
+  }
 }

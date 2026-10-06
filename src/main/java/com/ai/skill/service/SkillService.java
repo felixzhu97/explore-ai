@@ -1,5 +1,6 @@
 package com.ai.skill.service;
 
+import com.ai.common.domain.vo.DomainStrings;
 import com.ai.skill.domain.exception.SkillNameConflictException;
 import com.ai.skill.domain.exception.SkillNotFoundException;
 import com.ai.skill.domain.model.Skill;
@@ -74,11 +75,7 @@ public class SkillService {
   /** Enables or disables the owner's skill. */
   public Skill setEnabled(String ownerKey, String id, boolean enabled) {
     Skill skill = findOwnedSkill(ownerKey, id);
-    if (enabled) {
-      skill.enable();
-    } else {
-      skill.disable();
-    }
+    skill.changeEnabled(enabled);
     return skillRepository.save(skill);
   }
 
@@ -95,21 +92,21 @@ public class SkillService {
   }
 
   private void assertNameAvailable(String ownerKey, String name, SkillId excludeId) {
-    if (skillRepository.existsByOwnerKeyAndNameIgnoringId(ownerKey, name, excludeId)) {
-      throw new SkillNameConflictException(name);
+    String normalized = DomainStrings.normalizeName(name);
+    if (skillRepository.existsByOwnerKeyAndNameIgnoringId(ownerKey, normalized, excludeId)) {
+      throw new SkillNameConflictException(normalized);
     }
   }
 
   private String findNextAvailableName(String ownerKey, String baseName) {
-    if (!skillRepository.existsByOwnerKeyAndNameIgnoringId(ownerKey, baseName, null)) {
-      return baseName;
-    }
-    for (int suffix = 2; suffix <= 99; suffix++) {
-      String candidate = baseName + " (" + suffix + ")";
-      if (!skillRepository.existsByOwnerKeyAndNameIgnoringId(ownerKey, candidate, null)) {
-        return candidate;
-      }
-    }
-    return baseName + " (" + SkillId.generate().value().substring(0, 8) + ")";
+    return DomainStrings.copyNameCandidates(baseName, DomainStrings.DEFAULT_NAME_MAX)
+        .filter(name -> !skillRepository.existsByOwnerKeyAndNameIgnoringId(ownerKey, name, null))
+        .findFirst()
+        .orElseGet(
+            () ->
+                DomainStrings.copyName(
+                    baseName,
+                    SkillId.generate().value().substring(0, 8),
+                    DomainStrings.DEFAULT_NAME_MAX));
   }
 }

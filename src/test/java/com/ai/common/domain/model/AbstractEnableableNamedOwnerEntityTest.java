@@ -51,4 +51,16 @@ class AbstractEnableableNamedOwnerEntityTest {
     assertThat(entity.belongsTo("c:client-1")).isTrue();
     assertThat(entity.belongsTo("c:other")).isFalse();
   }
+
+  @Test
+  @DisplayName("should follow the requested state when enabled flag changes")
+  void shouldFollowTheRequestedStateWhenEnabledFlagChanges() {
+    TestEntity entity = new TestEntity(false);
+
+    entity.changeEnabled(true);
+    assertThat(entity.isEnabled()).isTrue();
+
+    entity.changeEnabled(false);
+    assertThat(entity.isEnabled()).isFalse();
+  }
 }
