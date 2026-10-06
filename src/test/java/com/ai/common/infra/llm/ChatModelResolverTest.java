@@ -96,10 +96,33 @@ class ChatModelResolverTest {
   @DisplayName("should use requested model for openai provider")
   void shouldUseRequestedModelForOpenAi() {
     when(providerCatalog.isProviderAvailable("openai")).thenReturn(true);
+    when(providerCatalog.isModelAllowed("openai", "deepseek-v4-pro")).thenReturn(true);
 
     ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("openai", "deepseek-v4-pro"));
 
     assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-pro");
+  }
+
+  @Test
+  @DisplayName("should reject when paid provider model is not in the catalog")
+  void shouldRejectWhenPaidProviderModelIsNotInTheCatalog() {
+    when(providerCatalog.isProviderAvailable("openai")).thenReturn(true);
+    when(providerCatalog.isModelAllowed("openai", "gpt-premium-xl")).thenReturn(false);
+
+    assertThatThrownBy(() -> resolver.resolve(TextChatOptions.of("openai", "gpt-premium-xl")))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("not available");
+  }
+
+  @Test
+  @DisplayName("should accept configured default model when it is not in the catalog")
+  void shouldAcceptConfiguredDefaultModelWhenItIsNotInTheCatalog() {
+    when(providerCatalog.isProviderAvailable("openai")).thenReturn(true);
+
+    ResolvedChatModel resolved =
+        resolver.resolve(TextChatOptions.of("openai", "deepseek-v4-flash"));
+
+    assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-flash");
   }
 
   @Test

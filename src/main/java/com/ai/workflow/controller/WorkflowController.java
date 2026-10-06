@@ -30,7 +30,7 @@ public class WorkflowController {
   @PostMapping("/chain")
   public ResponseEntity<ChainResult> runChain(@Valid @RequestBody ChainWorkflowRequest request) {
     return ResponseEntity.ok(
-        workflowService.runChain(request.userInput(), request.systemPrompts()));
+        workflowService.runChain(request.userInput(), request.systemPromptArray()));
   }
 
   /** Runs the parallel workflow. */

@@ -229,12 +229,15 @@ app:
   rate-limit:
     enabled: true
     requests-per-window: 60
+    ip-requests-per-window: ${APP_RATE_LIMIT_IP_PER_WINDOW:120}
     window-seconds: 60
   billing:
     quota-enabled: true
     plan: ${APP_BILLING_PLAN:free}
     free-daily-requests: ${APP_BILLING_FREE_DAILY:50}
     pro-daily-requests: ${APP_BILLING_PRO_DAILY:2000}
+    ip-daily-requests: ${APP_BILLING_IP_DAILY:200}
+    global-daily-requests: ${APP_BILLING_GLOBAL_DAILY:5000}
   metrics:
     admin-api-key: ${METRICS_ADMIN_API_KEY:}
   data-retention:
