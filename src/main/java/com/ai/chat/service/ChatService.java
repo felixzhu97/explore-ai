@@ -495,7 +495,7 @@ public class ChatService {
   private ChatSession getOrCreateDefaultSession(String ownerKey) {
     List<ChatSession> sessions = repository.findByOwnerKey(ownerKey);
     if (sessions.isEmpty()) {
-      ChatSession newSession = ChatSession.create("Default Chat", ownerKey);
+      ChatSession newSession = ChatSession.create(ChatSession.DEFAULT_TITLE, ownerKey);
       repository.save(newSession);
       return newSession;
     }
