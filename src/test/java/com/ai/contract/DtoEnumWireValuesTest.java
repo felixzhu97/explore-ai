@@ -10,6 +10,7 @@ import com.ai.automation.domain.vo.AutomationActionType;
 import com.ai.automation.domain.vo.EmailDeliveryStatus;
 import com.ai.automation.domain.vo.RunStatus;
 import com.ai.automation.domain.vo.ScheduleKind;
+import com.ai.billing.domain.vo.Plan;
 import com.ai.chat.controller.dto.ChatRole;
 import com.ai.chat.controller.dto.ProviderStatus;
 import com.ai.common.controller.dto.HealthStatus;
@@ -88,7 +89,7 @@ class DtoEnumWireValuesTest {
   @Test
   @DisplayName("should map configured plan when casing differs")
   void shouldMapConfiguredPlanWhenCasingDiffers() {
-    assertThat(AccountPlan.from("Pro")).isEqualTo(AccountPlan.PRO);
-    assertThat(AccountPlan.from("enterprise")).isEqualTo(AccountPlan.FREE);
+    assertThat(AccountPlan.from(Plan.parse("Pro"))).isEqualTo(AccountPlan.PRO);
+    assertThat(AccountPlan.from(Plan.parse("enterprise"))).isEqualTo(AccountPlan.FREE);
   }
 }

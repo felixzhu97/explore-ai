@@ -2,7 +2,11 @@ package com.ai.billing.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ai.billing.domain.vo.Plan;
+import com.ai.billing.domain.vo.QuotaDecision;
+import com.ai.billing.domain.vo.QuotaSubject;
 import com.ai.billing.infra.config.BillingProperties;
+import com.ai.common.domain.vo.OwnerKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,49 +23,70 @@ class DailyUsageQuotaServiceTest {
     properties.setFreeDailyRequests(2);
     properties.setIpDailyRequests(3);
     properties.setGlobalDailyRequests(0);
-    service = new DailyUsageQuotaService(properties);
+    service = new DailyUsageQuotaService(new BillingPlanService(properties));
   }
 
   @Test
   @DisplayName("should reject new client ids when they share an exhausted ip")
   void shouldRejectNewClientIdsWhenTheyShareAnExhaustedIp() {
-    assertThat(service.tryConsume("client-a", "203.0.113.7")).isTrue();
-    assertThat(service.tryConsume("client-b", "203.0.113.7")).isTrue();
-    assertThat(service.tryConsume("client-c", "203.0.113.7")).isTrue();
+    assertThat(consume("client-a", "203.0.113.7").allowed()).isTrue();
+    assertThat(consume("client-b", "203.0.113.7").allowed()).isTrue();
+    assertThat(consume("client-c", "203.0.113.7").allowed()).isTrue();
 
-    assertThat(service.tryConsume("client-d", "203.0.113.7")).isFalse();
-    assertThat(service.tryConsume("client-d", "198.51.100.9")).isTrue();
+    assertThat(consume("client-d", "203.0.113.7").allowed()).isFalse();
+    assertThat(consume("client-d", "198.51.100.9").allowed()).isTrue();
   }
 
   @Test
   @DisplayName("should not consume other limits when one limit is exhausted")
   void shouldNotConsumeOtherLimitsWhenOneLimitIsExhausted() {
-    service.tryConsume("client-a", "203.0.113.7");
-    service.tryConsume("client-a", "203.0.113.7");
+    consume("client-a", "203.0.113.7");
+    consume("client-a", "203.0.113.7");
 
-    assertThat(service.tryConsume("client-a", "203.0.113.7")).isFalse();
-    assertThat(service.tryConsume("client-b", "203.0.113.7")).isTrue();
+    assertThat(consume("client-a", "203.0.113.7").allowed()).isFalse();
+    assertThat(consume("client-b", "203.0.113.7").allowed()).isTrue();
   }
 
   @Test
-  @DisplayName("should reject every client when global daily limit is reached")
-  void shouldRejectEveryClientWhenGlobalDailyLimitIsReached() {
+  @DisplayName("should report nothing remaining when the global limit refuses the request")
+  void shouldReportNothingRemainingWhenTheGlobalLimitRefusesTheRequest() {
     properties.setGlobalDailyRequests(2);
+    consume("client-a", "203.0.113.1");
+    consume("client-b", "203.0.113.2");
 
-    assertThat(service.tryConsume("client-a", "203.0.113.1")).isTrue();
-    assertThat(service.tryConsume("client-b", "203.0.113.2")).isTrue();
+    QuotaDecision decision = consume("client-c", "203.0.113.3");
 
-    assertThat(service.tryConsume("client-c", "203.0.113.3")).isFalse();
-    assertThat(service.countRemaining("client-c")).isEqualTo(2);
+    assertThat(decision.allowed()).isFalse();
+    assertThat(decision.limit()).isEqualTo(2);
+    assertThat(decision.remaining()).isZero();
   }
 
   @Test
-  @DisplayName("should count an anonymous request once when its client key is derived from the ip")
-  void shouldCountAnAnonymousRequestOnceWhenItsClientKeyIsDerivedFromTheIp() {
-    assertThat(service.tryConsume("ip:203.0.113.7", "203.0.113.7")).isTrue();
-    assertThat(service.tryConsume("ip:203.0.113.7", "203.0.113.7")).isTrue();
+  @DisplayName("should report the owner's remaining requests when allowed")
+  void shouldReportTheOwnersRemainingRequestsWhenAllowed() {
+    QuotaDecision decision = consume("client-a", "203.0.113.7");
 
-    assertThat(service.countRemaining("ip:203.0.113.7")).isZero();
+    assertThat(decision).isEqualTo(QuotaDecision.allow(Plan.FREE, 2, 1));
+  }
+
+  @Test
+  @DisplayName("should count against the ip limit when the request has no client identity")
+  void shouldCountAgainstTheIpLimitWhenTheRequestHasNoClientIdentity() {
+    assertThat(service.tryConsume(null, "203.0.113.7").remaining()).isEqualTo(2);
+    assertThat(service.tryConsume(null, "203.0.113.7").remaining()).isEqualTo(1);
+    assertThat(service.tryConsume(null, "203.0.113.7").remaining()).isZero();
+
+    assertThat(service.tryConsume(null, "203.0.113.7").allowed()).isFalse();
+  }
+
+  @Test
+  @DisplayName("should share the guest counter between requests and automations")
+  void shouldShareTheGuestCounterBetweenRequestsAndAutomations() {
+    OwnerKey guest = OwnerKey.forClient("client-a");
+
+    assertThat(service.tryConsume(guest)).isTrue();
+    assertThat(consume("client-a", null).remaining()).isZero();
+    assertThat(service.tryConsume(guest)).isFalse();
   }
 
   @Test
@@ -70,16 +95,22 @@ class DailyUsageQuotaServiceTest {
     properties.setFreeDailyRequests(10);
     properties.setIpDailyRequests(1);
 
-    assertThat(service.tryConsume("client-a")).isTrue();
-    assertThat(service.tryConsume("client-a")).isTrue();
+    assertThat(consume("client-a", null).allowed()).isTrue();
+    assertThat(consume("client-a", null).allowed()).isTrue();
   }
 
   @Test
-  @DisplayName("should keep ip limit at least as high as plan limit")
-  void shouldKeepIpLimitAtLeastAsHighAsPlanLimit() {
-    properties.setPlan("pro");
-    properties.setProDailyRequests(500);
+  @DisplayName("should allow everything when the quota is not enforced")
+  void shouldAllowEverythingWhenTheQuotaIsNotEnforced() {
+    properties.setQuotaEnabled(false);
+    properties.setFreeDailyRequests(1);
 
-    assertThat(properties.resolveIpDailyLimit()).isEqualTo(500);
+    consume("client-a", null);
+
+    assertThat(consume("client-a", null)).isEqualTo(QuotaDecision.allow(Plan.FREE, 1, 1));
+  }
+
+  private QuotaDecision consume(String clientId, String address) {
+    return service.tryConsume(QuotaSubject.owner(OwnerKey.forClient(clientId)), address);
   }
 }

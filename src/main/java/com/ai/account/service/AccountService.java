@@ -11,7 +11,7 @@ import com.ai.account.domain.vo.ContactEmail;
 import com.ai.account.infra.config.OAuthExploreIamProperties;
 import com.ai.account.infra.config.OAuthGithubProperties;
 import com.ai.account.infra.config.OAuthGoogleProperties;
-import com.ai.billing.infra.config.BillingProperties;
+import com.ai.billing.service.BillingPlanService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 /** Resolves the current account from IAM JWT, OAuth session, or linked Client Identity. */
 @Service
 @EnableConfigurationProperties({
-  BillingProperties.class,
   OAuthGoogleProperties.class,
   OAuthGithubProperties.class,
   OAuthExploreIamProperties.class
@@ -36,7 +35,7 @@ public class AccountService {
 
   private final AccountUserRepository accountUserRepository;
   private final IamAccountService iamAccountService;
-  private final BillingProperties billingProperties;
+  private final BillingPlanService billingPlanService;
   private final OAuthGoogleProperties oauthGoogleProperties;
   private final OAuthGithubProperties oauthGithubProperties;
   private final OAuthExploreIamProperties oauthExploreIamProperties;
@@ -71,7 +70,7 @@ public class AccountService {
         null,
         null,
         null,
-        AccountPlan.from(billingProperties.getPlan()),
+        AccountPlan.from(billingPlanService.currentPlan()),
         isLoginAvailable(),
         loginProviders());
   }
@@ -149,7 +148,7 @@ public class AccountService {
         userId,
         email == null ? null : email.value(),
         displayName,
-        AccountPlan.from(billingProperties.getPlan()),
+        AccountPlan.from(billingPlanService.currentPlan()),
         isLoginAvailable(),
         loginProviders());
   }

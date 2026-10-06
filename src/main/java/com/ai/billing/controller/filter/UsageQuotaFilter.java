@@ -1,8 +1,10 @@
 package com.ai.billing.controller.filter;
 
-import com.ai.billing.infra.config.BillingProperties;
+import com.ai.billing.domain.vo.QuotaDecision;
+import com.ai.billing.domain.vo.QuotaSubject;
 import com.ai.billing.service.DailyUsageQuotaService;
 import com.ai.common.controller.ClientIdentity;
+import com.ai.common.domain.vo.OwnerKey;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,7 +13,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
@@ -27,7 +28,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 28)
-@EnableConfigurationProperties(BillingProperties.class)
 @RequiredArgsConstructor
 public class UsageQuotaFilter extends OncePerRequestFilter {
 
@@ -69,16 +69,16 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
     Object attr = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
-    String clientId =
-        attr instanceof String id && !id.isBlank() ? id : "ip:" + request.getRemoteAddr();
-    int limit = dailyUsageQuotaService.getDailyLimit();
-    final boolean allowed =
-        dailyUsageQuotaService.tryConsume(clientId, ClientIdentity.resolveLimitAddress(request));
-    response.setHeader("X-Quota-Limit", String.valueOf(limit));
-    response.setHeader(
-        "X-Quota-Remaining", String.valueOf(dailyUsageQuotaService.countRemaining(clientId)));
-    response.setHeader("X-Quota-Plan", dailyUsageQuotaService.getPlan());
-    if (!allowed) {
+    QuotaSubject owner =
+        attr instanceof String id && !id.isBlank()
+            ? QuotaSubject.owner(OwnerKey.forClient(id))
+            : null;
+    QuotaDecision decision =
+        dailyUsageQuotaService.tryConsume(owner, ClientIdentity.resolveLimitAddress(request));
+    response.setHeader("X-Quota-Limit", String.valueOf(decision.limit()));
+    response.setHeader("X-Quota-Remaining", String.valueOf(decision.remaining()));
+    response.setHeader("X-Quota-Plan", decision.plan().value());
+    if (!decision.allowed()) {
       response.setStatus(429);
       response.setContentType(MediaType.APPLICATION_JSON_VALUE);
       response

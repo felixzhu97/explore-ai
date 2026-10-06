@@ -15,6 +15,7 @@ import com.ai.account.infra.config.OAuthExploreIamProperties;
 import com.ai.account.infra.config.OAuthGithubProperties;
 import com.ai.account.infra.config.OAuthGoogleProperties;
 import com.ai.billing.infra.config.BillingProperties;
+import com.ai.billing.service.BillingPlanService;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,7 @@ class AccountServiceTest {
         new AccountService(
             accountUserRepository,
             new IamAccountService(accountUserRepository),
-            billing,
+            new BillingPlanService(billing),
             oauthGoogleProperties,
             oauthGithubProperties,
             oauthExploreIamProperties);

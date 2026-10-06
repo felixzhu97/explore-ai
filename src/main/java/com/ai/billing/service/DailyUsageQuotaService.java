@@ -1,6 +1,10 @@
 package com.ai.billing.service;
 
-import com.ai.billing.infra.config.BillingProperties;
+import com.ai.billing.domain.vo.DailyUsage;
+import com.ai.billing.domain.vo.QuotaDecision;
+import com.ai.billing.domain.vo.QuotaPolicy;
+import com.ai.billing.domain.vo.QuotaSubject;
+import com.ai.common.domain.vo.OwnerKey;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.time.Duration;
@@ -8,121 +12,99 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 /** Shared in-process daily quota counter for HTTP filter and background automations. */
 @Service
-@EnableConfigurationProperties(BillingProperties.class)
+@RequiredArgsConstructor
 public class DailyUsageQuotaService {
-
-  private static final String GLOBAL_KEY = "global";
-
-  /** Must differ from the {@code ip:} client key the filter uses for anonymous requests. */
-  private static final String ADDRESS_KEY_PREFIX = "address:";
 
   private static final int MAX_TRACKED_KEYS = 100_000;
 
-  private final BillingProperties properties;
-  private final Cache<String, DayCounter> counters =
+  private final BillingPlanService billingPlanService;
+  private final Cache<String, DailyUsage> counters =
       Caffeine.newBuilder()
           .expireAfterAccess(Duration.ofDays(2))
           .maximumSize(MAX_TRACKED_KEYS)
           .build();
 
-  public DailyUsageQuotaService(BillingProperties properties) {
-    this.properties = properties;
-  }
-
   /** Tells whether the daily quota is enforced. */
   public boolean isEnabled() {
-    return properties.isQuotaEnabled();
+    return billingPlanService.currentPolicy().enforced();
   }
 
-  /** Returns the daily request limit for the current plan. */
-  public int getDailyLimit() {
-    return properties.resolveDailyLimit();
-  }
-
-  /** Returns the configured billing plan. */
-  public String getPlan() {
-    return properties.getPlan();
+  /** Consumes one unit of the owner and global quota for background work that has no client IP. */
+  public boolean tryConsume(OwnerKey owner) {
+    return tryConsume(QuotaSubject.owner(owner), null).allowed();
   }
 
   /**
-   * Atomically consumes one unit of the client's and the global daily quota when enabled.
+   * Atomically consumes one unit of the owner, IP and global daily quota. Nothing is consumed when
+   * any of them is exhausted.
    *
-   * @return false when any limit is exhausted
-   */
-  public boolean tryConsume(String clientId) {
-    return tryConsume(clientId, null);
-  }
-
-  /**
-   * Atomically consumes one unit of the client, IP and global daily quota when enabled. Nothing is
-   * consumed when any of them is exhausted.
-   *
+   * @param owner owner counter, or {@code null} when the request has no Client Identity
    * @param address client IP, or {@code null} to skip the per-IP limit
-   * @return false when any limit is exhausted
    */
-  public boolean tryConsume(String clientId, String address) {
-    if (!properties.isQuotaEnabled()) {
-      return true;
+  public QuotaDecision tryConsume(QuotaSubject owner, String address) {
+    QuotaPolicy policy = billingPlanService.currentPolicy();
+    List<Charge> charges = new ArrayList<>(3);
+    if (owner != null) {
+      charges.add(new Charge(owner, policy.dailyLimit()));
     }
-    String day = today();
-    List<DayCounter> consumed = new ArrayList<>(3);
-    boolean allowed =
-        consume(clientId, properties.resolveDailyLimit(), day, consumed)
-            && (address == null
-                || consume(
-                    ADDRESS_KEY_PREFIX + address, properties.resolveIpDailyLimit(), day, consumed))
-            && (properties.getGlobalDailyRequests() <= 0
-                || consume(GLOBAL_KEY, properties.getGlobalDailyRequests(), day, consumed));
-    if (!allowed) {
-      consumed.forEach(counter -> counter.count.decrementAndGet());
+    if (address != null) {
+      charges.add(new Charge(QuotaSubject.address(address), policy.ipDailyLimit()));
     }
-    return allowed;
+    policy
+        .globalDailyLimit()
+        .ifPresent(limit -> charges.add(new Charge(QuotaSubject.GLOBAL, limit)));
+    Charge shown = charges.isEmpty() ? null : charges.getFirst();
+    int shownLimit = shown == null ? policy.dailyLimit() : shown.limit();
+    if (!policy.enforced() || shown == null) {
+      return QuotaDecision.allow(policy.plan(), shownLimit, shownLimit);
+    }
+
+    LocalDate today = today();
+    List<Charge> consumed = new ArrayList<>(charges.size());
+    for (Charge charge : charges) {
+      if (!consume(charge, today)) {
+        consumed.forEach(done -> release(done.subject(), today));
+        return QuotaDecision.refuse(policy.plan(), shownLimit);
+      }
+      consumed.add(charge);
+    }
+    return QuotaDecision.allow(policy.plan(), shownLimit, remaining(shown, today));
   }
 
-  /** Returns the client's unused requests for the current UTC day. */
-  public int countRemaining(String clientId) {
-    if (!properties.isQuotaEnabled()) {
-      return properties.resolveDailyLimit();
-    }
-    DayCounter counter = counters.getIfPresent(clientId);
-    if (counter == null || !counter.day.equals(today())) {
-      return properties.resolveDailyLimit();
-    }
-    return Math.max(0, properties.resolveDailyLimit() - counter.count.get());
+  private boolean consume(Charge charge, LocalDate today) {
+    boolean[] granted = {false};
+    counters
+        .asMap()
+        .compute(
+            charge.subject().key(),
+            (key, usage) -> {
+              DailyUsage current = usage == null ? DailyUsage.none(today) : usage;
+              if (current.remaining(charge.limit(), today) == 0) {
+                return current;
+              }
+              granted[0] = true;
+              return current.consume(today);
+            });
+    return granted[0];
   }
 
-  private boolean consume(String key, int limit, String day, List<DayCounter> consumed) {
-    DayCounter counter =
-        counters
-            .asMap()
-            .compute(
-                key,
-                (k, existing) ->
-                    existing == null || !existing.day.equals(day) ? new DayCounter(day) : existing);
-    if (counter.count.incrementAndGet() > limit) {
-      counter.count.decrementAndGet();
-      return false;
-    }
-    consumed.add(counter);
-    return true;
+  private void release(QuotaSubject subject, LocalDate today) {
+    counters.asMap().computeIfPresent(subject.key(), (key, usage) -> usage.release(today));
   }
 
-  private static String today() {
-    return LocalDate.now(ZoneOffset.UTC).toString();
+  private int remaining(Charge charge, LocalDate today) {
+    DailyUsage usage = counters.getIfPresent(charge.subject().key());
+    return usage == null ? charge.limit() : usage.remaining(charge.limit(), today);
   }
 
-  private static final class DayCounter {
-    private final String day;
-    private final AtomicInteger count = new AtomicInteger();
-
-    private DayCounter(String day) {
-      this.day = day;
-    }
+  private static LocalDate today() {
+    return LocalDate.now(ZoneOffset.UTC);
   }
+
+  private record Charge(QuotaSubject subject, int limit) {}
 }
