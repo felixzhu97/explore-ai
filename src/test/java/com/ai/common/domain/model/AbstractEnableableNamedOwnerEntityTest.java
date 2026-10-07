@@ -2,6 +2,7 @@ package com.ai.common.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ai.skill.domain.model.SkillId;
 import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,21 +10,10 @@ import org.junit.jupiter.api.Test;
 @DisplayName("AbstractEnableableNamedOwnerEntity")
 class AbstractEnableableNamedOwnerEntityTest {
 
-  static final class TestId extends AbstractUuidId {
-
-    private TestId(String value) {
-      super(value);
-    }
-
-    static TestId generate() {
-      return new TestId(generateUuidString());
-    }
-  }
-
-  static final class TestEntity extends AbstractEnableableNamedOwnerEntity<TestId> {
+  static final class TestEntity extends AbstractEnableableNamedOwnerEntity<SkillId> {
 
     TestEntity(boolean enabled) {
-      super(TestId.generate(), "c:client-1", "name", enabled, Instant.now(), Instant.now());
+      super(SkillId.generate(), "c:client-1", "name", enabled, Instant.now(), Instant.now());
     }
   }
 

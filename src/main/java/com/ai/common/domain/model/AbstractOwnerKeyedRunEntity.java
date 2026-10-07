@@ -16,7 +16,7 @@ import org.hibernate.annotations.Filter;
 @Filter(name = "ownerPartition")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractOwnerKeyedRunEntity<IdT extends AbstractUuidId>
+public abstract class AbstractOwnerKeyedRunEntity<IdT extends AbstractEmbeddable>
     extends AbstractTimedRunEntity<IdT> {
 
   @NotNull

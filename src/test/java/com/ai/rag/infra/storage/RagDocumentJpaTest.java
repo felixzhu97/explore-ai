@@ -115,11 +115,12 @@ class RagDocumentJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(document);
     em.clear();
 
-    Optional<RagDocument> found = adapter.findByIdAndOwnerKey(document.getId().asUuid(), OWNER_KEY);
+    Optional<RagDocument> found =
+        adapter.findByIdAndOwnerKey(document.getId().getValue(), OWNER_KEY);
 
     assertThat(found).isPresent();
     assertThat(found.get().getTitle()).isEqualTo("Scoped");
-    assertThat(adapter.findByIdAndOwnerKey(document.getId().asUuid(), OTHER_OWNER_KEY)).isEmpty();
+    assertThat(adapter.findByIdAndOwnerKey(document.getId().getValue(), OTHER_OWNER_KEY)).isEmpty();
   }
 
   @Test
@@ -129,11 +130,11 @@ class RagDocumentJpaTest extends AbstractDataJpaTest {
     repository.saveAndFlush(document);
     em.clear();
 
-    adapter.deleteByIdAndOwnerKey(document.getId().asUuid(), OTHER_OWNER_KEY);
+    adapter.deleteByIdAndOwnerKey(document.getId().getValue(), OTHER_OWNER_KEY);
     em.flush();
     assertThat(repository.existsById(document.getId())).isTrue();
 
-    adapter.deleteByIdAndOwnerKey(document.getId().asUuid(), OWNER_KEY);
+    adapter.deleteByIdAndOwnerKey(document.getId().getValue(), OWNER_KEY);
     em.flush();
     assertThat(repository.existsById(document.getId())).isFalse();
   }

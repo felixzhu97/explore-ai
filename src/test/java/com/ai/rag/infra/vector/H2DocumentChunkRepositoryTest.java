@@ -101,7 +101,7 @@ class H2DocumentChunkRepositoryTest {
 
       List<ScoredChunk> results =
           repository.search(
-              new float[] {1f, 0f}, 5, OWNER, List.of(own.asUuid(), foreign.asUuid()));
+              new float[] {1f, 0f}, 5, OWNER, List.of(own.getValue(), foreign.getValue()));
 
       assertThat(results).extracting(scored -> scored.chunk().getContent()).containsExactly("own");
     }
@@ -132,7 +132,7 @@ class H2DocumentChunkRepositoryTest {
 
       List<DocumentChunk> results =
           repository.findLeadingChunks(
-              OWNER, List.of(first.asUuid(), second.asUuid(), foreign.asUuid()), 3);
+              OWNER, List.of(first.getValue(), second.getValue(), foreign.getValue()), 3);
 
       assertThat(results)
           .extracting(DocumentChunk::getContent)
@@ -226,8 +226,8 @@ class H2DocumentChunkRepositoryTest {
 
       DocumentChunk result = rowMapper.mapRow(rs, 0);
 
-      assertThat(result.getId().value()).isEqualTo(chunkId.toString());
-      assertThat(result.getDocumentId().value()).isEqualTo(docId.toString());
+      assertThat(result.getId().getValue()).isEqualTo(chunkId);
+      assertThat(result.getDocumentId().getValue()).isEqualTo(docId);
       assertThat(result.getContent()).isEqualTo(content);
       assertThat(result.getChunkIndex()).isEqualTo(1);
       assertThat(result.getEmbedding()).containsExactly(0.1f, 0.2f, 0.3f);
@@ -298,7 +298,7 @@ class H2DocumentChunkRepositoryTest {
           .thenReturn(List.of());
       chunkRepository.findChunksByDocumentId(docId);
       verify(jdbcTemplate)
-          .query(contains("WHERE document_id = ?"), any(RowMapper.class), eq(docId.value()));
+          .query(contains("WHERE document_id = ?"), any(RowMapper.class), eq(docId.getValue()));
     }
   }
 
@@ -312,7 +312,7 @@ class H2DocumentChunkRepositoryTest {
       DocumentId docId = DocumentId.generate();
       when(jdbcTemplate.update(anyString(), any(UUID.class))).thenReturn(1);
       chunkRepository.deleteChunksByDocumentId(docId);
-      verify(jdbcTemplate).update(contains("DELETE FROM"), eq(docId.value()));
+      verify(jdbcTemplate).update(contains("DELETE FROM"), eq(docId.getValue()));
     }
   }
 }

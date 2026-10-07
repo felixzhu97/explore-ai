@@ -16,7 +16,7 @@ public record SkillResponse(
   /** Maps a {@code Skill} aggregate to its API response. */
   public static SkillResponse from(Skill skill) {
     return new SkillResponse(
-        skill.getId().value(),
+        skill.getId().toString(),
         skill.getName(),
         skill.getDescription(),
         skill.getInstructions(),

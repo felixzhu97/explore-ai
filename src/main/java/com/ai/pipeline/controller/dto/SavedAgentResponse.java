@@ -17,7 +17,7 @@ public record SavedAgentResponse(
   /** Builds a response from a saved library agent definition. */
   public static SavedAgentResponse from(SavedAgent agent) {
     return new SavedAgentResponse(
-        agent.getId().value(),
+        agent.getId().toString(),
         agent.getTypeKey(),
         agent.getName(),
         agent.getDescription(),

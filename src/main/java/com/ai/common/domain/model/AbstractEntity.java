@@ -1,5 +1,6 @@
 package com.ai.common.domain.model;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.MappedSuperclass;
@@ -18,9 +19,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractEntity<IdT extends AbstractUuidId> {
+public abstract class AbstractEntity<IdT extends AbstractEmbeddable> {
 
-  @EqualsAndHashCode.Include @EmbeddedId protected IdT id;
+  @EqualsAndHashCode.Include
+  @EmbeddedId
+  @AttributeOverride(name = "value", column = @Column(name = "id"))
+  protected IdT id;
 
   @Version protected Long version;
 

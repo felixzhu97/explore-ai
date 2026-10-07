@@ -147,7 +147,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
         (String)
             em.getEntityManager()
                 .createNativeQuery("SELECT owner_key FROM automation_run WHERE id = ?")
-                .setParameter(1, run.getId().value())
+                .setParameter(1, run.getId().getValue())
                 .getSingleResult();
 
     assertThat(rawOwnerKey).isEqualTo(OWNER_KEY);

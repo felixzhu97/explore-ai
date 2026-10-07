@@ -3,6 +3,7 @@ package com.ai.common.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.ai.skill.domain.model.SkillId;
 import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,21 +11,10 @@ import org.junit.jupiter.api.Test;
 @DisplayName("AbstractOwnerKeyedEntity")
 class AbstractOwnerKeyedEntityTest {
 
-  static final class TestId extends AbstractUuidId {
-
-    private TestId(String value) {
-      super(value);
-    }
-
-    static TestId generate() {
-      return new TestId(generateUuidString());
-    }
-  }
-
-  static final class TestEntity extends AbstractOwnerKeyedEntity<TestId> {
+  static final class TestEntity extends AbstractOwnerKeyedEntity<SkillId> {
 
     TestEntity(String ownerKey) {
-      super(TestId.generate(), ownerKey, Instant.now(), Instant.now());
+      super(SkillId.generate(), ownerKey, Instant.now(), Instant.now());
     }
   }
 

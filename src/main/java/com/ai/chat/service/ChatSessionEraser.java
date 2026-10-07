@@ -31,11 +31,11 @@ public class ChatSessionEraser {
     if (sessions.isEmpty()) {
       return 0;
     }
-    List<String> sessionIds = sessions.stream().map(session -> session.getId().value()).toList();
+    List<String> sessionIds = sessions.stream().map(session -> session.getId().toString()).toList();
     // Session rows go last so a failed erase can be retried by finding the sessions again.
     int metricsDeleted = invocationEventRepository.deleteBySessionIds(sessionIds);
     for (ChatSession session : sessions) {
-      String sessionId = session.getId().value();
+      String sessionId = session.getId().toString();
       conversationMemoryRepository.clear(sessionId);
       chatWebSourcesRepository.deleteByConversationId(sessionId);
       CapturedWebSources.clear(sessionId);

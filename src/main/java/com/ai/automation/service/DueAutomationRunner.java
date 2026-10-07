@@ -54,7 +54,7 @@ public class DueAutomationRunner {
         String result =
             pipelineGateway.runSavedTemplate(
                 schedule.getOwnerKeyValue(),
-                schedule.getPipelineTemplateId().value(),
+                schedule.getPipelineTemplateId().toString(),
                 schedule.getBrief(),
                 "en");
         run.succeed(result, sendResultEmail(schedule, result));

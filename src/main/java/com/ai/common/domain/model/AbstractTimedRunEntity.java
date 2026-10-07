@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
     column = @Column(name = "started_at", nullable = false, updatable = false))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractTimedRunEntity<IdT extends AbstractUuidId>
+public abstract class AbstractTimedRunEntity<IdT extends AbstractEmbeddable>
     extends AbstractImmutableEntity<IdT> {
 
   @Column protected Instant finishedAt;

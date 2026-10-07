@@ -2,6 +2,7 @@ package com.ai.common.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ai.skill.domain.model.SkillId;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
@@ -20,22 +21,17 @@ class AbstractEnableableDescribedOwnerEntityTest {
   private static ValidatorFactory validatorFactory;
   private static Validator validator;
 
-  static final class TestId extends AbstractUuidId {
-
-    private TestId(String value) {
-      super(value);
-    }
-
-    static TestId generate() {
-      return new TestId(generateUuidString());
-    }
-  }
-
-  static final class TestEntity extends AbstractEnableableDescribedOwnerEntity<TestId> {
+  static final class TestEntity extends AbstractEnableableDescribedOwnerEntity<SkillId> {
 
     TestEntity(String description) {
       super(
-          TestId.generate(), "c:client-1", "name", description, true, Instant.now(), Instant.now());
+          SkillId.generate(),
+          "c:client-1",
+          "name",
+          description,
+          true,
+          Instant.now(),
+          Instant.now());
     }
 
     void describe(String description) {

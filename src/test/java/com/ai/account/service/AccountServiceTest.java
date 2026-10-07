@@ -120,7 +120,7 @@ class AccountServiceTest {
 
     assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("user@example.com");
-    assertThat(response.userId()).isEqualTo(linked.getId().value());
+    assertThat(response.userId()).isEqualTo(linked.getId().toString());
     assertThat(response.loginAvailable()).isTrue();
     assertThat(response.loginProviders()).containsExactly(LoginProvider.GOOGLE);
   }
@@ -287,7 +287,7 @@ class AccountServiceTest {
 
     assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("iam@example.com");
-    assertThat(response.userId()).isEqualTo(linked.getId().value());
+    assertThat(response.userId()).isEqualTo(linked.getId().toString());
     assertThat(response.clientId()).isNull();
   }
 

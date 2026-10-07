@@ -93,7 +93,7 @@ public class ChatService {
   public String chatWithSession(String userMessage, String ownerKey) {
     ChatSession session = getOrCreateDefaultSession(ownerKey);
     return exchangeMessages(
-        session, session.getId().value(), userMessage, TextChatOptions.defaults());
+        session, session.getId().toString(), userMessage, TextChatOptions.defaults());
   }
 
   /** Creates an empty chat session owned by the client. */
@@ -440,7 +440,7 @@ public class ChatService {
   }
 
   private ChatSession withStoredMessages(ChatSession session) {
-    session.restoreMessages(conversationMemoryRepository.load(session.getId().value()));
+    session.restoreMessages(conversationMemoryRepository.load(session.getId().toString()));
     return session;
   }
 

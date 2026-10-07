@@ -17,8 +17,8 @@ public record AutomationRunResponse(
   /** Builds a response from an automation run record. */
   public static AutomationRunResponse from(AutomationRun run) {
     return new AutomationRunResponse(
-        run.getId().value(),
-        run.getScheduleId().value(),
+        run.getId().toString(),
+        run.getScheduleId().toString(),
         run.getStartedAt(),
         run.getFinishedAt(),
         run.getStatus(),

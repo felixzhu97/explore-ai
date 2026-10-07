@@ -69,7 +69,7 @@ class JpaAiInvocationEventRepositoryTest {
     verify(entityManager, never()).merge(any());
     verifyNoInteractions(jdbcTemplate);
     assertThat(saved.getValue().getOwnerKey()).isEqualTo(owner);
-    assertThat(saved.getValue().getId().value()).isEqualTo(id.toString());
+    assertThat(saved.getValue().getId().getValue()).isEqualTo(id);
   }
 
   @Test

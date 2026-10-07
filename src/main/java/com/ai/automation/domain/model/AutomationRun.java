@@ -108,7 +108,7 @@ public class AutomationRun extends AbstractOwnerKeyedRunEntity<RunId> {
 
   private void requireRunning() {
     if (isFinished()) {
-      throw new IllegalStateException("Automation run already finished: " + getId().value());
+      throw new IllegalStateException("Automation run already finished: " + getId().getValue());
     }
   }
 
