@@ -1,7 +1,6 @@
 import { inject } from '@angular/core';
 import { Instant } from '@js-joda/core';
 import {
-  type HttpRequest,
   type HttpErrorResponse,
   type HttpEvent,
   type HttpInterceptorFn,
@@ -39,7 +38,6 @@ export const httpErrorInterceptor: HttpInterceptorFn = (request, next) => {
   return next(request).pipe(
     catchError((error: HttpErrorResponse): Observable<HttpEvent<unknown>> => {
       const appError = normalizeError(error);
-      logError(request, appError);
       if (!request.context.get(SKIP_ERROR_NOTIFICATION)) {
         notifyUser(appError, notificationService);
       }
@@ -197,23 +195,6 @@ function extractMessage(error: HttpErrorResponse): string | null {
   return [message, reason, detail]
     .find((value): value is string => typeof value === 'string' && value.length > 0)
     ?? null;
-}
-
-function logError(request: HttpRequest<unknown>, error: AppError): void {
-  const logEntry = {
-    url: request.url,
-    method: request.method,
-    code: error.code,
-    message: error.message,
-    status: error.status,
-    timestamp: error.timestamp.toString(),
-  };
-
-  if (error.status >= 500) {
-    console.error('[httpErrorInterceptor]', logEntry);
-  } else {
-    console.warn('[httpErrorInterceptor]', logEntry);
-  }
 }
 
 function notifyUser(

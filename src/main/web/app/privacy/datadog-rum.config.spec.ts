@@ -66,22 +66,20 @@ describe('datadog-rum.config', () => {
     expect(datadogRum.init).toHaveBeenCalledTimes(1);
   });
 
-  it('should log error without rum when not initialized', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  it('should drop error when rum is not initialized', async () => {
+    const consoleSpy = vi.spyOn(console, 'error');
     const { DatadogErrorHandler } = await import('./datadog-rum.config');
     const handler = new DatadogErrorHandler();
 
     handler.handleError(new Error('boom'));
 
-    expect(consoleSpy).toHaveBeenCalled();
+    expect(consoleSpy).not.toHaveBeenCalled();
     expect(datadogRum.addError).not.toHaveBeenCalled();
   });
 
   it('should forward error to rum when initialized', async () => {
     envState.datadog.applicationId = 'app-id';
     envState.datadog.clientToken = 'client-token';
-    vi.spyOn(console, 'error').mockImplementation(() => undefined);
-
     const { initDatadogRum, DatadogErrorHandler } = await import('./datadog-rum.config');
     initDatadogRum();
     new DatadogErrorHandler().handleError(new Error('tracked'));

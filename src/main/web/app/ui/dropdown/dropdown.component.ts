@@ -177,37 +177,33 @@ export class ZardDropdownComponent implements OnDestroy {
     }
 
     if (isPlatformBrowser(this.platformId)) {
-      try {
-        const positionStrategy = this.overlayPositionBuilder
-          .flexibleConnectedTo(this.elementRef)
-          .withPositions([
-            {
-              originX: 'start',
-              originY: 'bottom',
-              overlayX: 'start',
-              overlayY: 'top',
-              offsetY: 4,
-            },
-            {
-              originX: 'start',
-              originY: 'top',
-              overlayX: 'start',
-              overlayY: 'bottom',
-              offsetY: -4,
-            },
-          ])
-          .withPush(false);
+      const positionStrategy = this.overlayPositionBuilder
+        .flexibleConnectedTo(this.elementRef)
+        .withPositions([
+          {
+            originX: 'start',
+            originY: 'bottom',
+            overlayX: 'start',
+            overlayY: 'top',
+            offsetY: 4,
+          },
+          {
+            originX: 'start',
+            originY: 'top',
+            overlayX: 'start',
+            overlayY: 'bottom',
+            offsetY: -4,
+          },
+        ])
+        .withPush(false);
 
-        this.overlayRef = this.overlay.create({
-          positionStrategy,
-          hasBackdrop: false,
-          scrollStrategy: this.overlay.scrollStrategies.reposition(),
-          minWidth: 200,
-          maxHeight: 400,
-        });
-      } catch (error) {
-        console.error('Error creating overlay:', error);
-      }
+      this.overlayRef = this.overlay.create({
+        positionStrategy,
+        hasBackdrop: false,
+        scrollStrategy: this.overlay.scrollStrategies.reposition(),
+        minWidth: 200,
+        maxHeight: 400,
+      });
     }
   }
 
