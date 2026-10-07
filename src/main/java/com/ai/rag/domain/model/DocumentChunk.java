@@ -1,7 +1,6 @@
 package com.ai.rag.domain.model;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.rag.domain.service.VectorSimilarity;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,7 +88,19 @@ public class DocumentChunk {
 
   /** Cosine similarity to the query embedding; 0 when either side is missing or sizes differ. */
   public double similarityTo(float[] queryEmbedding) {
-    return VectorSimilarity.calculateCosineSimilarity(queryEmbedding, embedding);
+    if (!isComparableWith(queryEmbedding)) {
+      return 0.0;
+    }
+    double dotProduct = 0.0;
+    double queryNorm = 0.0;
+    double chunkNorm = 0.0;
+    for (int i = 0; i < embedding.length; i++) {
+      dotProduct += queryEmbedding[i] * embedding[i];
+      queryNorm += queryEmbedding[i] * queryEmbedding[i];
+      chunkNorm += embedding[i] * embedding[i];
+    }
+    double denominator = Math.sqrt(queryNorm) * Math.sqrt(chunkNorm);
+    return denominator > 0 ? dotProduct / denominator : 0.0;
   }
 
   /** Tells whether the chunk has an embedding comparable with the query embedding. */

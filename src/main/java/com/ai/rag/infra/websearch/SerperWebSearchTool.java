@@ -1,7 +1,7 @@
 package com.ai.rag.infra.websearch;
 
-import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.infra.llm.ToolEventChannel;
+import com.ai.common.service.llm.WebSearchTool;
 import com.ai.common.service.llm.WebSourcesEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

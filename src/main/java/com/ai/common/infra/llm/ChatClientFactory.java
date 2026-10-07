@@ -1,13 +1,13 @@
 package com.ai.common.infra.llm;
 
-import com.ai.common.domain.tool.DateTimeTool;
-import com.ai.common.domain.tool.DocumentSearchTool;
-import com.ai.common.domain.tool.WeatherTool;
-import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
+import com.ai.common.service.llm.DocumentSearchTool;
 import com.ai.common.service.llm.TextChatOptions;
+import com.ai.common.service.llm.WebSearchTool;
+import com.ai.tools.infra.tools.DateTimeTools;
+import com.ai.tools.infra.tools.WeatherTools;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -41,10 +41,10 @@ public class ChatClientFactory implements ChatClientProvider {
       ChatModelResolver chatModelResolver,
       ChatMemory chatMemory,
       PromptTemplates promptTemplates,
-      WeatherTool weatherTools,
+      WeatherTools weatherTools,
       DocumentSearchTool documentSearchTool,
       WebSearchTool webSearchTool,
-      DateTimeTool dateTimeTool,
+      DateTimeTools dateTimeTool,
       ObjectProvider<ToolCallback[]> mcpToolCallbacks,
       @Value("${app.ai.tool-search.enabled:false}") boolean toolSearchEnabled) {
     this.chatModelResolver = chatModelResolver;

@@ -4,7 +4,7 @@ import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.workflow.domain.model.OrchestratorWorkersResult;
 import com.ai.workflow.domain.model.WorkerTask;
-import com.ai.workflow.domain.service.OrchestratorWorkersWorkflow;
+import com.ai.workflow.service.OrchestratorWorkersWorkflow;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;

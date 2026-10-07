@@ -9,12 +9,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.scheduling.support.CronExpression;
 
 /** When a schedule fires: a cron expression or a single run, read in one time zone. */
 @Embeddable
@@ -52,6 +55,7 @@ public final class ScheduleTiming {
     if (cron.length() > MAX_CRON) {
       throw new IllegalArgumentException("cronExpression is too long");
     }
+    CronExpression.parse(cron);
     return new ScheduleTiming(ScheduleKind.CRON, cron, timezone);
   }
 
@@ -70,6 +74,25 @@ public final class ScheduleTiming {
   /** Tells whether the schedule runs only once. */
   public boolean isOnce() {
     return scheduleKind == ScheduleKind.ONCE;
+  }
+
+  /**
+   * Returns the first cron fire time after {@code after}, read in the time zone.
+   *
+   * @throws IllegalArgumentException when the expression never fires again
+   * @throws IllegalStateException for a one-off timing, which has no cron fire times
+   */
+  public Instant nextRunAfter(Instant after) {
+    if (isOnce()) {
+      throw new IllegalStateException("One-off schedules have no cron fire times");
+    }
+    ZonedDateTime next =
+        CronExpression.parse(cronExpression).next(after.atZone(ZoneId.of(timezone)));
+    if (next == null) {
+      throw new IllegalArgumentException(
+          "Cron expression has no next fire time: " + cronExpression);
+    }
+    return next.toInstant();
   }
 
   private static String requireTimezone(String timezone) {

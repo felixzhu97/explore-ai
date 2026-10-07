@@ -3,7 +3,7 @@ package com.ai.workflow.infra;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.workflow.domain.model.RoutingResult;
-import com.ai.workflow.domain.service.RoutingWorkflow;
+import com.ai.workflow.service.RoutingWorkflow;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;

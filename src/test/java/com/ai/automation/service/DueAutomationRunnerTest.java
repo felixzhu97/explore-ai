@@ -18,7 +18,6 @@ import com.ai.automation.domain.repository.AutomationRunRepository;
 import com.ai.automation.domain.repository.AutomationScheduleRepository;
 import com.ai.automation.domain.repository.EmailGateway;
 import com.ai.automation.domain.repository.PipelineGateway;
-import com.ai.automation.domain.service.CronSchedule;
 import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.billing.service.DailyUsageQuotaService;
 import com.ai.common.domain.model.OwnerKey;
@@ -43,11 +42,6 @@ class DueAutomationRunnerTest {
   @Mock private EmailGateway emailGateway;
   @Mock private DailyUsageQuotaService dailyUsageQuotaService;
 
-  private static final Instant FAR_FUTURE = Instant.parse("2100-01-01T00:00:00Z");
-
-  /** Arms the first run in the past so the schedule is due, then moves runs far ahead. */
-  private final CronSchedule cronSchedule = (expression, timezone, after) -> FAR_FUTURE;
-
   private final AutomationProperties properties = new AutomationProperties();
   private DueAutomationRunner useCase;
 
@@ -60,7 +54,6 @@ class DueAutomationRunnerTest {
             pipelineGateway,
             emailGateway,
             new AutomationMailFormatter(),
-            cronSchedule,
             dailyUsageQuotaService,
             properties);
   }
@@ -77,8 +70,8 @@ class DueAutomationRunnerTest {
             "11111111-1111-1111-1111-111111111111",
             "user@example.com",
             "Do the work",
-            Instant.now(),
-            (expression, timezone, after) -> past);
+            Instant.now());
+    ReflectionTestUtils.setField(schedule, "nextRunAt", past);
     when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(eq(schedule.getId()), eq(past), any())).thenReturn(true);
     when(dailyUsageQuotaService.tryConsume(OwnerKey.parse("c:client-1"))).thenReturn(true);
@@ -107,8 +100,8 @@ class DueAutomationRunnerTest {
             "11111111-1111-1111-1111-111111111111",
             "user@example.com",
             "Do the work",
-            Instant.now(),
-            (expression, timezone, after) -> past);
+            Instant.now());
+    ReflectionTestUtils.setField(schedule, "nextRunAt", past);
     when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(any(ScheduleId.class), eq(past), any())).thenReturn(true);
     when(dailyUsageQuotaService.tryConsume(OwnerKey.parse("c:client-1"))).thenReturn(false);

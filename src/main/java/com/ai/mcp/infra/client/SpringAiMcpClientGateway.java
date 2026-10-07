@@ -3,7 +3,6 @@ package com.ai.mcp.infra.client;
 import com.ai.mcp.domain.model.McpServerConnection;
 import com.ai.mcp.domain.model.McpToolDefinition;
 import com.ai.mcp.domain.repository.McpClientGateway;
-import com.ai.mcp.domain.service.McpSessionRegistry;
 import com.ai.mcp.service.McpToolCallbackRegistry;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

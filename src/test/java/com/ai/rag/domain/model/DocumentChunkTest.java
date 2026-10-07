@@ -2,6 +2,7 @@ package com.ai.rag.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.within;
 
 import com.ai.common.domain.model.OwnerKey;
 import java.time.Instant;
@@ -145,6 +146,45 @@ class DocumentChunkTest {
       assertThat(chunk().isComparableWith(new float[] {1f, 0f})).isFalse();
       assertThat(embedded.similarityTo(new float[] {1f, 0f, 0f})).isZero();
       assertThat(embedded.isComparableWith(new float[] {1f, 0f, 0f})).isFalse();
+    }
+
+    private double similarity(float[] chunkEmbedding, float[] queryEmbedding) {
+      return chunk().withEmbedding(chunkEmbedding).similarityTo(queryEmbedding);
+    }
+
+    @Test
+    @DisplayName("should return 1 when the query points the same way")
+    void shouldReturnOneWhenTheQueryPointsTheSameWay() {
+      assertThat(similarity(new float[] {1f, -2f, 3f}, new float[] {2f, -4f, 6f}))
+          .isCloseTo(1.0, within(0.0001));
+    }
+
+    @Test
+    @DisplayName("should return -1 when the query points the opposite way")
+    void shouldReturnMinusOneWhenTheQueryPointsTheOppositeWay() {
+      assertThat(similarity(new float[] {1f, 2f, 3f}, new float[] {-1f, -2f, -3f}))
+          .isCloseTo(-1.0, within(0.0001));
+    }
+
+    @Test
+    @DisplayName("should return 0 when the query is orthogonal")
+    void shouldReturnZeroWhenTheQueryIsOrthogonal() {
+      assertThat(similarity(new float[] {1f, 0f}, new float[] {0f, 1f}))
+          .isCloseTo(0.0, within(0.0001));
+    }
+
+    @Test
+    @DisplayName("should return 0 when either vector is all zeros")
+    void shouldReturnZeroWhenEitherVectorIsAllZeros() {
+      assertThat(similarity(new float[] {0f, 0f}, new float[] {0f, 0f})).isZero();
+    }
+
+    @Test
+    @DisplayName("should return 0 when the chunk has no embedding or sizes differ")
+    void shouldReturnZeroWhenTheChunkHasNoEmbeddingOrSizesDiffer() {
+      assertThat(chunk().similarityTo(new float[] {1f, 2f})).isZero();
+      assertThat(similarity(new float[] {1f, 2f}, null)).isZero();
+      assertThat(similarity(new float[] {1f, 2f, 3f}, new float[] {1f, 2f})).isZero();
     }
   }
 

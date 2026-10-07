@@ -1,6 +1,6 @@
 package com.ai.chat.infra.prompt;
 
-import com.ai.chat.domain.service.LanguageDetectionService;
+import com.ai.chat.domain.model.DetectedLanguage;
 import com.ai.common.infra.prompt.ClasspathPromptTemplate;
 import com.ai.common.infra.prompt.PromptTemplates;
 import java.util.Map;
@@ -15,12 +15,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class LocalizedRagPromptBuilder {
 
-  private final LanguageDetectionService languageDetectionService;
   private final PromptTemplates promptTemplates;
 
   /** Builds the RAG prompt in the question's language. */
   public String build(String question, String context) {
-    String languageCode = languageDetectionService.detect(question);
+    String languageCode = DetectedLanguage.of(question).code();
     return build(question, context, languageCode);
   }
 

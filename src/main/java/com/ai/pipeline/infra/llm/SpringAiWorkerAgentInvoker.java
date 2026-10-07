@@ -1,16 +1,16 @@
 package com.ai.pipeline.infra.llm;
 
-import com.ai.common.domain.tool.DateTimeTool;
-import com.ai.common.domain.tool.DocumentSearchTool;
-import com.ai.common.domain.tool.WeatherTool;
-import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.infra.llm.ToolCallMarkupFilter;
 import com.ai.common.infra.skills.AgentSkillsRuntime;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
+import com.ai.common.service.llm.DocumentSearchTool;
 import com.ai.common.service.llm.TextChatOptions;
+import com.ai.common.service.llm.WebSearchTool;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.service.WorkerAgentInvoker;
+import com.ai.tools.infra.tools.DateTimeTools;
+import com.ai.tools.infra.tools.WeatherTools;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +28,8 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
   private final ChatClientProvider chatClientProvider;
   private final DocumentSearchTool documentSearchTool;
   private final WebSearchTool webSearchTool;
-  private final WeatherTool weatherTool;
-  private final DateTimeTool dateTimeTool;
+  private final WeatherTools weatherTool;
+  private final DateTimeTools dateTimeTool;
   private final AgentSkillsRuntime agentSkillsRuntime;
 
   @Override

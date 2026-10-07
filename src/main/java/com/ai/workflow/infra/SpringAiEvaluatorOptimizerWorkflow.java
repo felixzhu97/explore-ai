@@ -4,7 +4,7 @@ import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.workflow.domain.model.EvaluatorOptimizerResult;
 import com.ai.workflow.domain.model.GenerationStep;
-import com.ai.workflow.domain.service.EvaluatorOptimizerWorkflow;
+import com.ai.workflow.service.EvaluatorOptimizerWorkflow;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

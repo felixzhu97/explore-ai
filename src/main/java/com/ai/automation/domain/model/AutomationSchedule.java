@@ -1,6 +1,5 @@
 package com.ai.automation.domain.model;
 
-import com.ai.automation.domain.service.CronSchedule;
 import com.ai.common.domain.model.AbstractEnableableNamedOwnerEntity;
 import com.ai.common.domain.model.DomainStrings;
 import com.ai.pipeline.domain.model.PipelineTemplateId;
@@ -96,8 +95,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
       String pipelineTemplateId,
       String recipientEmail,
       String brief,
-      Instant now,
-      CronSchedule cronSchedule) {
+      Instant now) {
     ScheduleTiming timing = ScheduleTiming.cron(cronExpression, timezone);
     return new AutomationSchedule(
         ownerKey,
@@ -106,7 +104,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
         pipelineTemplateId,
         recipientEmail,
         brief,
-        nextFireTime(timing, now, cronSchedule),
+        timing.nextRunAfter(now),
         now);
   }
 
@@ -142,8 +140,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
       String pipelineTemplateId,
       String recipientEmail,
       String brief,
-      Instant now,
-      CronSchedule cronSchedule) {
+      Instant now) {
     rename(name);
     this.timing = Objects.requireNonNull(timing, "timing");
     this.pipelineTemplateId = requireTemplateId(pipelineTemplateId);
@@ -153,7 +150,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
       this.nextRunAt = requireFutureRunAt(runAt, now);
       this.enabled = true;
     } else {
-      this.nextRunAt = nextFireTime(timing, now, cronSchedule);
+      this.nextRunAt = timing.nextRunAfter(now);
     }
     touchUpdatedAt();
   }
@@ -163,14 +160,14 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
    *
    * @throws IllegalArgumentException when a one-off schedule has no run left
    */
-  public void turnOn(Instant now, CronSchedule cronSchedule) {
+  public void turnOn(Instant now) {
     if (isOnce()) {
       if (!hasPendingRun(now)) {
         throw new IllegalArgumentException(
             "One-shot schedule already completed; set a new runAt before enabling");
       }
     } else {
-      this.nextRunAt = nextFireTime(timing, now, cronSchedule);
+      this.nextRunAt = timing.nextRunAfter(now);
     }
     this.enabled = true;
     touchUpdatedAt();
@@ -195,20 +192,20 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
   }
 
   /** Returns the next_run_at written while a run is claimed, so other scanners skip it. */
-  public Instant provisionalNextRunAt(Instant now, CronSchedule cronSchedule) {
-    return isOnce() ? ONCE_TERMINAL_NEXT : nextFireTime(timing, now, cronSchedule);
+  public Instant provisionalNextRunAt(Instant now) {
+    return isOnce() ? ONCE_TERMINAL_NEXT : timing.nextRunAfter(now);
   }
 
   /**
    * Records a finished run; a one-off schedule turns off, a cron schedule moves to its next run.
    */
-  public void recordRunFinished(Instant finishedAt, CronSchedule cronSchedule) {
+  public void recordRunFinished(Instant finishedAt) {
     this.lastRunAt = Objects.requireNonNull(finishedAt, "finishedAt");
     if (isOnce()) {
       this.nextRunAt = ONCE_TERMINAL_NEXT;
       this.enabled = false;
     } else {
-      this.nextRunAt = nextFireTime(timing, finishedAt, cronSchedule);
+      this.nextRunAt = timing.nextRunAfter(finishedAt);
     }
     touchUpdatedAt();
   }
@@ -221,11 +218,6 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
   /** Tells whether the schedule runs only once. */
   public boolean isOnce() {
     return timing.isOnce();
-  }
-
-  private static Instant nextFireTime(
-      ScheduleTiming timing, Instant after, CronSchedule cronSchedule) {
-    return cronSchedule.nextRunAfter(timing.getCronExpression(), timing.getTimezone(), after);
   }
 
   private static Instant requireFutureRunAt(Instant runAt, Instant now) {

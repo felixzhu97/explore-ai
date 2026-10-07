@@ -1,4 +1,4 @@
-package com.ai.workflow.domain.service;
+package com.ai.workflow.service;
 
 import com.ai.workflow.domain.model.RoutingResult;
 import java.util.Map;

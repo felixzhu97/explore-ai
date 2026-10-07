@@ -5,12 +5,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.tool.DateTimeTool;
-import com.ai.common.domain.tool.DocumentSearchTool;
-import com.ai.common.domain.tool.WeatherTool;
-import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.infra.prompt.PromptTemplates;
+import com.ai.common.service.llm.DocumentSearchTool;
 import com.ai.common.service.llm.TextChatOptions;
+import com.ai.common.service.llm.WebSearchTool;
+import com.ai.tools.domain.model.WeatherReport;
+import com.ai.tools.infra.tools.DateTimeTools;
+import com.ai.tools.infra.tools.WeatherTools;
+import java.time.Clock;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -79,19 +81,12 @@ class ChatClientFactoryMcpMergeTest {
         resolver,
         mock(org.springframework.ai.chat.memory.ChatMemory.class),
         new PromptTemplates(),
-        new StubWeatherTool(),
+        new WeatherTools(new WeatherReport()),
         new StubDocumentSearchTool(),
         new StubWebSearchTool(),
-        new StubDateTimeTool(),
+        new DateTimeTools(Clock.systemUTC()),
         mcpProvider,
         false);
-  }
-
-  static class StubWeatherTool implements WeatherTool {
-    @Tool(description = "weather")
-    public String getWeather(String city) {
-      return city;
-    }
   }
 
   static class StubDocumentSearchTool implements DocumentSearchTool {
@@ -113,13 +108,6 @@ class ChatClientFactoryMcpMergeTest {
     @Tool(description = "search web")
     public String searchWeb(String query) {
       return query;
-    }
-  }
-
-  static class StubDateTimeTool implements DateTimeTool {
-    @Tool(description = "Get the current date and time in the user's timezone")
-    public String getCurrentDateTime() {
-      return "2026-07-26T12:40+08:00[Asia/Shanghai]";
     }
   }
 }

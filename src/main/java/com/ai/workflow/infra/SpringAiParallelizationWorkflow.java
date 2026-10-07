@@ -3,7 +3,7 @@ package com.ai.workflow.infra;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.workflow.domain.model.ParallelizationResult;
-import com.ai.workflow.domain.service.ParallelizationWorkflow;
+import com.ai.workflow.service.ParallelizationWorkflow;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;

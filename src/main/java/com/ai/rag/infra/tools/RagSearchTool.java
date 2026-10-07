@@ -1,8 +1,8 @@
 package com.ai.rag.infra.tools;
 
 import com.ai.account.controller.OwnerContext;
-import com.ai.common.domain.tool.DocumentSearchTool;
 import com.ai.common.infra.llm.ToolEventChannel;
+import com.ai.common.service.llm.DocumentSearchTool;
 import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.infra.vector.ChunkMetadataKeys;
 import com.ai.rag.service.RagApplicationService;
