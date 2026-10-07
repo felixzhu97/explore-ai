@@ -11,7 +11,7 @@ public record CreateSessionRequest(
     @Size(max = 100, message = "Title cannot exceed 100 characters") String title) {
 
   /** Factory for a create-session request with the given title. */
-  public static CreateSessionRequest of(String title) {
+  public static CreateSessionRequest createRequest(String title) {
     return new CreateSessionRequest(title);
   }
 }

@@ -9,8 +9,8 @@ final class YoloImagePreprocessor {
   private YoloImagePreprocessor() {}
 
   /** Turns the image into a YOLO input tensor. */
-  static float[] preprocess(BufferedImage image, int inputSize) {
-    BufferedImage resized = resize(image, inputSize, inputSize);
+  static float[] preprocessImage(BufferedImage image, int inputSize) {
+    BufferedImage resized = resizeImage(image, inputSize, inputSize);
     float[] tensor = new float[3 * inputSize * inputSize];
     int planeSize = inputSize * inputSize;
 
@@ -26,7 +26,7 @@ final class YoloImagePreprocessor {
     return tensor;
   }
 
-  private static BufferedImage resize(BufferedImage source, int width, int height) {
+  private static BufferedImage resizeImage(BufferedImage source, int width, int height) {
     BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
     Graphics2D graphics = resized.createGraphics();
     graphics.setRenderingHint(

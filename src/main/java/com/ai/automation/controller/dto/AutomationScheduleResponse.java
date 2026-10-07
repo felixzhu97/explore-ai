@@ -22,7 +22,7 @@ public record AutomationScheduleResponse(
     Instant createdAt,
     Instant updatedAt) {
   /** Builds a response from a schedule, exposing {@code runAt} only for pending one-off runs. */
-  public static AutomationScheduleResponse from(AutomationSchedule schedule) {
+  public static AutomationScheduleResponse createResponse(AutomationSchedule schedule) {
     return new AutomationScheduleResponse(
         schedule.getId().toString(),
         schedule.getName(),

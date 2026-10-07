@@ -19,7 +19,7 @@ public record TranscriptionResponse(TranscriptionType type, String text) {
   }
 
   /** Creates an error frame with the message. */
-  public static TranscriptionResponse error(String text) {
+  public static TranscriptionResponse createErrorResponse(String text) {
     return new TranscriptionResponse(TranscriptionType.ERROR, text);
   }
 
@@ -36,13 +36,13 @@ public record TranscriptionResponse(TranscriptionType type, String text) {
     }
 
     @JsonValue
-    public String value() {
+    public String getValue() {
       return value;
     }
 
     /** Parses a wire value case-insensitively; rejects unknown frame kinds. */
     @JsonCreator
-    public static TranscriptionType from(String raw) {
+    public static TranscriptionType parseType(String raw) {
       String normalized = raw == null ? "" : raw.trim().toLowerCase(Locale.ROOT);
       for (TranscriptionType type : values()) {
         if (type.value.equals(normalized)) {

@@ -67,7 +67,7 @@ public class SpringAiParallelizationWorkflow implements ParallelizationWorkflow 
     try {
       String content =
           chatClientProvider
-              .createBareStateless(TextChatOptions.defaults())
+              .createBareStateless(TextChatOptions.createDefaultOptions())
               .prompt()
               .user(prompt + "\nInput: " + item)
               .call()

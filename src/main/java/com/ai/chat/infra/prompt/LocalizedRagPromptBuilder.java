@@ -18,18 +18,18 @@ public class LocalizedRagPromptBuilder {
   private final PromptTemplates promptTemplates;
 
   /** Builds the RAG prompt in the question's language. */
-  public String build(String question, String context) {
+  public String buildPrompt(String question, String context) {
     String languageCode = DetectedLanguage.createLanguage(question).getCode();
-    return build(question, context, languageCode);
+    return buildPrompt(question, context, languageCode);
   }
 
   /** Renders the user prompt for the language, or its no-context message when context is blank. */
-  public String build(String question, String context, String languageCode) {
+  public String buildPrompt(String question, String context, String languageCode) {
     if (context == null || context.isBlank()) {
       return getNoContextMessage(languageCode);
     }
     String template = getUserTemplate(languageCode);
-    return ClasspathPromptTemplate.render(
+    return ClasspathPromptTemplate.renderTemplate(
         template,
         Map.of(
             "style",
@@ -42,17 +42,17 @@ public class LocalizedRagPromptBuilder {
 
   private String getUserTemplate(String languageCode) {
     return switch (languageCode) {
-      case "zh" -> ClasspathPromptTemplate.load("rag/user-zh.st");
-      case "ja" -> ClasspathPromptTemplate.load("rag/user-ja.st");
-      default -> ClasspathPromptTemplate.load("rag/user-en.st");
+      case "zh" -> ClasspathPromptTemplate.loadTemplate("rag/user-zh.st");
+      case "ja" -> ClasspathPromptTemplate.loadTemplate("rag/user-ja.st");
+      default -> ClasspathPromptTemplate.loadTemplate("rag/user-en.st");
     };
   }
 
   private String getNoContextMessage(String languageCode) {
     return switch (languageCode) {
-      case "zh" -> ClasspathPromptTemplate.load("rag/no-context-zh.st");
-      case "ja" -> ClasspathPromptTemplate.load("rag/no-context-ja.st");
-      default -> ClasspathPromptTemplate.load("rag/no-context-en.st");
+      case "zh" -> ClasspathPromptTemplate.loadTemplate("rag/no-context-zh.st");
+      case "ja" -> ClasspathPromptTemplate.loadTemplate("rag/no-context-ja.st");
+      default -> ClasspathPromptTemplate.loadTemplate("rag/no-context-en.st");
     };
   }
 }

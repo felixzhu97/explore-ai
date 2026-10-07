@@ -52,7 +52,7 @@ public class PipelineOrchestrationService {
     return Mono.fromCallable(
             () -> {
               List<AgentDefinition> workers = registry.listWorkers(ownerKey, language);
-              return supervisorRouter.plan(message, workers);
+              return supervisorRouter.planRoute(message, workers);
             })
         .subscribeOn(Schedulers.boundedElastic())
         .flatMapMany(plan -> executePlan(message, plan, ownerKey, language))
@@ -102,7 +102,7 @@ public class PipelineOrchestrationService {
             ? AiInvocationEvent.createSucceededEvent(AiCapability.AGENTS, operation, latency, owner)
             : AiInvocationEvent.createFailedEvent(
                 AiCapability.AGENTS, operation, latency, owner, ErrorSummary.createSummary(error));
-    invocationRecorder.record(event.agentType(agentType).build());
+    invocationRecorder.recordInvocation(event.agentType(agentType).build());
   }
 
   /** Streams a pipeline run as SSE, feeding each node's output into the next node in order. */
@@ -146,7 +146,7 @@ public class PipelineOrchestrationService {
                         Continue the task as your specialist role.
                         """
                 .formatted(message, current);
-        String stepOutput = workerInvoker.invoke(agent, stepInput);
+        String stepOutput = workerInvoker.invokeAgent(agent, stepInput);
         current = stepOutput == null ? "" : stepOutput;
         if (!all.isEmpty()) {
           all.append("\n\n");
@@ -228,7 +228,8 @@ public class PipelineOrchestrationService {
                                           registry.requireAgent(
                                               subtask.getAgentType(), ownerKey, language);
                                       String result =
-                                          workerInvoker.invoke(worker, subtask.getInstruction());
+                                          workerInvoker.invokeAgent(
+                                              worker, subtask.getInstruction());
                                       return "### "
                                           + subtask.getAgentType().getValue()
                                           + '\n'
@@ -253,7 +254,7 @@ public class PipelineOrchestrationService {
                             Produce a single cohesive answer for the user.
                             """
                       .formatted(originalMessage, collected);
-              return workerInvoker.invoke(synthesizer, synthesisPrompt);
+              return workerInvoker.invokeAgent(synthesizer, synthesisPrompt);
             })
         .subscribeOn(Schedulers.boundedElastic())
         .flatMapMany(
@@ -276,7 +277,7 @@ public class PipelineOrchestrationService {
 
   /** Builds an SSE handoff event. */
   static ServerSentEvent<String> buildHandoffEvent(String agentType, String reason) {
-    String payload = PipelineHandoffEvent.of(agentType, reason).toJson();
+    String payload = PipelineHandoffEvent.createEvent(agentType, reason).toJson();
     return ServerSentEvent.<String>builder().event("agent_handoff").data(payload).build();
   }
 

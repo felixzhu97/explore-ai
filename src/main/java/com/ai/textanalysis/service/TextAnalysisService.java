@@ -15,7 +15,7 @@ public class TextAnalysisService {
   private final TextAnalysisGateway textAnalysisGateway;
 
   /** Analyzes the text and asks the model to respond in the given language. */
-  public TextAnalysis analyzeTextWithLanguage(String text, String language) {
+  public TextAnalysis analyzeText(String text, String language) {
     return textAnalysisGateway.analyzeText(
         AnalysisText.createText(text), LanguageHint.createHint(language));
   }

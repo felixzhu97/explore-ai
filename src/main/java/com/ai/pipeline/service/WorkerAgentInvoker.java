@@ -9,5 +9,5 @@ public interface WorkerAgentInvoker {
   Flux<String> invokeStream(AgentDefinition agent, String task);
 
   /** Returns the agent's answer to the task. */
-  String invoke(AgentDefinition agent, String task);
+  String invokeAgent(AgentDefinition agent, String task);
 }

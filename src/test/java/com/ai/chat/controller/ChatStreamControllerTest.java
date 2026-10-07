@@ -105,7 +105,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
       when(chatService.streamChatWithSession(
               "22222222-2222-2222-2222-222222222222",
               "Hello",
-              TextChatOptions.of("openai", "deepseek-v4-flash", false),
+              TextChatOptions.createOptions("openai", "deepseek-v4-flash", false),
               ownerKey()))
           .thenReturn(Flux.just("Hi", " there"));
 
@@ -134,7 +134,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
           .streamChatWithSession(
               "22222222-2222-2222-2222-222222222222",
               "Hello",
-              TextChatOptions.of("openai", "deepseek-v4-flash", false),
+              TextChatOptions.createOptions("openai", "deepseek-v4-flash", false),
               ownerKey());
     }
 
@@ -180,7 +180,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should attach skill system prompt when skillIds provided")
     void shouldAttachSkillSystemPromptWhenSkillIdsProvided() {
       String skillId = "11111111-2222-3333-4444-555555555555";
-      when(skillService.activeSkillsPrompt(ownerKey(), List.of(skillId)))
+      when(skillService.buildSkillsPrompt(ownerKey(), List.of(skillId)))
           .thenReturn(java.util.Optional.of("## Active Skills\n### Brief Style\nBe concise."));
       when(chatService.streamChat(any(), any(TextChatOptions.class), eq(ownerKey())))
           .thenReturn(Flux.just("ok"));

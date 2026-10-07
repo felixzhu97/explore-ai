@@ -9,7 +9,7 @@ public record ImageGenerationResponse(
     String revisedPrompt,
     ImageGenerationStatus status) {
   /** Creates a successful response. */
-  public static ImageGenerationResponse success(
+  public static ImageGenerationResponse createSuccessResponse(
       String imageUrl, String imageBase64, String model, String prompt) {
     return new ImageGenerationResponse(
         imageUrl, imageBase64, model, prompt, null, ImageGenerationStatus.SUCCESS);

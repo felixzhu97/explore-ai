@@ -46,7 +46,7 @@ export class ZardDropdownService {
     viewContainerRef: ViewContainerRef,
   ) {
     if (this.isOpen()) {
-      this.close();
+      this.closeDropdown();
     } else {
       this.open(triggerElement, template, viewContainerRef);
     }
@@ -58,7 +58,7 @@ export class ZardDropdownService {
     viewContainerRef: ViewContainerRef,
   ) {
     if (this.isOpen()) {
-      this.close();
+      this.closeDropdown();
     }
 
     this.triggerElement = triggerElement;
@@ -81,7 +81,7 @@ export class ZardDropdownService {
       .outsidePointerEvents()
       .pipe(filter(event => !triggerElement.nativeElement.contains(event.target)))
       .subscribe(() => {
-        this.close();
+        this.closeDropdown();
       });
     this.isOpen.set(true);
   }
@@ -90,7 +90,7 @@ export class ZardDropdownService {
     return this.triggerElement;
   }
 
-  close() {
+  closeDropdown() {
     if (this.overlayRef?.hasAttached()) {
       this.overlayRef.detach();
     }
@@ -103,7 +103,7 @@ export class ZardDropdownService {
 
   closeAndReturnTrigger(): ElementRef | undefined {
     const trigger = this.triggerElement;
-    this.close();
+    this.closeDropdown();
     return trigger;
   }
 

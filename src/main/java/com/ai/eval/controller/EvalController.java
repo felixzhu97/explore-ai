@@ -32,9 +32,9 @@ public class EvalController {
       @Valid @RequestBody EvaluationRequest request) {
 
     ChatEvaluationResult result =
-        evaluator.evaluate(
+        evaluator.evaluateChat(
             request.userMessage(), request.assistantResponse(), request.referenceDocuments());
 
-    return ResponseEntity.ok(EvaluationResponse.from(result));
+    return ResponseEntity.ok(EvaluationResponse.createResponse(result));
   }
 }

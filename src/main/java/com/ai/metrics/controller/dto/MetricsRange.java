@@ -15,7 +15,7 @@ public enum MetricsRange {
   }
 
   @JsonValue
-  public String value() {
+  public String getValue() {
     return value;
   }
 

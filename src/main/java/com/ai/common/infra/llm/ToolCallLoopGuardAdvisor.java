@@ -29,7 +29,7 @@ final class ToolCallLoopGuardAdvisor extends ToolCallingAdvisor {
   }
 
   /** Creates an advisor builder. */
-  public static Builder builder() {
+  public static Builder createBuilder() {
     return new Builder();
   }
 

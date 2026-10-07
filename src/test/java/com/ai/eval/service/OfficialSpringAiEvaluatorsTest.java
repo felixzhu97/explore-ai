@@ -35,7 +35,7 @@ class OfficialSpringAiEvaluatorsTest {
     when(relevancyEvaluator.evaluate(any(EvaluationRequest.class)))
         .thenReturn(new EvaluationResponse(true, 1.0f, "ok", Map.of()));
 
-    OfficialGateResult result = evaluators.evaluate("q", "a", List.of());
+    OfficialGateResult result = evaluators.evaluateChat("q", "a", List.of());
 
     assertThat(result.isPassed()).isTrue();
     assertThat(result.isRelevancyPassed()).isTrue();
@@ -53,7 +53,7 @@ class OfficialSpringAiEvaluatorsTest {
     when(factCheckingEvaluator.evaluate(any(EvaluationRequest.class)))
         .thenReturn(new EvaluationResponse(false, 0.0f, "unsupported", Map.of()));
 
-    OfficialGateResult result = evaluators.evaluate("q", "a", List.of("doc text"));
+    OfficialGateResult result = evaluators.evaluateChat("q", "a", List.of("doc text"));
 
     assertThat(result.isPassed()).isFalse();
     assertThat(result.isFactualityEvaluated()).isTrue();

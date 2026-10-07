@@ -72,7 +72,7 @@ public class DueAutomationRunner {
 
   private EmailDeliveryStatus sendResultEmail(AutomationSchedule schedule, String result) {
     AutomationMailFormatter.FormattedMail formatted =
-        mailFormatter.format(schedule.getName(), schedule.getBrief(), result);
+        mailFormatter.formatMail(schedule.getName(), schedule.getBrief(), result);
     try {
       emailGateway.sendEmail(
           schedule.composeResultEmail(formatted.textBody(), formatted.htmlBody()));

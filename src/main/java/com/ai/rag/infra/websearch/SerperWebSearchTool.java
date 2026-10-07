@@ -114,7 +114,8 @@ public class SerperWebSearchTool implements WebSearchTool {
       }
     }
     try {
-      ToolEventChannel.publish(JSON.writeValueAsString(WebSourcesEvent.of(query, items)));
+      ToolEventChannel.publishEvent(
+          JSON.writeValueAsString(WebSourcesEvent.createEvent(query, items)));
     } catch (JsonProcessingException expected) {
     }
   }

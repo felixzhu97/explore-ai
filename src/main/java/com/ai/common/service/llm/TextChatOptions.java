@@ -11,7 +11,7 @@ public record TextChatOptions(
   }
 
   /** User-facing chat defaults: tools enabled unless explicitly disabled. */
-  public static TextChatOptions defaults() {
+  public static TextChatOptions createDefaultOptions() {
     return new TextChatOptions(DEFAULT_PROVIDER, null, true, null);
   }
 
@@ -21,7 +21,7 @@ public record TextChatOptions(
   }
 
   /** Creates options with tools on. */
-  public static TextChatOptions of(String provider, String model) {
+  public static TextChatOptions createOptions(String provider, String model) {
     return new TextChatOptions(provider, model, true, null);
   }
 
@@ -31,12 +31,12 @@ public record TextChatOptions(
    * @param toolsEnabled {@code null} defaults to enabled; only explicit {@code false} disables
    *     tools
    */
-  public static TextChatOptions of(String provider, String model, Boolean toolsEnabled) {
+  public static TextChatOptions createOptions(String provider, String model, Boolean toolsEnabled) {
     return new TextChatOptions(provider, model, toolsEnabled == null || toolsEnabled, null);
   }
 
   /** Creates options with tools and an optional skill prompt. */
-  public static TextChatOptions of(
+  public static TextChatOptions createOptions(
       String provider, String model, Boolean toolsEnabled, String skillSystemPrompt) {
     return new TextChatOptions(
         provider, model, toolsEnabled == null || toolsEnabled, skillSystemPrompt);

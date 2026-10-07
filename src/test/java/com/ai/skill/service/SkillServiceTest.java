@@ -42,7 +42,8 @@ class SkillServiceTest {
     when(repository.save(any(Skill.class))).then(returnsFirstArg());
 
     Skill created =
-        useCase.create(CLIENT_ID, "Brief Style", "Short answers", "Be concise.", List.of("Read"));
+        useCase.createSkill(
+            CLIENT_ID, "Brief Style", "Short answers", "Be concise.", List.of("Read"));
 
     assertThat(created.getName()).isEqualTo("Brief Style");
     verify(repository).save(created);
@@ -53,7 +54,7 @@ class SkillServiceTest {
   void shouldThrowWhenNameConflictOnCreate() {
     when(repository.existsByOwnerKeyAndNameIgnoringId(OWNER, "Brief Style", null)).thenReturn(true);
 
-    assertThatThrownBy(() -> useCase.create(CLIENT_ID, "Brief Style", "", "Other", List.of()))
+    assertThatThrownBy(() -> useCase.createSkill(CLIENT_ID, "Brief Style", "", "Other", List.of()))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "SKILL_NAME_CONFLICT");
     verify(repository, never()).save(any());
@@ -68,7 +69,7 @@ class SkillServiceTest {
 
     String prompt =
         useCase
-            .activeSkillsPrompt(CLIENT_ID, List.of(brief.getId().toString(), "not-a-uuid", " "))
+            .buildSkillsPrompt(CLIENT_ID, List.of(brief.getId().toString(), "not-a-uuid", " "))
             .orElseThrow();
 
     assertThat(prompt).contains("## Active Skills").contains("### Brief Style");
@@ -77,15 +78,15 @@ class SkillServiceTest {
   @Test
   @DisplayName("should return no prompt when none of the skill ids resolve")
   void shouldReturnNoPromptWhenNoneOfTheSkillIdsResolve() {
-    assertThat(useCase.activeSkillsPrompt(CLIENT_ID, List.of("not-a-uuid"))).isEmpty();
-    assertThat(useCase.activeSkillsPrompt(CLIENT_ID, null)).isEmpty();
+    assertThat(useCase.buildSkillsPrompt(CLIENT_ID, List.of("not-a-uuid"))).isEmpty();
+    assertThat(useCase.buildSkillsPrompt(CLIENT_ID, null)).isEmpty();
     verifyNoInteractions(repository);
   }
 
   @Test
   @DisplayName("should throw when get missing")
   void shouldThrowWhenGetMissing() {
-    assertThatThrownBy(() -> useCase.get(CLIENT_ID, SkillId.generateId().toString()))
+    assertThatThrownBy(() -> useCase.getSkill(CLIENT_ID, SkillId.generateId().toString()))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "SKILL_NOT_FOUND");
   }

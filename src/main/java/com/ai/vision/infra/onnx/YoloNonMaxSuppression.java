@@ -10,7 +10,7 @@ final class YoloNonMaxSuppression {
   private YoloNonMaxSuppression() {}
 
   /** Removes boxes that overlap a stronger box. */
-  static List<Detection> apply(List<Detection> candidates, float nmsThreshold) {
+  static List<Detection> applySuppression(List<Detection> candidates, float nmsThreshold) {
     List<Detection> sorted = new ArrayList<>(candidates);
     sorted.sort(Comparator.comparingDouble(Detection::getConfidence).reversed());
 

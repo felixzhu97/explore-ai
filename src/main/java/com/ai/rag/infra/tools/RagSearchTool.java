@@ -112,7 +112,7 @@ public class RagSearchTool implements DocumentSearchTool {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < sources.size(); i++) {
       var source = sources.get(i);
-      String content = excerpt(source.getContent());
+      String content = getExcerpt(source.getContent());
       sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.getScore(), content));
       if (source.getMetadata() != null
           && source.getMetadata().get(ChunkMetadataKeys.TITLE) instanceof String title) {
@@ -123,7 +123,7 @@ public class RagSearchTool implements DocumentSearchTool {
     return sb.toString();
   }
 
-  private static String excerpt(String content) {
+  private static String getExcerpt(String content) {
     if (content == null || content.length() <= MAX_CONTENT_LENGTH) {
       return content;
     }

@@ -89,7 +89,8 @@ class DtoEnumWireValuesTest {
   @Test
   @DisplayName("should map configured plan when casing differs")
   void shouldMapConfiguredPlanWhenCasingDiffers() {
-    assertThat(AccountPlan.from(Plan.parsePlan("Pro"))).isEqualTo(AccountPlan.PRO);
-    assertThat(AccountPlan.from(Plan.parsePlan("enterprise"))).isEqualTo(AccountPlan.FREE);
+    assertThat(AccountPlan.createResponse(Plan.parsePlan("Pro"))).isEqualTo(AccountPlan.PRO);
+    assertThat(AccountPlan.createResponse(Plan.parsePlan("enterprise")))
+        .isEqualTo(AccountPlan.FREE);
   }
 }

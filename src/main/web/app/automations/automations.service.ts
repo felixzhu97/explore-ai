@@ -124,7 +124,7 @@ export class AutomationsService {
   readonly #base = `${API_BASE_URL}/automations/schedules`;
 
   /** Lists the schedules. */
-  list(): Observable<AutomationSchedule[]> {
+  listAutomations(): Observable<AutomationSchedule[]> {
     return this.#http
       .get<AutomationScheduleResponse[]>(this.#base)
       .pipe(map(schedules => schedules.map(toAutomationSchedule)));
@@ -139,14 +139,16 @@ export class AutomationsService {
   }
 
   /** Creates a schedule. */
-  create(request: CreateAutomationScheduleRequest): Observable<AutomationSchedule> {
+  createAutomation(
+    request: CreateAutomationScheduleRequest,
+  ): Observable<AutomationSchedule> {
     return this.#http
       .post<AutomationScheduleResponse>(this.#base, request)
       .pipe(map(toAutomationSchedule));
   }
 
   /** Updates a schedule. */
-  update(
+  updateAutomation(
     id: string,
     request: UpdateAutomationScheduleRequest,
   ): Observable<AutomationSchedule> {
@@ -163,7 +165,7 @@ export class AutomationsService {
   }
 
   /** Deletes a schedule. */
-  delete(id: string): Observable<void> {
+  deleteAutomation(id: string): Observable<void> {
     return this.#http.delete<void>(`${this.#base}/${id}`);
   }
 }

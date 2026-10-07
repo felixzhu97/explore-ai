@@ -31,7 +31,7 @@ public class InProcessPipelineGateway implements PipelineGateway {
             .filter(PipelineTemplate::isRunnable)
             .orElseThrow(
                 () ->
-                    DomainException.notFound(
+                    DomainException.createNotFoundError(
                         "PIPELINE_TEMPLATE_NOT_FOUND",
                         "Pipeline template not found: " + pipelineTemplateId));
     return pipelineService.invokePipelineSync(

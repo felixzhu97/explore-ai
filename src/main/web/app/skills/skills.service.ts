@@ -66,7 +66,7 @@ export class SkillsService {
   readonly #base = `${API_BASE_URL}/skills`;
 
   /** Lists the skills. */
-  list(): Observable<Skill[]> {
+  listSkills(): Observable<Skill[]> {
     return this.#http
       .get<SkillResponse[]>(this.#base)
       .pipe(map(skills => skills.map(toSkill)));
@@ -74,7 +74,7 @@ export class SkillsService {
 
   /** Lists the skills that are on. */
   listEnabled(): Observable<Skill[]> {
-    return this.list().pipe(map(skills => skills.filter(skill => skill.enabled)));
+    return this.listSkills().pipe(map(skills => skills.filter(skill => skill.enabled)));
   }
 
   /** Lists the built-in skill templates in the UI language. */
@@ -85,12 +85,12 @@ export class SkillsService {
   }
 
   /** Returns one skill. */
-  get(id: string): Observable<Skill> {
+  getSkill(id: string): Observable<Skill> {
     return this.#http.get<SkillResponse>(`${this.#base}/${id}`).pipe(map(toSkill));
   }
 
   /** Creates a skill. */
-  create(request: CreateSkillRequest): Observable<Skill> {
+  createSkill(request: CreateSkillRequest): Observable<Skill> {
     return this.#http.post<SkillResponse>(this.#base, request).pipe(map(toSkill));
   }
 
@@ -106,7 +106,7 @@ export class SkillsService {
   }
 
   /** Updates a skill. */
-  update(id: string, request: UpdateSkillRequest): Observable<Skill> {
+  updateSkill(id: string, request: UpdateSkillRequest): Observable<Skill> {
     return this.#http.put<SkillResponse>(`${this.#base}/${id}`, request).pipe(map(toSkill));
   }
 
@@ -118,7 +118,7 @@ export class SkillsService {
   }
 
   /** Deletes a skill. */
-  delete(id: string): Observable<void> {
+  deleteSkill(id: string): Observable<void> {
     return this.#http.delete<void>(`${this.#base}/${id}`);
   }
 

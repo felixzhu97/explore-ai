@@ -23,7 +23,7 @@ public class PdfAndTextDocumentReader implements DocumentReader {
               .extractText(content)
               .orElseThrow(
                   () ->
-                      DomainException.unprocessable(
+                      DomainException.createUnprocessableError(
                           "DOCUMENT_UNREADABLE", "Could not extract text from " + fileName));
       return new ExtractedDocument(text, Map.of("fileName", fileName), fileName);
     }

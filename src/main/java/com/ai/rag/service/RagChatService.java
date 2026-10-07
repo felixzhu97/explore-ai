@@ -88,7 +88,7 @@ public class RagChatService {
    * Answers the question with context retrieved from the owner's documents and records the
    * invocation.
    */
-  public RagChatResult chat(
+  public RagChatResult chatWithDocuments(
       String question, List<String> documentIds, int topK, String sessionId, String ownerKey) {
     long startedAt = System.nanoTime();
     TextChatOptions options = TextChatOptions.withoutTools();
@@ -175,7 +175,7 @@ public class RagChatService {
       String ownerKey,
       String documentId,
       long startedAt) {
-    invocationRecorder.record(
+    invocationRecorder.recordInvocation(
         AiInvocationEvent.createSucceededEvent(
                 AiCapability.RAG,
                 "rag.chat",

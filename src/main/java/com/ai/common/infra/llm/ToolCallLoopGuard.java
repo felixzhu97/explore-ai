@@ -26,9 +26,10 @@ import org.springframework.ai.openai.OpenAiChatOptions;
  */
 final class ToolCallLoopGuard {
 
-  static final String AFTER_TOOLS_REMINDER = ClasspathPromptLoader.load("guards/after-tools.st");
+  static final String AFTER_TOOLS_REMINDER =
+      ClasspathPromptLoader.loadPrompt("guards/after-tools.st");
   static final String AFTER_BRIDGE_REMINDER =
-      ClasspathPromptLoader.load("guards/after-bridge-tool.st");
+      ClasspathPromptLoader.loadPrompt("guards/after-bridge-tool.st");
 
   /** Safety cap: datetime → searchWeb → done. */
   private static final int MAX_TOOL_ROUNDS = 2;

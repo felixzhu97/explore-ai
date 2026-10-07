@@ -78,7 +78,7 @@ public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallba
   public void clearTools() {
     serverCallbacks.clear();
     serverTools.clear();
-    sessionRegistry.clear();
+    sessionRegistry.clearSessions();
   }
 
   @Override

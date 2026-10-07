@@ -65,21 +65,23 @@ public class DocumentUploadService {
    * Ingests text content. Not transactional: the FAILED status must commit even when ingestion
    * rolls back.
    */
-  public UploadResult upload(String title, String fileName, String content, String ownerKey) {
-    return upload(title, fileName, content.getBytes(StandardCharsets.UTF_8), ownerKey);
+  public UploadResult uploadDocument(
+      String title, String fileName, String content, String ownerKey) {
+    return uploadDocument(title, fileName, content.getBytes(StandardCharsets.UTF_8), ownerKey);
   }
 
   /**
    * Ingests file bytes. Not transactional: the FAILED status must commit even when ingestion rolls
    * back.
    */
-  public UploadResult upload(String title, String fileName, byte[] fileContent, String ownerKey) {
+  public UploadResult uploadDocument(
+      String title, String fileName, byte[] fileContent, String ownerKey) {
     RagDocument document =
         RagDocument.startIngestion(title, fileName, fileContent.length, ownerKey);
     RagDocument processing = transactions.execute(status -> documentRepository.save(document));
 
     try {
-      return transactions.execute(status -> ingest(processing, fileContent));
+      return transactions.execute(status -> ingestDocument(processing, fileContent));
     } catch (RuntimeException e) {
       recordFailure(processing, e);
       throw e;
@@ -87,9 +89,9 @@ public class DocumentUploadService {
   }
 
   /** Ingests the uploaded file; the title falls back to its file name. */
-  public UploadResult upload(MultipartFile file, String title, String ownerKey) {
+  public UploadResult uploadDocument(MultipartFile file, String title, String ownerKey) {
     try {
-      return upload(title, file.getOriginalFilename(), file.getBytes(), ownerKey);
+      return uploadDocument(title, file.getOriginalFilename(), file.getBytes(), ownerKey);
     } catch (IOException e) {
       throw new UncheckedIOException("Failed to read file content", e);
     }
@@ -103,14 +105,14 @@ public class DocumentUploadService {
 
   /** Deletes the owner's document and all its chunks; throws if the document is not found. */
   @Transactional
-  public void delete(UUID documentId, String ownerKey) {
+  public void deleteDocument(UUID documentId, String ownerKey) {
     OwnerKey owner = OwnerKey.parseKey(ownerKey);
     RagDocument document =
         documentRepository
             .findByIdAndOwnerKey(DocumentId.createId(documentId), owner)
             .orElseThrow(
                 () ->
-                    DomainException.notFound(
+                    DomainException.createNotFoundError(
                         "DOCUMENT_NOT_FOUND", "Document not found: " + documentId));
     chunkRepository.deleteChunksByDocumentId(document.getId());
     documentRepository.deleteByIdAndOwnerKey(document.getId(), owner);
@@ -125,13 +127,14 @@ public class DocumentUploadService {
     }
   }
 
-  private UploadResult ingest(RagDocument document, byte[] fileContent) {
+  private UploadResult ingestDocument(RagDocument document, byte[] fileContent) {
     String fileName = document.getFileName();
     ExtractedDocument raw = reader.readDocument(fileContent, fileName);
     List<ExtractedDocument> chunkDocs =
         raw.getContent().isBlank() ? List.of() : transformer.splitDocument(raw);
     if (chunkDocs.isEmpty()) {
-      throw DomainException.unprocessable("DOCUMENT_UNREADABLE", "No text found in " + fileName);
+      throw DomainException.createUnprocessableError(
+          "DOCUMENT_UNREADABLE", "No text found in " + fileName);
     }
 
     List<DocumentChunk> chunks = new ArrayList<>();

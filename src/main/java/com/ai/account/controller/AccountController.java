@@ -34,7 +34,7 @@ public class AccountController {
     if (authentication instanceof JwtAuthenticationToken) {
       return ResponseEntity.ok(accountService.getCurrentAccount(null));
     }
-    String clientId = ClientIdentity.require(request);
+    String clientId = ClientIdentity.requireClientId(request);
     return ResponseEntity.ok(accountService.getCurrentAccount(clientId));
   }
 }

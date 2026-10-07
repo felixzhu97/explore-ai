@@ -63,9 +63,9 @@ public class VisionAnalysisService {
   public VisionHealthResponse getHealth() {
     VisionProvidersResponse providers =
         new VisionProvidersResponse(
-            HealthStatus.of(captioner.isAvailable()),
-            HealthStatus.of(detector.isAvailable()),
-            HealthStatus.of(ocrEngine.isAvailable()));
+            HealthStatus.createStatus(captioner.isAvailable()),
+            HealthStatus.createStatus(detector.isAvailable()),
+            HealthStatus.createStatus(ocrEngine.isAvailable()));
     boolean allUp = captioner.isAvailable() && detector.isAvailable() && ocrEngine.isAvailable();
     return new VisionHealthResponse(allUp ? HealthStatus.UP : HealthStatus.DEGRADED, providers);
   }
@@ -102,7 +102,7 @@ public class VisionAnalysisService {
   }
 
   /** Detects objects in the uploaded image, recording latency and the invocation outcome. */
-  public DetectResponse detect(MultipartFile file, OwnerKey owner) throws IOException {
+  public DetectResponse detectObjects(MultipartFile file, OwnerKey owner) throws IOException {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
@@ -176,7 +176,8 @@ public class VisionAnalysisService {
     try (var inputStream = file.getInputStream()) {
       BufferedImage image = ImageIO.read(inputStream);
       if (image == null) {
-        throw DomainException.invalid("INVALID_FILE", "Unsupported or corrupt image file");
+        throw DomainException.createInvalidError(
+            "INVALID_FILE", "Unsupported or corrupt image file");
       }
       return image;
     }

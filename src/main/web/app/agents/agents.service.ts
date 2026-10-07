@@ -75,14 +75,14 @@ export class AgentsService {
   }
 
   /** Creates a custom agent. */
-  create(request: CreateCustomAgentRequest): Observable<CustomAgent> {
+  createAgent(request: CreateCustomAgentRequest): Observable<CustomAgent> {
     return this.#http
       .post<CustomAgentResponse>(this.#customAgentsBase, request)
       .pipe(map(toCustomAgent));
   }
 
   /** Updates a custom agent. */
-  update(id: string, request: UpdateCustomAgentRequest): Observable<CustomAgent> {
+  updateAgent(id: string, request: UpdateCustomAgentRequest): Observable<CustomAgent> {
     return this.#http
       .put<CustomAgentResponse>(`${this.#customAgentsBase}/${id}`, request)
       .pipe(map(toCustomAgent));
@@ -96,7 +96,7 @@ export class AgentsService {
   }
 
   /** Deletes a custom agent. */
-  delete(id: string): Observable<void> {
+  deleteAgent(id: string): Observable<void> {
     return this.#http.delete<void>(`${this.#customAgentsBase}/${id}`);
   }
 }

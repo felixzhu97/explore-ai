@@ -18,7 +18,7 @@ public final class ClasspathPromptLoader {
   private ClasspathPromptLoader() {}
 
   /** Reads the stripped UTF-8 prompt text under {@code prompts/}, failing if it is missing. */
-  public static String load(String relativePath) {
+  public static String loadPrompt(String relativePath) {
     Objects.requireNonNull(relativePath, "relativePath");
     String path = relativePath.startsWith(ROOT) ? relativePath : ROOT + relativePath;
     ClassLoader cl = Thread.currentThread().getContextClassLoader();

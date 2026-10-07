@@ -130,7 +130,7 @@ class AudioControllerTest {
   void shouldReturn503WhenProviderIsNotConfigured() {
     when(audioService.synthesizeAudio(any(), any(), any()))
         .thenThrow(
-            DomainException.unavailable(
+            DomainException.createUnavailableError(
                 "TTS_PROVIDER_NOT_CONFIGURED",
                 "TTS provider not configured. Set OPENAI_API_KEY or TTS_API_KEY"));
 

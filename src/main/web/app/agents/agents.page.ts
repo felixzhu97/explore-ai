@@ -116,8 +116,8 @@ export class AgentsPageComponent implements OnInit {
     this.error.set(null);
     const id = this.editingId();
     const request$ = hasText(id)
-      ? this.#agentsApi.update(id, request)
-      : this.#agentsApi.create({ ...request, typeKey });
+      ? this.#agentsApi.updateAgent(id, request)
+      : this.#agentsApi.createAgent({ ...request, typeKey });
     request$.subscribe({
       next: () => {
         this.isSaving.set(false);
@@ -185,7 +185,7 @@ export class AgentsPageComponent implements OnInit {
     if (!globalThis.confirm(message)) {
       return;
     }
-    this.#agentsApi.delete(agent.id).subscribe({
+    this.#agentsApi.deleteAgent(agent.id).subscribe({
       next: () => this.reload(),
       error: () => this.error.set(this.i18n.t().agents.errors.deleteFailed),
     });

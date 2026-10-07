@@ -39,7 +39,7 @@ export class EvalPageComponent {
     this.error.set(null);
     this.result.set(null);
 
-    this.#evalService.evaluate({ userMessage, assistantResponse }).subscribe({
+    this.#evalService.evaluateChat({ userMessage, assistantResponse }).subscribe({
       next: (response) => {
         this.result.set(response);
         this.isLoading.set(false);

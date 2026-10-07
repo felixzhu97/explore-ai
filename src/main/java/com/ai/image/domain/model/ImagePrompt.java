@@ -12,11 +12,12 @@ public class ImagePrompt {
 
   public ImagePrompt(String value) {
     if (value == null || value.isBlank()) {
-      throw DomainException.invalid("INVALID_IMAGE_PROMPT", "Image prompt must not be blank");
+      throw DomainException.createInvalidError(
+          "INVALID_IMAGE_PROMPT", "Image prompt must not be blank");
     }
     value = value.trim();
     if (value.length() > MAX_LENGTH) {
-      throw DomainException.invalid(
+      throw DomainException.createInvalidError(
           "INVALID_IMAGE_PROMPT", "Image prompt exceeds maximum length of " + MAX_LENGTH);
     }
     this.value = value;

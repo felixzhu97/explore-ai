@@ -61,7 +61,7 @@ public class OnnxYoloDetector implements ObjectDetector {
   public List<Detection> detectObjects(BufferedImage image) {
     ensureAvailable();
     int inputSize = properties.getDetect().getInputSize();
-    float[] input = YoloImagePreprocessor.preprocess(image, inputSize);
+    float[] input = YoloImagePreprocessor.preprocessImage(image, inputSize);
     long[] inputShape = {1, 3, inputSize, inputSize};
 
     try (OnnxTensor inputTensor =
@@ -77,7 +77,7 @@ public class OnnxYoloDetector implements ObjectDetector {
         return parseDetections(predictions[0], image.getWidth(), image.getHeight(), inputSize);
       }
     } catch (OrtException ex) {
-      throw DomainException.unavailable(
+      throw DomainException.createUnavailableError(
           "VISION_PROVIDER_UNAVAILABLE", "Object detection failed: " + ex.getMessage());
     }
   }
@@ -105,7 +105,7 @@ public class OnnxYoloDetector implements ObjectDetector {
     int numPredictions = output[0].length;
     boolean channelsFirst = channels < numPredictions;
     if (!channelsFirst) {
-      throw DomainException.unavailable(
+      throw DomainException.createUnavailableError(
           "VISION_PROVIDER_UNAVAILABLE", "Unexpected YOLO output shape");
     }
 
@@ -145,25 +145,25 @@ public class OnnxYoloDetector implements ObjectDetector {
           new Detection(
               CocoClassNames.getLabel(bestClass),
               bestScore,
-              clamp(x, sourceWidth),
-              clamp(y, sourceHeight),
-              clamp(width, sourceWidth),
-              clamp(height, sourceHeight)));
+              clampCoordinate(x, sourceWidth),
+              clampCoordinate(y, sourceHeight),
+              clampCoordinate(width, sourceWidth),
+              clampCoordinate(height, sourceHeight)));
     }
 
-    return YoloNonMaxSuppression.apply(candidates, nmsThreshold);
+    return YoloNonMaxSuppression.applySuppression(candidates, nmsThreshold);
   }
 
   private void ensureAvailable() {
     if (!available) {
-      throw DomainException.unavailable(
+      throw DomainException.createUnavailableError(
           "VISION_PROVIDER_UNAVAILABLE",
           "YOLOv8 detector is not available. Provide ONNX model at "
               + properties.getDetect().getOnnxPath());
     }
   }
 
-  private float clamp(float value, int max) {
+  private float clampCoordinate(float value, int max) {
     return Math.max(0f, Math.min(value, max));
   }
 }

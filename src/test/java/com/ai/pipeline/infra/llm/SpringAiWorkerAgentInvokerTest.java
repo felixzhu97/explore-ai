@@ -61,7 +61,7 @@ class SpringAiWorkerAgentInvokerTest {
   void shouldBindTheWeatherToolWhenTheWeatherAgentRuns() {
     givenModelReplies("ok");
 
-    invoker.invoke(agent("weather", "weather"), "Beijing weather");
+    invoker.invokeAgent(agent("weather", "weather"), "Beijing weather");
 
     verify(requestSpec).tools(weatherTool);
   }
@@ -71,7 +71,7 @@ class SpringAiWorkerAgentInvokerTest {
   void shouldBindWebSearchAndDatetimeToolsWhenTheResearchAgentRuns() {
     givenModelReplies("ok");
 
-    invoker.invoke(agent("research", "web", "datetime"), "latest Spring AI release");
+    invoker.invokeAgent(agent("research", "web", "datetime"), "latest Spring AI release");
 
     verify(requestSpec).tools(webSearchTool, dateTimeTool);
   }
@@ -81,7 +81,7 @@ class SpringAiWorkerAgentInvokerTest {
   void shouldBindTheDocumentSearchToolWhenTheVectordbAgentRuns() {
     givenModelReplies("ok");
 
-    invoker.invoke(agent("vectordb", "document"), "find onboarding docs");
+    invoker.invokeAgent(agent("vectordb", "document"), "find onboarding docs");
 
     verify(requestSpec).tools(documentSearchTool);
   }
@@ -91,7 +91,7 @@ class SpringAiWorkerAgentInvokerTest {
   void shouldBindNoToolsWhenTheAgentDeclaresNone() {
     givenModelReplies("ok");
 
-    invoker.invoke(agent("analyst"), "summarize findings");
+    invoker.invokeAgent(agent("analyst"), "summarize findings");
 
     verify(requestSpec, never()).tools(any(Object[].class));
   }

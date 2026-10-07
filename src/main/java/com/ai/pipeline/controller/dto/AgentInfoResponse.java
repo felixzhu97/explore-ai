@@ -13,14 +13,14 @@ public record AgentInfoResponse(
     List<String> toolKeys,
     String systemPrompt) {
   /** Builds a response from an agent definition, flagging whether it is the supervisor. */
-  public static AgentInfoResponse from(AgentDefinition definition) {
+  public static AgentInfoResponse createResponse(AgentDefinition definition) {
     return new AgentInfoResponse(
         definition.getType().getValue(),
         definition.getName(),
         definition.getDescription(),
         definition.isHealthy(),
         definition.getType().isSupervisor(),
-        AgentRuntime.from(definition.getRuntime()),
+        AgentRuntime.createResponse(definition.getRuntime()),
         definition.getToolKeys(),
         definition.getSystemPrompt());
   }

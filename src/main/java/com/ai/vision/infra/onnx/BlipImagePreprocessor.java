@@ -14,8 +14,8 @@ final class BlipImagePreprocessor {
   private BlipImagePreprocessor() {}
 
   /** Turns the image into a BLIP input tensor. */
-  static float[] preprocess(BufferedImage image) {
-    BufferedImage resized = resize(image, IMAGE_SIZE, IMAGE_SIZE);
+  static float[] preprocessImage(BufferedImage image) {
+    BufferedImage resized = resizeImage(image, IMAGE_SIZE, IMAGE_SIZE);
     float[] tensor = new float[3 * IMAGE_SIZE * IMAGE_SIZE];
     int planeSize = IMAGE_SIZE * IMAGE_SIZE;
 
@@ -34,7 +34,7 @@ final class BlipImagePreprocessor {
     return tensor;
   }
 
-  private static BufferedImage resize(BufferedImage source, int width, int height) {
+  private static BufferedImage resizeImage(BufferedImage source, int width, int height) {
     Image scaled = source.getScaledInstance(width, height, Image.SCALE_SMOOTH);
     BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_3BYTE_BGR);
     Graphics2D graphics = resized.createGraphics();

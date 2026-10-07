@@ -86,14 +86,14 @@ public class SpringAiOrchestratorWorkersWorkflow implements OrchestratorWorkersW
   }
 
   @Override
-  public OrchestratorWorkersResult process(String task) {
+  public OrchestratorWorkersResult processTask(String task) {
     if (task == null || task.isBlank()) {
       throw new IllegalArgumentException("task must not be empty");
     }
 
     OrchestratorPlan plan =
         chatClientProvider
-            .createBareStateless(TextChatOptions.defaults())
+            .createBareStateless(TextChatOptions.createDefaultOptions())
             .prompt()
             .user(orchestratorPrompt.replace("{task}", task))
             .call()
@@ -117,7 +117,7 @@ public class SpringAiOrchestratorWorkersWorkflow implements OrchestratorWorkersW
     String joined = String.join("\n---\n", workerResponses);
     String synthesis =
         chatClientProvider
-            .createBareStateless(TextChatOptions.defaults())
+            .createBareStateless(TextChatOptions.createDefaultOptions())
             .prompt()
             .user(synthesizerPrompt.replace("{task}", task).replace("{worker_results}", joined))
             .call()
@@ -130,7 +130,7 @@ public class SpringAiOrchestratorWorkersWorkflow implements OrchestratorWorkersW
   private String invokeWorker(String originalTask, PlannedTask workerTask) {
     String content =
         chatClientProvider
-            .createBareStateless(TextChatOptions.defaults())
+            .createBareStateless(TextChatOptions.createDefaultOptions())
             .prompt()
             .user(
                 workerPrompt

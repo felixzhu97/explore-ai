@@ -105,7 +105,7 @@ class ChatServiceTest {
     when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(List.of());
     ArgumentCaptor<ChatSession> saved = ArgumentCaptor.forClass(ChatSession.class);
 
-    catchThrowable(() -> useCase.chatWithSession("Hello", CLIENT_A));
+    catchThrowable(() -> useCase.sendMessage("Hello", CLIENT_A));
 
     verify(repository, atLeastOnce()).save(saved.capture());
     assertThat(saved.getAllValues().getFirst().getTitle())
@@ -155,8 +155,8 @@ class ChatServiceTest {
         useCase.findSessionHistoryWithSources("22222222-2222-2222-2222-222222222222", CLIENT_A);
 
     assertThat(history.messages()).hasSize(2);
-    assertThat(history.sourcesFor(reply)).isEqualTo(cited);
-    assertThat(history.sourcesFor(history.messages().getFirst())).isEmpty();
+    assertThat(history.findSources(reply)).isEqualTo(cited);
+    assertThat(history.findSources(history.messages().getFirst())).isEmpty();
   }
 
   @Test

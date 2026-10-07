@@ -167,7 +167,7 @@ import { textOr } from '../shared/presence';
               (click)="onLogout()"
             >
               <span class="opacity-60" [innerHTML]="logoutIcon"></span>
-              <span class="min-w-0 flex-1 truncate text-left">{{ t().account.logout }}</span>
+              <span class="min-w-0 flex-1 truncate text-left">{{ t().account.logoutAccount }}</span>
             </button>
           }
         </div>
@@ -304,7 +304,7 @@ export class SidebarUserMenuComponent {
   onItemClick(): void {
     this.#closeSubmenus();
     this.isMenuOpen.set(false);
-    this.#sidebar.close();
+    this.#sidebar.closeSidebar();
   }
 
   /** Pins or unpins the language submenu. */

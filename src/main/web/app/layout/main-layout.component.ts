@@ -44,6 +44,6 @@ export class MainLayoutComponent implements OnInit {
 
   /** Opens the sidebar. */
   openSidebar(): void {
-    this.sidebar.open();
+    this.sidebar.openSidebar();
   }
 }

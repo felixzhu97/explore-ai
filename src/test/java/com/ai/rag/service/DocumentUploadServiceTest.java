@@ -91,7 +91,7 @@ class DocumentUploadServiceTest {
     doNothing().when(writer).writeChunks(any());
 
     DocumentUploadService.UploadResult result =
-        service.upload(title, fileName, content, "c:test-owner");
+        service.uploadDocument(title, fileName, content, "c:test-owner");
 
     assertThat(result.title()).isEqualTo(title);
     assertThat(result.status()).isEqualTo(DocumentStatus.READY);
@@ -112,7 +112,7 @@ class DocumentUploadServiceTest {
         .thenReturn(List.of(new ExtractedDocument("chunk", Map.of(), "test")));
     doNothing().when(writer).writeChunks(any());
 
-    service.upload("Title", "file.txt", content, "c:test-owner");
+    service.uploadDocument("Title", "file.txt", content, "c:test-owner");
 
     verify(documentRepository, times(2)).save(any(RagDocument.class));
   }
@@ -138,7 +138,7 @@ class DocumentUploadServiceTest {
       doNothing().when(writer).writeChunks(any());
 
       DocumentUploadService.UploadResult result =
-          service.upload(title, fileName, content, "c:test-owner");
+          service.uploadDocument(title, fileName, content, "c:test-owner");
 
       assertThat(result.status()).isEqualTo(DocumentStatus.READY);
     }
@@ -153,10 +153,10 @@ class DocumentUploadServiceTest {
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.readDocument(eq(pdfContent), eq(fileName)))
           .thenThrow(
-              DomainException.unprocessable(
+              DomainException.createUnprocessableError(
                   "DOCUMENT_UNREADABLE", "Could not extract text from document.pdf"));
 
-      assertThatThrownBy(() -> service.upload("PDF", fileName, pdfContent, "c:test-owner"))
+      assertThatThrownBy(() -> service.uploadDocument("PDF", fileName, pdfContent, "c:test-owner"))
           .isInstanceOf(DomainException.class)
           .hasFieldOrPropertyWithValue("code", "DOCUMENT_UNREADABLE")
           .hasMessage("Could not extract text from document.pdf");
@@ -172,7 +172,7 @@ class DocumentUploadServiceTest {
       when(reader.readDocument(any(byte[].class), eq("blank.txt")))
           .thenReturn(new ExtractedDocument(" \n", Map.of(), "blank.txt"));
 
-      assertThatThrownBy(() -> service.upload("Blank", "blank.txt", " \n", "c:test-owner"))
+      assertThatThrownBy(() -> service.uploadDocument("Blank", "blank.txt", " \n", "c:test-owner"))
           .isInstanceOf(DomainException.class)
           .hasFieldOrPropertyWithValue("code", "DOCUMENT_UNREADABLE")
           .hasMessage("No text found in blank.txt");
@@ -183,7 +183,8 @@ class DocumentUploadServiceTest {
     @Test
     @DisplayName("should reject an empty file before storing anything")
     void shouldRejectAnEmptyFileBeforeStoringAnything() {
-      assertThatThrownBy(() -> service.upload("Empty", "empty.txt", new byte[0], "c:test-owner"))
+      assertThatThrownBy(
+              () -> service.uploadDocument("Empty", "empty.txt", new byte[0], "c:test-owner"))
           .isInstanceOf(IllegalArgumentException.class)
           .hasMessage("Uploaded file is empty");
 
@@ -217,7 +218,7 @@ class DocumentUploadServiceTest {
       doNothing().when(writer).writeChunks(any());
 
       DocumentUploadService.UploadResult result =
-          service.upload(multipartFile, customTitle, "c:test-owner");
+          service.uploadDocument(multipartFile, customTitle, "c:test-owner");
 
       assertThat(result.title()).isEqualTo(customTitle);
     }
@@ -243,7 +244,7 @@ class DocumentUploadServiceTest {
       doNothing().when(writer).writeChunks(any());
 
       DocumentUploadService.UploadResult result =
-          service.upload(multipartFile, null, "c:test-owner");
+          service.uploadDocument(multipartFile, null, "c:test-owner");
 
       assertThat(result.title()).isEqualTo(originalFileName);
     }
@@ -254,7 +255,7 @@ class DocumentUploadServiceTest {
       when(multipartFile.getOriginalFilename()).thenReturn("test.txt");
       when(multipartFile.getBytes()).thenThrow(new IOException("File read error"));
 
-      assertThatThrownBy(() -> service.upload(multipartFile, "Title", "c:test-owner"))
+      assertThatThrownBy(() -> service.uploadDocument(multipartFile, "Title", "c:test-owner"))
           .isInstanceOf(RuntimeException.class)
           .hasMessageContaining("Failed to read file content");
     }
@@ -275,7 +276,7 @@ class DocumentUploadServiceTest {
       when(transformer.splitDocument(any(ExtractedDocument.class)))
           .thenThrow(new RuntimeException("Transformation failed"));
 
-      assertThatThrownBy(() -> service.upload("Title", "file.txt", content, "c:test-owner"))
+      assertThatThrownBy(() -> service.uploadDocument("Title", "file.txt", content, "c:test-owner"))
           .hasMessage("Transformation failed");
 
       verify(documentRepository, times(2)).save(any(RagDocument.class));
@@ -293,7 +294,7 @@ class DocumentUploadServiceTest {
           .thenReturn(List.of(new ExtractedDocument("chunk", Map.of(), "test")));
       doThrow(new RuntimeException("Embedding failed")).when(writer).writeChunks(any());
 
-      assertThatThrownBy(() -> service.upload("Title", "file.txt", content, "c:test-owner"))
+      assertThatThrownBy(() -> service.uploadDocument("Title", "file.txt", content, "c:test-owner"))
           .isInstanceOf(RuntimeException.class)
           .hasMessageContaining("Embedding failed");
 
@@ -315,7 +316,7 @@ class DocumentUploadServiceTest {
       when(transformer.splitDocument(any(ExtractedDocument.class)))
           .thenThrow(new RuntimeException("Transformation failed"));
 
-      assertThatThrownBy(() -> service.upload("Title", "file.txt", content, "c:test-owner"))
+      assertThatThrownBy(() -> service.uploadDocument("Title", "file.txt", content, "c:test-owner"))
           .hasMessage("Transformation failed")
           .hasSuppressedException(saveFailure);
     }
@@ -330,7 +331,7 @@ class DocumentUploadServiceTest {
       when(transformer.splitDocument(any(ExtractedDocument.class)))
           .thenReturn(List.of(new ExtractedDocument("chunk", Map.of("page", 1), "test")));
 
-      service.upload("Title", "file.txt", "text", "c:test-owner");
+      service.uploadDocument("Title", "file.txt", "text", "c:test-owner");
 
       @SuppressWarnings("unchecked")
       ArgumentCaptor<List<DocumentChunk>> written = ArgumentCaptor.forClass(List.class);
@@ -358,7 +359,7 @@ class DocumentUploadServiceTest {
       when(documentRepository.findByIdAndOwnerKey(DocumentId.createId(documentId), TEST_OWNER))
           .thenReturn(Optional.of(document));
 
-      service.delete(documentId, "c:test-owner");
+      service.deleteDocument(documentId, "c:test-owner");
 
       verify(chunkRepository).deleteChunksByDocumentId(docId);
       verify(documentRepository).deleteByIdAndOwnerKey(docId, TEST_OWNER);
@@ -371,7 +372,7 @@ class DocumentUploadServiceTest {
       when(documentRepository.findByIdAndOwnerKey(DocumentId.createId(documentId), TEST_OWNER))
           .thenReturn(Optional.empty());
 
-      assertThatThrownBy(() -> service.delete(documentId, "c:test-owner"))
+      assertThatThrownBy(() -> service.deleteDocument(documentId, "c:test-owner"))
           .isInstanceOf(DomainException.class)
           .hasFieldOrPropertyWithValue("code", "DOCUMENT_NOT_FOUND");
     }
@@ -386,7 +387,7 @@ class DocumentUploadServiceTest {
       when(documentRepository.findByIdAndOwnerKey(DocumentId.createId(documentId), TEST_OWNER))
           .thenReturn(Optional.of(document));
 
-      service.delete(documentId, "c:test-owner");
+      service.deleteDocument(documentId, "c:test-owner");
 
       verify(chunkRepository).deleteChunksByDocumentId(docId);
       verify(documentRepository).deleteByIdAndOwnerKey(docId, TEST_OWNER);

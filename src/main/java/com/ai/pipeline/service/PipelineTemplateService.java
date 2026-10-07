@@ -35,7 +35,7 @@ public class PipelineTemplateService {
         PipelineTemplateCatalog.findById(templateId, language)
             .orElseThrow(
                 () -> new IllegalArgumentException("Unknown pipeline template: " + templateId));
-    return create(
+    return createTemplate(
         ownerKey,
         findNextAvailableName(ownerKey, template.name()),
         template.description(),
@@ -46,7 +46,7 @@ public class PipelineTemplateService {
   }
 
   /** Saves a new Pipeline Template for the owner. */
-  public PipelineTemplate create(
+  public PipelineTemplate createTemplate(
       String ownerKey,
       String name,
       String description,
@@ -62,7 +62,7 @@ public class PipelineTemplateService {
   }
 
   /** Replaces the owner's Pipeline Template content. */
-  public PipelineTemplate update(
+  public PipelineTemplate updateTemplate(
       String ownerKey,
       String id,
       String name,
@@ -84,13 +84,13 @@ public class PipelineTemplateService {
   }
 
   /** Deletes the owner's saved pipeline. */
-  public void delete(String ownerKey, String id) {
+  public void deleteTemplate(String ownerKey, String id) {
     findOwned(ownerKey, id);
     repository.deleteByIdAndOwnerKey(PipelineTemplateId.parseId(id), OwnerKey.parseKey(ownerKey));
   }
 
   /** Returns the owner's saved pipeline. */
-  public PipelineTemplate get(String ownerKey, String id) {
+  public PipelineTemplate getTemplate(String ownerKey, String id) {
     return findOwned(ownerKey, id);
   }
 
@@ -99,7 +99,7 @@ public class PipelineTemplateService {
         .findByIdAndOwnerKey(PipelineTemplateId.parseId(id), OwnerKey.parseKey(ownerKey))
         .orElseThrow(
             () ->
-                DomainException.notFound(
+                DomainException.createNotFoundError(
                     "PIPELINE_TEMPLATE_NOT_FOUND", "Pipeline template not found: " + id));
   }
 
@@ -107,7 +107,7 @@ public class PipelineTemplateService {
     String normalized = DomainStrings.normalizeName(name);
     if (repository.existsByOwnerKeyAndNameIgnoringId(
         OwnerKey.parseKey(ownerKey), normalized, excludeId)) {
-      throw DomainException.conflict(
+      throw DomainException.createConflictError(
           "PIPELINE_TEMPLATE_NAME_CONFLICT",
           "Pipeline template name already exists: " + normalized);
     }

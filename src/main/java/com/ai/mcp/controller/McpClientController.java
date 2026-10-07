@@ -56,12 +56,14 @@ public class McpClientController {
   @Operation(summary = "List connected MCP servers")
   public ResponseEntity<List<McpServerResponse>> listServers() {
     return ResponseEntity.ok(
-        mcpService.getConnectedServers().values().stream().map(McpServerResponse::from).toList());
+        mcpService.getConnectedServers().values().stream()
+            .map(McpServerResponse::createResponse)
+            .toList());
   }
 
   @PostMapping("/chat")
   @Operation(summary = "Chat with AI using MCP tools")
-  public McpChatResponse chat(@Valid @RequestBody McpChatRequest request) {
+  public McpChatResponse chatWithTools(@Valid @RequestBody McpChatRequest request) {
     return new McpChatResponse(mcpService.chatWithTools(request.question()));
   }
 }

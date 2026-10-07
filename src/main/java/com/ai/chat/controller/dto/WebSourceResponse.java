@@ -10,7 +10,7 @@ import com.ai.chat.domain.model.WebSource;
 public record WebSourceResponse(String title, String url, String snippet, String publishedAt) {
 
   /** Maps a web source to a response. */
-  public static WebSourceResponse from(WebSource source) {
+  public static WebSourceResponse createResponse(WebSource source) {
     String publishedAt = source.getPublishedAt().isBlank() ? null : source.getPublishedAt();
     return new WebSourceResponse(
         source.getTitle(), source.getUrl(), source.getSnippet(), publishedAt);

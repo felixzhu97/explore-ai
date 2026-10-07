@@ -18,16 +18,16 @@ class ToolEventChannelTest {
 
   @AfterEach
   void tearDown() {
-    ToolEventChannel.close("a");
-    ToolEventChannel.close("b");
+    ToolEventChannel.closeChannel("a");
+    ToolEventChannel.closeChannel("b");
     ToolEventChannel.clearCurrentSessionId();
   }
 
   @Test
   void shouldNotCrossPublishBetweenChannels() throws Exception {
-    var sinkA = ToolEventChannel.open("a");
+    var sinkA = ToolEventChannel.openChannel("a");
     ToolEventChannel.clearCurrentSessionId();
-    var sinkB = ToolEventChannel.open("b");
+    var sinkB = ToolEventChannel.openChannel("b");
     ToolEventChannel.clearCurrentSessionId();
 
     List<String> eventsA = new ArrayList<>();
@@ -44,7 +44,7 @@ class ToolEventChannelTest {
             await(started);
             ToolEventChannel.setCurrentSessionId("a");
             try {
-              ToolEventChannel.publish("{\"id\":\"a\"}");
+              ToolEventChannel.publishEvent("{\"id\":\"a\"}");
             } finally {
               ToolEventChannel.clearCurrentSessionId();
               done.countDown();
@@ -56,7 +56,7 @@ class ToolEventChannelTest {
             await(started);
             ToolEventChannel.setCurrentSessionId("b");
             try {
-              ToolEventChannel.publish("{\"id\":\"b\"}");
+              ToolEventChannel.publishEvent("{\"id\":\"b\"}");
             } finally {
               ToolEventChannel.clearCurrentSessionId();
               done.countDown();
@@ -71,29 +71,29 @@ class ToolEventChannelTest {
 
   @Test
   void shouldCompleteFluxWhenChannelClosed() {
-    var sink = ToolEventChannel.open("a");
+    var sink = ToolEventChannel.openChannel("a");
     ToolEventChannel.clearCurrentSessionId();
     final Flux<String> flux = ToolEventChannel.asFlux(sink);
 
     ToolEventChannel.setCurrentSessionId("a");
-    ToolEventChannel.publish("{\"type\":\"tool_call\"}");
+    ToolEventChannel.publishEvent("{\"type\":\"tool_call\"}");
     ToolEventChannel.clearCurrentSessionId();
-    ToolEventChannel.close("a");
+    ToolEventChannel.closeChannel("a");
 
     StepVerifier.create(flux).expectNext("{\"type\":\"tool_call\"}").verifyComplete();
   }
 
   @Test
   void shouldIgnorePublishWithoutCurrentSession() {
-    var sink = ToolEventChannel.open("a");
+    var sink = ToolEventChannel.openChannel("a");
     ToolEventChannel.clearCurrentSessionId();
     List<String> events = new ArrayList<>();
     sink.asFlux().subscribe(events::add);
 
-    ToolEventChannel.publish("{\"leaked\":true}");
+    ToolEventChannel.publishEvent("{\"leaked\":true}");
 
     assertThat(events).isEmpty();
-    ToolEventChannel.close("a");
+    ToolEventChannel.closeChannel("a");
   }
 
   private static void await(CountDownLatch latch) {

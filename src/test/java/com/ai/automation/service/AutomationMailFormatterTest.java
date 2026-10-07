@@ -23,7 +23,7 @@ class AutomationMailFormatterTest {
                 """;
 
     AutomationMailFormatter.FormattedMail mail =
-        formatter.format("Databricks简报", "Focus on GTM", markdown);
+        formatter.formatMail("Databricks简报", "Focus on GTM", markdown);
 
     assertThat(mail.htmlBody()).contains("<h2");
     assertThat(mail.htmlBody()).contains("Thesis");
@@ -44,7 +44,8 @@ class AutomationMailFormatterTest {
                 - Signal A
                 """;
 
-    AutomationMailFormatter.FormattedMail mail = formatter.format("Daily", "Do research", markdown);
+    AutomationMailFormatter.FormattedMail mail =
+        formatter.formatMail("Daily", "Do research", markdown);
 
     assertThat(mail.textBody()).contains("Automation: Daily");
     assertThat(mail.textBody()).contains("Task:");
@@ -58,7 +59,8 @@ class AutomationMailFormatterTest {
 
   @Test
   void shouldEscapeScheduleNameInHtmlShellWhenNameHasSpecialChars() {
-    AutomationMailFormatter.FormattedMail mail = formatter.format("A <B> & \"C\"", "brief", "ok");
+    AutomationMailFormatter.FormattedMail mail =
+        formatter.formatMail("A <B> & \"C\"", "brief", "ok");
 
     assertThat(mail.htmlBody()).contains("A &lt;B&gt; &amp; &quot;C&quot;");
     assertThat(mail.htmlBody()).doesNotContain("A <B>");

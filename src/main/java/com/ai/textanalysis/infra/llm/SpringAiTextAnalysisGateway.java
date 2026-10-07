@@ -40,7 +40,7 @@ public class SpringAiTextAnalysisGateway implements TextAnalysisGateway {
 
   private static TextAnalysis toDomain(StructuredAnalysisEntity entity) {
     if (entity == null) {
-      throw DomainException.unavailable(
+      throw DomainException.createUnavailableError(
           "AI_SERVICE_ERROR", "AI returned empty structured analysis response");
     }
     return TextAnalysis.createAnalysis(

@@ -23,6 +23,6 @@ export class MarkdownContentComponent {
   readonly isStreaming = input(false);
 
   readonly html = computed(() => {
-    return this.#markdown.render(this.content(), this.isStreaming());
+    return this.#markdown.renderMarkdown(this.content(), this.isStreaming());
   });
 }

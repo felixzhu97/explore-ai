@@ -51,7 +51,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return response for valid message")
     void shouldReturnResponseForValidMessage() {
-      when(chatService.chatWithSession("Hello", ownerKey())).thenReturn("Hi there!");
+      when(chatService.sendMessage("Hello", ownerKey())).thenReturn("Hi there!");
 
       assertThat(
               mvc.post()
@@ -64,7 +64,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
           .extractingPath("$.response")
           .asString()
           .isEqualTo("Hi there!");
-      verify(chatService).chatWithSession("Hello", ownerKey());
+      verify(chatService).sendMessage("Hello", ownerKey());
     }
 
     @Test
@@ -81,7 +81,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should use session when sessionId provided")
     void shouldUseSessionWhenSessionIdProvided() {
-      when(chatService.chatWithSession("22222222-2222-2222-2222-222222222222", "Hello", ownerKey()))
+      when(chatService.sendMessage("22222222-2222-2222-2222-222222222222", "Hello", ownerKey()))
           .thenReturn("Response with context");
 
       String sessionId = "22222222-2222-2222-2222-222222222222";
@@ -95,16 +95,14 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
           .extractingPath("$.response")
           .asString()
           .isEqualTo("Response with context");
-      verify(chatService)
-          .chatWithSession("22222222-2222-2222-2222-222222222222", "Hello", ownerKey());
+      verify(chatService).sendMessage("22222222-2222-2222-2222-222222222222", "Hello", ownerKey());
     }
 
     @Test
     @DisplayName("should handle long message without error")
     void shouldHandleLongMessageWithoutError() {
       String longMessage = "A".repeat(100);
-      when(chatService.chatWithSession(longMessage, ownerKey()))
-          .thenReturn("Response to long message");
+      when(chatService.sendMessage(longMessage, ownerKey())).thenReturn("Response to long message");
 
       assertThat(
               mvc.post()
@@ -287,7 +285,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should return 404 when session not found")
     void shouldReturn404WhenSessionNotFound() {
       when(chatService.findSessionHistoryWithSources("missing", ownerKey()))
-          .thenThrow(DomainException.notFound("SESSION_NOT_FOUND", "Session not found"));
+          .thenThrow(DomainException.createNotFoundError("SESSION_NOT_FOUND", "Session not found"));
 
       assertThat(mvc.get().uri("/api/chat/sessions/missing/messages"))
           .hasStatus(HttpStatus.NOT_FOUND);

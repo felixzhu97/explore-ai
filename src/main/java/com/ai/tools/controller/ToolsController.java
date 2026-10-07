@@ -57,6 +57,7 @@ public class ToolsController {
   public ToolChatResponse chatWithTools(
       @Valid @RequestBody ToolChatRequest request, HttpServletRequest httpRequest) {
     return new ToolChatResponse(
-        toolService.chatWithTools(request.question(), ownerContext.require(httpRequest)), null);
+        toolService.chatWithTools(request.question(), ownerContext.requireOwner(httpRequest)),
+        null);
   }
 }

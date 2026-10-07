@@ -15,7 +15,7 @@ public record CustomAgentResponse(
     Instant createdAt,
     Instant updatedAt) {
   /** Builds a response from a saved library agent definition. */
-  public static CustomAgentResponse from(CustomAgent agent) {
+  public static CustomAgentResponse createResponse(CustomAgent agent) {
     return new CustomAgentResponse(
         agent.getId().toString(),
         agent.getTypeKey(),

@@ -20,7 +20,7 @@ class BlipImagePreprocessorTest {
       }
     }
 
-    float[] tensor = BlipImagePreprocessor.preprocess(image);
+    float[] tensor = BlipImagePreprocessor.preprocessImage(image);
 
     assertThat(tensor).hasSize(3 * 384 * 384);
     assertThat(tensor[0]).isNotEqualTo(0f);

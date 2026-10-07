@@ -21,7 +21,7 @@ final class BlipVocabulary {
   private BlipVocabulary() {}
 
   /** Loads the vocabulary from the tokenizer folder. */
-  static BlipVocabulary load(Path tokenizerDir) throws IOException {
+  static BlipVocabulary loadVocabulary(Path tokenizerDir) throws IOException {
     Path vocabFile = tokenizerDir.resolve("vocab.txt");
     if (!Files.exists(vocabFile)) {
       throw new IOException("vocab.txt not found in " + tokenizerDir);
@@ -41,7 +41,7 @@ final class BlipVocabulary {
   }
 
   /** Turns token ids back into text. */
-  String decode(List<Long> tokenIds) {
+  String decodeTokens(List<Long> tokenIds) {
     StringBuilder builder = new StringBuilder();
     for (Long tokenId : tokenIds) {
       if (tokenId == CLS_TOKEN_ID || tokenId == SEP_TOKEN_ID || tokenId == 0) {

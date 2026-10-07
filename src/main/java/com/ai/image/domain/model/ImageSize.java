@@ -12,11 +12,12 @@ public class ImageSize {
   /** Creates a size, rejecting non-positive or catalog-unsupported dimensions. */
   public static ImageSize createSize(int width, int height) {
     if (width <= 0 || height <= 0) {
-      throw DomainException.invalid("INVALID_IMAGE_PROMPT", "Image dimensions must be positive");
+      throw DomainException.createInvalidError(
+          "INVALID_IMAGE_PROMPT", "Image dimensions must be positive");
     }
     ImageSize size = new ImageSize(width, height);
     if (!size.isSupported()) {
-      throw DomainException.invalid(
+      throw DomainException.createInvalidError(
           "INVALID_IMAGE_PROMPT", "Unsupported image size: " + width + "x" + height);
     }
     return size;

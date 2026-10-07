@@ -132,7 +132,7 @@ class McpServerToolsProviderTest {
   void shouldReturnAiResponse() {
     String message = "Hello AI";
     String expectedResponse = "Hello! How can I help you?";
-    when(chatService.chat(message)).thenReturn(expectedResponse);
+    when(chatService.sendMessage(message)).thenReturn(expectedResponse);
 
     String result = toolsProvider.aiChat(message);
 
@@ -144,7 +144,7 @@ class McpServerToolsProviderTest {
   void shouldTruncateLongMessageForLogging() {
     String longMessage = "A".repeat(100);
     String expectedResponse = "Response";
-    when(chatService.chat(longMessage)).thenReturn(expectedResponse);
+    when(chatService.sendMessage(longMessage)).thenReturn(expectedResponse);
 
     String result = toolsProvider.aiChat(longMessage);
 

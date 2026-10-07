@@ -84,12 +84,12 @@ public class SpringAiEvaluatorOptimizerWorkflow implements EvaluatorOptimizerWor
     String context = "";
 
     for (int i = 0; i < maxIterations; i++) {
-      GenerationEntity generation = generate(task, context);
+      GenerationEntity generation = generateSolution(task, context);
       GenerationStep step = new GenerationStep(generation.thoughts(), generation.response());
       chainOfThought.add(step);
       memory.add(generation.response());
 
-      EvaluationEntity evaluation = evaluate(generation.response(), task);
+      EvaluationEntity evaluation = evaluateSolution(generation.response(), task);
       if (evaluation.evaluation() == EvaluationStatus.PASS) {
         return new EvaluatorOptimizerResult(generation.response(), chainOfThought);
       }
@@ -106,11 +106,11 @@ public class SpringAiEvaluatorOptimizerWorkflow implements EvaluatorOptimizerWor
     return new EvaluatorOptimizerResult(last.getResponse(), chainOfThought);
   }
 
-  private GenerationEntity generate(String task, String context) {
+  private GenerationEntity generateSolution(String task, String context) {
     String userMessage = "%s\n%s\nTask: %s".formatted(generatorPrompt, context, task);
     GenerationEntity entity =
         chatClientProvider
-            .createBareStateless(TextChatOptions.defaults())
+            .createBareStateless(TextChatOptions.createDefaultOptions())
             .prompt()
             .user(userMessage)
             .call()
@@ -121,12 +121,12 @@ public class SpringAiEvaluatorOptimizerWorkflow implements EvaluatorOptimizerWor
     return entity;
   }
 
-  private EvaluationEntity evaluate(String content, String task) {
+  private EvaluationEntity evaluateSolution(String content, String task) {
     String userMessage =
         "%s\nOriginal task: %s\nContent to evaluate: %s".formatted(evaluatorPrompt, task, content);
     EvaluationEntity entity =
         chatClientProvider
-            .createBareStateless(TextChatOptions.defaults())
+            .createBareStateless(TextChatOptions.createDefaultOptions())
             .prompt()
             .user(userMessage)
             .call()

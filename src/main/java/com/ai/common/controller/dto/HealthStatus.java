@@ -7,7 +7,7 @@ public enum HealthStatus {
   DEGRADED;
 
   /** Maps a health flag to a status. */
-  public static HealthStatus of(boolean healthy) {
+  public static HealthStatus createStatus(boolean healthy) {
     return healthy ? UP : DOWN;
   }
 }

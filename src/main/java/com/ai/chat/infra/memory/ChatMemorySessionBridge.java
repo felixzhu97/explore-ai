@@ -61,7 +61,7 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
     MessageRole type = toRole(message.getMessageType());
     String text = message.getText() == null ? "" : message.getText();
     if (type == MessageRole.ASSISTANT && ToolCallMarkupFilter.looksLikeToolMarkup(text)) {
-      text = ToolCallMarkupFilter.sanitize(text);
+      text = ToolCallMarkupFilter.stripToolMarkup(text);
     }
     return ChatMessage.restoreMessage(MessageId.generateId(), text, type, Instant.now());
   }

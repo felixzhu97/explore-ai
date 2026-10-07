@@ -49,7 +49,7 @@ export class ZardDropdownItemComponent {
 
     // Fechar dropdown após click
     setTimeout(() => {
-      this.dropdownService.close();
+      this.dropdownService.closeDropdown();
     }, 0);
   }
 

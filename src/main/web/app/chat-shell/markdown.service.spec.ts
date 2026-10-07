@@ -55,7 +55,7 @@ describe('MarkdownService', () => {
     });
 
     it('should render outline section headings during streaming', () => {
-      const html = service.render(
+      const html = service.renderMarkdown(
         '一、古代至马六甲王朝（约公元1世纪—1511年）\n- **早期文明：**内容',
         true,
       );

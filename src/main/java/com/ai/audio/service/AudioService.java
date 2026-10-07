@@ -38,7 +38,7 @@ public class AudioService {
   }
 
   /** Synthesizes speech and returns the raw audio bytes, or {@code null} when nothing came back. */
-  public byte[] synthesize(String text, String voice, Double speed) {
+  public byte[] synthesizeSpeech(String text, String voice, Double speed) {
     ensureProviderConfigured();
     VoiceSelection selection = VoiceSelection.createSelection(resolveVoice(voice), null);
     SynthesizedAudio audio =
@@ -48,11 +48,11 @@ public class AudioService {
 
   private void ensureProviderConfigured() {
     if (!ttsConfiguration.isEnabled()) {
-      throw DomainException.unavailable(
+      throw DomainException.createUnavailableError(
           "TTS_PROVIDER_NOT_CONFIGURED", "Text-to-speech is disabled");
     }
     if (!ttsConfiguration.isConfigured()) {
-      throw DomainException.unavailable(
+      throw DomainException.createUnavailableError(
           "TTS_PROVIDER_NOT_CONFIGURED",
           "TTS provider not configured. Set OPENAI_API_KEY or TTS_API_KEY");
     }

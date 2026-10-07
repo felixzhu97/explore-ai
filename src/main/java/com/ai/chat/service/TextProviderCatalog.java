@@ -91,12 +91,12 @@ public class TextProviderCatalog {
             "anthropic",
             "Anthropic Claude",
             listModelNames("anthropic"),
-            ProviderStatus.of(anthropicEnabled)),
+            ProviderStatus.createStatus(anthropicEnabled)),
         new ProviderInfoResponse(
             "ollama",
             "Ollama (Local)",
             listModelNames("ollama"),
-            ProviderStatus.of(ollamaChatEnabled)));
+            ProviderStatus.createStatus(ollamaChatEnabled)));
   }
 
   /** Lists the models of a provider, defaulting to OpenAI. */

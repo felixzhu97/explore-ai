@@ -22,7 +22,7 @@ public class CurrentOwnerResolver {
 
   /** Resolves owner from guest Client Identity and/or OAuth / IAM JWT authentication. */
   @Transactional
-  public OwnerKey resolve(String clientId, Authentication authentication) {
+  public OwnerKey resolveOwner(String clientId, Authentication authentication) {
     Optional<Account> fromAuth = resolveSignedInUser(authentication);
     if (fromAuth.isPresent()) {
       return fromAuth.get().createOwnerKey();
@@ -51,7 +51,7 @@ public class CurrentOwnerResolver {
     if (authentication instanceof JwtAuthenticationToken jwtAuth) {
       return Optional.of(iamAccountService.signIn(jwtAuth.getToken()));
     }
-    return OAuthSignIn.from(authentication)
+    return OAuthSignIn.createSignIn(authentication)
         .flatMap(signIn -> accountRepository.findByIdentity(signIn.identity()));
   }
 }

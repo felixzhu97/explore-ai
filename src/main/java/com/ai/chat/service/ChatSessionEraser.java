@@ -38,7 +38,7 @@ public class ChatSessionEraser {
       String sessionId = session.getId().toString();
       conversationMemoryRepository.clearMessages(sessionId);
       chatWebSourcesRepository.deleteByConversationId(sessionId);
-      CapturedWebSources.clear(sessionId);
+      CapturedWebSources.clearSources(sessionId);
       sessionRepository.deleteById(session.getId());
     }
     return metricsDeleted;

@@ -80,7 +80,9 @@ class VisionControllerTest extends AbstractOwnerScopedControllerTest {
         new MockMultipartFile("file", "photo.jpg", "image/jpeg", "image".getBytes());
     List<DetectionResponse> detections =
         List.of(new DetectionResponse("cat", 0.95, List.of(10.0, 20.0, 100.0, 80.0)));
-    doReturn(new DetectResponse(detections, 150L)).when(visionAnalysisService).detect(any(), any());
+    doReturn(new DetectResponse(detections, 150L))
+        .when(visionAnalysisService)
+        .detectObjects(any(), any());
 
     assertThat(mvc.post().multipart().uri("/api/vision/detect").file(file))
         .hasStatusOk()

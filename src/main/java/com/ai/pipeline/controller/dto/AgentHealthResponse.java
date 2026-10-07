@@ -5,10 +5,10 @@ import com.ai.pipeline.domain.model.AgentDefinition;
 
 public record AgentHealthResponse(String type, boolean healthy, HealthStatus status) {
   /** Maps an agent definition to a health response. */
-  public static AgentHealthResponse from(AgentDefinition definition) {
+  public static AgentHealthResponse createResponse(AgentDefinition definition) {
     return new AgentHealthResponse(
         definition.getType().getValue(),
         definition.isHealthy(),
-        HealthStatus.of(definition.isHealthy()));
+        HealthStatus.createStatus(definition.isHealthy()));
   }
 }

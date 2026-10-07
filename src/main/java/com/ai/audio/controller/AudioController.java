@@ -30,7 +30,7 @@ public class AudioController {
   @GetMapping("/voices")
   public ResponseEntity<VoicesResponse> getVoices() {
     List<VoiceResponse> voices =
-        audioService.getAvailableVoices().stream().map(VoiceResponse::from).toList();
+        audioService.getAvailableVoices().stream().map(VoiceResponse::createResponse).toList();
     return ResponseEntity.ok(new VoicesResponse(voices));
   }
 
@@ -42,7 +42,7 @@ public class AudioController {
 
   /** Convert text to speech. */
   @PostMapping(value = "/speech", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-  public ResponseEntity<byte[]> speak(@RequestBody TextToSpeechRequest request) {
+  public ResponseEntity<byte[]> synthesizeSpeech(@RequestBody TextToSpeechRequest request) {
     if (request.text() == null || request.text().isBlank()) {
       return ResponseEntity.badRequest().build();
     }
@@ -60,7 +60,7 @@ public class AudioController {
           .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
           .body(audio.copyBytes());
     } catch (DomainException e) {
-      return ResponseEntity.status(GlobalExceptionHandler.statusOf(e.kind())).build();
+      return ResponseEntity.status(GlobalExceptionHandler.statusOf(e.getKind())).build();
     } catch (Exception e) {
       return ResponseEntity.internalServerError().build();
     }

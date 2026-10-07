@@ -23,7 +23,7 @@ public class SessionTitleGenerator {
   private final ChatClientProvider chatClientProvider;
 
   /** Asks the LLM for a short title from the first exchange, falling back to the user message. */
-  public SessionTitle generate(String userMessage, String assistantReply) {
+  public SessionTitle generateTitle(String userMessage, String assistantReply) {
     SessionTitle fallback = SessionTitle.createTitleFromFirstMessage(userMessage);
     if (fallback.isDefault() || assistantReply == null || assistantReply.isBlank()) {
       return fallback;

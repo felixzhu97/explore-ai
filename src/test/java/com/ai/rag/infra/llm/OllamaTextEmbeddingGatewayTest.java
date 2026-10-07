@@ -70,7 +70,7 @@ class OllamaTextEmbeddingGatewayTest {
   @DisplayName("should propagate a domain error unchanged")
   void shouldPropagateADomainErrorUnchanged() {
     when(embeddingModel.call(any(EmbeddingRequest.class)))
-        .thenThrow(DomainException.failed("RAG_SERVICE_ERROR", "Service error"));
+        .thenThrow(DomainException.createFailedError("RAG_SERVICE_ERROR", "Service error"));
 
     assertThatThrownBy(() -> adapter.embedText("Test"))
         .isInstanceOf(DomainException.class)

@@ -89,7 +89,7 @@ class GlobalExceptionHandlerTest {
     @DisplayName("should not reveal the session id when a session is missing")
     void shouldNotRevealTheSessionIdWhenASessionIsMissing() {
       DomainException exception =
-          DomainException.notFound("SESSION_NOT_FOUND", "Session not found");
+          DomainException.createNotFoundError("SESSION_NOT_FOUND", "Session not found");
 
       ResponseEntity<ErrorResponse> response = handler.handleDomainError(exception);
 
@@ -102,7 +102,7 @@ class GlobalExceptionHandlerTest {
     @DisplayName("should return the message without the cause when a provider fails")
     void shouldReturnTheMessageWithoutTheCauseWhenAProviderFails() {
       DomainException exception =
-          DomainException.unavailable(
+          DomainException.createUnavailableError(
               "AI_SERVICE_ERROR", "Service unavailable", new RuntimeException("Network timeout"));
 
       ResponseEntity<ErrorResponse> response = handler.handleDomainError(exception);

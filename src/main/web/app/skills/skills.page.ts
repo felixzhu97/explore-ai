@@ -147,8 +147,8 @@ export class SkillsPageComponent implements OnInit {
     this.error.set(null);
     const id = this.editingId();
     const request$ = hasText(id)
-      ? this.#skillsApi.update(id, request)
-      : this.#skillsApi.create(request);
+      ? this.#skillsApi.updateSkill(id, request)
+      : this.#skillsApi.createSkill(request);
     request$.subscribe({
       next: () => {
         this.isSaving.set(false);
@@ -196,7 +196,7 @@ export class SkillsPageComponent implements OnInit {
     if (!confirm(message)) {
       return;
     }
-    this.#skillsApi.delete(skill.id).subscribe({
+    this.#skillsApi.deleteSkill(skill.id).subscribe({
       next: () => this.reload(),
       error: () => this.error.set(this.i18n.t().skills.errors.deleteFailed),
     });
@@ -206,7 +206,7 @@ export class SkillsPageComponent implements OnInit {
   reload(): void {
     this.isLoading.set(true);
     this.error.set(null);
-    this.#skillsApi.list().subscribe({
+    this.#skillsApi.listSkills().subscribe({
       next: (skills) => {
         this.skills.set(skills);
         this.isLoading.set(false);

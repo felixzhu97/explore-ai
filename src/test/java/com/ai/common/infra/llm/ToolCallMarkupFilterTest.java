@@ -24,7 +24,7 @@ class ToolCallMarkupFilterTest {
                 结论如下。
                 """;
 
-    String cleaned = ToolCallMarkupFilter.sanitize(raw);
+    String cleaned = ToolCallMarkupFilter.stripToolMarkup(raw);
 
     assertFalse(cleaned.contains("DSML"));
     assertFalse(cleaned.contains("searchWeb"));
@@ -36,7 +36,7 @@ class ToolCallMarkupFilterTest {
   @Test
   void shouldStripSpacedDsmlTags() {
     String raw = "hi < | DSML | tool_calls>q</ | DSML | tool_calls> bye";
-    String cleaned = ToolCallMarkupFilter.sanitize(raw);
+    String cleaned = ToolCallMarkupFilter.stripToolMarkup(raw);
     assertFalse(cleaned.toLowerCase().contains("dsml"));
     assertTrue(cleaned.contains("hi"));
     assertTrue(cleaned.contains("bye"));
@@ -56,7 +56,7 @@ class ToolCallMarkupFilterTest {
                 以下是关键信号摘要。
                 """;
 
-    String cleaned = ToolCallMarkupFilter.sanitize(raw);
+    String cleaned = ToolCallMarkupFilter.stripToolMarkup(raw);
 
     assertFalse(cleaned.contains("DSML"));
     assertFalse(cleaned.contains("2025 AI RAG trends"));
@@ -67,7 +67,7 @@ class ToolCallMarkupFilterTest {
   @Test
   void shouldReturnEmptyWhenOnlyMarkup() {
     String raw = "<｜DSML｜tool_calls><｜DSML｜invoke name=\"searchWeb\"></｜DSML｜tool_calls>";
-    assertEquals("", ToolCallMarkupFilter.sanitize(raw));
+    assertEquals("", ToolCallMarkupFilter.stripToolMarkup(raw));
   }
 
   @Test
@@ -80,7 +80,7 @@ class ToolCallMarkupFilterTest {
                 </｜｜DSML｜｜invoke>
                 </｜｜DSML｜｜tool_calls>
                 """;
-    assertEquals("", ToolCallMarkupFilter.sanitize(raw));
+    assertEquals("", ToolCallMarkupFilter.stripToolMarkup(raw));
     assertTrue(ToolCallMarkupFilter.looksLikeToolMarkup(raw));
   }
 

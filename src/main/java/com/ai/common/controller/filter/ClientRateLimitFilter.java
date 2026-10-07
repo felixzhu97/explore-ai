@@ -77,8 +77,9 @@ public class ClientRateLimitFilter extends OncePerRequestFilter {
             : "ip:" + request.getRemoteAddr();
 
     boolean allowed =
-        allow(clientKey, properties.getRequestsPerWindow())
-            && (address == null || allow("ip:" + address, properties.getIpRequestsPerWindow()));
+        allowRequest(clientKey, properties.getRequestsPerWindow())
+            && (address == null
+                || allowRequest("ip:" + address, properties.getIpRequestsPerWindow()));
     if (!allowed) {
       response.setStatus(429);
       response.setHeader("Retry-After", String.valueOf(properties.getWindowSeconds()));
@@ -95,7 +96,7 @@ public class ClientRateLimitFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
 
-  private boolean allow(String key, int limit) {
+  private boolean allowRequest(String key, int limit) {
     long now = clock.millis();
     long windowMs = properties.getWindowSeconds() * 1000L;
     Window window =

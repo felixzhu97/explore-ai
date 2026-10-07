@@ -41,15 +41,16 @@ public final class NotifyingToolCallback implements ToolCallback {
     ToolEventChannel.setCurrentSessionId(conversationId);
     try {
       String name = getToolDefinition().name();
-      ToolEventChannel.publish(toJson(ToolCallEvent.of(name, toolInput)));
+      ToolEventChannel.publishEvent(toJson(ToolCallEvent.createEvent(name, toolInput)));
       try {
         String result =
             toolContext == null ? delegate.call(toolInput) : delegate.call(toolInput, toolContext);
-        ToolEventChannel.publish(toJson(ToolResultEvent.success(name, truncate(result))));
+        ToolEventChannel.publishEvent(
+            toJson(ToolResultEvent.createSuccessEvent(name, truncateText(result))));
         return result;
       } catch (RuntimeException e) {
         String message = e.getMessage() == null ? "tool failed" : e.getMessage();
-        ToolEventChannel.publish(toJson(ToolResultEvent.failure(name, message)));
+        ToolEventChannel.publishEvent(toJson(ToolResultEvent.createFailureEvent(name, message)));
         throw e;
       }
     } finally {
@@ -57,7 +58,7 @@ public final class NotifyingToolCallback implements ToolCallback {
     }
   }
 
-  private static String truncate(String value) {
+  private static String truncateText(String value) {
     if (value == null) {
       return "";
     }

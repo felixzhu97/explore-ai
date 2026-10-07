@@ -24,7 +24,7 @@ export class MarkdownService {
   }
 
   /** Renders Markdown to safe HTML. */
-  render(content: string, streaming = false): SafeHtml {
+  renderMarkdown(content: string, streaming = false): SafeHtml {
     if (content === '') {
       return '';
     }
@@ -41,7 +41,7 @@ export class MarkdownService {
 
   /** @deprecated Use {@link render} with streaming=true */
   renderStreaming(content: string): SafeHtml {
-    return this.render(content, true);
+    return this.renderMarkdown(content, true);
   }
 
   /** Renders Markdown to an HTML string. */

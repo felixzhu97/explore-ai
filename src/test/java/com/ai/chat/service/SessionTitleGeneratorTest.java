@@ -42,7 +42,7 @@ class SessionTitleGeneratorTest {
   void shouldReturnTheLlmTitleWhenTheModelAnswers() {
     givenModelTitle("Kubernetes 部署指南");
 
-    String title = generator.generate("如何部署 K8s？", "你可以使用 kubectl apply...").getValue();
+    String title = generator.generateTitle("如何部署 K8s？", "你可以使用 kubectl apply...").getValue();
 
     assertThat(title).isEqualTo("Kubernetes 部署指南");
   }
@@ -53,7 +53,7 @@ class SessionTitleGeneratorTest {
     when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
     when(chatClient.prompt()).thenThrow(new RuntimeException("LLM unavailable"));
 
-    String title = generator.generate("这是一个非常长的用户消息".repeat(5), "reply").getValue();
+    String title = generator.generateTitle("这是一个非常长的用户消息".repeat(5), "reply").getValue();
 
     assertThat(title).hasSize(50);
   }
@@ -63,7 +63,7 @@ class SessionTitleGeneratorTest {
   void shouldFallBackToTheUserMessageWhenTheLlmReturnsABlankTitle() {
     givenModelTitle("   ");
 
-    String title = generator.generate("Hello world", "Hi there").getValue();
+    String title = generator.generateTitle("Hello world", "Hi there").getValue();
 
     assertThat(title).isEqualTo("Hello world");
   }
@@ -71,7 +71,7 @@ class SessionTitleGeneratorTest {
   @Test
   @DisplayName("should not call the llm when the user message is blank")
   void shouldNotCallTheLlmWhenTheUserMessageIsBlank() {
-    String title = generator.generate("   ", "reply").getValue();
+    String title = generator.generateTitle("   ", "reply").getValue();
 
     assertThat(title).isEqualTo("New Chat");
     verifyNoInteractions(chatClientProvider);
@@ -80,7 +80,7 @@ class SessionTitleGeneratorTest {
   @Test
   @DisplayName("should not call the llm when the assistant reply is blank")
   void shouldNotCallTheLlmWhenTheAssistantReplyIsBlank() {
-    String title = generator.generate("Hello world", "   ").getValue();
+    String title = generator.generateTitle("Hello world", "   ").getValue();
 
     assertThat(title).isEqualTo("Hello world");
     verifyNoInteractions(chatClientProvider);

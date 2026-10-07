@@ -25,8 +25,8 @@ class BlipVocabularyTest {
                 ##world
                 """);
 
-    BlipVocabulary vocabulary = BlipVocabulary.load(tokenizerDir);
-    String decoded = vocabulary.decode(List.of(101L, 2L, 3L, 102L));
+    BlipVocabulary vocabulary = BlipVocabulary.loadVocabulary(tokenizerDir);
+    String decoded = vocabulary.decodeTokens(List.of(101L, 2L, 3L, 102L));
 
     assertThat(decoded).isEqualTo("helloworld");
     assertThat(vocabulary.decoderStartTokenId()).isEqualTo(1);
@@ -38,7 +38,7 @@ class BlipVocabularyTest {
   void shouldThrowWhenVocabFileMissing() throws Exception {
     Path tokenizerDir = Files.createTempDirectory("missing-vocab");
 
-    assertThatThrownBy(() -> BlipVocabulary.load(tokenizerDir))
+    assertThatThrownBy(() -> BlipVocabulary.loadVocabulary(tokenizerDir))
         .isInstanceOf(java.io.IOException.class)
         .hasMessageContaining("vocab.txt not found");
   }

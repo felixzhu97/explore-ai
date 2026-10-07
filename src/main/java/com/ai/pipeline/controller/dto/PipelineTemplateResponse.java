@@ -16,7 +16,7 @@ public record PipelineTemplateResponse(
     Instant createdAt,
     Instant updatedAt) {
   /** Builds a response from a user-saved pipeline template. */
-  public static PipelineTemplateResponse from(PipelineTemplate template) {
+  public static PipelineTemplateResponse createResponse(PipelineTemplate template) {
     return new PipelineTemplateResponse(
         template.getId().toString(),
         template.getName(),

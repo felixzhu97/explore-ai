@@ -35,14 +35,14 @@ class StreamEventWireFormatTest {
   @Test
   @DisplayName("should encode tool call with empty input when model sent none")
   void shouldEncodeToolCallWithEmptyInputWhenModelSentNone() throws Exception {
-    assertThat(json.writeValueAsString(ToolCallEvent.of("searchWeb", null)))
+    assertThat(json.writeValueAsString(ToolCallEvent.createEvent("searchWeb", null)))
         .isEqualTo("{\"type\":\"tool_call\",\"name\":\"searchWeb\",\"input\":\"\"}");
   }
 
   @Test
   @DisplayName("should encode tool result with ok flag and output")
   void shouldEncodeToolResultWithOkFlagAndOutput() throws Exception {
-    assertThat(json.writeValueAsString(ToolResultEvent.failure("searchWeb", "boom")))
+    assertThat(json.writeValueAsString(ToolResultEvent.createFailureEvent("searchWeb", "boom")))
         .isEqualTo(
             "{\"type\":\"tool_result\",\"name\":\"searchWeb\",\"ok\":false,\"output\":\"boom\"}");
   }
@@ -51,7 +51,7 @@ class StreamEventWireFormatTest {
   @DisplayName("should always emit published at as null when date is unknown")
   void shouldAlwaysEmitPublishedAtAsNullWhenDateIsUnknown() throws Exception {
     WebSourcesEvent event =
-        WebSourcesEvent.of(
+        WebSourcesEvent.createEvent(
             "spring",
             List.of(new WebSourcesEvent.Source("Spring", "https://spring.io", "s", null)));
 
@@ -65,7 +65,7 @@ class StreamEventWireFormatTest {
   @DisplayName("should send stored web source without date as null published at")
   void shouldSendStoredWebSourceWithoutDateAsNullPublishedAt() throws Exception {
     WebSourceResponse response =
-        WebSourceResponse.from(new WebSource("Spring", "https://spring.io", "s"));
+        WebSourceResponse.createResponse(new WebSource("Spring", "https://spring.io", "s"));
 
     assertThat(json.writeValueAsString(response))
         .isEqualTo(
@@ -92,9 +92,9 @@ class StreamEventWireFormatTest {
   @Test
   @DisplayName("should encode handoff with escaped reason and empty reason when null")
   void shouldEncodeHandoffWithEscapedReasonAndEmptyReasonWhenNull() {
-    assertThat(PipelineHandoffEvent.of("k8s", "say \"hi\"").toJson())
+    assertThat(PipelineHandoffEvent.createEvent("k8s", "say \"hi\"").toJson())
         .isEqualTo("{\"agentType\":\"k8s\",\"reason\":\"say \\\"hi\\\"\"}");
-    assertThat(PipelineHandoffEvent.of("k8s", null).toJson())
+    assertThat(PipelineHandoffEvent.createEvent("k8s", null).toJson())
         .isEqualTo("{\"agentType\":\"k8s\",\"reason\":\"\"}");
   }
 
@@ -105,7 +105,7 @@ class StreamEventWireFormatTest {
         json.readValue("{\"type\":\"partial\",\"text\":\"hel\"}", TranscriptionResponse.class);
 
     assertThat(frame).isEqualTo(new TranscriptionResponse(TranscriptionType.PARTIAL, "hel"));
-    assertThat(json.writeValueAsString(TranscriptionResponse.error("down")))
+    assertThat(json.writeValueAsString(TranscriptionResponse.createErrorResponse("down")))
         .isEqualTo("{\"type\":\"error\",\"text\":\"down\"}");
   }
 

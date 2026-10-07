@@ -135,7 +135,7 @@ export class AppSidebarComponent implements OnInit {
   /** Starts a new chat and closes the mobile sidebar. */
   startNewChat(): void {
     this.sessionList.createSession();
-    this.sidebar.close();
+    this.sidebar.closeSidebar();
   }
 
   /** Tells whether the path is the current page. */
@@ -146,7 +146,7 @@ export class AppSidebarComponent implements OnInit {
 
   /** Closes the mobile sidebar after navigation. */
   onNavClick(): void {
-    this.sidebar.close();
+    this.sidebar.closeSidebar();
   }
 
   /** Returns the icon of a module. */
@@ -172,7 +172,7 @@ export class AppSidebarComponent implements OnInit {
   /** Opens a session and closes the mobile sidebar. */
   onSessionSelect(sessionId: string): void {
     this.sessionList.selectSession(sessionId);
-    this.sidebar.close();
+    this.sidebar.closeSidebar();
   }
 
   /** Pins or unpins a session. */
@@ -195,7 +195,7 @@ export class AppSidebarComponent implements OnInit {
     const isOutsideSidebar = (event.target as Element).closest('[data-sidebar-panel]') === null;
 
     if (this.sidebar.isMobileOpen() && isOutsideSidebar) {
-      this.sidebar.close();
+      this.sidebar.closeSidebar();
     }
   }
 

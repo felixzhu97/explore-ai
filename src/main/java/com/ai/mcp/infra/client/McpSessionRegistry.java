@@ -52,7 +52,7 @@ public class McpSessionRegistry {
   }
 
   /** Removes all sessions. */
-  public void clear() {
+  public void clearSessions() {
     sessions.clear();
   }
 }

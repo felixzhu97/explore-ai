@@ -18,15 +18,15 @@ class CapturedWebSourcesTest {
   @Test
   @DisplayName("should remember and take sources per channel")
   void shouldRememberAndTakeSourcesPerChannel() {
-    CapturedWebSources.remember(
+    CapturedWebSources.saveSources(
         "session-a", "who is ceo", List.of(new WebSource("Wiki", "https://example.com", "bio")));
 
-    CapturedWebSources.Capture capture = CapturedWebSources.take("session-a");
+    CapturedWebSources.Capture capture = CapturedWebSources.takeSources("session-a");
 
     assertThat(capture).isNotNull();
     assertThat(capture.query()).isEqualTo("who is ceo");
     assertThat(capture.sources()).hasSize(1);
-    assertThat(CapturedWebSources.take("session-a")).isNull();
+    assertThat(CapturedWebSources.takeSources("session-a")).isNull();
   }
 
   @Test

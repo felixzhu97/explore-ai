@@ -21,7 +21,7 @@ describe('EvalService', () => {
   });
 
   it('should post evaluation request', () => {
-    service.evaluate({
+    service.evaluateChat({
       userMessage: 'hello',
       assistantResponse: 'hi',
     }).subscribe((response) => {

@@ -13,7 +13,7 @@ public record BuiltinPipelineTemplateResponse(
     String briefPrompt,
     List<String> nameAliases) {
   /** Builds a response from a built-in template, adding its names across all languages. */
-  public static BuiltinPipelineTemplateResponse from(BuiltinPipelineTemplate template) {
+  public static BuiltinPipelineTemplateResponse createResponse(BuiltinPipelineTemplate template) {
     return new BuiltinPipelineTemplateResponse(
         template.id(),
         template.name(),

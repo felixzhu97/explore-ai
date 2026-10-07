@@ -44,17 +44,17 @@ public class VisionController {
       HttpServletRequest request)
       throws IOException {
     validateFile(file);
-    return visionAnalysisService.captionImage(file, ownerContext.require(request));
+    return visionAnalysisService.captionImage(file, ownerContext.requireOwner(request));
   }
 
   /** Detects objects in the uploaded image. */
   @PostMapping("/detect")
-  public DetectResponse detect(
+  public DetectResponse detectObjects(
       @RequestParam(value = "file", required = false) MultipartFile file,
       HttpServletRequest request)
       throws IOException {
     validateFile(file);
-    return visionAnalysisService.detect(file, ownerContext.require(request));
+    return visionAnalysisService.detectObjects(file, ownerContext.requireOwner(request));
   }
 
   /** Reads the text in the uploaded image. */
@@ -64,12 +64,12 @@ public class VisionController {
       HttpServletRequest request)
       throws IOException {
     validateFile(file);
-    return visionAnalysisService.recognizeText(file, ownerContext.require(request));
+    return visionAnalysisService.recognizeText(file, ownerContext.requireOwner(request));
   }
 
   private void validateFile(MultipartFile file) {
     if (file == null || file.isEmpty()) {
-      throw DomainException.invalid("INVALID_FILE", "Image file is required");
+      throw DomainException.createInvalidError("INVALID_FILE", "Image file is required");
     }
   }
 }

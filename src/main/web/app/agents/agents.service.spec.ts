@@ -51,7 +51,7 @@ describe('AgentsService', () => {
       systemPrompt: 'prompt',
       toolKeys: ['web'],
     };
-    service.create(body).subscribe((agent) => {
+    service.createAgent(body).subscribe((agent) => {
       expect(agent.id).toBe('42');
     });
 

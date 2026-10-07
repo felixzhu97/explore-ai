@@ -24,10 +24,10 @@ public class AutomationMailFormatter {
   private final HtmlRenderer htmlRenderer = HtmlRenderer.builder().escapeHtml(true).build();
 
   /** Renders the schedule name, brief and truncated Markdown result as text and HTML bodies. */
-  public FormattedMail format(String scheduleName, String brief, String resultMarkdown) {
+  public FormattedMail formatMail(String scheduleName, String brief, String resultMarkdown) {
     Objects.requireNonNull(scheduleName, "scheduleName");
     String safeBrief = brief == null ? "" : brief.trim();
-    String result = truncate(resultMarkdown == null ? "" : resultMarkdown);
+    String result = truncateText(resultMarkdown == null ? "" : resultMarkdown);
 
     String textBody = buildText(scheduleName, safeBrief, result);
     String htmlBody = buildHtml(scheduleName, safeBrief, result);
@@ -111,7 +111,7 @@ public class AutomationMailFormatter {
     return text.trim();
   }
 
-  private static String truncate(String value) {
+  private static String truncateText(String value) {
     if (value.length() <= AutomationRun.MAX_RESULT_EXCERPT) {
       return value;
     }

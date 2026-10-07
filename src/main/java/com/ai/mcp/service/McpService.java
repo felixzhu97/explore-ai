@@ -45,7 +45,7 @@ public class McpService {
   public String chatWithTools(String question) {
     ToolCallback[] tools = toolCallbackRegistry.getRegisteredToolCallbacks();
     return chatClientProvider
-        .createStateless(TextChatOptions.defaults())
+        .createStateless(TextChatOptions.createDefaultOptions())
         .prompt()
         .user(question)
         .tools(tools)

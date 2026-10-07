@@ -109,11 +109,11 @@ export class VisionService {
 
   /** Opens the image in the zoom view. */
   openZoom(image: string): void {
-    this.#imageZoom.open(image, this.#i18n.t().vision.imageLabel);
+    this.#imageZoom.openZoom(image, this.#i18n.t().vision.imageLabel);
   }
 
   /** Runs the selected task on the image. */
-  analyze(): void {
+  analyzeImage(): void {
     const currentFile = this.currentState().file;
     if (currentFile === null || this.isLoading()) {
       return;

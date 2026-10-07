@@ -68,7 +68,7 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
 
   @Override
   public void sendError(WebSocketSession session, String text) {
-    send(session, TranscriptionResponse.error(text));
+    sendFrame(session, TranscriptionResponse.createErrorResponse(text));
   }
 
   private void forwardControl(
@@ -120,7 +120,7 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
           transcript.append(frame.text());
         }
       }
-      send(client, frame);
+      sendFrame(client, frame);
     } catch (Exception e) {
       sendError(client, "Transcription relay failed");
     }
@@ -136,7 +136,7 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
     }
   }
 
-  private void send(WebSocketSession session, TranscriptionResponse frame) {
+  private void sendFrame(WebSocketSession session, TranscriptionResponse frame) {
     if (!session.isOpen()) {
       return;
     }

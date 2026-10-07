@@ -19,14 +19,14 @@ class NotifyingToolCallbackTest {
 
   @AfterEach
   void tearDown() {
-    ToolEventChannel.close(CHANNEL);
+    ToolEventChannel.closeChannel(CHANNEL);
     ToolEventChannel.clearCurrentSessionId();
   }
 
   @Test
   @DisplayName("should emit tool call and result events when delegate succeeds")
   void shouldEmitToolCallAndResultEventsWhenDelegateSucceeds() {
-    var sink = ToolEventChannel.open(CHANNEL);
+    var sink = ToolEventChannel.openChannel(CHANNEL);
     ToolEventChannel.clearCurrentSessionId();
     List<String> events = new ArrayList<>();
     Flux<String> flux = ToolEventChannel.asFlux(sink).doOnNext(events::add);
@@ -49,7 +49,7 @@ class NotifyingToolCallbackTest {
         };
 
     String result = new NotifyingToolCallback(delegate, CHANNEL).call("{\"q\":\"hello\"}");
-    ToolEventChannel.close(CHANNEL);
+    ToolEventChannel.closeChannel(CHANNEL);
 
     assertThat(result).isEqualTo("ok:{\"q\":\"hello\"}");
     StepVerifier.create(flux).expectNextCount(2).verifyComplete();

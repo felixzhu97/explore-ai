@@ -16,7 +16,7 @@ public record SessionHistory(
   }
 
   /** Returns the web sources an assistant reply cited, or an empty list. */
-  public List<WebSource> sourcesFor(ChatMessage message) {
+  public List<WebSource> findSources(ChatMessage message) {
     if (!message.isFromAssistant() || sourcesByContentHash.isEmpty()) {
       return List.of();
     }

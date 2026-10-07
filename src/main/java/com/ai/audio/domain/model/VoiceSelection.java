@@ -17,10 +17,12 @@ public class VoiceSelection {
     String effectiveModel =
         model != null && !model.isBlank() ? model.trim() : catalog.getDefaultModel();
     if (!catalog.containsVoice(effectiveVoice)) {
-      throw DomainException.invalid("INVALID_SPEECH_TEXT", "Unknown voice: " + effectiveVoice);
+      throw DomainException.createInvalidError(
+          "INVALID_SPEECH_TEXT", "Unknown voice: " + effectiveVoice);
     }
     if (!catalog.containsModel(effectiveModel)) {
-      throw DomainException.invalid("INVALID_SPEECH_TEXT", "Unknown model: " + effectiveModel);
+      throw DomainException.createInvalidError(
+          "INVALID_SPEECH_TEXT", "Unknown model: " + effectiveModel);
     }
     return new VoiceSelection(effectiveVoice, effectiveModel);
   }

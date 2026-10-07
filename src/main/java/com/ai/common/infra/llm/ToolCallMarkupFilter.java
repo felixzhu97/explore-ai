@@ -27,7 +27,7 @@ public final class ToolCallMarkupFilter {
   private ToolCallMarkupFilter() {}
 
   /** Removes DSML tool-call markup repeatedly until stable and collapses leftover blank lines. */
-  public static String sanitize(String content) {
+  public static String stripToolMarkup(String content) {
     if (content == null || content.isEmpty()) {
       return "";
     }

@@ -48,21 +48,21 @@ public class ImageGenerationService {
 
   private void ensureProviderConfigured() {
     if (!imageProperties.isEnabled()) {
-      throw DomainException.unavailable(
+      throw DomainException.createUnavailableError(
           "IMAGE_PROVIDER_NOT_CONFIGURED", "Image generation is disabled");
     }
     if (!imageProperties.isConfigured()) {
       if (imageProperties.isOpenAiProvider()) {
-        throw DomainException.unavailable(
+        throw DomainException.createUnavailableError(
             "IMAGE_PROVIDER_NOT_CONFIGURED",
             "Image provider not configured. Set OPENAI_API_KEY and app.ai.image.provider=openai");
       }
-      throw DomainException.unavailable(
+      throw DomainException.createUnavailableError(
           "IMAGE_PROVIDER_NOT_CONFIGURED",
           "Image provider not configured. Run: ollama pull x/flux2-klein");
     }
     if (imageProperties.isOllamaProvider() && isLocalOllamaEndpoint(imageProperties.getBaseUrl())) {
-      throw DomainException.unavailable(
+      throw DomainException.createUnavailableError(
           "IMAGE_PROVIDER_NOT_CONFIGURED",
           "Image provider not configured. Run: ollama pull x/flux2-klein");
     }

@@ -6,7 +6,7 @@ import { ImageZoomDialogComponent } from './image-zoom-dialog.component';
 export class ImageZoomService {
   private readonly dialog = inject(ZardDialogService);
 
-  open(src: string, alt = ''): void {
+  openZoom(src: string, alt = ''): void {
     this.dialog.create({
       zContent: ImageZoomDialogComponent,
       zData: { src, alt },

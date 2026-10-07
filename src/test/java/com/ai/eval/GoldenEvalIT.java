@@ -30,7 +30,8 @@ class GoldenEvalIT {
   @Test
   @DisplayName("should report pass rate when chat golden suite runs")
   void shouldReportPassRateWhenChatGoldenSuiteRuns() {
-    GoldenSuiteReport report = goldenEvalService.run(List.of(GoldenEvalCategory.CHAT), List.of());
+    GoldenSuiteReport report =
+        goldenEvalService.runSuite(List.of(GoldenEvalCategory.CHAT), List.of());
     logReport("CHAT", report);
 
     assertThat(report.getTotal()).isGreaterThan(0);
@@ -42,7 +43,8 @@ class GoldenEvalIT {
   @Test
   @DisplayName("should report pass rate when rag golden suite runs")
   void shouldReportPassRateWhenRagGoldenSuiteRuns() {
-    GoldenSuiteReport report = goldenEvalService.run(List.of(GoldenEvalCategory.RAG), List.of());
+    GoldenSuiteReport report =
+        goldenEvalService.runSuite(List.of(GoldenEvalCategory.RAG), List.of());
     logReport("RAG", report);
 
     assertThat(report.getTotal()).isGreaterThan(0);

@@ -117,18 +117,19 @@ public class MetricsController {
 
   private MetricsCapabilitiesResponse toCapabilities(OverviewCapabilities capabilities) {
     return new MetricsCapabilitiesResponse(
-        ChatInventoryResponse.from(capabilities.chat()),
-        RagInventoryResponse.from(capabilities.rag()),
-        AgentsInventoryResponse.from(capabilities.agents()),
-        McpInventoryResponse.from(capabilities.mcp()),
+        ChatInventoryResponse.createResponse(capabilities.chat()),
+        RagInventoryResponse.createResponse(capabilities.rag()),
+        AgentsInventoryResponse.createResponse(capabilities.agents()),
+        McpInventoryResponse.createResponse(capabilities.mcp()),
         new SystemInventoryResponse(capabilities.system()));
   }
 
   private CapabilityInventoryResponse toInventory(CapabilityInventory inventory) {
     return switch (inventory) {
-      case CapabilityInventory.Chat chat -> ChatInventoryResponse.from(chat.inventory());
-      case CapabilityInventory.Rag rag -> RagInventoryResponse.from(rag.inventory());
-      case CapabilityInventory.Agents agents -> AgentsInventoryResponse.from(agents.health());
+      case CapabilityInventory.Chat chat -> ChatInventoryResponse.createResponse(chat.inventory());
+      case CapabilityInventory.Rag rag -> RagInventoryResponse.createResponse(rag.inventory());
+      case CapabilityInventory.Agents agents ->
+          AgentsInventoryResponse.createResponse(agents.health());
       case CapabilityInventory.Tools tools ->
           new ToolsInventoryResponse(
               tools.topTools().stream()
@@ -178,9 +179,9 @@ public class MetricsController {
     return new InvocationEventResponse(
         event.getId().toString(),
         event.getOccurredAt(),
-        MetricsCapability.from(event.getCapability()),
+        MetricsCapability.createResponse(event.getCapability()),
         event.getOperation(),
-        MetricsOutcome.from(event.getOutcome()),
+        MetricsOutcome.createResponse(event.getOutcome()),
         event.getLatencyMs(),
         event.getProvider(),
         event.getModel(),

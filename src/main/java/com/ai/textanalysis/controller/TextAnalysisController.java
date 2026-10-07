@@ -24,7 +24,7 @@ public class TextAnalysisController {
       @Valid @RequestBody TextAnalysisRequest request) {
     var result =
         request.language() != null && !request.language().isBlank()
-            ? textAnalysisService.analyzeTextWithLanguage(request.text(), request.language())
+            ? textAnalysisService.analyzeText(request.text(), request.language())
             : textAnalysisService.analyzeText(request.text());
     return ResponseEntity.ok(TextAnalysisResponse.fromDomain(result));
   }

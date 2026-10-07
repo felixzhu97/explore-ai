@@ -26,7 +26,7 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
   private final ChatClientProvider chatClientProvider;
 
   @Override
-  public RoutingPlan plan(String userMessage, List<AgentDefinition> workers) {
+  public RoutingPlan planRoute(String userMessage, List<AgentDefinition> workers) {
     if (workers == null || workers.isEmpty()) {
       throw new IllegalStateException("no worker agents registered");
     }
@@ -61,7 +61,7 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
 
     String raw =
         chatClientProvider
-            .createBareStateless(TextChatOptions.defaults())
+            .createBareStateless(TextChatOptions.createDefaultOptions())
             .prompt()
             .system(
                 """

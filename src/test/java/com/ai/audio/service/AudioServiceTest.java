@@ -44,7 +44,7 @@ class AudioServiceTest {
             any(SpeechText.class), any(VoiceSelection.class), eq(1.0)))
         .thenReturn(SynthesizedAudio.createAudio(new byte[] {1, 2, 3}));
 
-    byte[] audio = service.synthesize("hello", null, 1.0);
+    byte[] audio = service.synthesizeSpeech("hello", null, 1.0);
 
     assertThat(audio).containsExactly(1, 2, 3);
   }
@@ -55,7 +55,7 @@ class AudioServiceTest {
     when(ttsConfiguration.isEnabled()).thenReturn(true);
     when(ttsConfiguration.isConfigured()).thenReturn(true);
 
-    assertThatThrownBy(() -> service.synthesize("hello", "zh-CN", null))
+    assertThatThrownBy(() -> service.synthesizeSpeech("hello", "zh-CN", null))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "INVALID_SPEECH_TEXT")
         .hasMessageContaining("Unknown voice");
@@ -66,7 +66,7 @@ class AudioServiceTest {
   void shouldThrowWhenTtsDisabled() {
     when(ttsConfiguration.isEnabled()).thenReturn(false);
 
-    assertThatThrownBy(() -> service.synthesize("hello", "alloy", null))
+    assertThatThrownBy(() -> service.synthesizeSpeech("hello", "alloy", null))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "TTS_PROVIDER_NOT_CONFIGURED");
   }
@@ -77,7 +77,7 @@ class AudioServiceTest {
     when(ttsConfiguration.isEnabled()).thenReturn(true);
     when(ttsConfiguration.isConfigured()).thenReturn(false);
 
-    assertThatThrownBy(() -> service.synthesize("hello", "alloy", null))
+    assertThatThrownBy(() -> service.synthesizeSpeech("hello", "alloy", null))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "TTS_PROVIDER_NOT_CONFIGURED");
   }
@@ -92,7 +92,7 @@ class AudioServiceTest {
             any(SpeechText.class), any(VoiceSelection.class), eq(null)))
         .thenReturn(SynthesizedAudio.createEmptyAudio());
 
-    assertThat(service.synthesize("hello", null, null)).isNull();
+    assertThat(service.synthesizeSpeech("hello", null, null)).isNull();
   }
 
   @Test

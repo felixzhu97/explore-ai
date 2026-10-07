@@ -14,12 +14,12 @@ public enum ProviderStatus {
   }
 
   @JsonValue
-  public String value() {
+  public String getValue() {
     return value;
   }
 
   /** Maps availability to a provider status. */
-  public static ProviderStatus of(boolean available) {
+  public static ProviderStatus createStatus(boolean available) {
     return available ? AVAILABLE : UNAVAILABLE;
   }
 }

@@ -14,14 +14,14 @@ public record StreamTokenEvent(String type, String token) {
   private static final ObjectMapper JSON = new ObjectMapper();
 
   /** Creates a token event. */
-  public static StreamTokenEvent of(String token) {
+  public static StreamTokenEvent createEvent(String token) {
     return new StreamTokenEvent("message", token);
   }
 
   /** Returns {@code {"type":"message","token":...}} for the token. */
   public static String toJson(String token) {
     try {
-      return JSON.writeValueAsString(of(token));
+      return JSON.writeValueAsString(createEvent(token));
     } catch (JsonProcessingException e) {
       throw new IllegalStateException("Failed to encode stream token", e);
     }

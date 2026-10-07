@@ -41,7 +41,7 @@ class SpringAiSupervisorRouterTest {
   @Test
   @DisplayName("should throw when no workers registered")
   void shouldThrowWhenNoWorkersRegistered() {
-    assertThatThrownBy(() -> router.plan("hello", List.of()))
+    assertThatThrownBy(() -> router.planRoute("hello", List.of()))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("no worker agents");
   }
@@ -67,7 +67,7 @@ class SpringAiSupervisorRouterTest {
                 }
                 """);
 
-    RoutingPlan plan = router.plan("find market data", List.of(researcher));
+    RoutingPlan plan = router.planRoute("find market data", List.of(researcher));
 
     assertThat(plan.getPrimaryAgent()).isEqualTo(AgentType.createType("researcher"));
     assertThat(plan.getReason()).isEqualTo("needs lookup");
@@ -96,7 +96,7 @@ class SpringAiSupervisorRouterTest {
                 }
                 """);
 
-    RoutingPlan plan = router.plan("summarize", List.of(writer));
+    RoutingPlan plan = router.planRoute("summarize", List.of(writer));
 
     assertThat(plan.getPrimaryAgent()).isEqualTo(AgentType.createType("writer"));
     assertThat(plan.getSubtasks()).hasSize(1);
@@ -115,7 +115,7 @@ class SpringAiSupervisorRouterTest {
     when(requestSpec.call()).thenReturn(callResponseSpec);
     when(callResponseSpec.content()).thenReturn("{}");
 
-    RoutingPlan plan = router.plan("summarize", List.of(writer));
+    RoutingPlan plan = router.planRoute("summarize", List.of(writer));
 
     assertThat(plan.getPrimaryAgent()).isEqualTo(AgentType.createType("writer"));
     assertThat(plan.getReason()).contains("fallback");

@@ -66,11 +66,11 @@ public class ChatQualityEvaluator {
   }
 
   /** Scores a reply using official evaluators plus an LLM safety and quality judge. */
-  public ChatEvaluationResult evaluate(
+  public ChatEvaluationResult evaluateChat(
       String userMessage, String assistantResponse, List<String> referenceDocuments) {
 
     OfficialGateResult gate =
-        officialEvaluators.evaluate(userMessage, assistantResponse, referenceDocuments);
+        officialEvaluators.evaluateChat(userMessage, assistantResponse, referenceDocuments);
 
     LlmEvaluationResponse safetyResult = evaluateSafetyAndQuality(userMessage, assistantResponse);
     if (safetyResult == null) {
@@ -153,7 +153,7 @@ public class ChatQualityEvaluator {
   private LlmEvaluationResponse evaluateSafetyAndQuality(
       String userMessage, String assistantResponse) {
     String promptText =
-        ClasspathPromptTemplate.render(
+        ClasspathPromptTemplate.renderTemplate(
             SAFETY_EVALUATION_PROMPT,
             java.util.Map.of("userMessage", userMessage, "assistantResponse", assistantResponse));
 

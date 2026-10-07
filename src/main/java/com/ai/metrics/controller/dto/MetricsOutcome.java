@@ -9,12 +9,12 @@ public enum MetricsOutcome {
   ERROR;
 
   @JsonValue
-  public String value() {
+  public String getValue() {
     return InvocationOutcome.valueOf(name()).getValue();
   }
 
   /** Maps an outcome to its API value. */
-  public static MetricsOutcome from(InvocationOutcome outcome) {
+  public static MetricsOutcome createResponse(InvocationOutcome outcome) {
     return valueOf(outcome.name());
   }
 }

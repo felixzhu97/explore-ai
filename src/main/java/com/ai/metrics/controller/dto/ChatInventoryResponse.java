@@ -7,7 +7,7 @@ public record ChatInventoryResponse(
     implements CapabilityInventoryResponse {
 
   /** Maps the chat inventory read from the metrics store. */
-  public static ChatInventoryResponse from(ChatInventory inventory) {
+  public static ChatInventoryResponse createResponse(ChatInventory inventory) {
     return new ChatInventoryResponse(
         inventory.getSessionCount(),
         inventory.getActiveSessionCount(),
