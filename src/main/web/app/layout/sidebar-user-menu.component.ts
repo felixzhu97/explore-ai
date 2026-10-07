@@ -167,7 +167,7 @@ import { textOr } from '../shared/presence';
               (click)="onLogout()"
             >
               <span class="opacity-60" [innerHTML]="logoutIcon"></span>
-              <span class="min-w-0 flex-1 truncate text-left">{{ t().account.logoutAccount }}</span>
+              <span class="min-w-0 flex-1 truncate text-left">{{ t().account.logout }}</span>
             </button>
           }
         </div>
