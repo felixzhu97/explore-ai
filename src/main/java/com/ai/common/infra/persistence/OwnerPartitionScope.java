@@ -1,6 +1,6 @@
 package com.ai.common.infra.persistence;
 
-import com.ai.common.domain.model.AbstractOwnerKeyedEntity;
+import com.ai.common.domain.model.AbstractOwnerAwareEntity;
 import com.ai.common.domain.model.OwnerKey;
 import jakarta.persistence.EntityManager;
 import java.util.Objects;
@@ -48,7 +48,7 @@ public class OwnerPartitionScope {
    * Loads one aggregate inside the scope. The owner check also covers instances served from the
    * persistence context, which the filter never sees.
    */
-  public <E extends AbstractOwnerKeyedEntity<?>> Optional<E> findOne(
+  public <E extends AbstractOwnerAwareEntity<?>> Optional<E> findOne(
       OwnerKey ownerKey, Supplier<Optional<E>> load) {
     return apply(ownerKey, load).filter(entity -> entity.belongsTo(ownerKey));
   }

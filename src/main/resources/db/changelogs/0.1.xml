@@ -99,6 +99,9 @@
       <column name="created_at" type="${date.time.type}">
         <constraints nullable="false"/>
       </column>
+      <column name="updated_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
       <column name="last_activity_at" type="${date.time.type}">
         <constraints nullable="false"/>
       </column>
@@ -177,6 +180,9 @@
         <constraints nullable="false"/>
       </column>
       <column name="occurred_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
         <constraints nullable="false"/>
       </column>
       <column name="domain" type="${string.type}(32)">
@@ -413,6 +419,9 @@
         <constraints nullable="false"/>
       </column>
       <column name="finished_at" type="${date.time.type}"/>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
       <column name="status" type="${string.type}(20)">
         <constraints nullable="false"/>
       </column>

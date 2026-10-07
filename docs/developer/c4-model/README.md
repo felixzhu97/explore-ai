@@ -100,7 +100,7 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 - **端口**: dev **9000** / prod **8080** (Render `PORT`)
 - **子域 (13)**: Chat / Pipeline / Skill / RAG / Tools / Text Analysis (`textanalysis`) / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
 - **持久化**: H2 嵌入式（会话元数据 `JpaChatSessionRepository` + 消息 `JdbcChatMemoryRepository` + 向量 + AI 调用事件 `ai_invocation_event`）
-- **JPA / Hibernate**: 归属聚合继承 `AbstractOwnerKeyedEntity`（`owner_key` NOT NULL，Liquibase `0.1-012` 回填遗留会话为 `c:legacy-orphan`）；按归属读取经 `OwnerPartitionScope` 启用 Hibernate `ownerPartition` 过滤器（`applyToLoadByKey`），后台任务不过滤；类型化 ID 映射原生 UUID 列；`AiInvocationEvent` 为 `@Immutable`；`AccountUser` 以 `@NaturalId`（provider + subject）查找
+- **JPA / Hibernate**: 归属聚合继承 `AbstractOwnerAwareEntity`（运行记录与调用事件继承 `AbstractOwnerAwareImmutable`）（`owner_key` NOT NULL，Liquibase `0.1-012` 回填遗留会话为 `c:legacy-orphan`）；按归属读取经 `OwnerPartitionScope` 启用 Hibernate `ownerPartition` 过滤器（`applyToLoadByKey`），后台任务不过滤；类型化 ID 映射原生 UUID 列；`AiInvocationEvent` 为 `@Immutable`；`AccountUser` 以 `@NaturalId`（provider + subject）查找
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`）
 - **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Starter 512MB 默认关闭）
 - **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索) / Resend (Automations 邮件)

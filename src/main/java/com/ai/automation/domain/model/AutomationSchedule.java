@@ -75,9 +75,8 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
       String pipelineTemplateId,
       String recipientEmail,
       String brief,
-      Instant nextRunAt,
-      Instant now) {
-    super(ScheduleId.generate(), ownerKey, name, true, now, now);
+      Instant nextRunAt) {
+    super(ScheduleId.generate(), ownerKey, name);
     this.timing = Objects.requireNonNull(timing, "timing");
     this.actionType = AutomationActionType.RUN_PIPELINE_TEMPLATE;
     this.pipelineTemplateId = requireTemplateId(pipelineTemplateId);
@@ -104,8 +103,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
         pipelineTemplateId,
         recipientEmail,
         brief,
-        timing.nextRunAfter(now),
-        now);
+        timing.nextRunAfter(now));
   }
 
   /** Creates an enabled one-off schedule that runs at {@code runAt}, which must be later. */
@@ -125,8 +123,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
         pipelineTemplateId,
         recipientEmail,
         brief,
-        requireFutureRunAt(runAt, now),
-        now);
+        requireFutureRunAt(runAt, now));
   }
 
   /**
@@ -152,7 +149,6 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
     } else {
       this.nextRunAt = timing.nextRunAfter(now);
     }
-    touchUpdatedAt();
   }
 
   /**
@@ -170,13 +166,6 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
       this.nextRunAt = timing.nextRunAfter(now);
     }
     this.enabled = true;
-    touchUpdatedAt();
-  }
-
-  /** Not supported: use {@link #turnOn} so the next run is re-armed. */
-  @Override
-  public void enable() {
-    throw new UnsupportedOperationException("Use turnOn so the next run is re-armed");
   }
 
   /** Tells whether a run is still to come after {@code now}; a cron schedule always has one. */
@@ -207,7 +196,6 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
     } else {
       this.nextRunAt = timing.nextRunAfter(finishedAt);
     }
-    touchUpdatedAt();
   }
 
   /** Builds the email that delivers a run's result to the recipient. */

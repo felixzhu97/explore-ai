@@ -7,7 +7,6 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.AccessLevel;
@@ -47,19 +46,19 @@ public class AccountUser extends AbstractEntity<AccountUserId> {
   @Column(length = 64)
   private ClientId linkedClientId;
 
+  private AccountUser(AccountUserId id) {
+    super(id);
+  }
+
   /** Creates an account for the identity, not yet linked to a browser. */
   public static AccountUser create(
       ExternalIdentity identity, ContactEmail email, String displayName) {
     Objects.requireNonNull(identity, "identity");
-    AccountUser user = new AccountUser();
-    user.id = AccountUserId.generate();
+    AccountUser user = new AccountUser(AccountUserId.generate());
     user.provider = identity.provider();
     user.subject = identity.subject();
     user.email = email;
     user.displayName = normalizeDisplayName(displayName);
-    Instant now = Instant.now();
-    user.createdAt = now;
-    user.updatedAt = now;
     return user;
   }
 
@@ -72,20 +71,16 @@ public class AccountUser extends AbstractEntity<AccountUserId> {
   public void linkBrowser(ClientId clientId, ContactEmail email, String displayName) {
     this.linkedClientId = Objects.requireNonNull(clientId, "clientId");
     applyProfile(email, displayName);
-    touchUpdatedAt();
   }
 
   /** Refreshes the profile on a sign-in that does not involve a browser, such as an IAM token. */
   public void recordSignIn(ContactEmail email, String displayName) {
-    if (applyProfile(email, displayName)) {
-      touchUpdatedAt();
-    }
+    applyProfile(email, displayName);
   }
 
   /** Clears the browser link so logout returns to guest mode. */
   public void unlinkBrowser() {
     this.linkedClientId = null;
-    touchUpdatedAt();
   }
 
   /** Returns the data partition of this account. */
@@ -107,18 +102,14 @@ public class AccountUser extends AbstractEntity<AccountUserId> {
   }
 
   /** Keeps stored values the provider did not send, since tokens may omit profile claims. */
-  private boolean applyProfile(ContactEmail email, String displayName) {
-    String name = normalizeDisplayName(displayName);
-    boolean changed = false;
-    if (email != null && !email.equals(this.email)) {
+  private void applyProfile(ContactEmail email, String displayName) {
+    if (email != null) {
       this.email = email;
-      changed = true;
     }
-    if (name != null && !name.equals(this.displayName)) {
+    String name = normalizeDisplayName(displayName);
+    if (name != null) {
       this.displayName = name;
-      changed = true;
     }
-    return changed;
   }
 
   private static String normalizeDisplayName(String displayName) {

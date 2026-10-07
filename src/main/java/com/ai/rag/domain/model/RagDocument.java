@@ -1,6 +1,7 @@
 package com.ai.rag.domain.model;
 
-import com.ai.common.domain.model.AbstractOwnerKeyedEntity;
+import com.ai.common.domain.model.AbstractOwnerAwareEntity;
+import com.ai.common.domain.model.OwnerKey;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
+public class RagDocument extends AbstractOwnerAwareEntity<DocumentId> {
 
   public static final String UNTITLED = "Untitled";
   static final int MAX_TITLE_LENGTH = 255;
@@ -46,10 +47,8 @@ public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
       Long fileSize,
       DocumentStatus status,
       int chunkCount,
-      Instant createdAt,
-      Instant updatedAt,
       String ownerKey) {
-    super(id, ownerKey, createdAt, updatedAt);
+    super(id, OwnerKey.parse(ownerKey));
     this.title = resolveTitle(title, fileName);
     this.fileName = fileName;
     this.fileSize = fileSize;
@@ -66,17 +65,8 @@ public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
     if (fileSize <= 0) {
       throw new IllegalArgumentException("Uploaded file is empty");
     }
-    Instant now = Instant.now();
     return new RagDocument(
-        DocumentId.generate(),
-        title,
-        fileName,
-        fileSize,
-        DocumentStatus.PROCESSING,
-        0,
-        now,
-        now,
-        ownerKey);
+        DocumentId.generate(), title, fileName, fileSize, DocumentStatus.PROCESSING, 0, ownerKey);
   }
 
   /** Restores a stored document. */
@@ -90,8 +80,11 @@ public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
       Instant createdAt,
       Instant updatedAt,
       String ownerKey) {
-    return new RagDocument(
-        id, title, fileName, fileSize, status, chunkCount, createdAt, updatedAt, ownerKey);
+    RagDocument document =
+        new RagDocument(id, title, fileName, fileSize, status, chunkCount, ownerKey);
+    document.createdAt = createdAt;
+    document.updatedAt = updatedAt;
+    return document;
   }
 
   private static String resolveTitle(String title, String fileName) {
@@ -114,7 +107,6 @@ public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
     }
     this.chunkCount = storedChunks;
     this.status = DocumentStatus.READY;
-    touchUpdatedAt();
   }
 
   /** Marks ingestion failed; safe to call again so the original error stays visible. */
@@ -124,7 +116,6 @@ public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
     }
     this.status = DocumentStatus.FAILED;
     this.chunkCount = 0;
-    touchUpdatedAt();
   }
 
   /** Tells whether the document can be searched and offered to the model. */
@@ -148,7 +139,6 @@ public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
       throw new IllegalStateException("Cannot update title of ready document");
     }
     this.title = resolveTitle(newTitle, fileName);
-    touchUpdatedAt();
   }
 
   @Override

@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class JpaChatSessionRepository implements ChatSessionRepository {
 
   private final SpringDataChatSessionRepository delegate;
-  private static final Sort MOST_RECENT_FIRST = Sort.by(Sort.Direction.DESC, "updatedAt");
+  private static final Sort MOST_RECENT_FIRST = Sort.by(Sort.Direction.DESC, "lastActivityAt");
 
   private final OwnerPartitionScope ownerPartition;
 
@@ -45,7 +45,7 @@ public class JpaChatSessionRepository implements ChatSessionRepository {
   @Override
   @Transactional(readOnly = true)
   public List<ChatSession> findInactiveSince(Instant cutoff) {
-    return delegate.findByUpdatedAtBeforeOrderByUpdatedAtAsc(cutoff);
+    return delegate.findByLastActivityAtBeforeOrderByLastActivityAtAsc(cutoff);
   }
 
   @Override

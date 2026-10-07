@@ -8,7 +8,6 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,11 +50,8 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
       List<String> agentTypes,
       String shortTopic,
       String briefPrompt,
-      String sourceTemplateId,
-      boolean enabled,
-      Instant createdAt,
-      Instant updatedAt) {
-    super(id, ownerKey, name, description, enabled, createdAt, updatedAt);
+      String sourceTemplateId) {
+    super(id, ownerKey, name, description);
     this.agentTypes = copyAgentTypes(agentTypes);
     this.shortTopic = normalizeShortTopic(shortTopic);
     this.briefPrompt = DomainStrings.requireNonBlank(briefPrompt, "briefPrompt");
@@ -71,7 +67,6 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
       String shortTopic,
       String briefPrompt,
       String sourceTemplateId) {
-    Instant now = Instant.now();
     return new PipelineTemplate(
         PipelineTemplateId.generate(),
         ownerKey,
@@ -80,10 +75,7 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
         agentTypes,
         shortTopic,
         briefPrompt,
-        sourceTemplateId,
-        true,
-        now,
-        now);
+        sourceTemplateId);
   }
 
   /** Replaces the editable fields, normalizing agent types and bumping the update timestamp. */
@@ -98,7 +90,6 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
     this.agentTypes = copyAgentTypes(agentTypes);
     this.shortTopic = normalizeShortTopic(shortTopic);
     this.briefPrompt = DomainStrings.requireNonBlank(briefPrompt, "briefPrompt");
-    touchUpdatedAt();
     return this;
   }
 

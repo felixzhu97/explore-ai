@@ -1,8 +1,7 @@
 package com.ai.chat.domain.model;
 
-import com.ai.common.domain.model.AbstractOwnerKeyedEntity;
+import com.ai.common.domain.model.AbstractOwnerAwareEntity;
 import com.ai.common.domain.model.OwnerKey;
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -23,20 +22,23 @@ import lombok.NoArgsConstructor;
  * and synchronized from Spring AI ChatMemory.
  */
 @Entity
-@AttributeOverride(
-    name = "updatedAt",
-    column = @Column(name = "last_activity_at", nullable = false))
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
+public class ChatSession extends AbstractOwnerAwareEntity<ChatSessionId> {
 
   @NotNull @Valid @Embedded private SessionTitle title;
 
   @Transient private List<ChatMessage> messages = new ArrayList<>();
 
+  @NotNull
+  @Column(nullable = false)
+  private Instant lastActivityAt;
+
   private ChatSession(ChatSessionId id, SessionTitle title, Instant createdAt, OwnerKey ownerKey) {
-    super(id, ownerKey, createdAt, createdAt);
+    super(id, ownerKey);
     this.title = title;
+    this.createdAt = createdAt;
+    this.lastActivityAt = createdAt;
   }
 
   /** Creates a new chat session for the owner with the title the user typed. */
@@ -63,11 +65,6 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
   /** Returns the title text. */
   public String getTitle() {
     return title.value();
-  }
-
-  /** Returns when the session was last active. */
-  public Instant getLastActivityAt() {
-    return getUpdatedAt();
   }
 
   /** Renames the session as the user asked, ignoring blank titles. */
@@ -187,7 +184,7 @@ public class ChatSession extends AbstractOwnerKeyedEntity<ChatSessionId> {
   }
 
   private void updateLastActivity() {
-    touchUpdatedAt();
+    this.lastActivityAt = Instant.now();
   }
 
   @Override

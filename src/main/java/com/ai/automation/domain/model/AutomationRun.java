@@ -1,6 +1,6 @@
 package com.ai.automation.domain.model;
 
-import com.ai.common.domain.model.AbstractOwnerKeyedRunEntity;
+import com.ai.common.domain.model.AbstractOwnerAwareImmutable;
 import com.ai.common.domain.model.OwnerKey;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -15,13 +15,15 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Filter;
 
 /** Automation execution run record partitioned by owner_key. */
 @Entity
 @DynamicUpdate
+@Filter(name = "ownerPartition")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class AutomationRun extends AbstractOwnerKeyedRunEntity<RunId> {
+public class AutomationRun extends AbstractOwnerAwareImmutable<RunId> {
 
   public static final int MAX_RESULT_EXCERPT = 16_384;
   private static final String QUOTA_EXCEEDED = "Daily plan quota exceeded";
@@ -46,36 +48,28 @@ public class AutomationRun extends AbstractOwnerKeyedRunEntity<RunId> {
   @Column(nullable = false, length = 20)
   private EmailDeliveryStatus emailStatus;
 
-  private AutomationRun(
-      RunId id,
-      ScheduleId scheduleId,
-      String ownerKey,
-      Instant startedAt,
-      Instant finishedAt,
-      RunStatus status,
-      String errorMessage,
-      String resultExcerpt,
-      EmailDeliveryStatus emailStatus) {
-    super(id, OwnerKey.parse(ownerKey), startedAt, finishedAt);
+  @NotNull
+  @Column(nullable = false, updatable = false)
+  private Instant startedAt;
+
+  @Column private Instant finishedAt;
+
+  private AutomationRun(ScheduleId scheduleId, String ownerKey, Instant startedAt) {
+    super(RunId.generate(), OwnerKey.parse(ownerKey));
     this.scheduleId = Objects.requireNonNull(scheduleId, "scheduleId");
-    this.status = Objects.requireNonNull(status, "status");
-    this.errorMessage = errorMessage;
-    this.resultExcerpt = resultExcerpt;
-    this.emailStatus = Objects.requireNonNull(emailStatus, "emailStatus");
+    this.startedAt = Objects.requireNonNull(startedAt, "startedAt");
+    this.status = RunStatus.FAILED;
+    this.emailStatus = EmailDeliveryStatus.PENDING;
   }
 
   /** Starts a run for the schedule now, provisionally failed with its email pending. */
   public static AutomationRun start(ScheduleId scheduleId, String ownerKey) {
-    return new AutomationRun(
-        RunId.generate(),
-        scheduleId,
-        ownerKey,
-        Instant.now(),
-        null,
-        RunStatus.FAILED,
-        null,
-        null,
-        EmailDeliveryStatus.PENDING);
+    return new AutomationRun(scheduleId, ownerKey, Instant.now());
+  }
+
+  /** Tells whether the run has finished. */
+  public boolean isFinished() {
+    return finishedAt != null;
   }
 
   /** Marks the run successful with a truncated result excerpt and stamps its finish time. */
@@ -84,7 +78,7 @@ public class AutomationRun extends AbstractOwnerKeyedRunEntity<RunId> {
     this.status = RunStatus.SUCCESS;
     this.resultExcerpt = truncate(resultExcerpt);
     this.emailStatus = Objects.requireNonNull(emailStatus, "emailStatus");
-    markFinished(Instant.now());
+    this.finishedAt = Instant.now();
     this.errorMessage = null;
   }
 
@@ -103,7 +97,7 @@ public class AutomationRun extends AbstractOwnerKeyedRunEntity<RunId> {
     this.status = finalStatus;
     this.errorMessage = truncateMessage(reason);
     this.emailStatus = EmailDeliveryStatus.SKIPPED;
-    markFinished(Instant.now());
+    this.finishedAt = Instant.now();
   }
 
   private void requireRunning() {

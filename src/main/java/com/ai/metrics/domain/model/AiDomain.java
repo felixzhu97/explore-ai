@@ -1,5 +1,6 @@
 package com.ai.metrics.domain.model;
 
+import jakarta.persistence.EnumeratedValue;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -12,7 +13,7 @@ public enum AiDomain {
   VISION("vision"),
   WORKFLOW("workflow");
 
-  private final String value;
+  @EnumeratedValue private final String value;
 
   AiDomain(String value) {
     this.value = value;

@@ -1,38 +1,29 @@
 package com.ai.common.domain.model;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
-import java.time.Instant;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Filter;
 
-/** Aggregate base for rows partitioned by owner_key. */
+/** Mutable entity partitioned by owner_key. */
 @MappedSuperclass
 @Filter(name = "ownerPartition")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractEmbeddable>
+public abstract class AbstractOwnerAwareEntity<IdT extends AbstractEmbeddable>
     extends AbstractEntity<IdT> {
 
   @NotNull
-  @Convert(converter = OwnerKeyAttributeConverter.class)
   @Column(nullable = false, length = 80)
   protected OwnerKey ownerKey;
 
-  protected AbstractOwnerKeyedEntity(
-      IdT id, OwnerKey ownerKey, Instant createdAt, Instant updatedAt) {
-    super(id, createdAt, updatedAt);
+  protected AbstractOwnerAwareEntity(IdT id, OwnerKey ownerKey) {
+    super(id);
     this.ownerKey = Objects.requireNonNull(ownerKey, "ownerKey");
-  }
-
-  protected AbstractOwnerKeyedEntity(
-      IdT id, String ownerKeyValue, Instant createdAt, Instant updatedAt) {
-    this(id, OwnerKey.parse(ownerKeyValue), createdAt, updatedAt);
   }
 
   /** Tells whether the entity belongs to the owner. */
@@ -61,6 +52,5 @@ public abstract class AbstractOwnerKeyedEntity<IdT extends AbstractEmbeddable>
   public void transferTo(OwnerKey accountOwnerKey) {
     ownerKey.requireMergeableInto(accountOwnerKey);
     this.ownerKey = accountOwnerKey;
-    touchUpdatedAt();
   }
 }

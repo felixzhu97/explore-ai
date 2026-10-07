@@ -1,11 +1,11 @@
 package com.ai.metrics.domain.model;
 
-import com.ai.common.domain.model.AbstractAppendOnlyEvent;
+import com.ai.common.domain.model.AbstractOwnerAwareImmutable;
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.common.domain.model.OwnerKeyAttributeConverter;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,10 +26,14 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId> {
+public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEventId> {
 
   @NotNull
-  @Convert(converter = AiDomainAttributeConverter.class)
+  @Column(nullable = false, updatable = false)
+  private Instant occurredAt;
+
+  @NotNull
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 32)
   private AiDomain domain;
 
@@ -39,7 +43,7 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
   private String operation;
 
   @NotNull
-  @Convert(converter = InvocationOutcomeAttributeConverter.class)
+  @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 16)
   private InvocationOutcome outcome;
 
@@ -82,22 +86,15 @@ public class AiInvocationEvent extends AbstractAppendOnlyEvent<InvocationEventId
   @Column(length = 512)
   private String errorMessage;
 
-  @NotNull
-  @Convert(converter = OwnerKeyAttributeConverter.class)
-  @Column(nullable = false, length = 80)
-  private OwnerKey ownerKey;
-
   private AiInvocationEvent(Builder builder) {
     super(
-        builder.id != null
-            ? InvocationEventId.of(builder.id.toString())
-            : InvocationEventId.generate(),
-        Objects.requireNonNullElseGet(builder.occurredAt, Instant::now));
+        builder.id != null ? InvocationEventId.of(builder.id) : InvocationEventId.generate(),
+        builder.ownerKey);
+    this.occurredAt = Objects.requireNonNullElseGet(builder.occurredAt, Instant::now);
     this.domain = builder.domain;
     this.operation = builder.operation;
     this.outcome = builder.outcome;
     this.latencyMs = builder.latency.millis();
-    this.ownerKey = builder.ownerKey;
     this.errorCode = builder.error == null ? null : builder.error.code();
     this.errorMessage = builder.error == null ? null : builder.error.message();
     this.provider = toNullIfBlank(builder.provider);

@@ -7,7 +7,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,11 +34,8 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
       String name,
       String description,
       String instructions,
-      List<String> allowedTools,
-      boolean enabled,
-      Instant createdAt,
-      Instant updatedAt) {
-    super(id, ownerKey, name, description, enabled, createdAt, updatedAt);
+      List<String> allowedTools) {
+    super(id, ownerKey, name, description);
     this.instructions = DomainStrings.requireNonBlank(instructions, "instructions");
     this.allowedTools = copyAllowedTools(allowedTools);
   }
@@ -51,17 +47,7 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
       String description,
       String instructions,
       List<String> allowedTools) {
-    Instant now = Instant.now();
-    return new Skill(
-        SkillId.generate(),
-        ownerKey,
-        name,
-        description,
-        instructions,
-        allowedTools,
-        true,
-        now,
-        now);
+    return new Skill(SkillId.generate(), ownerKey, name, description, instructions, allowedTools);
   }
 
   /** Replaces name, description, instructions, and allowed tools, then bumps the update time. */
@@ -71,7 +57,6 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
     updateDescription(description);
     this.instructions = DomainStrings.requireNonBlank(instructions, "instructions");
     this.allowedTools = copyAllowedTools(allowedTools);
-    touchUpdatedAt();
     return this;
   }
 

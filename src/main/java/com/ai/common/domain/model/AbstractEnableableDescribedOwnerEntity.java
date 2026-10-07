@@ -3,12 +3,11 @@ package com.ai.common.domain.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Enableable named owner-keyed aggregate with normalized description. */
+/** Enableable named owner-aware entity with a normalized description. */
 @MappedSuperclass
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
@@ -21,32 +20,23 @@ public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends Abstrac
   protected String description;
 
   protected AbstractEnableableDescribedOwnerEntity(
-      IdT id,
-      OwnerKey ownerKey,
-      String name,
-      String description,
-      boolean enabled,
-      Instant createdAt,
-      Instant updatedAt) {
-    super(id, ownerKey, name, enabled, createdAt, updatedAt);
-    this.description = DomainStrings.normalizeDescription(description);
-  }
-
-  protected AbstractEnableableDescribedOwnerEntity(
-      IdT id,
-      String ownerKey,
-      String name,
-      String description,
-      boolean enabled,
-      Instant createdAt,
-      Instant updatedAt) {
-    super(id, ownerKey, name, enabled, createdAt, updatedAt);
+      IdT id, String ownerKey, String name, String description) {
+    super(id, ownerKey, name);
     this.description = DomainStrings.normalizeDescription(description);
   }
 
   /** Updates the description. */
   protected void updateDescription(String nextDescription) {
     this.description = DomainStrings.normalizeDescription(nextDescription);
-    touchUpdatedAt();
+  }
+
+  /** Turns the entity on. */
+  public void enable() {
+    this.enabled = true;
+  }
+
+  /** Turns the entity on or off. */
+  public void changeEnabled(boolean enabled) {
+    this.enabled = enabled;
   }
 }
