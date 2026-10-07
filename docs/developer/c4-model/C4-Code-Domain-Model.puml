@@ -91,7 +91,7 @@ package "Common" as pkg_common_kernel {
     --
     +updateDescription(text)
     +enable()
-    +changeEnabled(enabled)
+    +updateEnabledState(enabled)
   }
   class OwnerKey <<ValueObject>> {
     +value: String
@@ -145,21 +145,21 @@ package "Chat" as pkg_chat {
     +value: String
     --
     +{static} DEFAULT
-    +{static} of(raw)
-    +{static} fromFirstMessage(text)
-    +{static} generated(modelTitle)
+    +{static} createTitle(text)
+    +{static} createTitleFromFirstMessage(text)
+    +{static} createGeneratedTitle(modelTitle)
     +isDefault()
   }
   class ChatMessage <<Entity>> {
     +id: MessageId
     +text: String
-    +messageType: ChatMessageType
+    +role: MessageRole
     --
-    +{static} restore(id, text, type, timestamp)
+    +{static} restoreMessage(id, text, role, timestamp)
     +isFromUser()
     +isFromAssistant()
   }
-  enum ChatMessageType <<Enum>> {
+  enum MessageRole <<Enum>> {
     USER
     ASSISTANT
   }
@@ -184,7 +184,7 @@ package "Chat" as pkg_chat {
 
 ChatSession "1" *-- "0..*" ChatMessage
 ChatSession --> SessionTitle
-ChatMessage --> ChatMessageType
+ChatMessage --> MessageRole
 
 ' ── rag ────────────────────────────────────────────────────
 package "RAG" as pkg_rag {
@@ -198,7 +198,7 @@ package "RAG" as pkg_rag {
     +{static} startIngestion(title, fileName, fileSize, ownerKey)
     +completeIngestion(chunkCount)
     +failIngestion()
-    +newChunk(index, content, sourceMetadata)
+    +createChunk(index, content, sourceMetadata)
     +isSearchable()
   }
   class DocumentChunk <<Entity>> {
@@ -208,23 +208,22 @@ package "RAG" as pkg_rag {
     +content: String
     --
     +{static} create(...)
-    +withEmbedding(vector)
-    +similarityTo(queryVector)
-    +excerpt()
+    +copyWithEmbedding(vector)
+    +calculateSimilarity(queryVector)
+    +getExcerpt()
   }
   class ScoredChunk <<ValueObject>> {
     +chunk: DocumentChunk
     +score: double
     --
-    +meets(threshold)
+    +meetsThreshold(threshold)
   }
   enum DocumentStatus <<Enum>> {
-    UPLOADING
     PROCESSING
     READY
     FAILED
   }
-  class SourceDocument <<ValueObject>> {
+  class SourceCitation <<ValueObject>> {
     +content: String
     +score: double
   }
@@ -254,7 +253,7 @@ package "Pipeline" as pkg_pipeline {
   class PipelineNode <<ValueObject>> {
     +agentType: AgentType
     --
-    +toDefinition(fallback)
+    +buildDefinition(fallback)
   }
   class PipelineTemplate <<Entity>> {
     +id: PipelineTemplateId
@@ -262,19 +261,19 @@ package "Pipeline" as pkg_pipeline {
     +agentTypes: List (workers only)
     --
     +isRunnable()
-    +toLinearPipeline()
-    +composeInvokeMessage(scheduleBrief)
+    +buildLinearPipeline()
+    +composeFirstMessage(scheduleBrief)
   }
-  class SavedAgent <<Entity>> {
-    +id: SavedAgentId
-    +typeKey: String
+  class CustomAgent <<Entity>> {
+    +id: CustomAgentId
+    +agentType: String
     --
-    +hasType(agentType)
-    +toAgentDefinition()
+    +hasAgentType(agentType)
+    +buildAgentDefinition()
   }
   interface PipelineTemplateRepository <<Repository>> {
   }
-  interface SavedAgentRepository <<Repository>> {
+  interface CustomAgentRepository <<Repository>> {
     +findAllByOwnerKeyAndEnabledTrueOrderByNameAsc(ownerKey)
   }
   interface AgentRegistry <<Repository>> {
@@ -291,7 +290,7 @@ package "Skill" as pkg_skill {
     --
     +{static} create(...)
     +update(name, instructions, tools)
-    +changeEnabled(enabled)
+    +updateEnabledState(enabled)
     +toPromptSection()
   }
   interface SkillRepository <<Repository>> {
@@ -338,9 +337,9 @@ package "Automation" as pkg_automation {
     +finishedAt: Instant
     --
     +{static} start(scheduleId, ownerKey, startedAt)
-    +succeed(excerpt, emailStatus)
-    +failBeforeEmail(error)
-    +skipForQuota()
+    +markSucceeded(excerpt, emailStatus)
+    +markFailedBeforeEmail(error)
+    +markSkippedForQuota()
   }
   enum RunStatus <<Enum>> {
     SUCCESS
@@ -354,7 +353,7 @@ AutomationSchedule --> ScheduleTiming : next run from
 
 ' ── account ────────────────────────────────────────────────
 package "Account" as pkg_account {
-  class AccountUser <<Entity>> {
+  class Account <<Entity>> {
     +provider: String <<NaturalId>>
     +subject: String <<NaturalId>>
     +email: ContactEmail
@@ -362,11 +361,11 @@ package "Account" as pkg_account {
     +linkedClientId: ClientId
     --
     +{static} create(identity, email, displayName)
-    +identity(): ExternalIdentity
+    +getIdentity(): ExternalIdentity
     +linkBrowser(clientId, email, displayName)
     +recordSignIn(email, displayName)
     +unlinkBrowser()
-    +ownerKey()
+    +createOwnerKey()
     +guestOwnerKey(): Optional
     +displayLabel(): Optional
   }
@@ -390,9 +389,9 @@ package "Account" as pkg_account {
   }
 }
 
-AccountUser --> ExternalIdentity : identified by
-AccountUser --> ContactEmail
-AccountUser --> ClientId : linked browser
+Account --> ExternalIdentity : identified by
+Account --> ContactEmail
+Account --> ClientId : linked browser
 
 ' ── billing ────────────────────────────────────────────────
 package "Billing" as pkg_billing {
@@ -455,46 +454,46 @@ package "MCP" as pkg_mcp {
 package "Metrics" as pkg_metrics {
   class AiInvocationEvent <<DomainEvent>> {
     @Immutable
-    +domain: AiDomain
+    +capability: AiCapability
     +outcome: InvocationOutcome
     +ownerKey: OwnerKey (required at creation)
     +latencyMs: long
     --
-    +{static} succeeded(domain, operation, latency, ownerKey)
-    +{static} failed(domain, operation, latency, ownerKey, error)
+    +{static} createSucceededEvent(capability, operation, latency, ownerKey)
+    +{static} createFailedEvent(capability, operation, latency, ownerKey, error)
   }
   class Latency <<ValueObject>> {
     +millis: long
     --
-    +{static} since(startNanos)
+    +{static} measureSince(startNanos)
   }
   class ErrorSummary <<ValueObject>> {
     +code: String
     +message: String
     --
-    +{static} of(throwable)
+    +{static} createSummary(throwable)
   }
   class TokenUsage <<ValueObject>> {
     +prompt: Integer
     +completion: Integer
     --
-    +total()
+    +calculateTotal()
   }
   class InvocationStats <<ValueObject>> {
     +requests: long
     +errors: long
     --
-    +errorRate()
-    +successRate()
+    +calculateErrorRate()
+    +calculateSuccessRate()
   }
   class MetricsWindow <<ValueObject>> {
-    +{static} parse(range)
+    +{static} parseWindow(range)
     +from(now)
   }
   class LatencyStats <<ValueObject>> {
-    +{static} fromSorted(latencies)
+    +{static} calculateStats(latencies)
   }
-  enum AiDomain <<Enum>> {
+  enum AiCapability <<Enum>> {
     CHAT
     RAG
     AGENTS
@@ -506,7 +505,7 @@ package "Metrics" as pkg_metrics {
 
 ' ── tools (sample) ─────────────────────────────────────────
 package "Tool Calling" as pkg_tools {
-  class WeatherReport <<Entity>> {
+  class WeatherSimulator <<Entity>> {
     +location: String
     +current: WeatherInfo
   }
@@ -530,10 +529,10 @@ AbstractOwnerAwareEntity <|-- ChatSession : metadata only
 AbstractOwnerAwareEntity <|-- RagDocument
 AbstractEnableableDescribedOwnerEntity <|-- Skill
 AbstractEnableableDescribedOwnerEntity <|-- PipelineTemplate
-AbstractEnableableDescribedOwnerEntity <|-- SavedAgent
+AbstractEnableableDescribedOwnerEntity <|-- CustomAgent
 AbstractEnableableNamedOwnerEntity <|-- AutomationSchedule
 AbstractOwnerAwareImmutable <|-- AutomationRun
-AbstractEntity <|-- AccountUser
+AbstractEntity <|-- Account
 AbstractOwnerAwareImmutable <|-- AiInvocationEvent
 
 OwnerScopedRepository <|-- SkillRepository
@@ -542,14 +541,14 @@ OwnerScopedRepository <|-- PipelineTemplateRepository
 ChatSession ..> OwnerKey : owned by
 RagDocument ..> OwnerKey : owned by
 Skill ..> OwnerKey : owned by
-AccountUser ..> OwnerKey : links browser
+Account ..> OwnerKey : links browser
 AiInvocationEvent ..> OwnerKey : attributed to
 AutomationSchedule ..> PipelineTemplate : by id (PipelineTemplateId)
 AiInvocationEvent --> Latency
 AiInvocationEvent --> ErrorSummary
 AiInvocationEvent --> TokenUsage
 PipelineTemplate ..> AgentPipeline : builds linear
-SavedAgent ..> AgentDefinition : overrides builtin
+CustomAgent ..> AgentDefinition : overrides builtin
 
 N_LAYERS .. pkg_chat
 N_LAYERS .. pkg_base

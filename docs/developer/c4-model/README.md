@@ -100,7 +100,7 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 - **端口**: dev **9000** / prod **8080** (Render `PORT`)
 - **子域 (13)**: Chat / Pipeline / Skill / RAG / Tools / Text Analysis (`textanalysis`) / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
 - **持久化**: H2 嵌入式（会话元数据 `ChatSessionRepository` + 消息 `JdbcChatMemoryRepository` + 向量 + AI 调用事件 `ai_invocation_event`）
-- **JPA / Hibernate**: 归属聚合继承 `AbstractOwnerAwareEntity`（运行记录与调用事件继承 `AbstractOwnerAwareImmutable`）（`owner_key` NOT NULL，Liquibase `0.1-012` 回填遗留会话为 `c:legacy-orphan`）；领域仓储继承 Spring Data `Repository<T, ID>`，按归属读写以 `OwnerKey` 作为显式查询参数（如 `findByIdAndOwnerKey`），后台任务使用不带归属的查询；类型化 ID 映射原生 UUID 列；`AiInvocationEvent` 为 `@Immutable`；`AccountUser` 以 `@NaturalId`（provider + subject）查找
+- **JPA / Hibernate**: 归属聚合继承 `AbstractOwnerAwareEntity`（运行记录与调用事件继承 `AbstractOwnerAwareImmutable`）（`owner_key` NOT NULL，Liquibase `0.1-012` 回填遗留会话为 `c:legacy-orphan`）；领域仓储继承 Spring Data `Repository<T, ID>`，按归属读写以 `OwnerKey` 作为显式查询参数（如 `findByIdAndOwnerKey`），后台任务使用不带归属的查询；类型化 ID 映射原生 UUID 列；`AiInvocationEvent` 为 `@Immutable`；`Account` 以 `@NaturalId`（provider + subject）查找
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`）
 - **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Starter 512MB 默认关闭）
 - **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索) / Resend (Automations 邮件)
@@ -115,7 +115,7 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 | Worker 列表 / 健康 | `GET /api/pipelines/agent-types`, `.../health` | `PipelineController`, `PipelineService` |
 | 单 Worker SSE | `POST /api/pipelines/{type}/invoke/sse` | `SpringAiWorkerAgentInvoker` |
 | Supervisor SSE | `POST /api/pipelines/supervisor/invoke/sse` | `SpringAiSupervisorRouter` |
-| 画布图 SSE | `POST /api/pipelines/invoke/sse` | `PipelineOrchestrationService`；节点可带 `systemPrompt`/`toolKeys` 快照 |
+| 画布图 SSE | `POST /api/pipelines/invoke/sse` | `PipelineOrchestrationService`；节点可带 `systemPrompt`/`tools` 快照 |
 
 Worker 定义来自 Pipeline 内置目录：`AgentTemplateCatalog`（`classpath:agent-templates/{lang}.json`）经 `CatalogAgentRegistry` 提供调色板种子；画布双击编辑的是**图内节点副本**。Classpath Agent Skills：`AgentSkillsRuntime`（`com.ai.common`，`app.agent-skills`）。
 
@@ -155,7 +155,7 @@ Worker 定义来自 Pipeline 内置目录：`AgentTemplateCatalog`（`classpath:
 | 能力 | API | 主要组件 |
 | --- | --- | --- |
 | 概览 | `GET /api/metrics/overview` | `MetricsController`, `MetricsService` |
-| 域快照 | `GET /api/metrics/domains/{domain}` | `JdbcMetricsQueryRepository` |
+| 能力快照 | `GET /api/metrics/capabilities/{capability}` | `JdbcMetricsQueryRepository` |
 | 时序 | `GET /api/metrics/series` | `SeriesSnapshot` |
 | 下钻 | `GET /api/metrics/drilldown` | `AiInvocationEvent`, `JpaAiInvocationEventRepository`（JPA persist 写入，JDBC 下钻） |
 

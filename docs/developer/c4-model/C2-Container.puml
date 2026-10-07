@@ -19,7 +19,7 @@ Container(ios_app, "AI iOS", "SwiftUI", "src/main/ios · PKCE · explore-ai-ios 
 ' ============================================================
 ' BACKEND
 ' ============================================================
-Container(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "Clean Architecture，dev :9000 / prod :8080\nIamResourceServerConfig · JWT → AccountUser")
+Container(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0", "Clean Architecture，dev :9000 / prod :8080\nIamResourceServerConfig · JWT → Account")
 
 ' ============================================================
 ' DOMAIN 1: CHAT
@@ -154,7 +154,7 @@ Container_Boundary(mcp_client_domain, "MCP Client Domain") {
 ' DOMAIN: METRICS
 ' ============================================================
 Container_Boundary(metrics_domain, "Metrics Domain") {
-    Container(metrics_controller, "MetricsController", "@RestController", "/api/metrics/* (overview, domains, series, drilldown)")
+    Container(metrics_controller, "MetricsController", "@RestController", "/api/metrics/* (overview, capabilities, series, drilldown)")
     Container(metrics_service, "MetricsService", "Application Service", "概览 / 域快照 / 时序 / 下钻")
     Container(invocation_recorder, "AiInvocationRecorder", "Application", "业务路径旁路记录调用事件")
     Container(ai_invocation_event, "AiInvocationEvent", "Entity", "AI 调用事件")
