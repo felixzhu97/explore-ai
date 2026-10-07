@@ -14,7 +14,7 @@ class ImageCatalogTest {
   @Test
   @DisplayName("should return same default instance")
   void shouldReturnSameDefaultInstance() {
-    assertThat(ImageCatalog.defaults()).isSameAs(ImageCatalog.defaults());
+    assertThat(ImageCatalog.createDefaultCatalog()).isSameAs(ImageCatalog.createDefaultCatalog());
   }
 
   @Test

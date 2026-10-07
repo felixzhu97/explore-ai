@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class PipelineTemplateRepositoryTest extends AbstractDataJpaTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parse("c:66666666-6666-6666-6666-666666666666");
-  private static final OwnerKey OTHER = OwnerKey.parse("c:77777777-7777-7777-7777-777777777777");
+  private static final OwnerKey OWNER = OwnerKey.parseKey("c:66666666-6666-6666-6666-666666666666");
+  private static final OwnerKey OTHER = OwnerKey.parseKey("c:77777777-7777-7777-7777-777777777777");
 
   @Autowired private PipelineTemplateRepository repository;
 
@@ -22,7 +22,7 @@ class PipelineTemplateRepositoryTest extends AbstractDataJpaTest {
   void shouldReloadTheAgentOrderAndBriefOnlyForTheOwner() {
     PipelineTemplate template =
         repository.save(
-            PipelineTemplate.create(
+            PipelineTemplate.createTemplate(
                 OWNER.value(),
                 "Research flow",
                 "Two-step workflow",

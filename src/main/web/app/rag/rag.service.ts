@@ -50,7 +50,7 @@ export function parseRagSources(data: string): RagSourceEvent[] {
   });
 }
 
-export type DocumentStatus = 'UPLOADING' | 'PROCESSING' | 'READY' | 'FAILED';
+export type DocumentStatus = 'PROCESSING' | 'READY' | 'FAILED';
 
 export interface DocumentSummaryResponse {
   id: string;

@@ -13,36 +13,38 @@ class RoutingPlanTest {
 
   @Test
   void shouldCreateSingleWorkerPlan() {
-    RoutingPlan plan = RoutingPlan.single(AgentType.of("k8s"), "pods");
+    RoutingPlan plan = RoutingPlan.createSingleAgentPlan(AgentType.createType("k8s"), "pods");
     assertEquals("k8s", plan.primaryAgent().value());
     assertTrue(plan.subtasks().isEmpty());
   }
 
   @Test
   void shouldCopyNullSubtasksAsEmpty() {
-    RoutingPlan plan = new RoutingPlan(AgentType.of("aiops"), "reason", null);
+    RoutingPlan plan = new RoutingPlan(AgentType.createType("aiops"), "reason", null);
     assertTrue(plan.subtasks().isEmpty());
   }
 
   @Test
   void shouldRejectSupervisorAsPrimary() {
     assertThrows(
-        IllegalArgumentException.class, () -> RoutingPlan.single(AgentType.supervisor(), "bad"));
+        IllegalArgumentException.class,
+        () -> RoutingPlan.createSingleAgentPlan(AgentType.createSupervisorType(), "bad"));
   }
 
   @Test
   void shouldRejectSupervisorSubtask() {
     assertThrows(
-        IllegalArgumentException.class, () -> new RoutingPlan.Subtask(AgentType.supervisor(), "x"));
+        IllegalArgumentException.class,
+        () -> new RoutingPlan.Subtask(AgentType.createSupervisorType(), "x"));
   }
 
   @Test
   void shouldKeepSubtasks() {
     RoutingPlan plan =
         new RoutingPlan(
-            AgentType.of("k8s"),
+            AgentType.createType("k8s"),
             "multi",
-            List.of(new RoutingPlan.Subtask(AgentType.of("aiops"), "check")));
+            List.of(new RoutingPlan.Subtask(AgentType.createType("aiops"), "check")));
     assertEquals(1, plan.subtasks().size());
   }
 }

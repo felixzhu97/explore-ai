@@ -27,7 +27,7 @@ public class HashingTextEmbeddingGateway implements TextEmbeddingGateway {
   }
 
   @Override
-  public float[] embed(String text) {
+  public float[] embedText(String text) {
     return hashToVector(text == null ? "" : text);
   }
 
@@ -35,7 +35,7 @@ public class HashingTextEmbeddingGateway implements TextEmbeddingGateway {
   public List<float[]> embedBatch(List<String> texts) {
     List<float[]> out = new ArrayList<>(texts.size());
     for (String text : texts) {
-      out.add(embed(text));
+      out.add(embedText(text));
     }
     return out;
   }

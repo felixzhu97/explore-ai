@@ -28,7 +28,7 @@ public record AutomationScheduleResponse(
         schedule.getName(),
         schedule.getTiming().getScheduleKind(),
         schedule.getTiming().getCronExpression(),
-        schedule.pendingRunAt().orElse(null),
+        schedule.getPendingRunAt().orElse(null),
         schedule.getTiming().getTimezone(),
         schedule.isEnabled(),
         schedule.getActionType(),

@@ -14,6 +14,6 @@ public class ClientIdAttributeConverter implements AttributeConverter<ClientId, 
 
   @Override
   public ClientId convertToEntityAttribute(String dbData) {
-    return dbData == null || dbData.isBlank() ? null : ClientId.parse(dbData);
+    return dbData == null || dbData.isBlank() ? null : ClientId.parseId(dbData);
   }
 }

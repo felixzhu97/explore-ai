@@ -30,7 +30,7 @@ public class ModuleAccessFilter extends OncePerRequestFilter {
     if (request.getPathInfo() != null) {
       path += request.getPathInfo();
     }
-    ModuleFlag module = ModuleFlag.fromPath(path);
+    ModuleFlag module = ModuleFlag.findFlagByPath(path);
     if (module != null && !featureFlagService.isModuleEnabled(module)) {
       response.sendError(HttpStatus.NOT_FOUND.value());
       return;

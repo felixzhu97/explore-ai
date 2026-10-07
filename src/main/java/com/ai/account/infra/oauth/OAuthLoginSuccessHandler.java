@@ -50,7 +50,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     Object attribute = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
     Optional<OAuthSignIn> signIn = OAuthSignIn.from(authentication);
     if (attribute instanceof String raw && ClientId.isValid(raw) && signIn.isPresent()) {
-      Account account = accountService.linkOAuthUser(signIn.get(), ClientId.parse(raw));
+      Account account = accountService.linkOAuthUser(signIn.get(), ClientId.parseId(raw));
       ownerMergeService.mergeGuestIntoAccount(account);
     }
 

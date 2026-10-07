@@ -19,7 +19,7 @@ public class SpringAiImageGenerationGateway implements ImageGenerationGateway {
   private final ImageModel imageModel;
 
   @Override
-  public GeneratedImage generate(ImagePrompt prompt, ImageOptions options) {
+  public GeneratedImage generateImage(ImagePrompt prompt, ImageOptions options) {
 
     OpenAiImageOptions.Builder optionsBuilder =
         OpenAiImageOptions.builder()
@@ -37,25 +37,25 @@ public class SpringAiImageGenerationGateway implements ImageGenerationGateway {
     ImageResponse response = imageModel.call(imagePrompt);
 
     if (response == null || response.getResults() == null || response.getResults().isEmpty()) {
-      return GeneratedImage.empty();
+      return GeneratedImage.createEmptyImage();
     }
 
     var firstResult = response.getResults().getFirst();
     if (firstResult == null || firstResult.getOutput() == null) {
-      return GeneratedImage.empty();
+      return GeneratedImage.createEmptyImage();
     }
 
     var output = firstResult.getOutput();
     String imageBase64 = output.getB64Json();
     if (StringUtils.hasText(imageBase64)) {
-      return GeneratedImage.fromBase64(imageBase64, options.model(), prompt.value());
+      return GeneratedImage.createBase64Image(imageBase64, options.model(), prompt.value());
     }
 
     String imageUrl = output.getUrl();
     if (StringUtils.hasText(imageUrl)) {
-      return GeneratedImage.fromUrl(imageUrl, options.model(), prompt.value());
+      return GeneratedImage.createUrlImage(imageUrl, options.model(), prompt.value());
     }
 
-    return GeneratedImage.empty();
+    return GeneratedImage.createEmptyImage();
   }
 }

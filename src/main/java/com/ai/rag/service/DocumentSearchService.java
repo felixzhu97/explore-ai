@@ -29,15 +29,15 @@ public class DocumentSearchService {
    */
   public RetrievalResult retrieve(
       String query, List<DocumentId> documentIds, int topK, String ownerKey) {
-    float[] queryEmbedding = embeddingRepository.embed(query);
+    float[] queryEmbedding = embeddingRepository.embedText(query);
     int effectiveTopK = topK > 0 ? topK : retrievalSettings.getTopK();
     double scoreThreshold = retrievalSettings.getScoreThreshold();
 
     List<UUID> uuids =
         documentIds == null ? List.of() : documentIds.stream().map(DocumentId::getValue).toList();
     List<ScoredChunk> matches =
-        chunkSearchRepository.search(queryEmbedding, effectiveTopK, ownerKey, uuids).stream()
-            .filter(scored -> scored.meets(scoreThreshold))
+        chunkSearchRepository.searchChunks(queryEmbedding, effectiveTopK, ownerKey, uuids).stream()
+            .filter(scored -> scored.meetsThreshold(scoreThreshold))
             .sorted(ScoredChunk.BEST_FIRST)
             .toList();
 
@@ -51,7 +51,7 @@ public class DocumentSearchService {
             .map(
                 scored ->
                     new SourceCitation(
-                        scored.chunk().excerpt(), scored.score(), scored.chunk().getMetadata()))
+                        scored.chunk().getExcerpt(), scored.score(), scored.chunk().getMetadata()))
             .toList();
 
     return new RetrievalResult(context, sources);

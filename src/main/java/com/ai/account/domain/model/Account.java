@@ -51,9 +51,10 @@ public class Account extends AbstractEntity<AccountId> {
   }
 
   /** Creates an account for the identity, not yet linked to a browser. */
-  public static Account create(ExternalIdentity identity, ContactEmail email, String displayName) {
+  public static Account createAccount(
+      ExternalIdentity identity, ContactEmail email, String displayName) {
     Objects.requireNonNull(identity, "identity");
-    Account account = new Account(AccountId.generate());
+    Account account = new Account(AccountId.generateId());
     account.provider = identity.provider();
     account.subject = identity.subject();
     account.email = email;
@@ -62,8 +63,8 @@ public class Account extends AbstractEntity<AccountId> {
   }
 
   /** Returns the provider and subject this account signs in with. */
-  public ExternalIdentity identity() {
-    return ExternalIdentity.of(provider, subject);
+  public ExternalIdentity getIdentity() {
+    return ExternalIdentity.createIdentity(provider, subject);
   }
 
   /** Links this account to the browser and refreshes the profile from the provider. */
@@ -83,17 +84,17 @@ public class Account extends AbstractEntity<AccountId> {
   }
 
   /** Returns the data partition of this account. */
-  public OwnerKey ownerKey() {
-    return OwnerKey.forAccount(getId().toString());
+  public OwnerKey createOwnerKey() {
+    return OwnerKey.createAccountKey(getId().toString());
   }
 
   /** Returns the guest partition of the linked browser, when one is linked. */
-  public Optional<OwnerKey> guestOwnerKey() {
-    return Optional.ofNullable(linkedClientId).map(id -> OwnerKey.forClient(id.value()));
+  public Optional<OwnerKey> findGuestOwnerKey() {
+    return Optional.ofNullable(linkedClientId).map(id -> OwnerKey.createClientKey(id.value()));
   }
 
   /** Returns the name to show for this account: display name first, then email. */
-  public Optional<String> displayLabel() {
+  public Optional<String> findDisplayLabel() {
     if (displayName != null) {
       return Optional.of(displayName);
     }

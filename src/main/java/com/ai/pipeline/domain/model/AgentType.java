@@ -14,12 +14,12 @@ public record AgentType(String value) {
   }
 
   /** Creates an agent type. */
-  public static AgentType of(String value) {
+  public static AgentType createType(String value) {
     return new AgentType(value);
   }
 
   /** Returns the supervisor type. */
-  public static AgentType supervisor() {
+  public static AgentType createSupervisorType() {
     return new AgentType("supervisor");
   }
 

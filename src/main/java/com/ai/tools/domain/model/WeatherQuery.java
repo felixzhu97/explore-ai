@@ -12,7 +12,7 @@ public record WeatherQuery(String city, String normalizedCity) {
   }
 
   /** Creates a weather query for the city. */
-  public static WeatherQuery of(String city) {
+  public static WeatherQuery createQuery(String city) {
     return new WeatherQuery(city, city);
   }
 }

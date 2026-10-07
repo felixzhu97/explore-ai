@@ -19,12 +19,12 @@ public enum AiCapability {
     this.value = value;
   }
 
-  public String value() {
+  public String getValue() {
     return value;
   }
 
   /** Resolves a case-insensitive capability value, returning empty when blank or unknown. */
-  public static Optional<AiCapability> parse(String raw) {
+  public static Optional<AiCapability> findCapability(String raw) {
     if (raw == null || raw.isBlank()) {
       return Optional.empty();
     }
@@ -38,8 +38,8 @@ public enum AiCapability {
   }
 
   /** Parses a capability value, rejecting unknown values. */
-  public static AiCapability require(String raw) {
-    return parse(raw)
+  public static AiCapability parseCapability(String raw) {
+    return findCapability(raw)
         .orElseThrow(() -> new IllegalArgumentException("Unknown AI capability: " + raw));
   }
 }

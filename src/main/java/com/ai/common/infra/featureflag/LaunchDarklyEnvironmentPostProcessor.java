@@ -43,9 +43,9 @@ public class LaunchDarklyEnvironmentPostProcessor implements EnvironmentPostProc
     try {
       LaunchDarklyInitializationWaiter.waitForInitialization(client, Duration.ofSeconds(5));
       for (ModuleFlag flag : ModuleFlag.values()) {
-        boolean fallback = readFallback(environment, flag.key());
-        boolean value = client.boolVariation(flag.key(), SERVER_CONTEXT, fallback);
-        bootstrap.put(flag.bootstrapProperty(), value);
+        boolean fallback = readFallback(environment, flag.getKey());
+        boolean value = client.boolVariation(flag.getKey(), SERVER_CONTEXT, fallback);
+        bootstrap.put(flag.getBootstrapProperty(), value);
       }
     } finally {
       try {
@@ -59,7 +59,7 @@ public class LaunchDarklyEnvironmentPostProcessor implements EnvironmentPostProc
   private Map<String, Object> readFromFallback(ConfigurableEnvironment environment) {
     Map<String, Object> bootstrap = new HashMap<>();
     for (ModuleFlag flag : ModuleFlag.values()) {
-      bootstrap.put(flag.bootstrapProperty(), readFallback(environment, flag.key()));
+      bootstrap.put(flag.getBootstrapProperty(), readFallback(environment, flag.getKey()));
     }
     return bootstrap;
   }

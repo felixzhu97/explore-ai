@@ -34,7 +34,7 @@ public class AutomationService {
 
   /** Lists the owner's schedules. */
   public List<AutomationSchedule> list(String ownerKey) {
-    return scheduleRepository.findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey.parse(ownerKey));
+    return scheduleRepository.findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey.parseKey(ownerKey));
   }
 
   /** Lists recent runs of the owner's schedule, capped at 100. */
@@ -42,7 +42,7 @@ public class AutomationService {
     requireOwned(ownerKey, scheduleId);
     int capped = Math.min(Math.max(limit, 1), 100);
     return runRepository.findAllByScheduleIdAndOwnerKeyOrderByStartedAtDesc(
-        ScheduleId.of(scheduleId), OwnerKey.parse(ownerKey), Limit.of(capped));
+        ScheduleId.parseId(scheduleId), OwnerKey.parseKey(ownerKey), Limit.of(capped));
   }
 
   /** Creates a schedule for the owner and arms its first run. */
@@ -57,7 +57,7 @@ public class AutomationService {
       String pipelineTemplateId,
       String recipientEmail,
       String brief) {
-    if (scheduleRepository.countByOwnerKey(OwnerKey.parse(ownerKey))
+    if (scheduleRepository.countByOwnerKey(OwnerKey.parseKey(ownerKey))
         >= properties.getMaxSchedulesPerClient()) {
       throw DomainException.limitExceeded(
           "AUTOMATION_LIMIT_EXCEEDED",
@@ -67,9 +67,9 @@ public class AutomationService {
     Instant now = Instant.now();
     AutomationSchedule schedule =
         scheduleKind == ScheduleKind.ONCE
-            ? AutomationSchedule.createOnce(
+            ? AutomationSchedule.createOneOffSchedule(
                 ownerKey, name, timezone, pipelineTemplateId, recipientEmail, brief, runAt, now)
-            : AutomationSchedule.create(
+            : AutomationSchedule.createSchedule(
                 ownerKey,
                 name,
                 cronExpression,
@@ -98,7 +98,7 @@ public class AutomationService {
     requireWorkflow(ownerKey, pipelineTemplateId);
     schedule.update(
         name,
-        ScheduleTiming.of(scheduleKind, cronExpression, timezone),
+        ScheduleTiming.createTiming(scheduleKind, cronExpression, timezone),
         runAt,
         pipelineTemplateId,
         recipientEmail,
@@ -112,7 +112,7 @@ public class AutomationService {
   public AutomationSchedule setEnabled(String ownerKey, String scheduleId, boolean enabled) {
     AutomationSchedule schedule = requireOwned(ownerKey, scheduleId);
     if (enabled) {
-      schedule.turnOn(Instant.now());
+      schedule.enableSchedule(Instant.now());
     } else {
       schedule.disable();
     }
@@ -123,12 +123,13 @@ public class AutomationService {
   @Transactional
   public void delete(String ownerKey, String scheduleId) {
     requireOwned(ownerKey, scheduleId);
-    scheduleRepository.deleteByIdAndOwnerKey(ScheduleId.of(scheduleId), OwnerKey.parse(ownerKey));
+    scheduleRepository.deleteByIdAndOwnerKey(
+        ScheduleId.parseId(scheduleId), OwnerKey.parseKey(ownerKey));
   }
 
   private AutomationSchedule requireOwned(String ownerKey, String scheduleId) {
     return scheduleRepository
-        .findByIdAndOwnerKey(ScheduleId.of(scheduleId), OwnerKey.parse(ownerKey))
+        .findByIdAndOwnerKey(ScheduleId.parseId(scheduleId), OwnerKey.parseKey(ownerKey))
         .orElseThrow(
             () ->
                 DomainException.notFound(
@@ -138,7 +139,8 @@ public class AutomationService {
 
   private void requireWorkflow(String ownerKey, String pipelineTemplateId) {
     pipelineTemplateRepository
-        .findByIdAndOwnerKey(PipelineTemplateId.of(pipelineTemplateId), OwnerKey.parse(ownerKey))
+        .findByIdAndOwnerKey(
+            PipelineTemplateId.parseId(pipelineTemplateId), OwnerKey.parseKey(ownerKey))
         .filter(PipelineTemplate::isRunnable)
         .orElseThrow(
             () ->

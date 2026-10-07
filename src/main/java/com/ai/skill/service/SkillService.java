@@ -23,7 +23,7 @@ public class SkillService {
 
   /** Lists the owner's skills. */
   public List<Skill> list(String ownerKey) {
-    return skillRepository.findAllByOwnerKeyOrderByNameAsc(OwnerKey.parse(ownerKey));
+    return skillRepository.findAllByOwnerKeyOrderByNameAsc(OwnerKey.parseKey(ownerKey));
   }
 
   /**
@@ -35,7 +35,8 @@ public class SkillService {
     if (ids.isEmpty()) {
       return Optional.empty();
     }
-    List<Skill> skills = skillRepository.findEnabledByOwnerKeyAndIds(OwnerKey.parse(ownerKey), ids);
+    List<Skill> skills =
+        skillRepository.findEnabledByOwnerKeyAndIds(OwnerKey.parseKey(ownerKey), ids);
     return Optional.ofNullable(SkillSystemPromptBuilder.build(skills));
   }
 
@@ -57,7 +58,7 @@ public class SkillService {
       String instructions,
       List<String> allowedTools) {
     assertNameAvailable(ownerKey, name, null);
-    Skill skill = Skill.create(ownerKey, name, description, instructions, allowedTools);
+    Skill skill = Skill.createSkill(ownerKey, name, description, instructions, allowedTools);
     return skillRepository.save(skill);
   }
 
@@ -92,33 +93,33 @@ public class SkillService {
   /** Enables or disables the owner's skill. */
   public Skill setEnabled(String ownerKey, String id, boolean enabled) {
     Skill skill = findOwnedSkill(ownerKey, id);
-    skill.changeEnabled(enabled);
+    skill.updateEnabledState(enabled);
     return skillRepository.save(skill);
   }
 
   /** Deletes the owner's skill. */
   public void delete(String ownerKey, String id) {
     findOwnedSkill(ownerKey, id);
-    skillRepository.deleteByIdAndOwnerKey(SkillId.of(id), OwnerKey.parse(ownerKey));
+    skillRepository.deleteByIdAndOwnerKey(SkillId.parseId(id), OwnerKey.parseKey(ownerKey));
   }
 
   private Skill findOwnedSkill(String ownerKey, String id) {
     return skillRepository
-        .findByIdAndOwnerKey(SkillId.of(id), OwnerKey.parse(ownerKey))
+        .findByIdAndOwnerKey(SkillId.parseId(id), OwnerKey.parseKey(ownerKey))
         .orElseThrow(() -> DomainException.notFound("SKILL_NOT_FOUND", "Skill not found: " + id));
   }
 
   private void assertNameAvailable(String ownerKey, String name, SkillId excludeId) {
     String normalized = DomainStrings.normalizeName(name);
     if (skillRepository.existsByOwnerKeyAndNameIgnoringId(
-        OwnerKey.parse(ownerKey), normalized, excludeId)) {
+        OwnerKey.parseKey(ownerKey), normalized, excludeId)) {
       throw DomainException.conflict(
           "SKILL_NAME_CONFLICT", "Skill name already exists: " + normalized);
     }
   }
 
   private String findNextAvailableName(String ownerKey, String baseName) {
-    OwnerKey owner = OwnerKey.parse(ownerKey);
+    OwnerKey owner = OwnerKey.parseKey(ownerKey);
     return DomainStrings.copyNameCandidates(baseName, DomainStrings.DEFAULT_NAME_MAX)
         .filter(name -> !skillRepository.existsByOwnerKeyAndNameIgnoringId(owner, name, null))
         .findFirst()
@@ -126,7 +127,7 @@ public class SkillService {
             () ->
                 DomainStrings.copyName(
                     baseName,
-                    SkillId.generate().toString().substring(0, 8),
+                    SkillId.generateId().toString().substring(0, 8),
                     DomainStrings.DEFAULT_NAME_MAX));
   }
 
@@ -140,7 +141,7 @@ public class SkillService {
         continue;
       }
       try {
-        parsed.add(SkillId.of(skillId.trim()));
+        parsed.add(SkillId.parseId(skillId.trim()));
       } catch (IllegalArgumentException expected) {
       }
     }

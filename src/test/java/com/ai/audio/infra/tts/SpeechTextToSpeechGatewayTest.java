@@ -21,7 +21,9 @@ class SpeechTextToSpeechGatewayTest {
   @Test
   @DisplayName("should omit OpenAI catalog voices for Qwen TTS")
   void shouldOmitOpenAiCatalogVoicesForQwenTts() {
-    assertThat(SpeechTextToSpeechGateway.resolveQwenSpeaker(VoiceSelection.of("alloy", null)))
+    assertThat(
+            SpeechTextToSpeechGateway.resolveQwenSpeaker(
+                VoiceSelection.createSelection("alloy", null)))
         .isNull();
   }
 

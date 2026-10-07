@@ -26,7 +26,7 @@ public record ImageCatalog(List<String> models, List<String> sizes, List<String>
   }
 
   /** Returns the default catalog. */
-  public static ImageCatalog defaults() {
+  public static ImageCatalog createDefaultCatalog() {
     return DEFAULT;
   }
 
@@ -46,12 +46,12 @@ public record ImageCatalog(List<String> models, List<String> sizes, List<String>
   }
 
   /** Returns the default model. */
-  public String defaultModel() {
+  public String getDefaultModel() {
     return models.getFirst();
   }
 
   /** Returns the default quality. */
-  public String defaultQuality() {
+  public String getDefaultQuality() {
     return qualities.getFirst();
   }
 }

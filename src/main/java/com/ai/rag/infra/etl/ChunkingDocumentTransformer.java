@@ -16,7 +16,7 @@ public class ChunkingDocumentTransformer implements DocumentTransformer {
   private final TokenTextSplitter textSplitter;
 
   @Override
-  public List<ExtractedDocument> transform(ExtractedDocument document) {
+  public List<ExtractedDocument> splitDocument(ExtractedDocument document) {
     if (document.content() == null || document.content().isBlank()) {
       return List.of();
     }

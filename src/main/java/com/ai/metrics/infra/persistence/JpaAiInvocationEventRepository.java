@@ -30,19 +30,20 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
 
   private static final RowMapper<AiInvocationEvent> ROW_MAPPER =
       (rs, rowNum) -> {
-        AiCapability capability = AiCapability.require(rs.getString("capability"));
+        AiCapability capability = AiCapability.parseCapability(rs.getString("capability"));
         String operation = rs.getString("operation");
-        Latency latency = Latency.ofMillis(rs.getLong("latency_ms"));
-        OwnerKey owner = OwnerKey.parse(rs.getString("owner_key"));
+        Latency latency = Latency.createFromMillis(rs.getLong("latency_ms"));
+        OwnerKey owner = OwnerKey.parseKey(rs.getString("owner_key"));
         AiInvocationEvent.Builder event =
-            InvocationOutcome.parse(rs.getString("outcome")) == InvocationOutcome.SUCCESS
-                ? AiInvocationEvent.succeeded(capability, operation, latency, owner)
-                : AiInvocationEvent.failed(
+            InvocationOutcome.parseOutcome(rs.getString("outcome")) == InvocationOutcome.SUCCESS
+                ? AiInvocationEvent.createSucceededEvent(capability, operation, latency, owner)
+                : AiInvocationEvent.createFailedEvent(
                     capability,
                     operation,
                     latency,
                     owner,
-                    ErrorSummary.of(rs.getString("error_code"), rs.getString("error_message")));
+                    ErrorSummary.createSummary(
+                        rs.getString("error_code"), rs.getString("error_message")));
         return event
             .id(UUID.fromString(rs.getString("id")))
             .occurredAt(rs.getObject("occurred_at", Instant.class))
@@ -72,7 +73,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
         .ifPresent(
             capability -> {
               where.append(" AND capability = ?");
-              args.add(capability.value());
+              args.add(capability.getValue());
             });
     query
         .from()
@@ -104,7 +105,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
         .ifPresent(
             outcome -> {
               where.append(" AND outcome = ?");
-              args.add(outcome.value());
+              args.add(outcome.getValue());
             });
     query
         .model()

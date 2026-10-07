@@ -118,7 +118,7 @@ class SpringAiWorkerAgentInvokerTest {
   }
 
   private static AgentDefinition agent(String type, String... tools) {
-    return AgentDefinition.create(
-        AgentType.of(type), type, type, "system", List.of(tools), "single");
+    return AgentDefinition.createDefinition(
+        AgentType.createType(type), type, type, "system", List.of(tools), "single");
   }
 }

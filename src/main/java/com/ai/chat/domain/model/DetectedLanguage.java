@@ -22,7 +22,7 @@ public record DetectedLanguage(String code) {
   private static final DetectedLanguage DEFAULT = new DetectedLanguage("default");
 
   /** Detects the primary language of {@code text}. */
-  public static DetectedLanguage of(String text) {
+  public static DetectedLanguage createLanguage(String text) {
     if (text == null || text.isBlank()) {
       return DEFAULT;
     }

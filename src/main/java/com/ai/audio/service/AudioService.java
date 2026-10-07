@@ -22,27 +22,28 @@ public class AudioService {
 
   /** Lists the voices available for text-to-speech. */
   public List<VoiceInfo> getAvailableVoices() {
-    return VoiceCatalog.defaults().voiceInfos();
+    return VoiceCatalog.createDefaultCatalog().listVoices();
   }
 
   /** Lists the text-to-speech models. */
   public List<String> getAvailableTtsModels() {
-    return VoiceCatalog.defaults().models();
+    return VoiceCatalog.createDefaultCatalog().models();
   }
 
   /** Synthesizes speech and returns the audio with its media type, possibly empty. */
   public SynthesizedAudio synthesizeAudio(String text, String voice, Double speed) {
     ensureProviderConfigured();
-    VoiceSelection selection = VoiceSelection.of(resolveVoice(voice), null);
-    return textToSpeechGateway.synthesize(SpeechText.of(text), selection, speed);
+    VoiceSelection selection = VoiceSelection.createSelection(resolveVoice(voice), null);
+    return textToSpeechGateway.synthesizeSpeech(SpeechText.createText(text), selection, speed);
   }
 
   /** Synthesizes speech and returns the raw audio bytes, or {@code null} when nothing came back. */
   public byte[] synthesize(String text, String voice, Double speed) {
     ensureProviderConfigured();
-    VoiceSelection selection = VoiceSelection.of(resolveVoice(voice), null);
-    SynthesizedAudio audio = textToSpeechGateway.synthesize(SpeechText.of(text), selection, speed);
-    return audio.isEmpty() ? null : audio.data();
+    VoiceSelection selection = VoiceSelection.createSelection(resolveVoice(voice), null);
+    SynthesizedAudio audio =
+        textToSpeechGateway.synthesizeSpeech(SpeechText.createText(text), selection, speed);
+    return audio.isEmpty() ? null : audio.copyBytes();
   }
 
   private void ensureProviderConfigured() {

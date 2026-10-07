@@ -23,12 +23,12 @@ public class WeatherSimulator {
   private static final int[] TEMPS = {18, 20, 22, 25, 28, 30, 32};
 
   /** Returns current weather for a known city, or randomly generated readings for others. */
-  public ToolResult lookupCurrent(WeatherQuery query) {
+  public ToolResult lookupCurrentWeather(WeatherQuery query) {
     WeatherInfo known = WEATHER_DATA.get(query.normalizedCity());
     if (known != null) {
-      return ToolResult.success(known.formatCurrent());
+      return ToolResult.createSuccessResult(known.formatCurrentWeather());
     }
-    return ToolResult.success(buildRandomCurrent(query.city()));
+    return ToolResult.createSuccessResult(buildRandomCurrent(query.city()));
   }
 
   /** Builds a day-by-day forecast with randomly chosen conditions and temperature ranges. */
@@ -43,7 +43,7 @@ public class WeatherSimulator {
       builder.append(formatForecastDay(day, condition, tempHigh, tempLow)).append('\n');
     }
 
-    return ToolResult.success(builder.toString().trim());
+    return ToolResult.createSuccessResult(builder.toString().trim());
   }
 
   private static String formatForecastDay(int day, String condition, int tempHigh, int tempLow) {
@@ -54,6 +54,6 @@ public class WeatherSimulator {
     int temp = 20 + ThreadLocalRandom.current().nextInt(15);
     String condition = CONDITIONS[ThreadLocalRandom.current().nextInt(CONDITIONS.length)];
     int humidity = 50 + ThreadLocalRandom.current().nextInt(40);
-    return new WeatherInfo(city, temp, condition, humidity).formatCurrent();
+    return new WeatherInfo(city, temp, condition, humidity).formatCurrentWeather();
   }
 }

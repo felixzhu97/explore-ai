@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class CustomAgentRepositoryTest extends AbstractDataJpaTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parse("c:66666666-6666-6666-6666-666666666666");
-  private static final OwnerKey OTHER = OwnerKey.parse("c:77777777-7777-7777-7777-777777777777");
+  private static final OwnerKey OWNER = OwnerKey.parseKey("c:66666666-6666-6666-6666-666666666666");
+  private static final OwnerKey OTHER = OwnerKey.parseKey("c:77777777-7777-7777-7777-777777777777");
 
   @Autowired private CustomAgentRepository repository;
 
@@ -62,6 +62,6 @@ class CustomAgentRepositoryTest extends AbstractDataJpaTest {
 
   private CustomAgent save(OwnerKey owner, String typeKey, String name, List<String> toolKeys) {
     return repository.save(
-        CustomAgent.create(owner.value(), typeKey, name, "Description", "Prompt", toolKeys));
+        CustomAgent.createAgent(owner.value(), typeKey, name, "Description", "Prompt", toolKeys));
   }
 }

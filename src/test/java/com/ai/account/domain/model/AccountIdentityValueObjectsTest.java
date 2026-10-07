@@ -15,14 +15,14 @@ class AccountIdentityValueObjectsTest {
   @Test
   @DisplayName("should normalize the identity the same way for saving and lookup")
   void shouldNormalizeTheIdentityTheSameWayForSavingAndLookup() {
-    assertThat(ExternalIdentity.of(" GitHub ", " 42 "))
-        .isEqualTo(ExternalIdentity.of("github", "42"));
+    assertThat(ExternalIdentity.createIdentity(" GitHub ", " 42 "))
+        .isEqualTo(ExternalIdentity.createIdentity("github", "42"));
   }
 
   @Test
   @DisplayName("should use the explore iam provider when the identity comes from an IAM token")
   void shouldUseTheExploreIamProviderWhenTheIdentityComesFromAnIamToken() {
-    assertThat(ExternalIdentity.iam("sub").provider()).isEqualTo("explore-iam");
+    assertThat(ExternalIdentity.createIamIdentity("sub").provider()).isEqualTo("explore-iam");
   }
 
   @ParameterizedTest
@@ -30,21 +30,21 @@ class AccountIdentityValueObjectsTest {
   @ValueSource(strings = {" ", "unknown", "UNKNOWN"})
   @DisplayName("should reject the provider when it is missing or unknown")
   void shouldRejectTheProviderWhenItIsMissingOrUnknown(String provider) {
-    assertThatThrownBy(() -> ExternalIdentity.of(provider, "sub"))
+    assertThatThrownBy(() -> ExternalIdentity.createIdentity(provider, "sub"))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   @DisplayName("should reject the subject when it is blank")
   void shouldRejectTheSubjectWhenItIsBlank() {
-    assertThatThrownBy(() -> ExternalIdentity.iam(" "))
+    assertThatThrownBy(() -> ExternalIdentity.createIamIdentity(" "))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   @DisplayName("should keep a trimmed email when the value is an email address")
   void shouldKeepATrimmedEmailWhenTheValueIsAnEmailAddress() {
-    assertThat(ContactEmail.ofNullable(" a@b.com ")).isEqualTo(new ContactEmail("a@b.com"));
+    assertThat(ContactEmail.parseOptionalEmail(" a@b.com ")).isEqualTo(new ContactEmail("a@b.com"));
   }
 
   @ParameterizedTest
@@ -52,7 +52,7 @@ class AccountIdentityValueObjectsTest {
   @ValueSource(strings = {" ", "octocat", "two words@x.com", "a@b@c"})
   @DisplayName("should drop the email when the value is not an email address")
   void shouldDropTheEmailWhenTheValueIsNotAnEmailAddress(String raw) {
-    assertThat(ContactEmail.ofNullable(raw)).isNull();
+    assertThat(ContactEmail.parseOptionalEmail(raw)).isNull();
   }
 
   @Test
@@ -71,7 +71,7 @@ class AccountIdentityValueObjectsTest {
   @Test
   @DisplayName("should accept a client id when it is a UUID")
   void shouldAcceptAClientIdWhenItIsAUuid() {
-    assertThat(ClientId.parse(" 55555555-5555-5555-5555-555555555555 ").value())
+    assertThat(ClientId.parseId(" 55555555-5555-5555-5555-555555555555 ").value())
         .isEqualTo("55555555-5555-5555-5555-555555555555");
   }
 
@@ -81,6 +81,6 @@ class AccountIdentityValueObjectsTest {
   @DisplayName("should reject a client id when it is not a UUID")
   void shouldRejectAClientIdWhenItIsNotAUuid(String raw) {
     assertThat(ClientId.isValid(raw)).isFalse();
-    assertThatThrownBy(() -> ClientId.parse(raw)).isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> ClientId.parseId(raw)).isInstanceOf(IllegalArgumentException.class);
   }
 }

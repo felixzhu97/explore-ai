@@ -25,7 +25,7 @@ public class SmtpEmailGateway implements EmailGateway {
   private final MailProperties mailProperties;
 
   @Override
-  public void send(EmailMessage message) {
+  public void sendEmail(EmailMessage message) {
     if (message.hasHtmlBody()) {
       sendMultipart(message);
     } else {

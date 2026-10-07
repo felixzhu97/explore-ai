@@ -16,6 +16,6 @@ public class FeatureFlagService {
 
   /** Tells whether the module is on. */
   public boolean isModuleEnabled(ModuleFlag module) {
-    return repository.isEnabled(module.key(), properties.resolveFallback(module.key()));
+    return repository.isEnabled(module.getKey(), properties.resolveFallback(module.getKey()));
   }
 }

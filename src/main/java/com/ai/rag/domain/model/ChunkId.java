@@ -10,22 +10,22 @@ import lombok.NonNull;
 /** Strongly-typed ID for DocumentChunk. */
 @Getter
 @EqualsAndHashCode(callSuper = false)
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor(staticName = "createId")
 public final class ChunkId extends AbstractEmbeddable {
 
   @NonNull private UUID value;
 
   /** Parses an id from its UUID text. */
-  public static ChunkId of(String text) {
+  public static ChunkId parseId(String text) {
     if (text == null || text.isBlank()) {
       throw new IllegalArgumentException("Id cannot be blank");
     }
-    return of(UUID.fromString(text.strip()));
+    return createId(UUID.fromString(text.strip()));
   }
 
   /** Creates a new random id. */
-  public static ChunkId generate() {
-    return of(UUID.randomUUID());
+  public static ChunkId generateId() {
+    return createId(UUID.randomUUID());
   }
 
   @Override

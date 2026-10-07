@@ -35,7 +35,7 @@ class ChatMemorySessionBridgeTest {
         List.of(
             ChatMessage.createUserMessage("hello"), ChatMessage.createAssistantMessage("hi there"));
 
-    bridge.seedIfEmpty("conv-1", existing);
+    bridge.loadMessagesIfEmpty("conv-1", existing);
 
     assertThat(chatMemory.get("conv-1")).hasSize(2);
     assertThat(chatMemory.get("conv-1").get(0)).isInstanceOf(UserMessage.class);
@@ -47,7 +47,7 @@ class ChatMemorySessionBridgeTest {
   void shouldSkipSeedWhenMemoryAlreadyHasMessages() {
     chatMemory.add("conv-1", List.of(new UserMessage("existing")));
 
-    bridge.seedIfEmpty("conv-1", List.of(ChatMessage.createUserMessage("ignored")));
+    bridge.loadMessagesIfEmpty("conv-1", List.of(ChatMessage.createUserMessage("ignored")));
 
     assertThat(chatMemory.get("conv-1")).hasSize(1);
     assertThat(chatMemory.get("conv-1").get(0).getText()).isEqualTo("existing");
@@ -56,8 +56,8 @@ class ChatMemorySessionBridgeTest {
   @Test
   @DisplayName("should skip seed when existing messages null or empty")
   void shouldSkipSeedWhenExistingMessagesNullOrEmpty() {
-    bridge.seedIfEmpty("conv-1", null);
-    bridge.seedIfEmpty("conv-2", List.of());
+    bridge.loadMessagesIfEmpty("conv-1", null);
+    bridge.loadMessagesIfEmpty("conv-2", List.of());
 
     assertThat(chatMemory.get("conv-1")).isEmpty();
     assertThat(chatMemory.get("conv-2")).isEmpty();
@@ -72,7 +72,7 @@ class ChatMemorySessionBridgeTest {
             new UserMessage("chart please"),
             new AssistantMessage("前言\n<｜DSML｜tool_calls>x</｜DSML｜tool_calls>\n后记")));
 
-    List<ChatMessage> loaded = bridge.load("conv-1");
+    List<ChatMessage> loaded = bridge.loadMessages("conv-1");
 
     assertThat(loaded).hasSize(2);
     assertThat(loaded.get(0).getRole()).isEqualTo(MessageRole.USER);
@@ -91,7 +91,7 @@ class ChatMemorySessionBridgeTest {
             new UserMessage("hi"),
             new AssistantMessage("hello")));
 
-    assertThat(bridge.load("conv-1"))
+    assertThat(bridge.loadMessages("conv-1"))
         .extracting(ChatMessage::getText)
         .containsExactly("hi", "hello");
   }
@@ -99,7 +99,7 @@ class ChatMemorySessionBridgeTest {
   @Test
   @DisplayName("should load nothing when memory is empty")
   void shouldLoadNothingWhenMemoryIsEmpty() {
-    assertThat(bridge.load("conv-1")).isEmpty();
+    assertThat(bridge.loadMessages("conv-1")).isEmpty();
   }
 
   @Test
@@ -107,7 +107,7 @@ class ChatMemorySessionBridgeTest {
   void shouldClearMemoryForConversation() {
     chatMemory.add("conv-1", List.of(new UserMessage("hello")));
 
-    bridge.clear("conv-1");
+    bridge.clearMessages("conv-1");
 
     assertThat(chatMemory.get("conv-1")).isEmpty();
   }

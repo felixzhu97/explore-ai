@@ -51,8 +51,10 @@ class CapabilityHealthGatewayTest {
     when(pipelineService.listAgents(isNull(), eq("en")))
         .thenReturn(
             List.of(
-                AgentDefinition.create(AgentType.of("researcher"), "Researcher", "desc", "prompt"),
-                AgentDefinition.create(AgentType.supervisor(), "Supervisor", "desc", "prompt")));
+                AgentDefinition.createDefinition(
+                    AgentType.createType("researcher"), "Researcher", "desc", "prompt"),
+                AgentDefinition.createDefinition(
+                    AgentType.createSupervisorType(), "Supervisor", "desc", "prompt")));
 
     assertThat(gateway.checkAgentsHealth()).isEqualTo(new AgentsHealth(ModuleStatus.UP, 2, 2));
   }

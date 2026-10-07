@@ -6,5 +6,5 @@ import java.util.List;
 /** Transforms raw documents into processed chunks. */
 public interface DocumentTransformer {
   /** Splits a raw document into smaller documents. */
-  List<ExtractedDocument> transform(ExtractedDocument document);
+  List<ExtractedDocument> splitDocument(ExtractedDocument document);
 }

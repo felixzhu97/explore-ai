@@ -50,7 +50,8 @@ class ChatSessionEraserTest {
   @DisplayName("should erase memory, sources, pending sources and metrics with the session")
   void shouldEraseMemorySourcesPendingSourcesAndMetricsWithTheSession() {
     ChatSession session =
-        ChatSession.of(ChatSessionId.of(SESSION_ID), "Old", Instant.now(), "c:client-a");
+        ChatSession.restoreSession(
+            ChatSessionId.parseId(SESSION_ID), "Old", Instant.now(), "c:client-a");
     CapturedWebSources.remember(
         SESSION_ID, "query", List.of(new WebSource("Spring", "https://spring.io", "Docs")));
     when(invocationEventRepository.deleteBySessionIds(List.of(SESSION_ID))).thenReturn(3);
@@ -59,16 +60,17 @@ class ChatSessionEraserTest {
 
     assertThat(metricsDeleted).isEqualTo(3);
     assertThat(CapturedWebSources.peek(SESSION_ID)).isNull();
-    verify(conversationMemoryRepository).clear(SESSION_ID);
+    verify(conversationMemoryRepository).clearMessages(SESSION_ID);
     verify(chatWebSourcesRepository).deleteByConversationId(SESSION_ID);
-    verify(sessionRepository).deleteById(ChatSessionId.of(SESSION_ID));
+    verify(sessionRepository).deleteById(ChatSessionId.parseId(SESSION_ID));
   }
 
   @Test
   @DisplayName("should delete the session row last when erasing")
   void shouldDeleteTheSessionRowLastWhenErasing() {
     ChatSession session =
-        ChatSession.of(ChatSessionId.of(SESSION_ID), "Old", Instant.now(), "c:client-a");
+        ChatSession.restoreSession(
+            ChatSessionId.parseId(SESSION_ID), "Old", Instant.now(), "c:client-a");
 
     eraser.eraseAll(List.of(session));
 
@@ -79,9 +81,9 @@ class ChatSessionEraserTest {
             chatWebSourcesRepository,
             sessionRepository);
     order.verify(invocationEventRepository).deleteBySessionIds(List.of(SESSION_ID));
-    order.verify(conversationMemoryRepository).clear(SESSION_ID);
+    order.verify(conversationMemoryRepository).clearMessages(SESSION_ID);
     order.verify(chatWebSourcesRepository).deleteByConversationId(SESSION_ID);
-    order.verify(sessionRepository).deleteById(ChatSessionId.of(SESSION_ID));
+    order.verify(sessionRepository).deleteById(ChatSessionId.parseId(SESSION_ID));
   }
 
   @Test

@@ -52,7 +52,7 @@ class DailyUsageQuotaServiceTest {
   void shouldReportTheOwnersRemainingRequestsWhenAllowed() {
     QuotaDecision decision = consume("client-a", "203.0.113.7");
 
-    assertThat(decision).isEqualTo(QuotaDecision.allow(Plan.FREE, 2, 1));
+    assertThat(decision).isEqualTo(QuotaDecision.createApproval(Plan.FREE, 2, 1));
   }
 
   @Test
@@ -68,7 +68,7 @@ class DailyUsageQuotaServiceTest {
   @Test
   @DisplayName("should share the guest counter between requests and automations")
   void shouldShareTheGuestCounterBetweenRequestsAndAutomations() {
-    OwnerKey guest = OwnerKey.forClient("client-a");
+    OwnerKey guest = OwnerKey.createClientKey("client-a");
 
     assertThat(service.tryConsume(guest)).isTrue();
     assertThat(consume("client-a", null).remaining()).isZero();
@@ -93,10 +93,11 @@ class DailyUsageQuotaServiceTest {
 
     consume("client-a", null);
 
-    assertThat(consume("client-a", null)).isEqualTo(QuotaDecision.allow(Plan.FREE, 1, 1));
+    assertThat(consume("client-a", null)).isEqualTo(QuotaDecision.createApproval(Plan.FREE, 1, 1));
   }
 
   private QuotaDecision consume(String clientId, String address) {
-    return service.tryConsume(QuotaSubject.owner(OwnerKey.forClient(clientId)), address);
+    return service.tryConsume(
+        QuotaSubject.createOwnerSubject(OwnerKey.createClientKey(clientId)), address);
   }
 }

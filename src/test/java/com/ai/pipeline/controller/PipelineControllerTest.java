@@ -34,8 +34,10 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     when(pipelineService.listAgents(eq(ownerKey()), anyString()))
         .thenReturn(
             List.of(
-                AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
-                AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "sys")));
+                AgentDefinition.createDefinition(
+                    AgentType.createSupervisorType(), "Supervisor", "coords", "sys"),
+                AgentDefinition.createDefinition(
+                    AgentType.createType("k8s"), "K8s", "cluster", "sys")));
 
     assertThat(
             mvc.get()
@@ -54,7 +56,8 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     when(pipelineService.getHealth(eq("missing"), eq(ownerKey()), anyString()))
         .thenThrow(
             DomainException.notFound(
-                "AGENT_NOT_FOUND", "Unknown agent type: " + AgentType.of("missing").value()));
+                "AGENT_NOT_FOUND",
+                "Unknown agent type: " + AgentType.createType("missing").value()));
 
     assertThat(
             mvc.get()
@@ -67,7 +70,8 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
   @DisplayName("should return ok for known agent health")
   void shouldReturnOkForKnownAgentHealth() {
     when(pipelineService.getHealth(eq("k8s"), eq(ownerKey()), anyString()))
-        .thenReturn(AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "sys"));
+        .thenReturn(
+            AgentDefinition.createDefinition(AgentType.createType("k8s"), "K8s", "cluster", "sys"));
 
     assertThat(
             mvc.get()
@@ -82,7 +86,8 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     when(pipelineService.getHealth(eq("missing"), eq(ownerKey()), anyString()))
         .thenThrow(
             DomainException.notFound(
-                "AGENT_NOT_FOUND", "Unknown agent type: " + AgentType.of("missing").value()));
+                "AGENT_NOT_FOUND",
+                "Unknown agent type: " + AgentType.createType("missing").value()));
 
     assertThat(
             mvc.get()
@@ -95,7 +100,8 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
   @DisplayName("should return ok when agent known")
   void shouldReturnOkWhenGetAgentKnown() {
     when(pipelineService.getHealth(eq("k8s"), eq(ownerKey()), anyString()))
-        .thenReturn(AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "sys"));
+        .thenReturn(
+            AgentDefinition.createDefinition(AgentType.createType("k8s"), "K8s", "cluster", "sys"));
 
     assertThat(
             mvc.get()

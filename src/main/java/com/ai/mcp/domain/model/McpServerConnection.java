@@ -2,7 +2,7 @@ package com.ai.mcp.domain.model;
 
 public record McpServerConnection(String name, int toolCount, McpSessionStatus status) {
   /** Creates an active connection. */
-  public static McpServerConnection connected(String name, int toolCount) {
+  public static McpServerConnection createConnectedServer(String name, int toolCount) {
     return new McpServerConnection(name, toolCount, McpSessionStatus.ACTIVE);
   }
 

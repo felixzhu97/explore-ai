@@ -13,6 +13,6 @@ class WeatherInfoTest {
   void shouldFormatCurrentWeatherSimulator() {
     WeatherInfo info = new WeatherInfo("北京", 25, "晴", 65);
 
-    assertThat(info.formatCurrent()).contains("北京").contains("25°C").contains("晴");
+    assertThat(info.formatCurrentWeather()).contains("北京").contains("25°C").contains("晴");
   }
 }

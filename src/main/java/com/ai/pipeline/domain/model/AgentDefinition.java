@@ -38,13 +38,13 @@ public final class AgentDefinition {
   }
 
   /** Creates a single-run agent without tools. */
-  public static AgentDefinition create(
+  public static AgentDefinition createDefinition(
       AgentType type, String name, String description, String systemPrompt) {
-    return create(type, name, description, systemPrompt, List.of(), RUNTIME_SINGLE);
+    return createDefinition(type, name, description, systemPrompt, List.of(), RUNTIME_SINGLE);
   }
 
   /** Creates a healthy agent with tools and a runtime. */
-  public static AgentDefinition create(
+  public static AgentDefinition createDefinition(
       AgentType type,
       String name,
       String description,

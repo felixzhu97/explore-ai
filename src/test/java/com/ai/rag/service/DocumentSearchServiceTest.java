@@ -43,7 +43,7 @@ class DocumentSearchServiceTest {
   @BeforeEach
   void setUp() {
     ragProperties.getRetrieval().setScoreThreshold(0.0);
-    when(embeddingRepository.embed(any())).thenReturn(QUERY_EMBEDDING);
+    when(embeddingRepository.embedText(any())).thenReturn(QUERY_EMBEDDING);
     service =
         new DocumentSearchService(
             embeddingRepository,
@@ -54,7 +54,7 @@ class DocumentSearchServiceTest {
   @Test
   @DisplayName("should retrieve the owner chunks when no documents are selected")
   void shouldRetrieveTheOwnerChunksWhenNoDocumentsAreSelected() {
-    when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of()))
+    when(chunkSearchRepository.searchChunks(QUERY_EMBEDDING, 5, OWNER, List.of()))
         .thenReturn(
             List.of(
                 scored("AI stands for Artificial Intelligence", 0.9),
@@ -71,8 +71,8 @@ class DocumentSearchServiceTest {
   @Test
   @DisplayName("should search only the selected documents when ids are given")
   void shouldSearchOnlyTheSelectedDocumentsWhenIdsAreGiven() {
-    DocumentId docId = DocumentId.generate();
-    when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of(docId.getValue())))
+    DocumentId docId = DocumentId.generateId();
+    when(chunkSearchRepository.searchChunks(QUERY_EMBEDDING, 5, OWNER, List.of(docId.getValue())))
         .thenReturn(List.of(scored("filtered content", 0.7)));
 
     DocumentSearchService.RetrievalResult result =
@@ -86,7 +86,7 @@ class DocumentSearchServiceTest {
   void shouldUseTheDefaultTopKWhenNoneIsGiven() {
     service.retrieve("test", List.of(), 0, OWNER);
 
-    verify(chunkSearchRepository).search(QUERY_EMBEDDING, 5, OWNER, List.of());
+    verify(chunkSearchRepository).searchChunks(QUERY_EMBEDDING, 5, OWNER, List.of());
   }
 
   @Test
@@ -94,13 +94,13 @@ class DocumentSearchServiceTest {
   void shouldUseTheGivenTopKWhenItIsPositive() {
     service.retrieve("test", null, 10, OWNER);
 
-    verify(chunkSearchRepository).search(QUERY_EMBEDDING, 10, OWNER, List.of());
+    verify(chunkSearchRepository).searchChunks(QUERY_EMBEDDING, 10, OWNER, List.of());
   }
 
   @Test
   @DisplayName("should order sources by score and keep the repository score")
   void shouldOrderSourcesByScoreAndKeepTheRepositoryScore() {
-    when(chunkSearchRepository.search(any(), anyInt(), any(), any()))
+    when(chunkSearchRepository.searchChunks(any(), anyInt(), any(), any()))
         .thenReturn(List.of(scored("low", 0.2), scored("high", 0.9), scored("medium", 0.5)));
 
     DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
@@ -113,7 +113,7 @@ class DocumentSearchServiceTest {
   @DisplayName("should drop chunks below the score threshold")
   void shouldDropChunksBelowTheScoreThreshold() {
     ragProperties.getRetrieval().setScoreThreshold(0.5);
-    when(chunkSearchRepository.search(any(), anyInt(), any(), any()))
+    when(chunkSearchRepository.searchChunks(any(), anyInt(), any(), any()))
         .thenReturn(List.of(scored("kept", 0.5), scored("dropped", 0.49)));
 
     DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
@@ -125,7 +125,8 @@ class DocumentSearchServiceTest {
   @Test
   @DisplayName("should return an empty result when nothing matches")
   void shouldReturnAnEmptyResultWhenNothingMatches() {
-    when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of())).thenReturn(List.of());
+    when(chunkSearchRepository.searchChunks(QUERY_EMBEDDING, 5, OWNER, List.of()))
+        .thenReturn(List.of());
 
     DocumentSearchService.RetrievalResult result =
         service.retrieve("nonexistent topic", null, 5, OWNER);
@@ -138,7 +139,7 @@ class DocumentSearchServiceTest {
   @DisplayName("should cite an excerpt of long chunks and keep the full text as context")
   void shouldCiteAnExcerptOfLongChunksAndKeepTheFullTextAsContext() {
     String longContent = "A".repeat(600);
-    when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of()))
+    when(chunkSearchRepository.searchChunks(QUERY_EMBEDDING, 5, OWNER, List.of()))
         .thenReturn(List.of(scored(longContent, 0.8)));
 
     DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
@@ -151,7 +152,7 @@ class DocumentSearchServiceTest {
   @DisplayName("should include chunk metadata in sources")
   void shouldIncludeChunkMetadataInSources() {
     Map<String, Object> metadata = Map.of("title", "Test Doc", "fileName", "test.txt");
-    when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of()))
+    when(chunkSearchRepository.searchChunks(QUERY_EMBEDDING, 5, OWNER, List.of()))
         .thenReturn(List.of(new ScoredChunk(chunk("Content", metadata), 0.8)));
 
     DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
@@ -166,8 +167,13 @@ class DocumentSearchServiceTest {
   }
 
   private static DocumentChunk chunk(String content, Map<String, Object> metadata) {
-    return DocumentChunk.create(
-            ChunkId.generate(), DocumentId.generate(), OwnerKey.parse(OWNER), content, 0, metadata)
-        .withEmbedding(QUERY_EMBEDDING);
+    return DocumentChunk.createChunk(
+            ChunkId.generateId(),
+            DocumentId.generateId(),
+            OwnerKey.parseKey(OWNER),
+            content,
+            0,
+            metadata)
+        .copyWithEmbedding(QUERY_EMBEDDING);
   }
 }

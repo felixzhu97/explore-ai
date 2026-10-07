@@ -66,7 +66,9 @@ public class ChatService {
 
   /** Returns the client's sessions, most recently active first. */
   public List<ChatSession> listSessions(String ownerKey) {
-    return repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parse(ownerKey)).stream()
+    return repository
+        .findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parseKey(ownerKey))
+        .stream()
         .map(this::withStoredMessages)
         .toList();
   }
@@ -78,7 +80,7 @@ public class ChatService {
   public SessionHistory findSessionHistoryWithSources(String sessionId, String ownerKey) {
     ChatSession session =
         repository
-            .findByIdAndOwnerKey(ChatSessionId.of(sessionId), OwnerKey.parse(ownerKey))
+            .findByIdAndOwnerKey(ChatSessionId.parseId(sessionId), OwnerKey.parseKey(ownerKey))
             .map(this::withStoredMessages)
             .orElseThrow(() -> DomainException.notFound("SESSION_NOT_FOUND", "Session not found"));
     return new SessionHistory(
@@ -100,7 +102,7 @@ public class ChatService {
 
   /** Creates an empty chat session owned by the client. */
   public ChatSession createSession(String title, String ownerKey) {
-    ChatSession session = ChatSession.create(title, ownerKey);
+    ChatSession session = ChatSession.createSession(title, ownerKey);
     repository.save(session);
     return session;
   }
@@ -109,7 +111,7 @@ public class ChatService {
   public void deleteSession(String sessionId, String ownerKey) {
     ChatSession session =
         repository
-            .findByIdAndOwnerKey(ChatSessionId.of(sessionId), OwnerKey.parse(ownerKey))
+            .findByIdAndOwnerKey(ChatSessionId.parseId(sessionId), OwnerKey.parseKey(ownerKey))
             .orElseThrow(() -> DomainException.notFound("SESSION_NOT_FOUND", "Session not found"));
     sessionEraser.eraseAll(List.of(session));
   }
@@ -122,7 +124,7 @@ public class ChatService {
               long startedAt = System.nanoTime();
               ChatSession session = loadOrCreateSession(sessionId, ownerKey);
               boolean isFirstTurn = session.isEmpty();
-              conversationMemoryRepository.seedIfEmpty(sessionId, session.getMessages());
+              conversationMemoryRepository.loadMessagesIfEmpty(sessionId, session.getMessages());
 
               ToolEventChannel.setCurrentSessionId(sessionId);
               try {
@@ -150,8 +152,8 @@ public class ChatService {
                           invocationRecorder.recordSuccess(
                               AiCapability.CHAT,
                               "chat.stream",
-                              Latency.since(startedAt),
-                              OwnerKey.parse(ownerKey),
+                              Latency.measureSince(startedAt),
+                              OwnerKey.parseKey(ownerKey),
                               options.provider(),
                               options.model(),
                               sessionId);
@@ -167,8 +169,8 @@ public class ChatService {
                           invocationRecorder.recordError(
                               AiCapability.CHAT,
                               "chat.stream",
-                              Latency.since(startedAt),
-                              OwnerKey.parse(ownerKey),
+                              Latency.measureSince(startedAt),
+                              OwnerKey.parseKey(ownerKey),
                               options.provider(),
                               options.model(),
                               sessionId,
@@ -228,7 +230,7 @@ public class ChatService {
       invocationRecorder.recordSuccess(
           AiCapability.CHAT,
           "chat.call",
-          Latency.since(startedAt),
+          Latency.measureSince(startedAt),
           OwnerKey.UNOWNED,
           options.provider(),
           options.model(),
@@ -238,7 +240,7 @@ public class ChatService {
       invocationRecorder.recordError(
           AiCapability.CHAT,
           "chat.call",
-          Latency.since(startedAt),
+          Latency.measureSince(startedAt),
           OwnerKey.UNOWNED,
           options.provider(),
           options.model(),
@@ -251,14 +253,14 @@ public class ChatService {
   /** Returns the session when it belongs to the client. */
   public Optional<ChatSession> getSession(String sessionId, String ownerKey) {
     return repository
-        .findByIdAndOwnerKey(ChatSessionId.of(sessionId), OwnerKey.parse(ownerKey))
+        .findByIdAndOwnerKey(ChatSessionId.parseId(sessionId), OwnerKey.parseKey(ownerKey))
         .map(this::withStoredMessages);
   }
 
   /** Deletes every session owned by the client. */
   public void deleteAllSessions(String ownerKey) {
     List<ChatSession> sessions =
-        repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parse(ownerKey));
+        repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parseKey(ownerKey));
     sessionEraser.eraseAll(sessions);
   }
 
@@ -373,12 +375,14 @@ public class ChatService {
         .findById(sessionId)
         .ifPresent(
             session -> {
-              session.recordExchange(conversationMemoryRepository.load(conversationId));
+              session.recordExchange(conversationMemoryRepository.loadMessages(conversationId));
               repository.save(session);
               persistCapturedSources(conversationId, session);
               if (isFirstTurn && session.needsGeneratedTitle()) {
                 generateTitleAsync(
-                    sessionId, userMessage, session.lastAssistantMessage().orElseThrow().getText());
+                    sessionId,
+                    userMessage,
+                    session.findLastAssistantMessage().orElseThrow().getText());
               }
             });
   }
@@ -389,7 +393,7 @@ public class ChatService {
       return;
     }
     session
-        .lastAssistantMessage()
+        .findLastAssistantMessage()
         .ifPresentOrElse(
             reply ->
                 chatWebSourcesRepository.save(
@@ -399,7 +403,7 @@ public class ChatService {
 
   private String exchangeMessages(
       ChatSession session, String conversationId, String userMessage, TextChatOptions options) {
-    conversationMemoryRepository.seedIfEmpty(conversationId, session.getMessages());
+    conversationMemoryRepository.loadMessagesIfEmpty(conversationId, session.getMessages());
     final boolean isFirstTurn = session.isEmpty();
 
     ChatClient chatClient = chatClientProvider.create(options, conversationId);
@@ -415,7 +419,7 @@ public class ChatService {
       throw DomainException.unavailable("AI_SERVICE_ERROR", "AI returned empty response");
     }
 
-    session.recordExchange(conversationMemoryRepository.load(conversationId));
+    session.recordExchange(conversationMemoryRepository.loadMessages(conversationId));
     repository.save(session);
 
     if (isFirstTurn && session.needsGeneratedTitle()) {
@@ -443,15 +447,15 @@ public class ChatService {
   }
 
   private ChatSession withStoredMessages(ChatSession session) {
-    session.restoreMessages(conversationMemoryRepository.load(session.getId().toString()));
+    session.restoreMessages(conversationMemoryRepository.loadMessages(session.getId().toString()));
     return session;
   }
 
   private ChatSession getOrCreateDefaultSession(String ownerKey) {
     List<ChatSession> sessions =
-        repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parse(ownerKey));
+        repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parseKey(ownerKey));
     if (sessions.isEmpty()) {
-      ChatSession newSession = ChatSession.startDefault(ownerKey);
+      ChatSession newSession = ChatSession.createDefaultSession(ownerKey);
       repository.save(newSession);
       return newSession;
     }
@@ -459,15 +463,15 @@ public class ChatService {
   }
 
   private ChatSession loadOrCreateSession(String sessionId, String ownerKey) {
-    ChatSessionId id = ChatSessionId.of(sessionId);
-    Optional<ChatSession> owned = repository.findByIdAndOwnerKey(id, OwnerKey.parse(ownerKey));
+    ChatSessionId id = ChatSessionId.parseId(sessionId);
+    Optional<ChatSession> owned = repository.findByIdAndOwnerKey(id, OwnerKey.parseKey(ownerKey));
     if (owned.isPresent()) {
       return owned.get();
     }
     if (repository.existsById(id)) {
       throw DomainException.notFound("SESSION_NOT_FOUND", "Session not found");
     }
-    ChatSession session = ChatSession.startWithId(id, ownerKey);
+    ChatSession session = ChatSession.createSessionWithId(id, ownerKey);
     repository.save(session);
     return session;
   }

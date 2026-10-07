@@ -25,15 +25,15 @@ public class CurrentOwnerResolver {
   public OwnerKey resolve(String clientId, Authentication authentication) {
     Optional<Account> fromAuth = resolveSignedInUser(authentication);
     if (fromAuth.isPresent()) {
-      return fromAuth.get().ownerKey();
+      return fromAuth.get().createOwnerKey();
     }
     if (ClientId.isValid(clientId)) {
-      Optional<Account> linked = accountRepository.findByLinkedClientId(ClientId.parse(clientId));
+      Optional<Account> linked = accountRepository.findByLinkedClientId(ClientId.parseId(clientId));
       if (linked.isPresent()) {
-        return linked.get().ownerKey();
+        return linked.get().createOwnerKey();
       }
     }
-    return OwnerKey.forClient(clientId);
+    return OwnerKey.createClientKey(clientId);
   }
 
   /**
@@ -44,7 +44,7 @@ public class CurrentOwnerResolver {
    */
   @Transactional
   public OwnerKey resolveFromJwt(Jwt jwt) {
-    return iamAccountService.signIn(jwt).ownerKey();
+    return iamAccountService.signIn(jwt).createOwnerKey();
   }
 
   private Optional<Account> resolveSignedInUser(Authentication authentication) {

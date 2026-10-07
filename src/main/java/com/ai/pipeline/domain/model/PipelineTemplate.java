@@ -59,7 +59,7 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
   }
 
   /** Creates an enabled template with a new id, optionally linked to its catalog source. */
-  public static PipelineTemplate create(
+  public static PipelineTemplate createTemplate(
       String ownerKey,
       String name,
       String description,
@@ -68,7 +68,7 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
       String briefPrompt,
       String sourceTemplateId) {
     return new PipelineTemplate(
-        PipelineTemplateId.generate(),
+        PipelineTemplateId.generateId(),
         ownerKey,
         name,
         description,
@@ -99,24 +99,24 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
   }
 
   /** Builds a pipeline that runs the template's agents one after another. */
-  public AgentPipeline toLinearPipeline() {
+  public AgentPipeline buildLinearPipeline() {
     List<AgentPipeline.PipelineNode> nodes = new ArrayList<>();
     List<AgentPipeline.PipelineEdge> edges = new ArrayList<>();
     for (int i = 0; i < agentTypes.size(); i++) {
       String id = "n" + i;
-      nodes.add(AgentPipeline.PipelineNode.of(id, AgentType.of(agentTypes.get(i))));
+      nodes.add(AgentPipeline.PipelineNode.createNode(id, AgentType.createType(agentTypes.get(i))));
       if (i > 0) {
         edges.add(new AgentPipeline.PipelineEdge("n" + (i - 1), id));
       }
     }
-    return AgentPipeline.create(nodes, edges);
+    return AgentPipeline.createPipeline(nodes, edges);
   }
 
   /**
    * Builds the first message of a run as {@code topic + "\n\n" + briefPrompt}, like the pipelines
    * canvas. A blank or generic schedule brief falls back to the template's short topic.
    */
-  public String composeInvokeMessage(String scheduleBrief) {
+  public String composeFirstMessage(String scheduleBrief) {
     String instructions = briefPrompt == null ? "" : briefPrompt.trim();
     String topic;
     if (isGenericBrief(scheduleBrief)) {
@@ -167,7 +167,7 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
       if (type == null || type.isBlank()) {
         continue;
       }
-      AgentType agentType = AgentType.of(type);
+      AgentType agentType = AgentType.createType(type);
       if (agentType.isSupervisor()) {
         throw new IllegalArgumentException("Pipeline templates can only contain worker agents");
       }

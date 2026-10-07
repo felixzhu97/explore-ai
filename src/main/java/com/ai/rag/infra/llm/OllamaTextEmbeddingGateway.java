@@ -28,7 +28,7 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
   }
 
   @Override
-  public float[] embed(String text) {
+  public float[] embedText(String text) {
     try {
       if (text == null || text.isBlank()) {
         return new float[dimensions];

@@ -24,7 +24,7 @@ public final class SkillSystemPromptBuilder {
     }
     StringBuilder builder = new StringBuilder(HEADER);
     for (Skill skill : skills) {
-      builder.append('\n').append(skill.toPromptSection());
+      builder.append('\n').append(skill.buildPromptSection());
     }
     return builder.toString();
   }

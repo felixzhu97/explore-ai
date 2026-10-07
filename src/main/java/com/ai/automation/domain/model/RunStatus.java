@@ -6,12 +6,8 @@ public enum RunStatus {
   FAILED,
   SKIPPED;
 
-  public String value() {
-    return name();
-  }
-
   /** Parses a run status, ignoring case. */
-  public static RunStatus from(String raw) {
+  public static RunStatus parseStatus(String raw) {
     return RunStatus.valueOf(raw.trim().toUpperCase());
   }
 }

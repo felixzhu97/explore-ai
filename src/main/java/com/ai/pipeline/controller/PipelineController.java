@@ -103,7 +103,7 @@ public class PipelineController {
                 node ->
                     new AgentPipeline.PipelineNode(
                         node.id(),
-                        AgentType.of(node.agentType()),
+                        AgentType.createType(node.agentType()),
                         node.name(),
                         node.description(),
                         node.systemPrompt(),
@@ -115,7 +115,7 @@ public class PipelineController {
             .toList();
     return pipelineService.invokePipeline(
         request.message(),
-        AgentPipeline.create(nodes, edges),
+        AgentPipeline.createPipeline(nodes, edges),
         ownerKey,
         resolveLanguage(lang, httpRequest));
   }

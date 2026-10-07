@@ -41,18 +41,19 @@ class CurrentOwnerResolverTest {
 
   @Test
   void shouldReturnClientOwnerWhenGuestWithoutLink() {
-    when(accountRepository.findByLinkedClientId(ClientId.parse(CLIENT_ID)))
+    when(accountRepository.findByLinkedClientId(ClientId.parseId(CLIENT_ID)))
         .thenReturn(Optional.empty());
 
     OwnerKey key = resolver.resolve(CLIENT_ID, null);
 
-    assertThat(key).isEqualTo(OwnerKey.forClient(CLIENT_ID));
+    assertThat(key).isEqualTo(OwnerKey.createClientKey(CLIENT_ID));
   }
 
   @Test
   void shouldReturnAccountOwnerWhenLinkedClientIdPresent() {
-    Account account = Account.create(ExternalIdentity.of("google", "sub"), null, null);
-    when(accountRepository.findByLinkedClientId(ClientId.parse(CLIENT_ID)))
+    Account account =
+        Account.createAccount(ExternalIdentity.createIdentity("google", "sub"), null, null);
+    when(accountRepository.findByLinkedClientId(ClientId.parseId(CLIENT_ID)))
         .thenReturn(Optional.of(account));
 
     OwnerKey key =
@@ -61,7 +62,7 @@ class CurrentOwnerResolverTest {
             new AnonymousAuthenticationToken(
                 "key", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 
-    assertThat(key).isEqualTo(account.ownerKey());
+    assertThat(key).isEqualTo(account.createOwnerKey());
   }
 
   @Test
@@ -69,14 +70,15 @@ class CurrentOwnerResolverTest {
   void shouldStayAGuestWithoutALookupWhenTheClientIdIsNotAUuid() {
     OwnerKey key = resolver.resolve("cid-legacy", null);
 
-    assertThat(key).isEqualTo(OwnerKey.forClient("cid-legacy"));
+    assertThat(key).isEqualTo(OwnerKey.createClientKey("cid-legacy"));
     verifyNoInteractions(accountRepository);
   }
 
   @Test
   void shouldReturnAccountOwnerWhenOAuthAuthenticated() {
-    Account account = Account.create(ExternalIdentity.of("google", "sub-9"), null, null);
-    when(accountRepository.findByIdentity(ExternalIdentity.of("google", "sub-9")))
+    Account account =
+        Account.createAccount(ExternalIdentity.createIdentity("google", "sub-9"), null, null);
+    when(accountRepository.findByIdentity(ExternalIdentity.createIdentity("google", "sub-9")))
         .thenReturn(Optional.of(account));
 
     OidcIdToken idToken =
@@ -88,12 +90,13 @@ class CurrentOwnerResolverTest {
 
     OwnerKey key = resolver.resolve(CLIENT_ID, auth);
 
-    assertThat(key).isEqualTo(account.ownerKey());
+    assertThat(key).isEqualTo(account.createOwnerKey());
   }
 
   @Test
   void shouldReturnAccountOwnerWhenIamJwtAuthenticated() {
-    Account account = Account.create(ExternalIdentity.iam("iam-sub"), null, null);
+    Account account =
+        Account.createAccount(ExternalIdentity.createIamIdentity("iam-sub"), null, null);
     Jwt jwt = IamAccountServiceTest.jwt("iam-sub", "iam@example.com");
     when(iamAccountService.signIn(jwt)).thenReturn(account);
 
@@ -102,7 +105,7 @@ class CurrentOwnerResolverTest {
             CLIENT_ID,
             new JwtAuthenticationToken(jwt, AuthorityUtils.createAuthorityList("ROLE_USER")));
 
-    assertThat(key).isEqualTo(account.ownerKey());
+    assertThat(key).isEqualTo(account.createOwnerKey());
     verifyNoInteractions(accountRepository);
   }
 }

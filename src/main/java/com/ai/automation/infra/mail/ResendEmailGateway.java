@@ -51,7 +51,7 @@ public class ResendEmailGateway implements EmailGateway {
   }
 
   @Override
-  public void send(EmailMessage message) {
+  public void sendEmail(EmailMessage message) {
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("from", mailProperties.getFrom());
     body.put("to", List.of(message.to()));

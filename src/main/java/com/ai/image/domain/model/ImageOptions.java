@@ -4,12 +4,13 @@ import com.ai.common.exception.DomainException;
 
 public record ImageOptions(String model, String quality, ImageSize size, int count) {
   /** Creates options with catalog defaults, validating model, quality, size, and count (1-4). */
-  public static ImageOptions of(String model, String quality, int width, int height, int count) {
-    ImageCatalog catalog = ImageCatalog.defaults();
+  public static ImageOptions createOptions(
+      String model, String quality, int width, int height, int count) {
+    ImageCatalog catalog = ImageCatalog.createDefaultCatalog();
     String effectiveModel =
-        model != null && !model.isBlank() ? model.trim() : catalog.defaultModel();
+        model != null && !model.isBlank() ? model.trim() : catalog.getDefaultModel();
     String effectiveQuality =
-        quality != null && !quality.isBlank() ? quality.trim() : catalog.defaultQuality();
+        quality != null && !quality.isBlank() ? quality.trim() : catalog.getDefaultQuality();
     int effectiveCount = count > 0 ? count : 1;
 
     if (!catalog.supportsModel(effectiveModel)) {
@@ -24,6 +25,6 @@ public record ImageOptions(String model, String quality, ImageSize size, int cou
     }
 
     return new ImageOptions(
-        effectiveModel, effectiveQuality, ImageSize.of(width, height), effectiveCount);
+        effectiveModel, effectiveQuality, ImageSize.createSize(width, height), effectiveCount);
   }
 }

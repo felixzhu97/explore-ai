@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 class AccountRepositoryTest extends AbstractDataJpaTest {
 
   private static final ClientId LINKED_CLIENT =
-      ClientId.parse("55555555-5555-5555-5555-555555555555");
+      ClientId.parseId("55555555-5555-5555-5555-555555555555");
 
   @Autowired private AccountRepository repository;
 
@@ -25,11 +25,14 @@ class AccountRepositoryTest extends AbstractDataJpaTest {
     flushAndClear();
 
     Account found =
-        repository.findByIdentity(ExternalIdentity.of(" GitHub ", "gh-42")).orElseThrow();
+        repository
+            .findByIdentity(ExternalIdentity.createIdentity(" GitHub ", "gh-42"))
+            .orElseThrow();
 
     assertThat(found.getEmail()).isEqualTo(new ContactEmail("dev@example.com"));
     assertThat(found.getDisplayName()).isEqualTo("octo");
-    assertThat(repository.findByIdentity(ExternalIdentity.of("github", "gh-43"))).isEmpty();
+    assertThat(repository.findByIdentity(ExternalIdentity.createIdentity("github", "gh-43")))
+        .isEmpty();
   }
 
   @Test
@@ -50,7 +53,8 @@ class AccountRepositoryTest extends AbstractDataJpaTest {
 
   private void save(String provider, String subject, String email) {
     Account account =
-        Account.create(ExternalIdentity.of(provider, subject), new ContactEmail(email), "octo");
+        Account.createAccount(
+            ExternalIdentity.createIdentity(provider, subject), new ContactEmail(email), "octo");
     account.linkBrowser(LINKED_CLIENT, null, null);
     repository.save(account);
   }

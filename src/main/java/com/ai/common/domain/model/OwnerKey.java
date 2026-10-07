@@ -30,7 +30,7 @@ public record OwnerKey(String value) {
   }
 
   /** Creates a guest owner key prefixed with {@code c:} for the given client id. */
-  public static OwnerKey forClient(String clientId) {
+  public static OwnerKey createClientKey(String clientId) {
     if (clientId == null || clientId.isBlank()) {
       throw new IllegalArgumentException("clientId is required");
     }
@@ -38,7 +38,7 @@ public record OwnerKey(String value) {
   }
 
   /** Creates a signed-in owner key prefixed with {@code u:} for the given account id. */
-  public static OwnerKey forAccount(String accountId) {
+  public static OwnerKey createAccountKey(String accountId) {
     if (accountId == null || accountId.isBlank()) {
       throw new IllegalArgumentException("accountId is required");
     }
@@ -46,7 +46,7 @@ public record OwnerKey(String value) {
   }
 
   /** Wraps a stored owner key value. */
-  public static OwnerKey parse(String raw) {
+  public static OwnerKey parseKey(String raw) {
     return new OwnerKey(raw);
   }
 

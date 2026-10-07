@@ -10,7 +10,7 @@ public record MetricsWindow(String range, Duration span) {
   public static final String DEFAULT_RANGE = "7d";
 
   /** Parses a range, defaulting to {@value #DEFAULT_RANGE}; rejects unsupported ranges. */
-  public static MetricsWindow parse(String raw) {
+  public static MetricsWindow parseWindow(String raw) {
     String normalized =
         raw == null || raw.isBlank() ? DEFAULT_RANGE : raw.trim().toLowerCase(Locale.ROOT);
     return switch (normalized) {

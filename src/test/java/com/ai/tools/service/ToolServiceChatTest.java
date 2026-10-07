@@ -29,7 +29,8 @@ import org.springframework.ai.chat.client.ChatClient;
 @DisplayName("ToolService chat and search")
 class ToolServiceChatTest {
 
-  private static final OwnerKey OWNER = OwnerKey.forClient("11111111-1111-4111-8111-111111111111");
+  private static final OwnerKey OWNER =
+      OwnerKey.createClientKey("11111111-1111-4111-8111-111111111111");
 
   @Mock private ChatClientProvider chatClientProvider;
   @Mock private WeatherTools weatherTools;

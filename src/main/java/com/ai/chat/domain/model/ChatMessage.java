@@ -31,16 +31,16 @@ public final class ChatMessage {
 
   /** Creates a new user message. */
   public static ChatMessage createUserMessage(String text) {
-    return new ChatMessage(MessageId.generate(), text, MessageRole.USER, Instant.now());
+    return new ChatMessage(MessageId.generateId(), text, MessageRole.USER, Instant.now());
   }
 
   /** Creates a new assistant message. */
   public static ChatMessage createAssistantMessage(String text) {
-    return new ChatMessage(MessageId.generate(), text, MessageRole.ASSISTANT, Instant.now());
+    return new ChatMessage(MessageId.generateId(), text, MessageRole.ASSISTANT, Instant.now());
   }
 
   /** Rebuilds a stored message. */
-  public static ChatMessage restore(
+  public static ChatMessage restoreMessage(
       MessageId id, String text, MessageRole role, Instant timestamp) {
     return new ChatMessage(id, text, role, timestamp);
   }

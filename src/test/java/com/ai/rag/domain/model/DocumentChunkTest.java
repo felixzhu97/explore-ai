@@ -16,15 +16,15 @@ import org.junit.jupiter.api.Test;
 @DisplayName("DocumentChunk")
 class DocumentChunkTest {
 
-  private static final ChunkId TEST_ID = ChunkId.of("123e4567-e89b-12d3-a456-426614174000");
+  private static final ChunkId TEST_ID = ChunkId.parseId("123e4567-e89b-12d3-a456-426614174000");
   private static final DocumentId TEST_DOCUMENT_ID =
-      DocumentId.of(UUID.fromString("223e4567-e89b-12d3-a456-426614174001"));
-  private static final OwnerKey OWNER = OwnerKey.parse("c:owner");
+      DocumentId.createId(UUID.fromString("223e4567-e89b-12d3-a456-426614174001"));
+  private static final OwnerKey OWNER = OwnerKey.parseKey("c:owner");
   private static final String TEST_CONTENT = "This is a test chunk content.";
   private static final int TEST_CHUNK_INDEX = 0;
 
   private static DocumentChunk chunk(String content, Map<String, Object> metadata) {
-    return DocumentChunk.create(
+    return DocumentChunk.createChunk(
         TEST_ID, TEST_DOCUMENT_ID, OWNER, content, TEST_CHUNK_INDEX, metadata);
   }
 
@@ -78,14 +78,17 @@ class DocumentChunkTest {
     @DisplayName("should reject missing id document owner or content")
     void shouldRejectMissingIdDocumentOwnerOrContent() {
       assertThatThrownBy(
-              () -> DocumentChunk.create(null, TEST_DOCUMENT_ID, OWNER, TEST_CONTENT, 0, Map.of()))
+              () ->
+                  DocumentChunk.createChunk(
+                      null, TEST_DOCUMENT_ID, OWNER, TEST_CONTENT, 0, Map.of()))
           .isInstanceOf(NullPointerException.class);
       assertThatThrownBy(
-              () -> DocumentChunk.create(TEST_ID, null, OWNER, TEST_CONTENT, 0, Map.of()))
+              () -> DocumentChunk.createChunk(TEST_ID, null, OWNER, TEST_CONTENT, 0, Map.of()))
           .isInstanceOf(NullPointerException.class);
       assertThatThrownBy(
               () ->
-                  DocumentChunk.create(TEST_ID, TEST_DOCUMENT_ID, null, TEST_CONTENT, 0, Map.of()))
+                  DocumentChunk.createChunk(
+                      TEST_ID, TEST_DOCUMENT_ID, null, TEST_CONTENT, 0, Map.of()))
           .isInstanceOf(NullPointerException.class);
       assertThatThrownBy(() -> chunk(null, Map.of())).isInstanceOf(NullPointerException.class);
     }
@@ -97,7 +100,7 @@ class DocumentChunkTest {
     DocumentChunk original = chunk(TEST_CONTENT, Map.of("key", "value"));
     float[] embedding = {0.1f, 0.2f, 0.3f};
 
-    DocumentChunk embedded = original.withEmbedding(embedding);
+    DocumentChunk embedded = original.copyWithEmbedding(embedding);
 
     assertThat(embedded.getEmbedding()).containsExactly(0.1f, 0.2f, 0.3f);
     assertThat(embedded.getId()).isEqualTo(original.getId());
@@ -111,7 +114,7 @@ class DocumentChunkTest {
   @DisplayName("should not change when the caller edits the embedding arrays")
   void shouldNotChangeWhenTheCallerEditsTheEmbeddingArrays() {
     float[] embedding = {0.1f, 0.2f};
-    DocumentChunk embedded = chunk().withEmbedding(embedding);
+    DocumentChunk embedded = chunk().copyWithEmbedding(embedding);
 
     embedding[0] = 9f;
     embedded.getEmbedding()[1] = 9f;
@@ -126,25 +129,25 @@ class DocumentChunkTest {
     @Test
     @DisplayName("should score identical directions as one")
     void shouldScoreIdenticalDirectionsAsOne() {
-      DocumentChunk embedded = chunk().withEmbedding(new float[] {1f, 0f});
+      DocumentChunk embedded = chunk().copyWithEmbedding(new float[] {1f, 0f});
 
-      assertThat(embedded.similarityTo(new float[] {2f, 0f})).isEqualTo(1.0);
+      assertThat(embedded.calculateSimilarity(new float[] {2f, 0f})).isEqualTo(1.0);
       assertThat(embedded.isComparableWith(new float[] {2f, 0f})).isTrue();
     }
 
     @Test
     @DisplayName("should score zero when the chunk has no comparable embedding")
     void shouldScoreZeroWhenTheChunkHasNoComparableEmbedding() {
-      DocumentChunk embedded = chunk().withEmbedding(new float[] {1f, 0f});
+      DocumentChunk embedded = chunk().copyWithEmbedding(new float[] {1f, 0f});
 
-      assertThat(chunk().similarityTo(new float[] {1f, 0f})).isZero();
+      assertThat(chunk().calculateSimilarity(new float[] {1f, 0f})).isZero();
       assertThat(chunk().isComparableWith(new float[] {1f, 0f})).isFalse();
-      assertThat(embedded.similarityTo(new float[] {1f, 0f, 0f})).isZero();
+      assertThat(embedded.calculateSimilarity(new float[] {1f, 0f, 0f})).isZero();
       assertThat(embedded.isComparableWith(new float[] {1f, 0f, 0f})).isFalse();
     }
 
     private double similarity(float[] chunkEmbedding, float[] queryEmbedding) {
-      return chunk().withEmbedding(chunkEmbedding).similarityTo(queryEmbedding);
+      return chunk().copyWithEmbedding(chunkEmbedding).calculateSimilarity(queryEmbedding);
     }
 
     @Test
@@ -177,7 +180,7 @@ class DocumentChunkTest {
     @Test
     @DisplayName("should return 0 when the chunk has no embedding or sizes differ")
     void shouldReturnZeroWhenTheChunkHasNoEmbeddingOrSizesDiffer() {
-      assertThat(chunk().similarityTo(new float[] {1f, 2f})).isZero();
+      assertThat(chunk().calculateSimilarity(new float[] {1f, 2f})).isZero();
       assertThat(similarity(new float[] {1f, 2f}, null)).isZero();
       assertThat(similarity(new float[] {1f, 2f, 3f}, new float[] {1f, 2f})).isZero();
     }
@@ -186,13 +189,13 @@ class DocumentChunkTest {
   @Test
   @DisplayName("should keep short content whole")
   void shouldKeepShortContentWhole() {
-    assertThat(chunk().excerpt()).isEqualTo(TEST_CONTENT);
+    assertThat(chunk().getExcerpt()).isEqualTo(TEST_CONTENT);
   }
 
   @Test
   @DisplayName("should cut long content with an ellipsis")
   void shouldCutLongContentWithAnEllipsis() {
-    String excerpt = chunk("x".repeat(DocumentChunk.EXCERPT_LENGTH + 10), Map.of()).excerpt();
+    String excerpt = chunk("x".repeat(DocumentChunk.EXCERPT_LENGTH + 10), Map.of()).getExcerpt();
 
     assertThat(excerpt).hasSize(DocumentChunk.EXCERPT_LENGTH + 3).endsWith("...");
   }

@@ -10,14 +10,15 @@ import org.junit.jupiter.api.Test;
 @DisplayName("AiInvocationEvent")
 class AiInvocationEventTest {
 
-  private static final OwnerKey OWNER = OwnerKey.forClient("11111111-1111-4111-8111-111111111111");
+  private static final OwnerKey OWNER =
+      OwnerKey.createClientKey("11111111-1111-4111-8111-111111111111");
 
   @Test
   @DisplayName("should record success without error when built from succeeded")
   void shouldRecordSuccessWithoutErrorWhenBuiltFromSucceeded() {
     AiInvocationEvent event =
-        AiInvocationEvent.succeeded(
-                AiCapability.TOOLS, " tools.weather ", Latency.ofMillis(-5), OWNER)
+        AiInvocationEvent.createSucceededEvent(
+                AiCapability.TOOLS, " tools.weather ", Latency.createFromMillis(-5), OWNER)
             .provider("  ")
             .model("gpt")
             .tokens(new TokenUsage(3, 4))
@@ -25,7 +26,7 @@ class AiInvocationEventTest {
 
     assertThat(event.getOutcome()).isEqualTo(InvocationOutcome.SUCCESS);
     assertThat(event.getOperation()).isEqualTo("tools.weather");
-    assertThat(event.latency()).isEqualTo(Latency.ofMillis(0));
+    assertThat(event.latency()).isEqualTo(Latency.createFromMillis(0));
     assertThat(event.getProvider()).isNull();
     assertThat(event.getModel()).isEqualTo("gpt");
     assertThat(event.getPromptTokens()).isEqualTo(3);
@@ -38,12 +39,12 @@ class AiInvocationEventTest {
   @DisplayName("should carry sanitized error when built from failed")
   void shouldCarrySanitizedErrorWhenBuiltFromFailed() {
     AiInvocationEvent event =
-        AiInvocationEvent.failed(
+        AiInvocationEvent.createFailedEvent(
                 AiCapability.CHAT,
                 "chat.stream",
-                Latency.ofMillis(12),
+                Latency.createFromMillis(12),
                 OWNER,
-                ErrorSummary.of("Timeout", "line one\nline two" + "x".repeat(600)))
+                ErrorSummary.createSummary("Timeout", "line one\nline two" + "x".repeat(600)))
             .build();
 
     assertThat(event.getOutcome()).isEqualTo(InvocationOutcome.ERROR);
@@ -56,7 +57,9 @@ class AiInvocationEventTest {
   @DisplayName("should reject blank operation when starting an event")
   void shouldRejectBlankOperationWhenStartingAnEvent() {
     assertThatThrownBy(
-            () -> AiInvocationEvent.succeeded(AiCapability.CHAT, " ", Latency.ofMillis(1), OWNER))
+            () ->
+                AiInvocationEvent.createSucceededEvent(
+                    AiCapability.CHAT, " ", Latency.createFromMillis(1), OWNER))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("operation");
   }
@@ -65,7 +68,9 @@ class AiInvocationEventTest {
   @DisplayName("should require owner when starting an event")
   void shouldRequireOwnerWhenStartingAnEvent() {
     assertThatThrownBy(
-            () -> AiInvocationEvent.succeeded(AiCapability.CHAT, "chat", Latency.ofMillis(1), null))
+            () ->
+                AiInvocationEvent.createSucceededEvent(
+                    AiCapability.CHAT, "chat", Latency.createFromMillis(1), null))
         .isInstanceOf(NullPointerException.class)
         .hasMessageContaining("ownerKey");
   }
@@ -75,8 +80,8 @@ class AiInvocationEventTest {
   void shouldRequireErrorWhenStartingAFailedEvent() {
     assertThatThrownBy(
             () ->
-                AiInvocationEvent.failed(
-                    AiCapability.CHAT, "chat", Latency.ofMillis(1), OWNER, null))
+                AiInvocationEvent.createFailedEvent(
+                    AiCapability.CHAT, "chat", Latency.createFromMillis(1), OWNER, null))
         .isInstanceOf(NullPointerException.class)
         .hasMessageContaining("error");
   }

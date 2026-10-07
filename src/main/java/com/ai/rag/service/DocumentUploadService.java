@@ -98,16 +98,16 @@ public class DocumentUploadService {
   /** Lists all documents of the owner. */
   @Transactional(readOnly = true)
   public List<RagDocument> listAll(String ownerKey) {
-    return documentRepository.findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey.parse(ownerKey));
+    return documentRepository.findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey.parseKey(ownerKey));
   }
 
   /** Deletes the owner's document and all its chunks; throws if the document is not found. */
   @Transactional
   public void delete(UUID documentId, String ownerKey) {
-    OwnerKey owner = OwnerKey.parse(ownerKey);
+    OwnerKey owner = OwnerKey.parseKey(ownerKey);
     RagDocument document =
         documentRepository
-            .findByIdAndOwnerKey(DocumentId.of(documentId), owner)
+            .findByIdAndOwnerKey(DocumentId.createId(documentId), owner)
             .orElseThrow(
                 () ->
                     DomainException.notFound(
@@ -127,9 +127,9 @@ public class DocumentUploadService {
 
   private UploadResult ingest(RagDocument document, byte[] fileContent) {
     String fileName = document.getFileName();
-    ExtractedDocument raw = reader.read(fileContent, fileName);
+    ExtractedDocument raw = reader.readDocument(fileContent, fileName);
     List<ExtractedDocument> chunkDocs =
-        raw.content().isBlank() ? List.of() : transformer.transform(raw);
+        raw.content().isBlank() ? List.of() : transformer.splitDocument(raw);
     if (chunkDocs.isEmpty()) {
       throw DomainException.unprocessable("DOCUMENT_UNREADABLE", "No text found in " + fileName);
     }
@@ -137,10 +137,10 @@ public class DocumentUploadService {
     List<DocumentChunk> chunks = new ArrayList<>();
     for (int i = 0; i < chunkDocs.size(); i++) {
       ExtractedDocument chunkDoc = chunkDocs.get(i);
-      chunks.add(document.newChunk(i, chunkDoc.content(), chunkDoc.metadata()));
+      chunks.add(document.createChunk(i, chunkDoc.content(), chunkDoc.metadata()));
     }
 
-    writer.write(chunks);
+    writer.writeChunks(chunks);
     document.completeIngestion(chunks.size());
     RagDocument ready = documentRepository.save(document);
     return new UploadResult(

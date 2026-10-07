@@ -36,7 +36,7 @@ public class DailyUsageQuotaService {
 
   /** Consumes one unit of the owner and global quota for background work that has no client IP. */
   public boolean tryConsume(OwnerKey owner) {
-    return tryConsume(QuotaSubject.owner(owner), null).allowed();
+    return tryConsume(QuotaSubject.createOwnerSubject(owner), null).allowed();
   }
 
   /**
@@ -53,7 +53,7 @@ public class DailyUsageQuotaService {
       charges.add(new Charge(owner, policy.dailyLimit()));
     }
     if (address != null) {
-      charges.add(new Charge(QuotaSubject.address(address), policy.ipDailyLimit()));
+      charges.add(new Charge(QuotaSubject.createAddressSubject(address), policy.ipDailyLimit()));
     }
     policy
         .globalDailyLimit()
@@ -61,7 +61,7 @@ public class DailyUsageQuotaService {
     Charge shown = charges.isEmpty() ? null : charges.getFirst();
     int shownLimit = shown == null ? policy.dailyLimit() : shown.limit();
     if (!policy.enforced() || shown == null) {
-      return QuotaDecision.allow(policy.plan(), shownLimit, shownLimit);
+      return QuotaDecision.createApproval(policy.plan(), shownLimit, shownLimit);
     }
 
     LocalDate today = today();
@@ -69,11 +69,11 @@ public class DailyUsageQuotaService {
     for (Charge charge : charges) {
       if (!consume(charge, today)) {
         consumed.forEach(done -> release(done.subject(), today));
-        return QuotaDecision.refuse(policy.plan(), shownLimit);
+        return QuotaDecision.createRefusal(policy.plan(), shownLimit);
       }
       consumed.add(charge);
     }
-    return QuotaDecision.allow(policy.plan(), shownLimit, remaining(shown, today));
+    return QuotaDecision.createApproval(policy.plan(), shownLimit, remaining(shown, today));
   }
 
   private boolean consume(Charge charge, LocalDate today) {
@@ -83,12 +83,12 @@ public class DailyUsageQuotaService {
         .compute(
             charge.subject().key(),
             (key, usage) -> {
-              DailyUsage current = usage == null ? DailyUsage.none(today) : usage;
-              if (current.remaining(charge.limit(), today) == 0) {
+              DailyUsage current = usage == null ? DailyUsage.createEmptyUsage(today) : usage;
+              if (current.calculateRemaining(charge.limit(), today) == 0) {
                 return current;
               }
               granted[0] = true;
-              return current.consume(today);
+              return current.consumeQuota(today);
             });
     return granted[0];
   }
@@ -99,7 +99,7 @@ public class DailyUsageQuotaService {
 
   private int remaining(Charge charge, LocalDate today) {
     DailyUsage usage = counters.getIfPresent(charge.subject().key());
-    return usage == null ? charge.limit() : usage.remaining(charge.limit(), today);
+    return usage == null ? charge.limit() : usage.calculateRemaining(charge.limit(), today);
   }
 
   private static LocalDate today() {

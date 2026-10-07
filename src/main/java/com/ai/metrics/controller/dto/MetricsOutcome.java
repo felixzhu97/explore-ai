@@ -10,7 +10,7 @@ public enum MetricsOutcome {
 
   @JsonValue
   public String value() {
-    return InvocationOutcome.valueOf(name()).value();
+    return InvocationOutcome.valueOf(name()).getValue();
   }
 
   /** Maps an outcome to its API value. */

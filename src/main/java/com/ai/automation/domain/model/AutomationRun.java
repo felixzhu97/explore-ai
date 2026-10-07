@@ -54,7 +54,7 @@ public class AutomationRun extends AbstractOwnerAwareImmutable<RunId> {
   @Column private Instant finishedAt;
 
   private AutomationRun(ScheduleId scheduleId, String ownerKey, Instant startedAt) {
-    super(RunId.generate(), OwnerKey.parse(ownerKey));
+    super(RunId.generateId(), OwnerKey.parseKey(ownerKey));
     this.scheduleId = Objects.requireNonNull(scheduleId, "scheduleId");
     this.startedAt = Objects.requireNonNull(startedAt, "startedAt");
     this.status = RunStatus.FAILED;
@@ -62,12 +62,12 @@ public class AutomationRun extends AbstractOwnerAwareImmutable<RunId> {
   }
 
   /** Starts a run for the schedule now, provisionally failed with its email pending. */
-  public static AutomationRun start(ScheduleId scheduleId, String ownerKey) {
-    return start(scheduleId, ownerKey, Instant.now());
+  public static AutomationRun startRun(ScheduleId scheduleId, String ownerKey) {
+    return startRun(scheduleId, ownerKey, Instant.now());
   }
 
   /** Starts a run for the schedule at the time, provisionally failed with its email pending. */
-  public static AutomationRun start(ScheduleId scheduleId, String ownerKey, Instant startedAt) {
+  public static AutomationRun startRun(ScheduleId scheduleId, String ownerKey, Instant startedAt) {
     return new AutomationRun(scheduleId, ownerKey, startedAt);
   }
 
@@ -77,7 +77,7 @@ public class AutomationRun extends AbstractOwnerAwareImmutable<RunId> {
   }
 
   /** Marks the run successful with a truncated result excerpt and stamps its finish time. */
-  public void succeed(String resultExcerpt, EmailDeliveryStatus emailStatus) {
+  public void markSucceeded(String resultExcerpt, EmailDeliveryStatus emailStatus) {
     requireRunning();
     this.status = RunStatus.SUCCESS;
     this.resultExcerpt = DomainStrings.truncate(resultExcerpt, MAX_RESULT_EXCERPT);
@@ -87,12 +87,12 @@ public class AutomationRun extends AbstractOwnerAwareImmutable<RunId> {
   }
 
   /** Marks the run failed before any email was sent, keeping a truncated error message. */
-  public void failBeforeEmail(String errorMessage) {
+  public void markFailedBeforeEmail(String errorMessage) {
     finishWithoutEmail(RunStatus.FAILED, errorMessage);
   }
 
   /** Marks the run skipped because the owner used up the daily plan quota. */
-  public void skipForQuota() {
+  public void markSkippedForQuota() {
     finishWithoutEmail(RunStatus.SKIPPED, QUOTA_EXCEEDED);
   }
 

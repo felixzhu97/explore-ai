@@ -27,7 +27,7 @@ public class InProcessPipelineGateway implements PipelineGateway {
     PipelineTemplate template =
         pipelineTemplateRepository
             .findByIdAndOwnerKey(
-                PipelineTemplateId.of(pipelineTemplateId), OwnerKey.parse(ownerKey))
+                PipelineTemplateId.parseId(pipelineTemplateId), OwnerKey.parseKey(ownerKey))
             .filter(PipelineTemplate::isRunnable)
             .orElseThrow(
                 () ->
@@ -35,6 +35,6 @@ public class InProcessPipelineGateway implements PipelineGateway {
                         "PIPELINE_TEMPLATE_NOT_FOUND",
                         "Pipeline template not found: " + pipelineTemplateId));
     return pipelineService.invokePipelineSync(
-        template.composeInvokeMessage(brief), template.toLinearPipeline(), ownerKey, language);
+        template.composeFirstMessage(brief), template.buildLinearPipeline(), ownerKey, language);
   }
 }

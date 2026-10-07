@@ -35,7 +35,7 @@ class ChunkingDocumentTransformerTest {
             + "Second paragraph also needs sufficient length for another chunk boundary.";
     ExtractedDocument document = new ExtractedDocument(content, metadata, "guide.txt");
 
-    List<ExtractedDocument> chunks = transformer.transform(document);
+    List<ExtractedDocument> chunks = transformer.splitDocument(document);
 
     assertThat(chunks).hasSizeGreaterThanOrEqualTo(2);
     assertThat(chunks)
@@ -53,7 +53,7 @@ class ChunkingDocumentTransformerTest {
     ExtractedDocument document =
         new ExtractedDocument("   ", Map.of("fileName", "blank.txt"), "blank.txt");
 
-    List<ExtractedDocument> chunks = transformer.transform(document);
+    List<ExtractedDocument> chunks = transformer.splitDocument(document);
 
     assertThat(chunks).isEmpty();
   }
@@ -64,7 +64,7 @@ class ChunkingDocumentTransformerTest {
     ExtractedDocument document =
         new ExtractedDocument("Short note.", Map.of("fileName", "short.txt"), "short.txt");
 
-    List<ExtractedDocument> chunks = transformer.transform(document);
+    List<ExtractedDocument> chunks = transformer.splitDocument(document);
 
     assertThat(chunks).hasSize(1);
     assertThat(chunks.getFirst().content()).isEqualTo("Short note.");

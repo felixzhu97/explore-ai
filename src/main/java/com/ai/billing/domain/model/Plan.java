@@ -12,12 +12,12 @@ public enum Plan {
   }
 
   /** Returns the lowercase wire value, such as {@code free}. */
-  public String value() {
+  public String getValue() {
     return value;
   }
 
   /** Parses a configured plan case-insensitively; anything other than pro is free. */
-  public static Plan parse(String configured) {
+  public static Plan parsePlan(String configured) {
     return configured != null && PRO.value.equalsIgnoreCase(configured.trim()) ? PRO : FREE;
   }
 }

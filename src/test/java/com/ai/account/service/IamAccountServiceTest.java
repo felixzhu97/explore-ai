@@ -30,14 +30,14 @@ class IamAccountServiceTest {
   @Test
   @DisplayName("should create the account when the token subject is new")
   void shouldCreateTheAccountWhenTheTokenSubjectIsNew() {
-    when(accountRepository.findByIdentity(ExternalIdentity.iam("iam-new")))
+    when(accountRepository.findByIdentity(ExternalIdentity.createIamIdentity("iam-new")))
         .thenReturn(Optional.empty());
     when(accountRepository.save(any(Account.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     Account account = service.signIn(jwt("iam-new", "new@example.com"));
 
-    assertThat(account.identity()).isEqualTo(ExternalIdentity.iam("iam-new"));
+    assertThat(account.getIdentity()).isEqualTo(ExternalIdentity.createIamIdentity("iam-new"));
     assertThat(account.getEmail()).isEqualTo(new ContactEmail("new@example.com"));
   }
 
@@ -45,8 +45,11 @@ class IamAccountServiceTest {
   @DisplayName("should refresh the email when an existing account signs in again")
   void shouldRefreshTheEmailWhenAnExistingAccountSignsInAgain() {
     Account existing =
-        Account.create(ExternalIdentity.iam("iam-sub"), new ContactEmail("old@example.com"), null);
-    when(accountRepository.findByIdentity(ExternalIdentity.iam("iam-sub")))
+        Account.createAccount(
+            ExternalIdentity.createIamIdentity("iam-sub"),
+            new ContactEmail("old@example.com"),
+            null);
+    when(accountRepository.findByIdentity(ExternalIdentity.createIamIdentity("iam-sub")))
         .thenReturn(Optional.of(existing));
     when(accountRepository.save(existing)).thenReturn(existing);
 

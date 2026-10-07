@@ -16,9 +16,9 @@ class QuotaValueObjectsTest {
   @Test
   @DisplayName("should fall back to free when the configured plan is unknown")
   void shouldFallBackToFreeWhenTheConfiguredPlanIsUnknown() {
-    assertThat(Plan.parse(" Pro ")).isEqualTo(Plan.PRO);
-    assertThat(Plan.parse("enterprise")).isEqualTo(Plan.FREE);
-    assertThat(Plan.parse(null)).isEqualTo(Plan.FREE);
+    assertThat(Plan.parsePlan(" Pro ")).isEqualTo(Plan.PRO);
+    assertThat(Plan.parsePlan("enterprise")).isEqualTo(Plan.FREE);
+    assertThat(Plan.parsePlan(null)).isEqualTo(Plan.FREE);
   }
 
   @Test
@@ -48,25 +48,25 @@ class QuotaValueObjectsTest {
   void shouldStartFromZeroWhenTheDayChanges() {
     DailyUsage yesterday = new DailyUsage(TODAY.minusDays(1), 5);
 
-    assertThat(yesterday.remaining(5, TODAY)).isEqualTo(5);
-    assertThat(yesterday.consume(TODAY)).isEqualTo(new DailyUsage(TODAY, 1));
+    assertThat(yesterday.calculateRemaining(5, TODAY)).isEqualTo(5);
+    assertThat(yesterday.consumeQuota(TODAY)).isEqualTo(new DailyUsage(TODAY, 1));
   }
 
   @Test
   @DisplayName("should give back a consumed request when released")
   void shouldGiveBackAConsumedRequestWhenReleased() {
-    DailyUsage usage = DailyUsage.none(TODAY).consume(TODAY).consume(TODAY);
+    DailyUsage usage = DailyUsage.createEmptyUsage(TODAY).consumeQuota(TODAY).consumeQuota(TODAY);
 
-    assertThat(usage.remaining(3, TODAY)).isEqualTo(1);
-    assertThat(usage.release(TODAY).remaining(3, TODAY)).isEqualTo(2);
-    assertThat(DailyUsage.none(TODAY).release(TODAY).count()).isZero();
+    assertThat(usage.calculateRemaining(3, TODAY)).isEqualTo(1);
+    assertThat(usage.release(TODAY).calculateRemaining(3, TODAY)).isEqualTo(2);
+    assertThat(DailyUsage.createEmptyUsage(TODAY).release(TODAY).count()).isZero();
   }
 
   @Test
   @DisplayName("should keep owner and address counters apart when the values look alike")
   void shouldKeepOwnerAndAddressCountersApartWhenTheValuesLookAlike() {
-    QuotaSubject owner = QuotaSubject.owner(OwnerKey.forClient("203.0.113.7"));
-    QuotaSubject address = QuotaSubject.address("203.0.113.7");
+    QuotaSubject owner = QuotaSubject.createOwnerSubject(OwnerKey.createClientKey("203.0.113.7"));
+    QuotaSubject address = QuotaSubject.createAddressSubject("203.0.113.7");
 
     assertThat(owner).isNotEqualTo(address).isNotEqualTo(QuotaSubject.GLOBAL);
     assertThat(address.toString()).doesNotContain("203.0.113.7");
@@ -75,7 +75,7 @@ class QuotaValueObjectsTest {
   @Test
   @DisplayName("should have nothing remaining when a decision refuses the request")
   void shouldHaveNothingRemainingWhenADecisionRefusesTheRequest() {
-    assertThat(QuotaDecision.refuse(Plan.FREE, 50).remaining()).isZero();
+    assertThat(QuotaDecision.createRefusal(Plan.FREE, 50).remaining()).isZero();
     assertThatThrownBy(() -> new QuotaDecision(false, Plan.FREE, 50, 3))
         .isInstanceOf(IllegalArgumentException.class);
   }

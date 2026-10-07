@@ -27,7 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class EmbeddingDocumentWriterTest {
 
   private static final DocumentId DOCUMENT_ID =
-      DocumentId.of("123e4567-e89b-12d3-a456-426614174000");
+      DocumentId.parseId("123e4567-e89b-12d3-a456-426614174000");
 
   @Mock private TextEmbeddingGateway embeddingRepository;
 
@@ -47,10 +47,10 @@ class EmbeddingDocumentWriterTest {
     DocumentChunk secondChunk = createChunk("second chunk", 1);
     float[] firstEmbedding = new float[] {0.1f, 0.2f};
     float[] secondEmbedding = new float[] {0.3f, 0.4f};
-    when(embeddingRepository.embed("first chunk")).thenReturn(firstEmbedding);
-    when(embeddingRepository.embed("second chunk")).thenReturn(secondEmbedding);
+    when(embeddingRepository.embedText("first chunk")).thenReturn(firstEmbedding);
+    when(embeddingRepository.embedText("second chunk")).thenReturn(secondEmbedding);
 
-    writer.write(List.of(firstChunk, secondChunk));
+    writer.writeChunks(List.of(firstChunk, secondChunk));
 
     ArgumentCaptor<DocumentChunk> chunkCaptor = ArgumentCaptor.forClass(DocumentChunk.class);
     verify(chunkRepository, times(2)).saveChunk(chunkCaptor.capture());
@@ -66,16 +66,16 @@ class EmbeddingDocumentWriterTest {
   @Test
   @DisplayName("should not call embedder or repository when no chunks are provided")
   void shouldNotCallEmbedderOrRepositoryWhenNoChunksAreProvided() {
-    writer.write(List.of());
+    writer.writeChunks(List.of());
 
     verifyNoInteractions(embeddingRepository, chunkRepository);
   }
 
   private DocumentChunk createChunk(String content, int chunkIndex) {
-    return DocumentChunk.create(
-        ChunkId.generate(),
+    return DocumentChunk.createChunk(
+        ChunkId.generateId(),
         DOCUMENT_ID,
-        OwnerKey.parse("c:owner"),
+        OwnerKey.parseKey("c:owner"),
         content,
         chunkIndex,
         Map.of("source", "guide.txt"));

@@ -4,12 +4,8 @@ package com.ai.automation.domain.model;
 public enum AutomationActionType {
   RUN_PIPELINE_TEMPLATE;
 
-  public String value() {
-    return name();
-  }
-
   /** Parses an action type, ignoring case. */
-  public static AutomationActionType from(String raw) {
+  public static AutomationActionType parseType(String raw) {
     return AutomationActionType.valueOf(raw.trim().toUpperCase());
   }
 }

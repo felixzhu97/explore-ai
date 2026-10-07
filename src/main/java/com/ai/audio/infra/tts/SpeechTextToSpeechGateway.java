@@ -46,7 +46,8 @@ public class SpeechTextToSpeechGateway implements TextToSpeechGateway {
   }
 
   @Override
-  public SynthesizedAudio synthesize(SpeechText text, VoiceSelection voiceSelection, Double speed) {
+  public SynthesizedAudio synthesizeSpeech(
+      SpeechText text, VoiceSelection voiceSelection, Double speed) {
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("text", text.value());
     String qwenSpeaker = resolveQwenSpeaker(voiceSelection);
@@ -65,17 +66,17 @@ public class SpeechTextToSpeechGateway implements TextToSpeechGateway {
       JsonNode node = objectMapper.readTree(json == null ? "{}" : json);
       String audioUrl = node.path("audio_url").asText("");
       if (audioUrl.isBlank()) {
-        return SynthesizedAudio.empty();
+        return SynthesizedAudio.createEmptyAudio();
       }
       URI uri = resolveAudioUri(audioUrl);
       byte[] audio = RestClient.create().get().uri(uri).retrieve().body(byte[].class);
       if (audio == null || audio.length == 0) {
-        return SynthesizedAudio.empty();
+        return SynthesizedAudio.createEmptyAudio();
       }
       String mediaType = audioUrl.endsWith(".wav") ? "audio/wav" : "audio/mpeg";
-      return SynthesizedAudio.create(audio, mediaType);
+      return SynthesizedAudio.createAudio(audio, mediaType);
     } catch (Exception e) {
-      return SynthesizedAudio.empty();
+      return SynthesizedAudio.createEmptyAudio();
     }
   }
 

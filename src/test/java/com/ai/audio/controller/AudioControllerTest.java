@@ -33,7 +33,7 @@ class AudioControllerTest {
     String text = "Hello, world!";
     byte[] audioData = new byte[] {1, 2, 3, 4};
     when(audioService.synthesizeAudio(text, "alloy", 1.0))
-        .thenReturn(SynthesizedAudio.create(audioData));
+        .thenReturn(SynthesizedAudio.createAudio(audioData));
 
     assertThat(
             mvc.post()
@@ -114,7 +114,8 @@ class AudioControllerTest {
   @Test
   @DisplayName("should return 500 when audio data is empty")
   void shouldReturn500WhenAudioDataIsEmpty() {
-    when(audioService.synthesizeAudio(any(), any(), any())).thenReturn(SynthesizedAudio.empty());
+    when(audioService.synthesizeAudio(any(), any(), any()))
+        .thenReturn(SynthesizedAudio.createEmptyAudio());
 
     assertThat(
             mvc.post()
@@ -147,7 +148,7 @@ class AudioControllerTest {
     String longText = "A".repeat(10000);
     byte[] audioData = new byte[100];
     when(audioService.synthesizeAudio(longText, null, null))
-        .thenReturn(SynthesizedAudio.create(audioData));
+        .thenReturn(SynthesizedAudio.createAudio(audioData));
 
     assertThat(
             mvc.post()
@@ -163,7 +164,7 @@ class AudioControllerTest {
     String chineseText = "你好，世界！";
     byte[] audioData = new byte[] {1, 2, 3};
     when(audioService.synthesizeAudio(chineseText, null, null))
-        .thenReturn(SynthesizedAudio.create(audioData));
+        .thenReturn(SynthesizedAudio.createAudio(audioData));
 
     assertThat(
             mvc.post()
@@ -178,7 +179,7 @@ class AudioControllerTest {
   void shouldSetCorrectContentTypeHeader() {
     byte[] audioData = new byte[] {1, 2, 3};
     when(audioService.synthesizeAudio(any(), any(), any()))
-        .thenReturn(SynthesizedAudio.create(audioData));
+        .thenReturn(SynthesizedAudio.createAudio(audioData));
 
     assertThat(
             mvc.post()
@@ -195,7 +196,7 @@ class AudioControllerTest {
   void shouldSetCorrectContentDispositionHeader() {
     byte[] audioData = new byte[] {1, 2, 3};
     when(audioService.synthesizeAudio(any(), any(), any()))
-        .thenReturn(SynthesizedAudio.create(audioData));
+        .thenReturn(SynthesizedAudio.createAudio(audioData));
 
     assertThat(
             mvc.post()

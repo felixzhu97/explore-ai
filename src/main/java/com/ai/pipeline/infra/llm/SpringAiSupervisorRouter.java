@@ -80,7 +80,7 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
   private RoutingPlan toPlan(
       RoutingDecisionResponse decision, Set<String> allowed, AgentType fallback) {
     if (decision == null || decision.primaryAgent() == null || decision.primaryAgent().isBlank()) {
-      return RoutingPlan.single(fallback, "fallback to first available worker");
+      return RoutingPlan.createSingleAgentPlan(fallback, "fallback to first available worker");
     }
 
     AgentType primary = normalizeWorker(decision.primaryAgent(), allowed, fallback);
@@ -110,7 +110,7 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
     if ("supervisor".equals(normalized) || !allowed.contains(normalized)) {
       return fallback;
     }
-    return AgentType.of(normalized);
+    return AgentType.createType(normalized);
   }
 
   public record RoutingDecisionResponse(

@@ -17,10 +17,10 @@ public class EmbeddingDocumentWriter implements DocumentWriter {
   private final DocumentChunkRepository chunkRepository;
 
   @Override
-  public void write(List<DocumentChunk> chunks) {
+  public void writeChunks(List<DocumentChunk> chunks) {
     for (DocumentChunk chunk : chunks) {
-      float[] embedding = embeddingRepository.embed(chunk.getContent());
-      chunkRepository.saveChunk(chunk.withEmbedding(embedding));
+      float[] embedding = embeddingRepository.embedText(chunk.getContent());
+      chunkRepository.saveChunk(chunk.copyWithEmbedding(embedding));
     }
   }
 }

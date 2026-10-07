@@ -20,7 +20,7 @@
       </column>
       <column name="file_name" type="${string.type}(255)"/>
       <column name="file_size" type="BIGINT"/>
-      <column name="status" type="${string.type}(50)" defaultValue="UPLOADING">
+      <column name="status" type="${string.type}(50)" defaultValue="PROCESSING">
         <constraints nullable="false"/>
       </column>
       <column name="chunk_count" type="INT" defaultValueNumeric="0">

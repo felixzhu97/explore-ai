@@ -14,12 +14,12 @@ public enum InvocationOutcome {
     this.value = value;
   }
 
-  public String value() {
+  public String getValue() {
     return value;
   }
 
   /** Parses a case-insensitive outcome value, rejecting blank or unknown input. */
-  public static InvocationOutcome parse(String raw) {
+  public static InvocationOutcome parseOutcome(String raw) {
     if (raw == null || raw.isBlank()) {
       throw new IllegalArgumentException("outcome must not be blank");
     }

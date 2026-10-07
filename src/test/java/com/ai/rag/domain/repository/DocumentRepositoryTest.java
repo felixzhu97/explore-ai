@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class DocumentRepositoryTest extends AbstractDataJpaTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parse("c:33333333-3333-3333-3333-333333333333");
-  private static final OwnerKey OTHER = OwnerKey.forClient("other");
+  private static final OwnerKey OWNER = OwnerKey.parseKey("c:33333333-3333-3333-3333-333333333333");
+  private static final OwnerKey OTHER = OwnerKey.createClientKey("other");
 
   @Autowired private DocumentRepository repository;
 

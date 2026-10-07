@@ -52,8 +52,7 @@ public interface AutomationScheduleRepository extends Repository<AutomationSched
       SET s.nextRunAt = ?3, s.updatedAt = ?4
       WHERE s.id = ?1 AND s.enabled = true AND s.nextRunAt = ?2
       """)
-  int claimNextRun(
-      ScheduleId id, Instant expectedNextRunAt, Instant provisionalNextRunAt, Instant now);
+  int claimNextRun(ScheduleId id, Instant expectedNextRunAt, Instant claimedNextRunAt, Instant now);
 
   /**
    * Optimistic claim: advances {@code next_run_at} only when it still matches {@code
@@ -61,7 +60,8 @@ public interface AutomationScheduleRepository extends Repository<AutomationSched
    *
    * @return true if this caller won the claim
    */
-  default boolean claim(ScheduleId id, Instant expectedNextRunAt, Instant provisionalNextRunAt) {
-    return claimNextRun(id, expectedNextRunAt, provisionalNextRunAt, Instant.now()) == 1;
+  default boolean claimSchedule(
+      ScheduleId id, Instant expectedNextRunAt, Instant claimedNextRunAt) {
+    return claimNextRun(id, expectedNextRunAt, claimedNextRunAt, Instant.now()) == 1;
   }
 }

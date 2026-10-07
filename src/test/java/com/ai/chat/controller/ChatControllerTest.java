@@ -305,7 +305,10 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
   }
 
   private static ChatSession createTestSession(String id, String title) {
-    return ChatSession.of(
-        ChatSessionId.of(id), title, java.time.Instant.now(), OwnerKeyFixtures.CLIENT_FULL_KEY);
+    return ChatSession.restoreSession(
+        ChatSessionId.parseId(id),
+        title,
+        java.time.Instant.now(),
+        OwnerKeyFixtures.CLIENT_FULL_KEY);
   }
 }

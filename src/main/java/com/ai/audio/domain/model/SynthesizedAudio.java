@@ -15,17 +15,17 @@ public class SynthesizedAudio {
   }
 
   /** Creates MP3 audio from the bytes. */
-  public static SynthesizedAudio create(byte[] data) {
+  public static SynthesizedAudio createAudio(byte[] data) {
     return new SynthesizedAudio(data, "audio/mpeg");
   }
 
   /** Creates audio from the bytes and media type. */
-  public static SynthesizedAudio create(byte[] data, String mediaType) {
+  public static SynthesizedAudio createAudio(byte[] data, String mediaType) {
     return new SynthesizedAudio(data, mediaType);
   }
 
   /** Creates empty MP3 audio. */
-  public static SynthesizedAudio empty() {
+  public static SynthesizedAudio createEmptyAudio() {
     return new SynthesizedAudio(new byte[0], "audio/mpeg");
   }
 
@@ -35,17 +35,17 @@ public class SynthesizedAudio {
   }
 
   /** Returns the audio size in bytes. */
-  public int sizeInBytes() {
+  public int getSizeInBytes() {
     return data.length;
   }
 
   /** Returns a copy of the audio bytes. */
-  public byte[] data() {
+  public byte[] copyBytes() {
     return Arrays.copyOf(data, data.length);
   }
 
   /** Returns the audio media type. */
-  public String mediaType() {
+  public String getMediaType() {
     return mediaType;
   }
 

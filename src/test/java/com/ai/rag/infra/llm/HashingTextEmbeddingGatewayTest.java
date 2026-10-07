@@ -13,7 +13,7 @@ class HashingTextEmbeddingGatewayTest {
   void shouldReturnFixedDimensionVectorForBlankText() {
     HashingTextEmbeddingGateway repository = new HashingTextEmbeddingGateway(8);
 
-    float[] vector = repository.embed(" ");
+    float[] vector = repository.embedText(" ");
 
     assertThat(vector).hasSize(8);
     assertThat(repository.getDimensions()).isEqualTo(8);
@@ -24,8 +24,8 @@ class HashingTextEmbeddingGatewayTest {
   void shouldReturnDeterministicVectorsForTheSameText() {
     HashingTextEmbeddingGateway repository = new HashingTextEmbeddingGateway(16);
 
-    float[] first = repository.embed("hello");
-    float[] second = repository.embed("hello");
+    float[] first = repository.embedText("hello");
+    float[] second = repository.embedText("hello");
 
     assertThat(first).containsExactly(second);
   }

@@ -13,18 +13,18 @@ class AgentTypeTest {
 
   @Test
   void shouldNormalizeToLowercaseWhenCreated() {
-    assertEquals("k8s", AgentType.of("K8S").value());
+    assertEquals("k8s", AgentType.createType("K8S").value());
   }
 
   @Test
   void shouldIdentifySupervisor() {
-    assertTrue(AgentType.supervisor().isSupervisor());
-    assertFalse(AgentType.of("k8s").isSupervisor());
+    assertTrue(AgentType.createSupervisorType().isSupervisor());
+    assertFalse(AgentType.createType("k8s").isSupervisor());
   }
 
   @Test
   void shouldRejectBlankType() {
-    assertThrows(IllegalArgumentException.class, () -> AgentType.of("  "));
-    assertThrows(NullPointerException.class, () -> AgentType.of(null));
+    assertThrows(IllegalArgumentException.class, () -> AgentType.createType("  "));
+    assertThrows(NullPointerException.class, () -> AgentType.createType(null));
   }
 }

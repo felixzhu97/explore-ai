@@ -50,7 +50,7 @@ class McpClientControllerTest {
   @DisplayName("should return list of connected servers")
   void shouldReturnListOfConnectedServers() {
     when(mcpService.getConnectedServers())
-        .thenReturn(Map.of("server1", McpServerConnection.connected("server1", 3)));
+        .thenReturn(Map.of("server1", McpServerConnection.createConnectedServer("server1", 3)));
 
     assertThat(mvc.get().uri("/api/mcp/client/servers"))
         .hasStatusOk()
@@ -71,7 +71,8 @@ class McpClientControllerTest {
   @DisplayName("should return list of registered MCP tools")
   void shouldReturnListOfRegisteredMcpTools() {
     when(mcpService.getToolDefinitions())
-        .thenReturn(List.of(McpToolDefinition.create("get_weather", "Get current weather")));
+        .thenReturn(
+            List.of(McpToolDefinition.createDefinition("get_weather", "Get current weather")));
 
     assertThat(mvc.get().uri("/api/mcp/client/tools"))
         .hasStatusOk()

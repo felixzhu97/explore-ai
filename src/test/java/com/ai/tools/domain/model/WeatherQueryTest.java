@@ -13,7 +13,7 @@ class WeatherQueryTest {
   @Test
   @DisplayName("should normalize city name")
   void shouldNormalizeCityName() {
-    WeatherQuery query = WeatherQuery.of(" Beijing ");
+    WeatherQuery query = WeatherQuery.createQuery(" Beijing ");
 
     assertThat(query.normalizedCity()).isEqualTo("beijing");
   }
@@ -21,7 +21,7 @@ class WeatherQueryTest {
   @Test
   @DisplayName("should reject blank city")
   void shouldRejectBlankCity() {
-    assertThatThrownBy(() -> WeatherQuery.of(" "))
+    assertThatThrownBy(() -> WeatherQuery.createQuery(" "))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "INVALID_WEATHER_QUERY");
   }

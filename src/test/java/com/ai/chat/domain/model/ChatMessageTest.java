@@ -65,10 +65,10 @@ class ChatMessageTest {
   @Test
   @DisplayName("should keep every stored field when a message is restored")
   void shouldKeepEveryStoredFieldWhenAMessageIsRestored() {
-    MessageId id = MessageId.generate();
+    MessageId id = MessageId.generateId();
     Instant timestamp = Instant.now();
 
-    ChatMessage message = ChatMessage.restore(id, "Test", MessageRole.ASSISTANT, timestamp);
+    ChatMessage message = ChatMessage.restoreMessage(id, "Test", MessageRole.ASSISTANT, timestamp);
 
     assertThat(message.getId()).isEqualTo(id);
     assertThat(message.getText()).isEqualTo("Test");
@@ -80,7 +80,8 @@ class ChatMessageTest {
   @Test
   @DisplayName("should reject a message when its type is missing")
   void shouldRejectAMessageWhenItsTypeIsMissing() {
-    assertThatThrownBy(() -> ChatMessage.restore(MessageId.generate(), "Text", null, Instant.now()))
+    assertThatThrownBy(
+            () -> ChatMessage.restoreMessage(MessageId.generateId(), "Text", null, Instant.now()))
         .isInstanceOf(NullPointerException.class);
   }
 
@@ -91,10 +92,10 @@ class ChatMessageTest {
   @Test
   @DisplayName("should be equal when id is same")
   void shouldBeEqualWhenIdIsSame() {
-    MessageId id = MessageId.of("11111111-1111-1111-1111-111111111111");
+    MessageId id = MessageId.parseId("11111111-1111-1111-1111-111111111111");
     Instant now = Instant.now();
-    ChatMessage msg1 = ChatMessage.restore(id, "Text 1", MessageRole.USER, now);
-    ChatMessage msg2 = ChatMessage.restore(id, "Text 2", MessageRole.ASSISTANT, now);
+    ChatMessage msg1 = ChatMessage.restoreMessage(id, "Text 1", MessageRole.USER, now);
+    ChatMessage msg2 = ChatMessage.restoreMessage(id, "Text 2", MessageRole.ASSISTANT, now);
 
     assertThat(msg1).isEqualTo(msg2);
     assertThat(msg1.hashCode()).isEqualTo(msg2.hashCode());
@@ -105,11 +106,17 @@ class ChatMessageTest {
   void shouldNotBeEqualWhenIdIsDifferent() {
     Instant now = Instant.now();
     ChatMessage msg1 =
-        ChatMessage.restore(
-            MessageId.of("11111111-1111-1111-1111-111111111111"), "Text", MessageRole.USER, now);
+        ChatMessage.restoreMessage(
+            MessageId.parseId("11111111-1111-1111-1111-111111111111"),
+            "Text",
+            MessageRole.USER,
+            now);
     ChatMessage msg2 =
-        ChatMessage.restore(
-            MessageId.of("22222222-2222-2222-2222-222222222222"), "Text", MessageRole.USER, now);
+        ChatMessage.restoreMessage(
+            MessageId.parseId("22222222-2222-2222-2222-222222222222"),
+            "Text",
+            MessageRole.USER,
+            now);
 
     assertThat(msg1).isNotEqualTo(msg2);
   }

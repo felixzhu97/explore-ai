@@ -12,7 +12,7 @@ public record TokenUsage(Integer prompt, Integer completion) {
   }
 
   /** Returns the counted tokens, treating missing counts as zero. */
-  public long total() {
+  public long calculateTotal() {
     return (prompt == null ? 0L : prompt) + (completion == null ? 0L : completion);
   }
 }

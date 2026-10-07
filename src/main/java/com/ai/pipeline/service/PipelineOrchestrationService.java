@@ -42,7 +42,7 @@ public class PipelineOrchestrationService {
 
   /** Returns an agent with its health. */
   public AgentDefinition getHealth(AgentType type, String ownerKey, String language) {
-    return registry.require(type, ownerKey, language);
+    return registry.requireAgent(type, ownerKey, language);
   }
 
   /** Streams a supervisor run as SSE: plans routing, runs workers and synthesizes the answer. */
@@ -76,7 +76,7 @@ public class PipelineOrchestrationService {
 
     long startedAt = System.nanoTime();
     try {
-      AgentDefinition agent = registry.require(type, ownerKey, language);
+      AgentDefinition agent = registry.requireAgent(type, ownerKey, language);
       return Flux.concat(
               Flux.just(buildHandoffEvent(type.value(), "direct invoke")),
               workerInvoker
@@ -94,13 +94,13 @@ public class PipelineOrchestrationService {
   /** Records an agent run; a null error means it succeeded. */
   private void recordAgent(
       String agentType, String operation, String ownerKey, long startedAt, Throwable error) {
-    Latency latency = Latency.since(startedAt);
-    OwnerKey owner = OwnerKey.parse(ownerKey);
+    Latency latency = Latency.measureSince(startedAt);
+    OwnerKey owner = OwnerKey.parseKey(ownerKey);
     AiInvocationEvent.Builder event =
         error == null
-            ? AiInvocationEvent.succeeded(AiCapability.AGENTS, operation, latency, owner)
-            : AiInvocationEvent.failed(
-                AiCapability.AGENTS, operation, latency, owner, ErrorSummary.of(error));
+            ? AiInvocationEvent.createSucceededEvent(AiCapability.AGENTS, operation, latency, owner)
+            : AiInvocationEvent.createFailedEvent(
+                AiCapability.AGENTS, operation, latency, owner, ErrorSummary.createSummary(error));
     invocationRecorder.record(event.agentType(agentType).build());
   }
 
@@ -197,7 +197,7 @@ public class PipelineOrchestrationService {
     stages.add(Flux.just(buildHandoffEvent(plan.primaryAgent().value(), plan.reason())));
 
     if (plan.subtasks().isEmpty()) {
-      AgentDefinition primary = registry.require(plan.primaryAgent(), ownerKey, language);
+      AgentDefinition primary = registry.requireAgent(plan.primaryAgent(), ownerKey, language);
       stages.add(
           workerInvoker
               .invokeStream(primary, originalMessage)
@@ -224,7 +224,8 @@ public class PipelineOrchestrationService {
                                 CompletableFuture.supplyAsync(
                                     () -> {
                                       AgentDefinition worker =
-                                          registry.require(subtask.agentType(), ownerKey, language);
+                                          registry.requireAgent(
+                                              subtask.agentType(), ownerKey, language);
                                       String result =
                                           workerInvoker.invoke(worker, subtask.instruction());
                                       return "### "
@@ -239,7 +240,7 @@ public class PipelineOrchestrationService {
               }
               String collected = String.join("", workerOutputs);
               AgentDefinition synthesizer =
-                  registry.require(plan.primaryAgent(), ownerKey, language);
+                  registry.requireAgent(plan.primaryAgent(), ownerKey, language);
               String synthesisPrompt =
                   """
                             Original user request:
@@ -263,8 +264,8 @@ public class PipelineOrchestrationService {
   private AgentDefinition resolveNode(
       AgentPipeline.PipelineNode node, String ownerKey, String language) {
     return node.hasOwnPrompt()
-        ? node.toDefinition()
-        : node.toDefinition(registry.require(node.agentType(), ownerKey, language));
+        ? node.buildDefinition()
+        : node.buildDefinition(registry.requireAgent(node.agentType(), ownerKey, language));
   }
 
   /** Builds an SSE message event. */

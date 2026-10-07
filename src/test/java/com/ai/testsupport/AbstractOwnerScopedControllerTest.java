@@ -20,7 +20,7 @@ public abstract class AbstractOwnerScopedControllerTest {
   @BeforeEach
   void stubOwnerContext() {
     when(ownerContext.requireValue(any())).thenReturn(ownerKey());
-    when(ownerContext.require(any())).thenReturn(OwnerKey.parse(ownerKey()));
+    when(ownerContext.require(any())).thenReturn(OwnerKey.parseKey(ownerKey()));
   }
 
   /** Owner key returned by stubbed {@link OwnerContext#requireValue}. */

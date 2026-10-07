@@ -20,7 +20,7 @@ public record ContactEmail(String value) {
   }
 
   /** Returns the email, or {@code null} when the value is blank or not an email address. */
-  public static ContactEmail ofNullable(String raw) {
+  public static ContactEmail parseOptionalEmail(String raw) {
     if (raw == null) {
       return null;
     }

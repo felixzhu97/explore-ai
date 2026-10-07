@@ -46,9 +46,9 @@ class SpringAiImageGenerationGatewayTest {
     when(imageModel.call(any(ImagePrompt.class))).thenReturn(mockResponse);
 
     var result =
-        repository.generate(
-            com.ai.image.domain.model.ImagePrompt.of("sunset"),
-            ImageOptions.of("dall-e-3", "standard", 1024, 1024, 1));
+        repository.generateImage(
+            com.ai.image.domain.model.ImagePrompt.createPrompt("sunset"),
+            ImageOptions.createOptions("dall-e-3", "standard", 1024, 1024, 1));
 
     assertThat(result.url()).isEqualTo(expectedUrl);
   }
@@ -67,9 +67,9 @@ class SpringAiImageGenerationGatewayTest {
     when(imageModel.call(any(ImagePrompt.class))).thenReturn(mockResponse);
 
     var result =
-        repository.generate(
-            com.ai.image.domain.model.ImagePrompt.of("sunset"),
-            ImageOptions.of("dall-e-3", "standard", 1024, 1024, 1));
+        repository.generateImage(
+            com.ai.image.domain.model.ImagePrompt.createPrompt("sunset"),
+            ImageOptions.createOptions("dall-e-3", "standard", 1024, 1024, 1));
 
     assertThat(result.base64()).isEqualTo(expectedBase64);
     assertThat(result.hasBase64()).isTrue();
@@ -83,9 +83,9 @@ class SpringAiImageGenerationGatewayTest {
     when(imageModel.call(any(ImagePrompt.class))).thenReturn(emptyResponse);
 
     var result =
-        repository.generate(
-            com.ai.image.domain.model.ImagePrompt.of("empty"),
-            ImageOptions.of(null, null, 1024, 1024, 1));
+        repository.generateImage(
+            com.ai.image.domain.model.ImagePrompt.createPrompt("empty"),
+            ImageOptions.createOptions(null, null, 1024, 1024, 1));
 
     assertThat(result.isAvailable()).isFalse();
   }
@@ -96,9 +96,9 @@ class SpringAiImageGenerationGatewayTest {
     when(imageModel.call(any(ImagePrompt.class))).thenReturn(null);
 
     var result =
-        repository.generate(
-            com.ai.image.domain.model.ImagePrompt.of("empty"),
-            ImageOptions.of(null, null, 1024, 1024, 1));
+        repository.generateImage(
+            com.ai.image.domain.model.ImagePrompt.createPrompt("empty"),
+            ImageOptions.createOptions(null, null, 1024, 1024, 1));
 
     assertThat(result.isAvailable()).isFalse();
   }
@@ -114,9 +114,9 @@ class SpringAiImageGenerationGatewayTest {
     when(imageModel.call(any(ImagePrompt.class))).thenReturn(mockResponse);
 
     var result =
-        repository.generate(
-            com.ai.image.domain.model.ImagePrompt.of("empty"),
-            ImageOptions.of(null, null, 1024, 1024, 1));
+        repository.generateImage(
+            com.ai.image.domain.model.ImagePrompt.createPrompt("empty"),
+            ImageOptions.createOptions(null, null, 1024, 1024, 1));
 
     assertThat(result.isAvailable()).isFalse();
   }

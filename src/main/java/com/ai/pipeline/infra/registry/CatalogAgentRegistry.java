@@ -66,7 +66,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
       }
 
       @Override
-      public AgentDefinition require(AgentType type, String ownerKey, String language) {
+      public AgentDefinition requireAgent(AgentType type, String ownerKey, String language) {
         return findByType(type, ownerKey, language)
             .orElseThrow(
                 () ->
@@ -88,7 +88,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
       byType.put(builtin.getType().value(), builtin);
     }
     for (CustomAgent saved : library(ownerKey)) {
-      byType.put(saved.getTypeKey(), saved.toAgentDefinition());
+      byType.put(saved.getTypeKey(), saved.buildAgentDefinition());
     }
     return List.copyOf(byType.values());
   }
@@ -107,16 +107,16 @@ public class CatalogAgentRegistry implements AgentRegistry {
   @Override
   public Optional<AgentDefinition> findByType(AgentType type, String ownerKey, String language) {
     return library(ownerKey).stream()
-        .filter(saved -> saved.hasType(type))
+        .filter(saved -> saved.hasAgentType(type))
         .findFirst()
-        .map(CustomAgent::toAgentDefinition)
+        .map(CustomAgent::buildAgentDefinition)
         .or(
             () ->
                 AgentTemplateCatalog.findByTypeKey(type.value(), language).map(this::toDefinition));
   }
 
   @Override
-  public AgentDefinition require(AgentType type, String ownerKey, String language) {
+  public AgentDefinition requireAgent(AgentType type, String ownerKey, String language) {
     return findByType(type, ownerKey, language)
         .orElseThrow(
             () ->
@@ -128,15 +128,15 @@ public class CatalogAgentRegistry implements AgentRegistry {
       return List.of();
     }
     return customAgentRepository.findAllByOwnerKeyAndEnabledTrueOrderByNameAsc(
-        OwnerKey.parse(ownerKey));
+        OwnerKey.parseKey(ownerKey));
   }
 
   private AgentDefinition toDefinition(AgentTemplate template) {
     String prompt =
         ClasspathPromptLoader.joinSections(
             template.systemPrompt(), promptTemplates.getSharedStyleInstructions());
-    return AgentDefinition.create(
-        AgentType.of(template.typeKey()),
+    return AgentDefinition.createDefinition(
+        AgentType.createType(template.typeKey()),
         template.name(),
         template.description(),
         prompt,

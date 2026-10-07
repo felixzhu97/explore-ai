@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Import;
 class AiInvocationEventJpaTest extends AbstractDataJpaTest {
 
   private static final String OWNER_KEY = "c:77777777-7777-7777-7777-777777777777";
-  private static final OwnerKey OWNER = OwnerKey.parse(OWNER_KEY);
+  private static final OwnerKey OWNER = OwnerKey.parseKey(OWNER_KEY);
 
   @Autowired private JpaAiInvocationEventRepository repository;
 
@@ -31,7 +31,8 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
   @DisplayName("should persist and reload invocation event when round tripping")
   void shouldPersistAndReloadInvocationEventWhenRoundTripping() {
     AiInvocationEvent event =
-        AiInvocationEvent.succeeded(AiCapability.CHAT, "completion", Latency.ofMillis(250), OWNER)
+        AiInvocationEvent.createSucceededEvent(
+                AiCapability.CHAT, "completion", Latency.createFromMillis(250), OWNER)
             .provider("openai")
             .model("gpt-4")
             .build();
@@ -52,12 +53,12 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
   @DisplayName("should store capability and outcome values when persisting event")
   void shouldStoreCapabilityAndOutcomeValuesWhenPersistingEvent() {
     AiInvocationEvent event =
-        AiInvocationEvent.failed(
+        AiInvocationEvent.createFailedEvent(
                 AiCapability.RAG,
                 "embed",
-                Latency.ofMillis(90),
+                Latency.createFromMillis(90),
                 OWNER,
-                ErrorSummary.of("timeout", null))
+                ErrorSummary.createSummary("timeout", null))
             .build();
 
     em.persistAndFlush(event);
@@ -74,12 +75,12 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
   @DisplayName("should store lowercase capability and outcome when persisting event")
   void shouldStoreLowercaseCapabilityAndOutcomeWhenPersistingEvent() {
     AiInvocationEvent event =
-        AiInvocationEvent.failed(
+        AiInvocationEvent.createFailedEvent(
                 AiCapability.VISION,
                 "describe",
-                Latency.ofMillis(5),
+                Latency.createFromMillis(5),
                 OWNER,
-                ErrorSummary.of("unknown", null))
+                ErrorSummary.createSummary("unknown", null))
             .build();
 
     em.persistAndFlush(event);
@@ -94,7 +95,8 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
   void shouldPreserveOccurredAtTimestampWhenRoundTrippingEvent() {
     Instant occurredAt = Instant.parse("2026-03-15T12:00:00Z");
     AiInvocationEvent event =
-        AiInvocationEvent.succeeded(AiCapability.WORKFLOW, "execute", Latency.ofMillis(500), OWNER)
+        AiInvocationEvent.createSucceededEvent(
+                AiCapability.WORKFLOW, "execute", Latency.createFromMillis(500), OWNER)
             .occurredAt(occurredAt)
             .build();
 
@@ -111,7 +113,8 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
   void shouldFilterAndReadOccurredAtAsInstantWhenQueryingThroughJdbc() {
     Instant occurredAt = Instant.parse("2026-03-15T12:00:00.250Z");
     AiInvocationEvent event =
-        AiInvocationEvent.succeeded(AiCapability.WORKFLOW, "execute", Latency.ofMillis(500), OWNER)
+        AiInvocationEvent.createSucceededEvent(
+                AiCapability.WORKFLOW, "execute", Latency.createFromMillis(500), OWNER)
             .occurredAt(occurredAt)
             .build();
     em.persistAndFlush(event);
@@ -168,7 +171,8 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
   }
 
   private static AiInvocationEvent event(String sessionId, Instant occurredAt) {
-    return AiInvocationEvent.succeeded(AiCapability.CHAT, "completion", Latency.ofMillis(10), OWNER)
+    return AiInvocationEvent.createSucceededEvent(
+            AiCapability.CHAT, "completion", Latency.createFromMillis(10), OWNER)
         .sessionId(sessionId)
         .occurredAt(occurredAt)
         .build();

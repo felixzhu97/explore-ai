@@ -22,7 +22,8 @@ public class SpringAiTextToSpeechGateway implements TextToSpeechGateway {
   private final TextToSpeechModel textToSpeechModel;
 
   @Override
-  public SynthesizedAudio synthesize(SpeechText text, VoiceSelection voiceSelection, Double speed) {
+  public SynthesizedAudio synthesizeSpeech(
+      SpeechText text, VoiceSelection voiceSelection, Double speed) {
     OpenAiAudioSpeechOptions.Builder optionsBuilder =
         OpenAiAudioSpeechOptions.builder().voice(voiceSelection.voice());
     if (StringUtils.hasText(voiceSelection.model())) {
@@ -37,8 +38,8 @@ public class SpringAiTextToSpeechGateway implements TextToSpeechGateway {
 
     if (response != null && response.getResults() != null && !response.getResults().isEmpty()) {
       byte[] audio = response.getResults().getFirst().getOutput();
-      return SynthesizedAudio.create(audio);
+      return SynthesizedAudio.createAudio(audio);
     }
-    return SynthesizedAudio.empty();
+    return SynthesizedAudio.createEmptyAudio();
   }
 }

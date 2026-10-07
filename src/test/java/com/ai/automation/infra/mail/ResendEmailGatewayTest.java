@@ -52,7 +52,7 @@ class ResendEmailGatewayTest {
         .andRespond(withSuccess("{\"id\":\"msg_1\"}", MediaType.APPLICATION_JSON));
 
     ResendEmailGateway gateway = new ResendEmailGateway(props, builder.build());
-    gateway.send(new EmailMessage("user@example.com", "Daily brief", "Hello summary"));
+    gateway.sendEmail(new EmailMessage("user@example.com", "Daily brief", "Hello summary"));
 
     server.verify();
   }
@@ -88,7 +88,7 @@ class ResendEmailGatewayTest {
         .andRespond(withSuccess("{\"id\":\"msg_2\"}", MediaType.APPLICATION_JSON));
 
     ResendEmailGateway gateway = new ResendEmailGateway(props, builder.build());
-    gateway.send(
+    gateway.sendEmail(
         new EmailMessage("user@example.com", "Daily brief", "Hello plain", "<p>Hello html</p>"));
 
     server.verify();
@@ -112,7 +112,8 @@ class ResendEmailGatewayTest {
 
     ResendEmailGateway gateway = new ResendEmailGateway(props, builder.build());
 
-    assertThatThrownBy(() -> gateway.send(new EmailMessage("user@example.com", "Subj", "Body")))
+    assertThatThrownBy(
+            () -> gateway.sendEmail(new EmailMessage("user@example.com", "Subj", "Body")))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("Resend API rejected");
 

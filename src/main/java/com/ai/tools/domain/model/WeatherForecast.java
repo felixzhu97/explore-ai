@@ -14,7 +14,7 @@ public record WeatherForecast(WeatherQuery query, int days) {
   }
 
   /** Creates a forecast request, three days by default. */
-  public static WeatherForecast of(WeatherQuery query, Integer days) {
+  public static WeatherForecast createForecast(WeatherQuery query, Integer days) {
     return new WeatherForecast(query, days != null ? days : 3);
   }
 }

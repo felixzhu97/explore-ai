@@ -61,8 +61,8 @@ public class MetricsService {
         window.range(),
         stats.requests(),
         stats.errors(),
-        stats.successRate(),
-        stats.errorRate(),
+        stats.calculateSuccessRate(),
+        stats.calculateErrorRate(),
         latency.p50Ms(),
         latency.p95Ms(),
         tokens.promptTokens(),
@@ -74,7 +74,7 @@ public class MetricsService {
   /** Returns the named chart series, optionally filtered by capability, over the given range. */
   public SeriesSnapshot getSeries(String name, String capabilityRaw, String range) {
     RangeWindow window = RangeWindow.endingNow(range);
-    Optional<AiCapability> capability = AiCapability.parse(capabilityRaw);
+    Optional<AiCapability> capability = AiCapability.findCapability(capabilityRaw);
     String seriesName = name == null ? "" : name.trim().toLowerCase(Locale.ROOT);
 
     List<SeriesPoint> points =
@@ -120,7 +120,7 @@ public class MetricsService {
         };
 
     return new SeriesSnapshot(
-        seriesName, capability.map(AiCapability::value).orElse(null), window.range(), points);
+        seriesName, capability.map(AiCapability::getValue).orElse(null), window.range(), points);
   }
 
   /** Returns a page of invocation events matching the filters, defaulting to the last 7 days. */
@@ -149,11 +149,11 @@ public class MetricsService {
     var result =
         eventRepository.findDrilldown(
             new AiInvocationEventRepository.DrilldownQuery(
-                AiCapability.parse(capabilityRaw),
+                AiCapability.findCapability(capabilityRaw),
                 fromInstant,
                 toInstant,
                 Optional.ofNullable(toNullIfBlank(day)),
-                Optional.ofNullable(toNullIfBlank(outcome)).map(InvocationOutcome::parse),
+                Optional.ofNullable(toNullIfBlank(outcome)).map(InvocationOutcome::parseOutcome),
                 Optional.ofNullable(toNullIfBlank(model)),
                 Optional.ofNullable(toNullIfBlank(agentType)),
                 Optional.ofNullable(toNullIfBlank(toolName)),
@@ -167,7 +167,7 @@ public class MetricsService {
    * Returns request stats, capability-specific inventory, and trend series for one AI capability.
    */
   public MetricsCapabilitySnapshot getCapability(String capabilityRaw, String range) {
-    AiCapability capability = AiCapability.require(capabilityRaw);
+    AiCapability capability = AiCapability.parseCapability(capabilityRaw);
     RangeWindow window = RangeWindow.endingNow(range);
     Optional<AiCapability> filter = Optional.of(capability);
 
@@ -193,18 +193,18 @@ public class MetricsService {
         };
 
     return new MetricsCapabilitySnapshot(
-        capability.value(),
+        capability.getValue(),
         window.range(),
         stats.requests(),
         stats.errors(),
-        stats.errorRate(),
+        stats.calculateErrorRate(),
         latency.p50Ms(),
         latency.p95Ms(),
         tokens.promptTokens(),
         tokens.completionTokens(),
         inventory,
-        getSeries("requests", capability.value(), window.range()).points(),
-        getSeries("calls_by_model", capability.value(), window.range()).points());
+        getSeries("requests", capability.getValue(), window.range()).points(),
+        getSeries("calls_by_model", capability.getValue(), window.range()).points());
   }
 
   private List<SeriesPoint> toPoints(List<MetricsQueryRepository.TimePoint> points) {
@@ -224,7 +224,7 @@ public class MetricsService {
 
   private record RangeWindow(String range, Instant from, Instant to) {
     static RangeWindow endingNow(String range) {
-      MetricsWindow window = MetricsWindow.parse(range);
+      MetricsWindow window = MetricsWindow.parseWindow(range);
       Instant now = Instant.now();
       return new RangeWindow(window.range(), window.from(now), now);
     }

@@ -13,7 +13,7 @@ class AnalysisTextTest {
   @Test
   @DisplayName("should create from valid text")
   void shouldCreateFromValidText() {
-    AnalysisText text = AnalysisText.of("  Hello world  ");
+    AnalysisText text = AnalysisText.createText("  Hello world  ");
 
     assertThat(text.value()).isEqualTo("Hello world");
   }
@@ -21,7 +21,7 @@ class AnalysisTextTest {
   @Test
   @DisplayName("should reject blank text")
   void shouldRejectBlankText() {
-    assertThatThrownBy(() -> AnalysisText.of("   "))
+    assertThatThrownBy(() -> AnalysisText.createText("   "))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "INVALID_ANALYSIS_TEXT")
         .hasMessageContaining("blank");
@@ -30,7 +30,7 @@ class AnalysisTextTest {
   @Test
   @DisplayName("should reject text exceeding max length")
   void shouldRejectTextExceedingMaxLength() {
-    assertThatThrownBy(() -> AnalysisText.of("a".repeat(50_001)))
+    assertThatThrownBy(() -> AnalysisText.createText("a".repeat(50_001)))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "INVALID_ANALYSIS_TEXT")
         .hasMessageContaining("maximum length");
@@ -48,9 +48,9 @@ class AnalysisTextTest {
   @Test
   @DisplayName("should build prompt when text contains percent sign")
   void shouldBuildPromptWhenTextContainsPercentSign() {
-    AnalysisText text = AnalysisText.of("90% complete");
+    AnalysisText text = AnalysisText.createText("90% complete");
 
-    String prompt = text.buildAnalysisPrompt(LanguageHint.none());
+    String prompt = text.buildAnalysisPrompt(LanguageHint.createEmptyHint());
 
     assertThat(prompt).contains("90% complete");
     assertThat(prompt).contains("Text: 90% complete");
@@ -59,9 +59,9 @@ class AnalysisTextTest {
   @Test
   @DisplayName("should build analysis prompt without language hint")
   void shouldBuildAnalysisPromptWithoutLanguageHint() {
-    AnalysisText text = AnalysisText.of("Sample");
+    AnalysisText text = AnalysisText.createText("Sample");
 
-    String prompt = text.buildAnalysisPrompt(LanguageHint.none());
+    String prompt = text.buildAnalysisPrompt(LanguageHint.createEmptyHint());
 
     assertThat(prompt).contains("Sample");
     assertThat(prompt).contains("POSITIVE, NEUTRAL, or NEGATIVE");
@@ -71,9 +71,9 @@ class AnalysisTextTest {
   @Test
   @DisplayName("should build analysis prompt with language hint")
   void shouldBuildAnalysisPromptWithLanguageHint() {
-    AnalysisText text = AnalysisText.of("Sample");
+    AnalysisText text = AnalysisText.createText("Sample");
 
-    String prompt = text.buildAnalysisPrompt(LanguageHint.of("Chinese"));
+    String prompt = text.buildAnalysisPrompt(LanguageHint.createHint("Chinese"));
 
     assertThat(prompt).contains("Please respond in Chinese.");
   }

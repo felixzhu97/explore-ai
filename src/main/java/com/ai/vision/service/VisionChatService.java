@@ -62,7 +62,7 @@ public class VisionChatService {
     if (documentIds == null || documentIds.isEmpty()) {
       return null;
     }
-    return documentIds.stream().map(DocumentId::of).toList();
+    return documentIds.stream().map(DocumentId::parseId).toList();
   }
 
   private Flux<ServerSentEvent<String>> streamVision(String prompt, List<Media> images) {

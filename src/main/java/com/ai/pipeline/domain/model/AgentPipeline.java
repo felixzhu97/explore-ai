@@ -28,7 +28,7 @@ public final class AgentPipeline {
   }
 
   /** Creates a pipeline from nodes and edges. */
-  public static AgentPipeline create(List<PipelineNode> nodes, List<PipelineEdge> edges) {
+  public static AgentPipeline createPipeline(List<PipelineNode> nodes, List<PipelineEdge> edges) {
     Objects.requireNonNull(nodes, "nodes");
     Objects.requireNonNull(edges, "edges");
     return new AgentPipeline(nodes, edges);
@@ -151,7 +151,7 @@ public final class AgentPipeline {
     }
 
     /** Creates a node with default settings. */
-    public static PipelineNode of(String id, AgentType agentType) {
+    public static PipelineNode createNode(String id, AgentType agentType) {
       return new PipelineNode(id, agentType, agentType.value(), "", "", List.of());
     }
 
@@ -164,12 +164,12 @@ public final class AgentPipeline {
      * Builds the agent definition for this node. A node without its own prompt uses the catalog
      * agent's prompt, and its description and tools when the node leaves them empty.
      */
-    public AgentDefinition toDefinition(AgentDefinition fallback) {
+    public AgentDefinition buildDefinition(AgentDefinition fallback) {
       if (hasOwnPrompt()) {
-        return toDefinition();
+        return buildDefinition();
       }
       Objects.requireNonNull(fallback, "fallback");
-      return AgentDefinition.create(
+      return AgentDefinition.createDefinition(
           agentType,
           name,
           description.isBlank() ? fallback.getDescription() : description,
@@ -179,10 +179,10 @@ public final class AgentPipeline {
     }
 
     /** Builds an agent definition from this node, defaulting the prompt when none is set. */
-    public AgentDefinition toDefinition() {
+    public AgentDefinition buildDefinition() {
       String prompt =
           systemPrompt.isBlank() ? "You are agent " + agentType.value() + "." : systemPrompt;
-      return AgentDefinition.create(
+      return AgentDefinition.createDefinition(
           agentType, name, description, prompt, toolKeys, AgentDefinition.RUNTIME_SINGLE);
     }
   }

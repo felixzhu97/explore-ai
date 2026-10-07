@@ -12,18 +12,18 @@ class InvocationOutcomeTest {
   @Test
   @DisplayName("should parse success and error when valid")
   void shouldParseSuccessAndErrorWhenValid() {
-    assertThat(InvocationOutcome.parse("SUCCESS")).isEqualTo(InvocationOutcome.SUCCESS);
-    assertThat(InvocationOutcome.parse(" error ")).isEqualTo(InvocationOutcome.ERROR);
+    assertThat(InvocationOutcome.parseOutcome("SUCCESS")).isEqualTo(InvocationOutcome.SUCCESS);
+    assertThat(InvocationOutcome.parseOutcome(" error ")).isEqualTo(InvocationOutcome.ERROR);
   }
 
   @Test
   @DisplayName("should throw when outcome blank or unknown")
   void shouldThrowWhenOutcomeBlankOrUnknown() {
-    assertThatThrownBy(() -> InvocationOutcome.parse(null))
+    assertThatThrownBy(() -> InvocationOutcome.parseOutcome(null))
         .isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> InvocationOutcome.parse(" "))
+    assertThatThrownBy(() -> InvocationOutcome.parseOutcome(" "))
         .isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> InvocationOutcome.parse("failed"))
+    assertThatThrownBy(() -> InvocationOutcome.parseOutcome("failed"))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Unknown outcome");
   }

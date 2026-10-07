@@ -11,19 +11,19 @@ class SynthesizedAudioTest {
   @Test
   @DisplayName("should expose size and empty state")
   void shouldExposeSizeAndEmptyState() {
-    SynthesizedAudio audio = SynthesizedAudio.create("data".getBytes());
+    SynthesizedAudio audio = SynthesizedAudio.createAudio("data".getBytes());
 
     assertThat(audio.isEmpty()).isFalse();
-    assertThat(audio.sizeInBytes()).isEqualTo(4);
+    assertThat(audio.getSizeInBytes()).isEqualTo(4);
   }
 
   @Test
   @DisplayName("should return defensive copy of bytes")
   void shouldReturnDefensiveCopyOfBytes() {
     byte[] raw = "data".getBytes();
-    SynthesizedAudio audio = SynthesizedAudio.create(raw);
+    SynthesizedAudio audio = SynthesizedAudio.createAudio(raw);
     raw[0] = 'X';
 
-    assertThat(audio.data()[0]).isEqualTo((byte) 'd');
+    assertThat(audio.copyBytes()[0]).isEqualTo((byte) 'd');
   }
 }

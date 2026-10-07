@@ -36,7 +36,7 @@ class PdfAndTextDocumentReaderTest {
     byte[] content = "plain text content".getBytes(StandardCharsets.UTF_8);
     when(pdfTextExtractor.getExtension("notes.txt")).thenReturn("txt");
 
-    var document = reader.read(content, "notes.txt");
+    var document = reader.readDocument(content, "notes.txt");
 
     assertThat(document.content()).isEqualTo("plain text content");
     assertThat(document.metadata()).containsEntry("fileName", "notes.txt");
@@ -51,7 +51,7 @@ class PdfAndTextDocumentReaderTest {
     when(pdfTextExtractor.getExtension("Manual.PDF")).thenReturn("PDF");
     when(pdfTextExtractor.extractText(content)).thenReturn(Optional.of("extracted manual text"));
 
-    var document = reader.read(content, "Manual.PDF");
+    var document = reader.readDocument(content, "Manual.PDF");
 
     assertThat(document.content()).isEqualTo("extracted manual text");
     assertThat(document.metadata()).containsEntry("fileName", "Manual.PDF");
@@ -65,7 +65,7 @@ class PdfAndTextDocumentReaderTest {
     when(pdfTextExtractor.getExtension("empty.pdf")).thenReturn("pdf");
     when(pdfTextExtractor.extractText(content)).thenReturn(Optional.empty());
 
-    assertThatThrownBy(() -> reader.read(content, "empty.pdf"))
+    assertThatThrownBy(() -> reader.readDocument(content, "empty.pdf"))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "DOCUMENT_UNREADABLE")
         .hasMessage("Could not extract text from empty.pdf");

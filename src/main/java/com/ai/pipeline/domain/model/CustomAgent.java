@@ -53,7 +53,7 @@ public class CustomAgent extends AbstractEnableableDescribedOwnerEntity<CustomAg
   }
 
   /** Creates an enabled agent with a new id after validating its type key. */
-  public static CustomAgent create(
+  public static CustomAgent createAgent(
       String ownerKey,
       String typeKey,
       String name,
@@ -61,7 +61,7 @@ public class CustomAgent extends AbstractEnableableDescribedOwnerEntity<CustomAg
       String systemPrompt,
       List<String> toolKeys) {
     return new CustomAgent(
-        CustomAgentId.generate(), ownerKey, typeKey, name, description, systemPrompt, toolKeys);
+        CustomAgentId.generateId(), ownerKey, typeKey, name, description, systemPrompt, toolKeys);
   }
 
   /** Replaces name, description, system prompt and tools, bumping the update timestamp. */
@@ -75,9 +75,9 @@ public class CustomAgent extends AbstractEnableableDescribedOwnerEntity<CustomAg
   }
 
   /** Converts this saved entry into a single-runtime agent definition for the registry. */
-  public AgentDefinition toAgentDefinition() {
-    return AgentDefinition.create(
-        AgentType.of(typeKey),
+  public AgentDefinition buildAgentDefinition() {
+    return AgentDefinition.createDefinition(
+        AgentType.createType(typeKey),
         name,
         description,
         systemPrompt,
@@ -86,7 +86,7 @@ public class CustomAgent extends AbstractEnableableDescribedOwnerEntity<CustomAg
   }
 
   /** Tells whether this custom agent defines the agent type. */
-  public boolean hasType(AgentType type) {
+  public boolean hasAgentType(AgentType type) {
     return type != null && typeKey.equals(type.value());
   }
 

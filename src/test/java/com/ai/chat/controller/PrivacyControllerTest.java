@@ -27,7 +27,8 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 @DisplayName("PrivacyController")
 class PrivacyControllerTest {
 
-  private static final OwnerKey OWNER = OwnerKey.forClient("11111111-1111-1111-1111-111111111111");
+  private static final OwnerKey OWNER =
+      OwnerKey.createClientKey("11111111-1111-1111-1111-111111111111");
 
   @Autowired private MockMvcTester mvc;
 

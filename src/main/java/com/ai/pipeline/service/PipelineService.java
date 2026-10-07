@@ -30,7 +30,7 @@ public class PipelineService {
 
   /** Returns an agent with its health. */
   public AgentDefinition getHealth(String agentType, String ownerKey, String language) {
-    return orchestrator.getHealth(AgentType.of(agentType), ownerKey, language);
+    return orchestrator.getHealth(AgentType.createType(agentType), ownerKey, language);
   }
 
   /** Streams a supervisor run. */
@@ -48,7 +48,7 @@ public class PipelineService {
   /** Streams a single agent run. */
   public Flux<ServerSentEvent<String>> invokeAgent(
       String agentType, String message, String ownerKey, String language) {
-    return orchestrator.invokeAgent(AgentType.of(agentType), message, ownerKey, language);
+    return orchestrator.invokeAgent(AgentType.createType(agentType), message, ownerKey, language);
   }
 
   /** Runs a pipeline and returns the final answer. */

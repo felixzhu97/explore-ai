@@ -47,7 +47,7 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
   @DisplayName("should keep the document as FAILED when its text cannot be extracted")
   void shouldKeepTheDocumentAsFailedWhenItsTextCannotBeExtracted() {
     OwnerKey owner = newOwner();
-    when(reader.read(any(byte[].class), eq("broken.pdf")))
+    when(reader.readDocument(any(byte[].class), eq("broken.pdf")))
         .thenThrow(
             DomainException.unprocessable(
                 "DOCUMENT_UNREADABLE", "Could not extract text from broken.pdf"));
@@ -67,9 +67,9 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
   @DisplayName("should keep the document as FAILED when the file has no text")
   void shouldKeepTheDocumentAsFailedWhenTheFileHasNoText() {
     OwnerKey owner = newOwner();
-    when(reader.read(any(byte[].class), eq("blank.txt")))
+    when(reader.readDocument(any(byte[].class), eq("blank.txt")))
         .thenReturn(new ExtractedDocument("  \n ", Map.of(), "blank.txt"));
-    when(transformer.transform(any(ExtractedDocument.class))).thenReturn(List.of());
+    when(transformer.splitDocument(any(ExtractedDocument.class))).thenReturn(List.of());
 
     assertThatThrownBy(() -> service.upload("Blank", "blank.txt", "  \n ", owner.value()))
         .isInstanceOf(DomainException.class)
@@ -96,6 +96,6 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
   }
 
   private static OwnerKey newOwner() {
-    return OwnerKey.forClient(UUID.randomUUID().toString());
+    return OwnerKey.createClientKey(UUID.randomUUID().toString());
   }
 }

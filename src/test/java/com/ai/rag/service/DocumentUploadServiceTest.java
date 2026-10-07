@@ -44,7 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 @DisplayName("DocumentUploadService")
 class DocumentUploadServiceTest {
 
-  private static final OwnerKey TEST_OWNER = OwnerKey.parse("c:test-owner");
+  private static final OwnerKey TEST_OWNER = OwnerKey.parseKey("c:test-owner");
 
   @Mock private DocumentReader reader;
 
@@ -81,14 +81,14 @@ class DocumentUploadServiceTest {
 
     when(documentRepository.save(any(RagDocument.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
-    when(reader.read(any(byte[].class), eq(fileName)))
+    when(reader.readDocument(any(byte[].class), eq(fileName)))
         .thenReturn(new ExtractedDocument(content, Map.of("fileName", fileName), fileName));
-    when(transformer.transform(any(ExtractedDocument.class)))
+    when(transformer.splitDocument(any(ExtractedDocument.class)))
         .thenReturn(
             List.of(
                 new ExtractedDocument("chunk1", Map.of("fileName", fileName), fileName),
                 new ExtractedDocument("chunk2", Map.of("fileName", fileName), fileName)));
-    doNothing().when(writer).write(any());
+    doNothing().when(writer).writeChunks(any());
 
     DocumentUploadService.UploadResult result =
         service.upload(title, fileName, content, "c:test-owner");
@@ -106,11 +106,11 @@ class DocumentUploadServiceTest {
 
     when(documentRepository.save(any(RagDocument.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
-    when(reader.read(any(byte[].class), any()))
+    when(reader.readDocument(any(byte[].class), any()))
         .thenReturn(new ExtractedDocument(content, Map.of(), "test"));
-    when(transformer.transform(any(ExtractedDocument.class)))
+    when(transformer.splitDocument(any(ExtractedDocument.class)))
         .thenReturn(List.of(new ExtractedDocument("chunk", Map.of(), "test")));
-    doNothing().when(writer).write(any());
+    doNothing().when(writer).writeChunks(any());
 
     service.upload("Title", "file.txt", content, "c:test-owner");
 
@@ -130,12 +130,12 @@ class DocumentUploadServiceTest {
 
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
-      when(reader.read(eq(content), eq(fileName)))
+      when(reader.readDocument(eq(content), eq(fileName)))
           .thenReturn(new ExtractedDocument("processed", Map.of("fileName", fileName), fileName));
-      when(transformer.transform(any(ExtractedDocument.class)))
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
           .thenReturn(
               List.of(new ExtractedDocument("chunk", Map.of("fileName", fileName), fileName)));
-      doNothing().when(writer).write(any());
+      doNothing().when(writer).writeChunks(any());
 
       DocumentUploadService.UploadResult result =
           service.upload(title, fileName, content, "c:test-owner");
@@ -151,7 +151,7 @@ class DocumentUploadServiceTest {
 
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
-      when(reader.read(eq(pdfContent), eq(fileName)))
+      when(reader.readDocument(eq(pdfContent), eq(fileName)))
           .thenThrow(
               DomainException.unprocessable(
                   "DOCUMENT_UNREADABLE", "Could not extract text from document.pdf"));
@@ -169,7 +169,7 @@ class DocumentUploadServiceTest {
     void shouldRejectBlankTextWithoutCallingTheTransformer() {
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
-      when(reader.read(any(byte[].class), eq("blank.txt")))
+      when(reader.readDocument(any(byte[].class), eq("blank.txt")))
           .thenReturn(new ExtractedDocument(" \n", Map.of(), "blank.txt"));
 
       assertThatThrownBy(() -> service.upload("Blank", "blank.txt", " \n", "c:test-owner"))
@@ -205,16 +205,16 @@ class DocumentUploadServiceTest {
       when(multipartFile.getBytes()).thenReturn("content".getBytes());
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
-      when(reader.read(any(byte[].class), eq(originalFileName)))
+      when(reader.readDocument(any(byte[].class), eq(originalFileName)))
           .thenReturn(
               new ExtractedDocument(
                   "content", Map.of("fileName", originalFileName), originalFileName));
-      when(transformer.transform(any(ExtractedDocument.class)))
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
           .thenReturn(
               List.of(
                   new ExtractedDocument(
                       "chunk", Map.of("fileName", originalFileName), originalFileName)));
-      doNothing().when(writer).write(any());
+      doNothing().when(writer).writeChunks(any());
 
       DocumentUploadService.UploadResult result =
           service.upload(multipartFile, customTitle, "c:test-owner");
@@ -231,16 +231,16 @@ class DocumentUploadServiceTest {
       when(multipartFile.getBytes()).thenReturn("content".getBytes());
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
-      when(reader.read(any(byte[].class), eq(originalFileName)))
+      when(reader.readDocument(any(byte[].class), eq(originalFileName)))
           .thenReturn(
               new ExtractedDocument(
                   "content", Map.of("fileName", originalFileName), originalFileName));
-      when(transformer.transform(any(ExtractedDocument.class)))
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
           .thenReturn(
               List.of(
                   new ExtractedDocument(
                       "chunk", Map.of("fileName", originalFileName), originalFileName)));
-      doNothing().when(writer).write(any());
+      doNothing().when(writer).writeChunks(any());
 
       DocumentUploadService.UploadResult result =
           service.upload(multipartFile, null, "c:test-owner");
@@ -270,9 +270,9 @@ class DocumentUploadServiceTest {
       String content = "Test content";
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
-      when(reader.read(any(byte[].class), any()))
+      when(reader.readDocument(any(byte[].class), any()))
           .thenReturn(new ExtractedDocument(content, Map.of(), "test"));
-      when(transformer.transform(any(ExtractedDocument.class)))
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
           .thenThrow(new RuntimeException("Transformation failed"));
 
       assertThatThrownBy(() -> service.upload("Title", "file.txt", content, "c:test-owner"))
@@ -287,11 +287,11 @@ class DocumentUploadServiceTest {
       String content = "Test content";
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
-      when(reader.read(any(byte[].class), any()))
+      when(reader.readDocument(any(byte[].class), any()))
           .thenReturn(new ExtractedDocument(content, Map.of(), "test"));
-      when(transformer.transform(any(ExtractedDocument.class)))
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
           .thenReturn(List.of(new ExtractedDocument("chunk", Map.of(), "test")));
-      doThrow(new RuntimeException("Embedding failed")).when(writer).write(any());
+      doThrow(new RuntimeException("Embedding failed")).when(writer).writeChunks(any());
 
       assertThatThrownBy(() -> service.upload("Title", "file.txt", content, "c:test-owner"))
           .isInstanceOf(RuntimeException.class)
@@ -310,9 +310,9 @@ class DocumentUploadServiceTest {
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0))
           .thenThrow(saveFailure);
-      when(reader.read(any(byte[].class), any()))
+      when(reader.readDocument(any(byte[].class), any()))
           .thenReturn(new ExtractedDocument(content, Map.of(), "test"));
-      when(transformer.transform(any(ExtractedDocument.class)))
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
           .thenThrow(new RuntimeException("Transformation failed"));
 
       assertThatThrownBy(() -> service.upload("Title", "file.txt", content, "c:test-owner"))
@@ -325,18 +325,18 @@ class DocumentUploadServiceTest {
     void shouldHandTheWriterChunksOwnedByTheUploader() {
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
-      when(reader.read(any(byte[].class), any()))
+      when(reader.readDocument(any(byte[].class), any()))
           .thenReturn(new ExtractedDocument("text", Map.of(), "test"));
-      when(transformer.transform(any(ExtractedDocument.class)))
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
           .thenReturn(List.of(new ExtractedDocument("chunk", Map.of("page", 1), "test")));
 
       service.upload("Title", "file.txt", "text", "c:test-owner");
 
       @SuppressWarnings("unchecked")
       ArgumentCaptor<List<DocumentChunk>> written = ArgumentCaptor.forClass(List.class);
-      verify(writer).write(written.capture());
+      verify(writer).writeChunks(written.capture());
       DocumentChunk chunk = written.getValue().getFirst();
-      assertThat(chunk.getOwnerKey()).isEqualTo(OwnerKey.parse("c:test-owner"));
+      assertThat(chunk.getOwnerKey()).isEqualTo(OwnerKey.parseKey("c:test-owner"));
       assertThat(chunk.getMetadata())
           .containsEntry("page", 1)
           .containsEntry("title", "Title")
@@ -355,7 +355,7 @@ class DocumentUploadServiceTest {
       DocumentId docId = document.getId();
       UUID documentId = docId.getValue();
 
-      when(documentRepository.findByIdAndOwnerKey(DocumentId.of(documentId), TEST_OWNER))
+      when(documentRepository.findByIdAndOwnerKey(DocumentId.createId(documentId), TEST_OWNER))
           .thenReturn(Optional.of(document));
 
       service.delete(documentId, "c:test-owner");
@@ -368,7 +368,7 @@ class DocumentUploadServiceTest {
     @DisplayName("should throw exception when document not found")
     void shouldThrowExceptionWhenDocumentNotFound() {
       UUID documentId = UUID.randomUUID();
-      when(documentRepository.findByIdAndOwnerKey(DocumentId.of(documentId), TEST_OWNER))
+      when(documentRepository.findByIdAndOwnerKey(DocumentId.createId(documentId), TEST_OWNER))
           .thenReturn(Optional.empty());
 
       assertThatThrownBy(() -> service.delete(documentId, "c:test-owner"))
@@ -383,7 +383,7 @@ class DocumentUploadServiceTest {
       DocumentId docId = document.getId();
       UUID documentId = docId.getValue();
 
-      when(documentRepository.findByIdAndOwnerKey(DocumentId.of(documentId), TEST_OWNER))
+      when(documentRepository.findByIdAndOwnerKey(DocumentId.createId(documentId), TEST_OWNER))
           .thenReturn(Optional.of(document));
 
       service.delete(documentId, "c:test-owner");

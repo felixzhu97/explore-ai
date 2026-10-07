@@ -38,7 +38,7 @@ class Tess4jOcrEngineTest {
     assumeTrue(engine.isAvailable(), "Tesseract native library is not installed");
     when(tesseract.doOCR(IMAGE)).thenReturn("  Hello \n");
 
-    assertThat(engine.extract(IMAGE).text()).isEqualTo("Hello");
+    assertThat(engine.extractText(IMAGE).text()).isEqualTo("Hello");
   }
 
   @Test
@@ -47,7 +47,7 @@ class Tess4jOcrEngineTest {
     Tess4jOcrEngine engine = new Tess4jOcrEngine(tesseract, propertiesWith(tessdata));
 
     assertThat(engine.isAvailable()).isFalse();
-    assertThatThrownBy(() -> engine.extract(IMAGE))
+    assertThatThrownBy(() -> engine.extractText(IMAGE))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "VISION_PROVIDER_UNAVAILABLE");
     verifyNoInteractions(tesseract);

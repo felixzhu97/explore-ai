@@ -14,7 +14,7 @@ class SkillSystemPromptBuilderTest {
   @DisplayName("should build prompt when skills provided")
   void shouldBuildPromptWhenSkillsProvided() {
     Skill skill =
-        Skill.create(
+        Skill.createSkill(
             "c:client-1", "Brief Style", "Short answers only.", "Lead with the answer.", List.of());
 
     String prompt = SkillSystemPromptBuilder.build(List.of(skill));
@@ -30,9 +30,9 @@ class SkillSystemPromptBuilderTest {
   @DisplayName("should render a skill section without a blank description line")
   void shouldRenderASkillSectionWithoutABlankDescriptionLine() {
     Skill skill =
-        Skill.create("c:client-1", "Brief Style", "  ", "Lead with the answer.", List.of());
+        Skill.createSkill("c:client-1", "Brief Style", "  ", "Lead with the answer.", List.of());
 
-    assertThat(skill.toPromptSection()).isEqualTo("### Brief Style\nLead with the answer.");
+    assertThat(skill.buildPromptSection()).isEqualTo("### Brief Style\nLead with the answer.");
   }
 
   @Test

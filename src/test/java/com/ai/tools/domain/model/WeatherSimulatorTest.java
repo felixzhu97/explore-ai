@@ -13,7 +13,7 @@ class WeatherSimulatorTest {
   @Test
   @DisplayName("should lookup known city weather")
   void shouldLookupKnownCityWeather() {
-    var result = weatherSimulator.lookupCurrent(WeatherQuery.of("beijing"));
+    var result = weatherSimulator.lookupCurrentWeather(WeatherQuery.createQuery("beijing"));
 
     assertThat(result.isSuccess()).isTrue();
     assertThat(result.getContent()).contains("北京");
@@ -23,7 +23,8 @@ class WeatherSimulatorTest {
   @DisplayName("should generate forecast for unknown city")
   void shouldGenerateForecastForUnknownCity() {
     var result =
-        weatherSimulator.generateForecast(WeatherForecast.of(WeatherQuery.of("unknown-city"), 3));
+        weatherSimulator.generateForecast(
+            WeatherForecast.createForecast(WeatherQuery.createQuery("unknown-city"), 3));
 
     assertThat(result.isSuccess()).isTrue();
     assertThat(result.getContent()).contains("未来3天天气预报");

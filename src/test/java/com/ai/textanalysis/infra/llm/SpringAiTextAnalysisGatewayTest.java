@@ -50,7 +50,10 @@ class SpringAiTextAnalysisGatewayTest {
   void shouldThrowWhenLlmReturnsNullEntity() {
     when(callResponseSpec.entity(any(Class.class))).thenReturn(null);
 
-    assertThatThrownBy(() -> repository.analyze(AnalysisText.of("Sample"), LanguageHint.none()))
+    assertThatThrownBy(
+            () ->
+                repository.analyzeText(
+                    AnalysisText.createText("Sample"), LanguageHint.createEmptyHint()))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "AI_SERVICE_ERROR")
         .hasMessageContaining("empty structured analysis");

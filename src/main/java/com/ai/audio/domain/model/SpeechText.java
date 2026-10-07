@@ -18,7 +18,7 @@ public record SpeechText(String value) {
   }
 
   /** Creates validated speech text. */
-  public static SpeechText of(String text) {
+  public static SpeechText createText(String text) {
     return new SpeechText(text);
   }
 

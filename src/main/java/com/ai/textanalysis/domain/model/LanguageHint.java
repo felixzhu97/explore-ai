@@ -5,14 +5,14 @@ public record LanguageHint(String language) {
   private static final String DEFAULT = "English";
 
   /** Returns a hint with no language. */
-  public static LanguageHint none() {
+  public static LanguageHint createEmptyHint() {
     return new LanguageHint(null);
   }
 
   /** Creates a trimmed hint, or an unspecified hint when the language is blank. */
-  public static LanguageHint of(String language) {
+  public static LanguageHint createHint(String language) {
     if (language == null || language.isBlank()) {
-      return none();
+      return createEmptyHint();
     }
     return new LanguageHint(language.trim());
   }
@@ -23,7 +23,7 @@ public record LanguageHint(String language) {
   }
 
   /** Returns the answer language, or the default. */
-  public String responseLanguage() {
+  public String getResponseLanguage() {
     return isSpecified() ? language : DEFAULT;
   }
 }

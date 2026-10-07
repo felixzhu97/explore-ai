@@ -34,9 +34,10 @@ class ChunkRowMapperTest {
   private H2DocumentChunkRepository adapter;
 
   private static final DocumentId TEST_DOCUMENT_ID =
-      DocumentId.of(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
-  private static final ChunkId TEST_CHUNK_ID = ChunkId.of("223e4567-e89b-12d3-a456-426614174001");
-  private static final OwnerKey OWNER = OwnerKey.parse("c:owner");
+      DocumentId.createId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
+  private static final ChunkId TEST_CHUNK_ID =
+      ChunkId.parseId("223e4567-e89b-12d3-a456-426614174001");
+  private static final OwnerKey OWNER = OwnerKey.parseKey("c:owner");
 
   @BeforeEach
   void setUp() {
@@ -50,7 +51,7 @@ class ChunkRowMapperTest {
     when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
         .thenReturn(List.of(expectedChunk));
     List<ScoredChunk> results =
-        adapter.search(new float[] {1.0f, 0.0f, 0.0f, 0.0f}, 5, "c:owner", List.of());
+        adapter.searchChunks(new float[] {1.0f, 0.0f, 0.0f, 0.0f}, 5, "c:owner", List.of());
     assertThat(results).hasSize(1);
     DocumentChunk found = results.get(0).chunk();
     assertThat(found.getId()).isEqualTo(TEST_CHUNK_ID);
@@ -63,22 +64,25 @@ class ChunkRowMapperTest {
   void shouldReturnEmptyList() {
     when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
         .thenReturn(List.of());
-    List<ScoredChunk> results = adapter.search(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
+    List<ScoredChunk> results =
+        adapter.searchChunks(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
     assertThat(results).isEmpty();
   }
 
   @Test
   void shouldRankByCosineSimilarity() {
     DocumentChunk lowScore =
-        DocumentChunk.create(TEST_CHUNK_ID, TEST_DOCUMENT_ID, OWNER, "low", 0, Map.of())
-            .withEmbedding(new float[] {0.0f, 1.0f});
+        DocumentChunk.createChunk(TEST_CHUNK_ID, TEST_DOCUMENT_ID, OWNER, "low", 0, Map.of())
+            .copyWithEmbedding(new float[] {0.0f, 1.0f});
     DocumentChunk highScore =
-        DocumentChunk.create(ChunkId.generate(), TEST_DOCUMENT_ID, OWNER, "high", 1, Map.of())
-            .withEmbedding(new float[] {1.0f, 0.0f});
+        DocumentChunk.createChunk(
+                ChunkId.generateId(), TEST_DOCUMENT_ID, OWNER, "high", 1, Map.of())
+            .copyWithEmbedding(new float[] {1.0f, 0.0f});
     when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
         .thenReturn(List.of(lowScore, highScore));
 
-    List<ScoredChunk> results = adapter.search(new float[] {1.0f, 0.0f}, 1, "c:owner", List.of());
+    List<ScoredChunk> results =
+        adapter.searchChunks(new float[] {1.0f, 0.0f}, 1, "c:owner", List.of());
 
     assertThat(results).hasSize(1);
     assertThat(results.get(0).chunk().getContent()).isEqualTo("high");
@@ -88,7 +92,7 @@ class ChunkRowMapperTest {
   void shouldSelectAllRequiredColumns() {
     when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
         .thenReturn(List.of());
-    adapter.search(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
+    adapter.searchChunks(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
     ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
     verify(jdbcTemplate).query(sqlCaptor.capture(), any(RowMapper.class), any(Object[].class));
     String sql = sqlCaptor.getValue();
@@ -107,17 +111,19 @@ class ChunkRowMapperTest {
   void shouldPassMetadataToResults() {
     Map<String, Object> metadata = Map.of("source", "test.pdf", "page", 1);
     DocumentChunk chunkWithMetadata =
-        DocumentChunk.create(TEST_CHUNK_ID, TEST_DOCUMENT_ID, OWNER, "Test content", 0, metadata)
-            .withEmbedding(new float[] {1.0f, 2.0f});
+        DocumentChunk.createChunk(
+                TEST_CHUNK_ID, TEST_DOCUMENT_ID, OWNER, "Test content", 0, metadata)
+            .copyWithEmbedding(new float[] {1.0f, 2.0f});
     when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
         .thenReturn(List.of(chunkWithMetadata));
-    List<ScoredChunk> results = adapter.search(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
+    List<ScoredChunk> results =
+        adapter.searchChunks(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
     assertThat(results.get(0).chunk().getMetadata()).containsKey("source");
   }
 
   private DocumentChunk createMockChunk(ChunkId id, DocumentId documentId) {
     Map<String, Object> metadata = Map.of("source", "test", "page", 1);
-    return DocumentChunk.create(id, documentId, OWNER, "Test content " + id, 0, metadata)
-        .withEmbedding(new float[] {1.0f, 2.0f, 3.0f, 4.0f});
+    return DocumentChunk.createChunk(id, documentId, OWNER, "Test content " + id, 0, metadata)
+        .copyWithEmbedding(new float[] {1.0f, 2.0f, 3.0f, 4.0f});
   }
 }

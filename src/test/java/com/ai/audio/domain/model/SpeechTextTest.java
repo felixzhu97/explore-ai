@@ -13,13 +13,13 @@ class SpeechTextTest {
   @Test
   @DisplayName("should count words")
   void shouldCountWords() {
-    assertThat(SpeechText.of("hello world").countWords()).isEqualTo(2);
+    assertThat(SpeechText.createText("hello world").countWords()).isEqualTo(2);
   }
 
   @Test
   @DisplayName("should reject blank text")
   void shouldRejectBlankText() {
-    assertThatThrownBy(() -> SpeechText.of(" "))
+    assertThatThrownBy(() -> SpeechText.createText(" "))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "INVALID_SPEECH_TEXT");
   }
@@ -36,7 +36,7 @@ class SpeechTextTest {
   @Test
   @DisplayName("should reject text exceeding max length")
   void shouldRejectTextExceedingMaxLength() {
-    assertThatThrownBy(() -> SpeechText.of("a".repeat(10_001)))
+    assertThatThrownBy(() -> SpeechText.createText("a".repeat(10_001)))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "INVALID_SPEECH_TEXT")
         .hasMessageContaining("maximum length");

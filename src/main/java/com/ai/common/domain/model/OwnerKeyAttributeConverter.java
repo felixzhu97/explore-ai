@@ -14,6 +14,6 @@ public class OwnerKeyAttributeConverter implements AttributeConverter<OwnerKey, 
 
   @Override
   public OwnerKey convertToEntityAttribute(String dbData) {
-    return dbData == null || dbData.isBlank() ? null : OwnerKey.parse(dbData);
+    return dbData == null || dbData.isBlank() ? null : OwnerKey.parseKey(dbData);
   }
 }

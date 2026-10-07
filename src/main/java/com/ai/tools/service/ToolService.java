@@ -31,13 +31,13 @@ public class ToolService {
 
   /** Looks up today's weather in the city. */
   public String lookupWeather(String city) {
-    return weatherSimulator.lookupCurrent(WeatherQuery.of(city)).getContent();
+    return weatherSimulator.lookupCurrentWeather(WeatherQuery.createQuery(city)).getContent();
   }
 
   /** Returns a formatted weather forecast for the city over the requested number of days. */
   public String lookupForecast(String city, Integer days) {
     return weatherSimulator
-        .generateForecast(WeatherForecast.of(WeatherQuery.of(city), days))
+        .generateForecast(WeatherForecast.createForecast(WeatherQuery.createQuery(city), days))
         .getContent();
   }
 
@@ -59,13 +59,19 @@ public class ToolService {
           chatClientProvider.createStateless(TextChatOptions.of("openai", null, true));
       String content = chatClient.prompt().user(question).call().content();
       invocationRecorder.recordSuccess(
-          AiCapability.TOOLS, "tool.chat", Latency.since(startedAt), owner, "openai", null, null);
+          AiCapability.TOOLS,
+          "tool.chat",
+          Latency.measureSince(startedAt),
+          owner,
+          "openai",
+          null,
+          null);
       return content;
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
           AiCapability.TOOLS,
           "tool.chat",
-          Latency.since(startedAt),
+          Latency.measureSince(startedAt),
           owner,
           "openai",
           null,
