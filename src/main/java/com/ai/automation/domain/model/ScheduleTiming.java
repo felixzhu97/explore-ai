@@ -1,5 +1,6 @@
 package com.ai.automation.domain.model;
 
+import com.ai.common.domain.model.AbstractEmbeddable;
 import com.ai.common.domain.model.DomainStrings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -22,9 +23,9 @@ import org.springframework.scheduling.support.CronExpression;
 /** When a schedule fires: a cron expression or a single run, read in one time zone. */
 @Embeddable
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public final class ScheduleTiming {
+public final class ScheduleTiming extends AbstractEmbeddable {
 
   private static final int MAX_CRON = 80;
   private static final int MAX_TIMEZONE = 64;

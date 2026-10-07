@@ -1,26 +1,35 @@
 package com.ai.chat.domain.model;
 
-import com.ai.common.domain.model.AbstractUuidId;
-import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import com.ai.common.domain.model.AbstractEmbeddable;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
 
 /** Message ID value object ensuring type safety for message identifiers. */
-@Embeddable
-@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public final class MessageId extends AbstractUuidId {
+@Getter
+@EqualsAndHashCode(callSuper = false)
+@AllArgsConstructor(staticName = "of")
+public final class MessageId extends AbstractEmbeddable {
 
-  public MessageId(String value) {
-    super(value);
+  @NonNull private UUID value;
+
+  /** Parses an id from its UUID text. */
+  public static MessageId of(String text) {
+    if (text == null || text.isBlank()) {
+      throw new IllegalArgumentException("Id cannot be blank");
+    }
+    return of(UUID.fromString(text.strip()));
   }
 
-  /** Wraps an existing message id. */
-  public static MessageId of(String value) {
-    return new MessageId(value);
-  }
-
-  /** Creates a new random message id. */
+  /** Creates a new random id. */
   public static MessageId generate() {
-    return new MessageId(generateUuidString());
+    return of(UUID.randomUUID());
+  }
+
+  @Override
+  public String toString() {
+    return value.toString();
   }
 }

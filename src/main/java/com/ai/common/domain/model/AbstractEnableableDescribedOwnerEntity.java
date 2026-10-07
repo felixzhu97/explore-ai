@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @MappedSuperclass
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends AbstractUuidId>
+public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends AbstractEmbeddable>
     extends AbstractEnableableNamedOwnerEntity<IdT> {
 
   /** Trimmed description; empty when the owner gave none. */

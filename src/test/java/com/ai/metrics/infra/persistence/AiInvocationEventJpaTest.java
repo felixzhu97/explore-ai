@@ -150,7 +150,7 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
     return (String)
         em.getEntityManager()
             .createNativeQuery("SELECT " + column + " FROM ai_invocation_event WHERE id = ?")
-            .setParameter(1, event.getId().value())
+            .setParameter(1, event.getId().getValue())
             .getSingleResult();
   }
 }

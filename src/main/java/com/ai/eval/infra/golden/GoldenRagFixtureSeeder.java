@@ -62,7 +62,7 @@ public class GoldenRagFixtureSeeder {
         String content = resource.getContentAsString(StandardCharsets.UTF_8);
         DocumentUploadService.UploadResult uploaded =
             documentUploadService.upload(title, filename, content, OWNER_KEY);
-        String id = uploaded.documentId().value().toString();
+        String id = uploaded.documentId().getValue().toString();
         resolved.put(key, id);
         byTitle.put(title, id);
       }
@@ -77,7 +77,7 @@ public class GoldenRagFixtureSeeder {
     Map<String, String> byTitle = new HashMap<>();
     for (RagDocument document : documents) {
       if (document.getTitle() != null && document.getTitle().startsWith(TITLE_PREFIX)) {
-        byTitle.put(document.getTitle(), document.getId().value().toString());
+        byTitle.put(document.getTitle(), document.getId().getValue().toString());
       }
     }
     return byTitle;

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @MappedSuperclass
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractNamedOwnerEntity<IdT extends AbstractUuidId>
+public abstract class AbstractNamedOwnerEntity<IdT extends AbstractEmbeddable>
     extends AbstractOwnerKeyedEntity<IdT> {
 
   @NotBlank

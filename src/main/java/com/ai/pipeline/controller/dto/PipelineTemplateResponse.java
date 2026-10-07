@@ -18,7 +18,7 @@ public record PipelineTemplateResponse(
   /** Builds a response from a user-saved pipeline template. */
   public static PipelineTemplateResponse from(PipelineTemplate template) {
     return new PipelineTemplateResponse(
-        template.getId().value(),
+        template.getId().toString(),
         template.getName(),
         template.getDescription(),
         template.getAgentTypes(),

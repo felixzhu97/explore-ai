@@ -53,7 +53,7 @@ class PipelineTemplateServiceTest {
   @Test
   @DisplayName("should throw when get missing")
   void shouldThrowWhenGetMissing() {
-    assertThatThrownBy(() -> useCase.get(CLIENT_ID, PipelineTemplateId.generate().value()))
+    assertThatThrownBy(() -> useCase.get(CLIENT_ID, PipelineTemplateId.generate().toString()))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "PIPELINE_TEMPLATE_NOT_FOUND");
   }
@@ -96,7 +96,7 @@ class PipelineTemplateServiceTest {
             PipelineTemplate.create(
                 CLIENT_ID, "My flow", "", List.of("analyst"), "", "brief", null));
 
-    PipelineTemplate updated = useCase.setEnabled(CLIENT_ID, seeded.getId().value(), false);
+    PipelineTemplate updated = useCase.setEnabled(CLIENT_ID, seeded.getId().toString(), false);
 
     assertThat(updated.isEnabled()).isFalse();
   }

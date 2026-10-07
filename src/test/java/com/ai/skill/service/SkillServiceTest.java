@@ -61,9 +61,9 @@ class SkillServiceTest {
             .activeSkillsPrompt(
                 CLIENT_ID,
                 List.of(
-                    brief.getId().value(),
-                    off.getId().value(),
-                    foreign.getId().value(),
+                    brief.getId().toString(),
+                    off.getId().toString(),
+                    foreign.getId().toString(),
                     "not-a-uuid",
                     " "))
             .orElseThrow();
@@ -85,7 +85,7 @@ class SkillServiceTest {
     Skill seeded =
         repository.seed(Skill.create(CLIENT_ID, "Brief Style", "", "Instructions", List.of()));
 
-    Skill found = useCase.get(CLIENT_ID, seeded.getId().value());
+    Skill found = useCase.get(CLIENT_ID, seeded.getId().toString());
 
     assertThat(found.getId()).isEqualTo(seeded.getId());
   }
@@ -93,7 +93,7 @@ class SkillServiceTest {
   @Test
   @DisplayName("should throw when get missing")
   void shouldThrowWhenGetMissing() {
-    assertThatThrownBy(() -> useCase.get(CLIENT_ID, SkillId.generate().value()))
+    assertThatThrownBy(() -> useCase.get(CLIENT_ID, SkillId.generate().toString()))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "SKILL_NOT_FOUND");
   }
@@ -133,7 +133,7 @@ class SkillServiceTest {
     Skill seeded =
         repository.seed(Skill.create(CLIENT_ID, "Brief Style", "", "Instructions", List.of()));
 
-    Skill updated = useCase.setEnabled(CLIENT_ID, seeded.getId().value(), false);
+    Skill updated = useCase.setEnabled(CLIENT_ID, seeded.getId().toString(), false);
 
     assertThat(updated.isEnabled()).isFalse();
   }

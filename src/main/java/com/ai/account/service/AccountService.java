@@ -132,7 +132,7 @@ public class AccountService {
 
   private AccountMeResponse authenticated(String clientId, AccountUser user) {
     return authenticated(
-        clientId, user.getId().value(), user.getEmail(), user.displayLabel().orElse(null));
+        clientId, user.getId().toString(), user.getEmail(), user.displayLabel().orElse(null));
   }
 
   private AccountMeResponse authenticated(String clientId, OAuthSignIn signIn) {

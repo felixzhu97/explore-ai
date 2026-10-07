@@ -117,7 +117,7 @@ public class PipelineTemplateService {
             () ->
                 DomainStrings.copyName(
                     baseName,
-                    PipelineTemplateId.generate().value().substring(0, 8),
+                    PipelineTemplateId.generate().toString().substring(0, 8),
                     DomainStrings.DEFAULT_NAME_MAX));
   }
 }

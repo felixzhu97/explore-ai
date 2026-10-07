@@ -1,26 +1,40 @@
 package com.ai.metrics.domain.model;
 
-import com.ai.common.domain.model.AbstractUuidId;
+import com.ai.common.domain.model.AbstractEmbeddable;
 import jakarta.persistence.Embeddable;
+import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 /** Strongly-typed ID for AiInvocationEvent. */
 @Embeddable
+@Getter
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public final class InvocationEventId extends AbstractUuidId {
+@AllArgsConstructor(staticName = "of")
+public final class InvocationEventId extends AbstractEmbeddable {
 
-  public InvocationEventId(String value) {
-    super(value);
-  }
+  @NonNull private UUID value;
 
-  /** Wraps an existing id. */
-  public static InvocationEventId of(String value) {
-    return new InvocationEventId(value);
+  /** Parses an id from its UUID text. */
+  public static InvocationEventId of(String text) {
+    if (text == null || text.isBlank()) {
+      throw new IllegalArgumentException("Id cannot be blank");
+    }
+    return of(UUID.fromString(text.strip()));
   }
 
   /** Creates a new random id. */
   public static InvocationEventId generate() {
-    return new InvocationEventId(generateUuidString());
+    return of(UUID.randomUUID());
+  }
+
+  @Override
+  public String toString() {
+    return value.toString();
   }
 }

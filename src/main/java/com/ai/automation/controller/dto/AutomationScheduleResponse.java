@@ -24,7 +24,7 @@ public record AutomationScheduleResponse(
   /** Builds a response from a schedule, exposing {@code runAt} only for pending one-off runs. */
   public static AutomationScheduleResponse from(AutomationSchedule schedule) {
     return new AutomationScheduleResponse(
-        schedule.getId().value(),
+        schedule.getId().toString(),
         schedule.getName(),
         schedule.getTiming().getScheduleKind(),
         schedule.getTiming().getCronExpression(),
@@ -32,7 +32,7 @@ public record AutomationScheduleResponse(
         schedule.getTiming().getTimezone(),
         schedule.isEnabled(),
         schedule.getActionType(),
-        schedule.getPipelineTemplateId().value(),
+        schedule.getPipelineTemplateId().toString(),
         schedule.getRecipientEmail(),
         schedule.getBrief(),
         schedule.getNextRunAt(),

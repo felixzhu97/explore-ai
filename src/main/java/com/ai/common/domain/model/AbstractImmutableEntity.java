@@ -1,5 +1,6 @@
 package com.ai.common.domain.model;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.MappedSuperclass;
@@ -15,9 +16,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractImmutableEntity<IdT extends AbstractUuidId> {
+public abstract class AbstractImmutableEntity<IdT extends AbstractEmbeddable> {
 
-  @EqualsAndHashCode.Include @EmbeddedId protected IdT id;
+  @EqualsAndHashCode.Include
+  @EmbeddedId
+  @AttributeOverride(name = "value", column = @Column(name = "id"))
+  protected IdT id;
 
   @Column(nullable = false, updatable = false)
   protected Instant createdAt;

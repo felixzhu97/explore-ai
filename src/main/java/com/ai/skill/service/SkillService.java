@@ -121,7 +121,7 @@ public class SkillService {
             () ->
                 DomainStrings.copyName(
                     baseName,
-                    SkillId.generate().value().substring(0, 8),
+                    SkillId.generate().toString().substring(0, 8),
                     DomainStrings.DEFAULT_NAME_MAX));
   }
 

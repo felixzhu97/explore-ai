@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
     name = "createdAt",
     column = @Column(name = "occurred_at", nullable = false, updatable = false))
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractAppendOnlyEvent<IdT extends AbstractUuidId>
+public abstract class AbstractAppendOnlyEvent<IdT extends AbstractEmbeddable>
     extends AbstractImmutableEntity<IdT> {
 
   protected AbstractAppendOnlyEvent(IdT id, Instant occurredAt) {

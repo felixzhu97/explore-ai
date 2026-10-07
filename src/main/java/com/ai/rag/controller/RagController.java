@@ -66,7 +66,7 @@ public class RagController {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
             new UploadDocumentResponse(
-                result.documentId().uuidValue(),
+                result.documentId().getValue(),
                 result.title(),
                 result.status(),
                 result.chunkCount(),
@@ -98,7 +98,7 @@ public class RagController {
 
   private static DocumentSummaryResponse toSummary(RagDocument doc) {
     return new DocumentSummaryResponse(
-        doc.getId().uuidValue(),
+        doc.getId().getValue(),
         doc.getTitle(),
         doc.getStatus(),
         doc.getCreatedAt(),

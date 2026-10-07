@@ -84,7 +84,7 @@ public class RagSearchTool implements DocumentSearchTool {
       response.append("知识库中的文档列表：\n\n");
 
       for (var doc : documents) {
-        response.append(String.format("- ID: %s\n", doc.getId().value()));
+        response.append(String.format("- ID: %s\n", doc.getId().getValue()));
         response.append(String.format("  标题: %s\n", doc.getTitle()));
         response.append(String.format("  状态: %s\n", doc.getStatus()));
         response.append(String.format("  创建时间: %s\n\n", doc.getCreatedAt()));

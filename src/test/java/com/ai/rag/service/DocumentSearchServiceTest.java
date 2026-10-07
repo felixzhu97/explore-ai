@@ -77,7 +77,7 @@ class DocumentSearchServiceTest {
     @DisplayName("should search only the selected documents when ids are given")
     void shouldSearchOnlyTheSelectedDocumentsWhenIdsAreGiven() {
       DocumentId docId = DocumentId.generate();
-      when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of(docId.uuidValue())))
+      when(chunkSearchRepository.search(QUERY_EMBEDDING, 5, OWNER, List.of(docId.getValue())))
           .thenReturn(List.of(scored("filtered content", 0.7)));
 
       DocumentSearchService.RetrievalResult result =

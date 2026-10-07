@@ -1,26 +1,40 @@
 package com.ai.chat.domain.model;
 
-import com.ai.common.domain.model.AbstractUuidId;
+import com.ai.common.domain.model.AbstractEmbeddable;
 import jakarta.persistence.Embeddable;
+import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 /** Strongly-typed ID for ChatSession. */
 @Embeddable
+@Getter
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public final class ChatSessionId extends AbstractUuidId {
+@AllArgsConstructor(staticName = "of")
+public final class ChatSessionId extends AbstractEmbeddable {
 
-  public ChatSessionId(String value) {
-    super(value);
+  @NonNull private UUID value;
+
+  /** Parses an id from its UUID text. */
+  public static ChatSessionId of(String text) {
+    if (text == null || text.isBlank()) {
+      throw new IllegalArgumentException("Id cannot be blank");
+    }
+    return of(UUID.fromString(text.strip()));
   }
 
-  /** Wraps an existing session id. */
-  public static ChatSessionId of(String value) {
-    return new ChatSessionId(value);
-  }
-
-  /** Creates a new random session id. */
+  /** Creates a new random id. */
   public static ChatSessionId generate() {
-    return new ChatSessionId(generateUuidString());
+    return of(UUID.randomUUID());
+  }
+
+  @Override
+  public String toString() {
+    return value.toString();
   }
 }

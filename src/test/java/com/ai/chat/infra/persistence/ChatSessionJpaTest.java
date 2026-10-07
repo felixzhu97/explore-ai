@@ -56,7 +56,7 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
         (String)
             em.getEntityManager()
                 .createNativeQuery("SELECT owner_key FROM chat_session WHERE id = ?")
-                .setParameter(1, session.getId().value())
+                .setParameter(1, session.getId().getValue())
                 .getSingleResult();
 
     assertThat(rawOwnerKey).isEqualTo(OWNER_KEY);

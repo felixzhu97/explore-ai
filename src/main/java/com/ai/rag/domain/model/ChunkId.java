@@ -1,26 +1,35 @@
 package com.ai.rag.domain.model;
 
-import com.ai.common.domain.model.AbstractUuidId;
-import jakarta.persistence.Embeddable;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import com.ai.common.domain.model.AbstractEmbeddable;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NonNull;
 
 /** Strongly-typed ID for DocumentChunk. */
-@Embeddable
-@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public final class ChunkId extends AbstractUuidId {
+@Getter
+@EqualsAndHashCode(callSuper = false)
+@AllArgsConstructor(staticName = "of")
+public final class ChunkId extends AbstractEmbeddable {
 
-  public ChunkId(String value) {
-    super(value);
-  }
+  @NonNull private UUID value;
 
-  /** Wraps an existing id. */
-  public static ChunkId of(String value) {
-    return new ChunkId(value);
+  /** Parses an id from its UUID text. */
+  public static ChunkId of(String text) {
+    if (text == null || text.isBlank()) {
+      throw new IllegalArgumentException("Id cannot be blank");
+    }
+    return of(UUID.fromString(text.strip()));
   }
 
   /** Creates a new random id. */
   public static ChunkId generate() {
-    return new ChunkId(generateUuidString());
+    return of(UUID.randomUUID());
+  }
+
+  @Override
+  public String toString() {
+    return value.toString();
   }
 }

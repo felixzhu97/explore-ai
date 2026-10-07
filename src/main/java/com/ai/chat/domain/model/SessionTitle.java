@@ -1,5 +1,6 @@
 package com.ai.chat.domain.model;
 
+import com.ai.common.domain.model.AbstractEmbeddable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotBlank;
@@ -10,9 +11,9 @@ import lombok.NoArgsConstructor;
 
 /** Title shown for a chat session; one place for the default text and length limits. */
 @Embeddable
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public final class SessionTitle {
+public final class SessionTitle extends AbstractEmbeddable {
 
   /** Longest title a user can give a session. */
   public static final int MAX_LENGTH = 100;

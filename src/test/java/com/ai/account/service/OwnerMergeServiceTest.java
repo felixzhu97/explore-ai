@@ -35,7 +35,7 @@ class OwnerMergeServiceTest {
     useCase.mergeGuestIntoAccount(user);
 
     verify(ownerPartitionRepository)
-        .reassignOwner(OwnerKey.forClient(CLIENT_ID), OwnerKey.forAccount(user.getId().value()));
+        .reassignOwner(OwnerKey.forClient(CLIENT_ID), OwnerKey.forAccount(user.getId().toString()));
   }
 
   @Test

@@ -22,7 +22,7 @@ class AccountUserTest {
             ContactEmail.ofNullable(" User@Example.com "),
             null);
 
-    assertThat(user.getId().value()).isNotBlank();
+    assertThat(user.getId().getValue()).isNotNull();
     assertThat(user.identity()).isEqualTo(ExternalIdentity.of("google", "sub-1"));
     assertThat(user.getEmail()).isEqualTo(new ContactEmail("User@Example.com"));
     assertThat(user.getLinkedClientId()).isNull();
@@ -81,7 +81,7 @@ class AccountUserTest {
   void shouldOwnDataUnderItsAccountId() {
     AccountUser user = account(null, null);
 
-    assertThat(user.ownerKey()).isEqualTo(OwnerKey.forAccount(user.getId().value()));
+    assertThat(user.ownerKey()).isEqualTo(OwnerKey.forAccount(user.getId().toString()));
   }
 
   @Test

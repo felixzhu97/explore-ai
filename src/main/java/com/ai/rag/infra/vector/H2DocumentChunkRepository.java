@@ -52,8 +52,8 @@ public class H2DocumentChunkRepository
 
     jdbcTemplate.update(
         sql,
-        chunk.getId().value(),
-        chunk.getDocumentId().value(),
+        chunk.getId().getValue(),
+        chunk.getDocumentId().getValue(),
         chunk.getContent(),
         chunk.getChunkIndex(),
         embeddingString,
@@ -66,14 +66,14 @@ public class H2DocumentChunkRepository
   @Transactional(readOnly = true)
   public List<DocumentChunk> findChunksByDocumentId(DocumentId documentId) {
     String sql = SELECT_COLUMNS + " FROM " + TABLE_NAME + " WHERE document_id = ?";
-    return jdbcTemplate.query(sql, chunkRowMapper, documentId.value());
+    return jdbcTemplate.query(sql, chunkRowMapper, documentId.getValue());
   }
 
   @Override
   @Transactional
   public void deleteChunksByDocumentId(DocumentId documentId) {
     String sql = "DELETE FROM " + TABLE_NAME + " WHERE document_id = ?";
-    jdbcTemplate.update(sql, documentId.value());
+    jdbcTemplate.update(sql, documentId.getValue());
   }
 
   @Override

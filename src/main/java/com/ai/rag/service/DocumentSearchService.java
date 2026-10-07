@@ -34,7 +34,7 @@ public class DocumentSearchService {
     double scoreThreshold = retrievalSettings.getScoreThreshold();
 
     List<UUID> uuids =
-        documentIds == null ? List.of() : documentIds.stream().map(DocumentId::uuidValue).toList();
+        documentIds == null ? List.of() : documentIds.stream().map(DocumentId::getValue).toList();
     List<ScoredChunk> matches =
         chunkSearchRepository.search(queryEmbedding, effectiveTopK, ownerKey, uuids).stream()
             .filter(scored -> scored.meets(scoreThreshold))

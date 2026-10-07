@@ -90,7 +90,7 @@ public class AccountUser extends AbstractEntity<AccountUserId> {
 
   /** Returns the data partition of this account. */
   public OwnerKey ownerKey() {
-    return OwnerKey.forAccount(getId().value());
+    return OwnerKey.forAccount(getId().toString());
   }
 
   /** Returns the guest partition of the linked browser, when one is linked. */
