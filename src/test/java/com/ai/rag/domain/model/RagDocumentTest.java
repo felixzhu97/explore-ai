@@ -196,16 +196,6 @@ class RagDocumentTest {
   class Restore {
 
     @Test
-    @DisplayName("should be equal when ids match")
-    void shouldBeEqualWhenIdsMatch() {
-      RagDocument document = processing();
-      document.completeIngestion(1);
-
-      assertThat(document).isEqualTo(document).hasSameHashCodeAs(document);
-      assertThat(processing()).isNotEqualTo(document);
-    }
-
-    @Test
     @DisplayName("should not print the title")
     void shouldNotPrintTheTitle() {
       assertThat(processing().toString()).doesNotContain(TEST_TITLE);

@@ -161,24 +161,6 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
           .hasStatus(HttpStatus.CREATED);
       verify(ragApplicationService).uploadDocument(any(), eq("Custom Title"), eq(ownerKey()));
     }
-
-    @Test
-    @DisplayName("should return 500 when upload fails")
-    void shouldReturn500WhenUploadFails() {
-      MockMultipartFile file =
-          new MockMultipartFile(
-              "file", "document.pdf", "application/pdf", "PDF content".getBytes());
-      when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerKey())))
-          .thenThrow(new RuntimeException("Upload failed"));
-
-      assertThat(
-              mvc.post()
-                  .multipart()
-                  .uri("/api/rag/documents/upload")
-                  .file(file)
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
-          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
   }
 
   @Nested

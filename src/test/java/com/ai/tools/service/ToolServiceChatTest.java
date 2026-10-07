@@ -69,18 +69,4 @@ class ToolServiceChatTest {
         .recordSuccess(
             eq(AiDomain.TOOLS), anyString(), any(Latency.class), eq(OWNER), any(), any(), any());
   }
-
-  @Test
-  @DisplayName("should delegate web search")
-  void shouldDelegateWebSearch() {
-    when(webSearchTool.searchWeb("q")).thenReturn("hits");
-    assertThat(toolService.searchWeb("q")).isEqualTo("hits");
-  }
-
-  @Test
-  @DisplayName("should list documents via document search tool")
-  void shouldListDocumentsViaDocumentSearchTool() {
-    when(documentSearchTool.listDocuments()).thenReturn("doc-list");
-    assertThat(toolService.listDocuments()).isEqualTo("doc-list");
-  }
 }

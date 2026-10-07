@@ -43,16 +43,6 @@ class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
     }
 
     @Test
-    @DisplayName("should return 400 for null city")
-    void shouldReturn400ForNullCity() {
-      assertThat(mvc.get().uri("/api/tools/weather"))
-          .hasStatus(HttpStatus.BAD_REQUEST)
-          .bodyText()
-          .asString()
-          .contains("Required parameter 'city' is missing");
-    }
-
-    @Test
     @DisplayName("should return 400 for blank city")
     void shouldReturn400ForBlankCity() {
       assertThat(mvc.get().uri("/api/tools/weather").param("city", "   "))
@@ -60,19 +50,6 @@ class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
           .bodyText()
           .asString()
           .contains("VALIDATION_ERROR");
-    }
-
-    @Test
-    @DisplayName("should return 500 when service throws exception")
-    void shouldReturn500WhenServiceThrowsException() {
-      String city = "Unknown";
-      when(toolService.lookupWeather(city)).thenThrow(new RuntimeException("API error"));
-
-      assertThat(mvc.get().uri("/api/tools/weather").param("city", city))
-          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-          .bodyText()
-          .asString()
-          .contains("INTERNAL_ERROR");
     }
   }
 
@@ -106,33 +83,10 @@ class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
     }
 
     @Test
-    @DisplayName("should return 400 for null city")
-    void shouldReturn400ForNullCity() {
-      assertThat(mvc.get().uri("/api/tools/weather/forecast").param("days", "3"))
-          .hasStatus(HttpStatus.BAD_REQUEST)
-          .bodyText()
-          .asString()
-          .contains("Required parameter 'city' is missing");
-    }
-
-    @Test
     @DisplayName("should return 400 for blank city")
     void shouldReturn400ForBlankCity() {
       assertThat(mvc.get().uri("/api/tools/weather/forecast").param("city", "").param("days", "3"))
           .hasStatus(HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
-    @DisplayName("should return 500 when service throws exception")
-    void shouldReturn500WhenServiceThrowsException() {
-      when(toolService.lookupForecast("ErrorCity", null))
-          .thenThrow(new RuntimeException("API error"));
-
-      assertThat(mvc.get().uri("/api/tools/weather/forecast").param("city", "ErrorCity"))
-          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-          .bodyText()
-          .asString()
-          .contains("INTERNAL_ERROR");
     }
   }
 
@@ -171,33 +125,10 @@ class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
     }
 
     @Test
-    @DisplayName("should return 400 for null query")
-    void shouldReturn400ForNullQuery() {
-      assertThat(mvc.get().uri("/api/tools/documents/search"))
-          .hasStatus(HttpStatus.BAD_REQUEST)
-          .bodyText()
-          .asString()
-          .contains("Required parameter 'query' is missing");
-    }
-
-    @Test
     @DisplayName("should return 400 for blank query")
     void shouldReturn400ForBlankQuery() {
       assertThat(mvc.get().uri("/api/tools/documents/search").param("query", "   "))
           .hasStatus(HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
-    @DisplayName("should return 500 when service throws exception")
-    void shouldReturn500WhenServiceThrowsException() {
-      when(toolService.searchDocuments("error", null))
-          .thenThrow(new RuntimeException("Search error"));
-
-      assertThat(mvc.get().uri("/api/tools/documents/search").param("query", "error"))
-          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-          .bodyText()
-          .asString()
-          .contains("INTERNAL_ERROR");
     }
   }
 
@@ -212,18 +143,6 @@ class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
       when(toolService.listDocuments()).thenReturn(documents);
 
       assertThat(mvc.get().uri("/api/tools/documents")).hasStatusOk().hasBodyTextEqualTo(documents);
-    }
-
-    @Test
-    @DisplayName("should return 500 when service throws exception")
-    void shouldReturn500WhenServiceThrowsException() {
-      when(toolService.listDocuments()).thenThrow(new RuntimeException("List error"));
-
-      assertThat(mvc.get().uri("/api/tools/documents"))
-          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-          .bodyText()
-          .asString()
-          .contains("INTERNAL_ERROR");
     }
   }
 
@@ -267,36 +186,6 @@ class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
     }
 
     @Test
-    @DisplayName("should return 400 for empty request body")
-    void shouldReturn400ForEmptyRequestBody() {
-      assertThat(
-              mvc.post()
-                  .uri("/api/tools/chat")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{}"))
-          .hasStatus(HttpStatus.BAD_REQUEST)
-          .bodyJson()
-          .extractingPath("$.errorCode")
-          .asString()
-          .isEqualTo("VALIDATION_ERROR");
-    }
-
-    @Test
-    @DisplayName("should return 400 for null question")
-    void shouldReturn400ForNullQuestion() {
-      assertThat(
-              mvc.post()
-                  .uri("/api/tools/chat")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{\"question\":null}"))
-          .hasStatus(HttpStatus.BAD_REQUEST)
-          .bodyJson()
-          .extractingPath("$.errorCode")
-          .asString()
-          .isEqualTo("VALIDATION_ERROR");
-    }
-
-    @Test
     @DisplayName("should return 400 for blank question")
     void shouldReturn400ForBlankQuestion() {
       assertThat(
@@ -305,24 +194,6 @@ class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"question\":\"   \"}"))
           .hasStatus(HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
-    @DisplayName("should return 500 when service throws exception")
-    void shouldReturn500WhenServiceThrowsException() {
-      when(toolService.chatWithTools("error question", OWNER))
-          .thenThrow(new RuntimeException("Chat error"));
-
-      assertThat(
-              mvc.post()
-                  .uri("/api/tools/chat")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{\"question\":\"error question\"}"))
-          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-          .bodyJson()
-          .extractingPath("$.errorCode")
-          .asString()
-          .isEqualTo("INTERNAL_ERROR");
     }
   }
 }

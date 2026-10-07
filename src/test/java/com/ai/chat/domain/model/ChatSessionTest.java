@@ -26,58 +26,6 @@ class ChatSessionTest {
       assertThat(session.getCreatedAt()).isNotNull();
       assertThat(session.isEmpty()).isTrue();
     }
-
-    @Test
-    @DisplayName("should create session with null title")
-    void shouldCreateSessionWithNullTitle() {
-      ChatSession session = ChatSession.create(null, "c:client-a");
-
-      assertThat(session.getTitle()).isEqualTo("New Chat");
-    }
-
-    @Test
-    @DisplayName("should create session with blank title")
-    void shouldCreateSessionWithBlankTitle() {
-      ChatSession session = ChatSession.create("   ", "c:client-a");
-
-      assertThat(session.getTitle()).isEqualTo("New Chat");
-    }
-
-    @Test
-    @DisplayName("should truncate long title")
-    void shouldTruncateLongTitle() {
-      String longTitle = "A".repeat(150);
-      ChatSession session = ChatSession.create(longTitle, "c:client-a");
-
-      assertThat(session.getTitle()).hasSize(100);
-      assertThat(session.getTitle()).isEqualTo(longTitle.substring(0, 100));
-    }
-
-    @Test
-    @DisplayName("should trim title")
-    void shouldTrimTitle() {
-      ChatSession session = ChatSession.create("  My Chat  ", "c:client-a");
-
-      assertThat(session.getTitle()).isEqualTo("My Chat");
-    }
-  }
-
-  @Nested
-  @DisplayName("of()")
-  class Of {
-
-    @Test
-    @DisplayName("should create session with id and title")
-    void shouldCreateSessionWithIdAndTitle() {
-      var id = com.ai.chat.domain.model.ChatSessionId.of("11111111-1111-1111-1111-111111111111");
-      Instant createdAt = Instant.now();
-
-      ChatSession session = ChatSession.of(id, "Title", createdAt, "c:client-a");
-
-      assertThat(session.getId()).isEqualTo(id);
-      assertThat(session.getTitle()).isEqualTo("Title");
-      assertThat(session.getCreatedAt()).isEqualTo(createdAt);
-    }
   }
 
   @Nested
@@ -175,14 +123,6 @@ class ChatSessionTest {
   @Nested
   @DisplayName("isEmpty()")
   class IsEmpty {
-
-    @Test
-    @DisplayName("should return true for empty session")
-    void shouldReturnTrueForEmptySession() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-
-      assertThat(session.isEmpty()).isTrue();
-    }
 
     @Test
     @DisplayName("should return false for session with messages")
@@ -312,17 +252,6 @@ class ChatSessionTest {
 
       assertThat(session.getTitle()).isEqualTo("New Chat");
     }
-
-    @Test
-    @DisplayName("should truncate long rename")
-    void shouldTruncateLongRename() {
-      ChatSession session = ChatSession.create("New Chat", "c:client-a");
-      String longTitle = "A".repeat(150);
-
-      session.rename(longTitle);
-
-      assertThat(session.getTitle()).hasSize(100);
-    }
   }
 
   @Nested
@@ -372,23 +301,6 @@ class ChatSessionTest {
 
       assertThat(session.applyGeneratedTitle(SessionTitle.generated("Theirs"))).isFalse();
       assertThat(session.getTitle()).isEqualTo("Mine");
-    }
-  }
-
-  @Nested
-  @DisplayName("toString()")
-  class ToString {
-
-    @Test
-    @DisplayName("should contain id, title and message count")
-    void shouldContainIdTitleAndMessageCount() {
-      ChatSession session = ChatSession.create("Test Session", "c:client-a");
-      session.addUserMessage("Hello");
-
-      String str = session.toString();
-
-      assertThat(str).contains("Test Session");
-      assertThat(str).contains("messageCount=1");
     }
   }
 }

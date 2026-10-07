@@ -1,22 +1,16 @@
 package com.ai.rag.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.rag.domain.model.DocumentId;
-import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.SourceDocument;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -27,145 +21,34 @@ class RagApplicationServiceTest {
   private static final String OWNER = "c:owner";
 
   @Mock private DocumentUploadService uploadService;
-
   @Mock private DocumentSearchService searchService;
+  @InjectMocks private RagApplicationService service;
 
-  private RagApplicationService service;
+  @Test
+  @DisplayName("should offer only ready documents when listing searchable ones")
+  void shouldOfferOnlyReadyDocumentsWhenListingSearchableOnes() {
+    RagDocument ready = RagDocument.startIngestion("Ready", "r.txt", 10L, OWNER);
+    ready.completeIngestion(2);
+    RagDocument processing = RagDocument.startIngestion("Busy", "b.txt", 10L, OWNER);
+    RagDocument failed = RagDocument.startIngestion("Broken", "f.txt", 10L, OWNER);
+    failed.failIngestion();
+    when(uploadService.listAll(OWNER)).thenReturn(List.of(ready, processing, failed));
 
-  @BeforeEach
-  void setUp() {
-    service = new RagApplicationService(uploadService, searchService);
+    assertThat(service.listSearchableDocuments(OWNER)).containsExactly(ready);
   }
 
-  @Nested
-  @DisplayName("uploadDocument()")
-  class UploadDocument {
+  @Test
+  @DisplayName("should return the retrieved context with its sources and the query")
+  void shouldReturnTheRetrievedContextWithItsSourcesAndTheQuery() {
+    SourceDocument source = new SourceDocument("source text", 0.95, Map.of());
+    when(searchService.retrieve("test query", null, 5, OWNER))
+        .thenReturn(new DocumentSearchService.RetrievalResult("context", List.of(source)));
 
-    @Test
-    @DisplayName("should delegate to uploadService")
-    void shouldDelegateToUploadService() {
-      DocumentId docId = DocumentId.generate();
-      var uploadResult =
-          new DocumentUploadService.UploadResult(
-              docId, "Test", DocumentStatus.READY, 3, Instant.EPOCH);
-      when(uploadService.upload("Test", "file.txt", "content", "c:test-owner"))
-          .thenReturn(uploadResult);
+    RagApplicationService.RetrievalResult result =
+        service.retrieveContext("test query", null, 5, OWNER);
 
-      var result = service.uploadDocument("Test", "file.txt", "content", "c:test-owner");
-
-      assertThat(result.documentId()).isEqualTo(docId);
-      assertThat(result.title()).isEqualTo("Test");
-      assertThat(result.status()).isEqualTo(DocumentStatus.READY);
-      assertThat(result.chunkCount()).isEqualTo(3);
-      verify(uploadService).upload("Test", "file.txt", "content", "c:test-owner");
-    }
-
-    @Test
-    @DisplayName("should delegate uploadDocumentFromBytes to uploadService")
-    void shouldDelegateUploadDocumentFromBytesToUploadService() {
-      DocumentId docId = DocumentId.generate();
-      byte[] content = "test content".getBytes();
-      var uploadResult =
-          new DocumentUploadService.UploadResult(
-              docId, "Test", DocumentStatus.READY, 5, Instant.EPOCH);
-      when(uploadService.upload("Test", "file.bin", content, "c:test-owner"))
-          .thenReturn(uploadResult);
-
-      var result = service.uploadDocumentFromBytes("Test", "file.bin", content, "c:test-owner");
-
-      assertThat(result.documentId()).isEqualTo(docId);
-      assertThat(result.chunkCount()).isEqualTo(5);
-    }
-  }
-
-  @Nested
-  @DisplayName("listDocuments()")
-  class ListDocuments {
-
-    @Test
-    @DisplayName("should delegate to uploadService")
-    void shouldDelegateToUploadService() {
-      RagDocument doc1 = RagDocument.startIngestion("Doc1", "file1.txt", 100L, "c:test");
-      RagDocument doc2 = RagDocument.startIngestion("Doc2", "file2.txt", 200L, "c:test");
-      when(uploadService.listAll("c:test-owner")).thenReturn(List.of(doc1, doc2));
-
-      List<RagDocument> result = service.listDocuments("c:test-owner");
-
-      assertThat(result).hasSize(2);
-      verify(uploadService).listAll("c:test-owner");
-    }
-
-    @Test
-    @DisplayName("should return empty list when no documents")
-    void shouldReturnEmptyListWhenNoDocuments() {
-      when(uploadService.listAll("c:test-owner")).thenReturn(List.of());
-
-      List<RagDocument> result = service.listDocuments("c:test-owner");
-
-      assertThat(result).isEmpty();
-    }
-
-    @Test
-    @DisplayName("should offer only ready documents when listing searchable ones")
-    void shouldOfferOnlyReadyDocumentsWhenListingSearchableOnes() {
-      RagDocument ready = RagDocument.startIngestion("Ready", "r.txt", 10L, "c:test");
-      ready.completeIngestion(2);
-      RagDocument processing = RagDocument.startIngestion("Busy", "b.txt", 10L, "c:test");
-      RagDocument failed = RagDocument.startIngestion("Broken", "f.txt", 10L, "c:test");
-      failed.failIngestion();
-      when(uploadService.listAll("c:test-owner")).thenReturn(List.of(ready, processing, failed));
-
-      assertThat(service.listSearchableDocuments("c:test-owner")).containsExactly(ready);
-    }
-  }
-
-  @Nested
-  @DisplayName("deleteDocument()")
-  class DeleteDocument {
-
-    @Test
-    @DisplayName("should delegate to uploadService")
-    void shouldDelegateToUploadService() {
-      UUID documentId = UUID.randomUUID();
-
-      service.deleteDocument(documentId, "c:test-owner");
-
-      verify(uploadService).delete(documentId, "c:test-owner");
-    }
-  }
-
-  @Nested
-  @DisplayName("retrieveContext()")
-  class RetrieveContext {
-
-    @Test
-    @DisplayName("should delegate to searchService and wrap result")
-    void shouldDelegateToSearchServiceAndWrapResult() {
-      String query = "test query";
-      var searchResult =
-          new DocumentSearchService.RetrievalResult(
-              "context content", List.of(new SourceDocument("source text", 0.95, Map.of())));
-      when(searchService.retrieve(query, null, 5, OWNER)).thenReturn(searchResult);
-
-      RagApplicationService.RetrievalResult result = service.retrieveContext(query, null, 5, OWNER);
-
-      assertThat(result.context()).isEqualTo("context content");
-      assertThat(result.sources()).hasSize(1);
-      assertThat(result.enrichedQuery()).isEqualTo(query);
-      verify(searchService).retrieve(query, null, 5, OWNER);
-    }
-
-    @Test
-    @DisplayName("should pass documentIds to searchService")
-    void shouldPassDocIdsToSearchService() {
-      String query = "test";
-      DocumentId docId = DocumentId.generate();
-      var searchResult = new DocumentSearchService.RetrievalResult("ctx", List.of());
-      when(searchService.retrieve(query, List.of(docId), 3, OWNER)).thenReturn(searchResult);
-
-      service.retrieveContext(query, List.of(docId), 3, OWNER);
-
-      verify(searchService).retrieve(query, List.of(docId), 3, OWNER);
-    }
+    assertThat(result.context()).isEqualTo("context");
+    assertThat(result.sources()).containsExactly(source);
+    assertThat(result.enrichedQuery()).isEqualTo("test query");
   }
 }

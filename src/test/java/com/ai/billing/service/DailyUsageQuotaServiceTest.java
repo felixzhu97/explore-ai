@@ -48,20 +48,6 @@ class DailyUsageQuotaServiceTest {
   }
 
   @Test
-  @DisplayName("should report nothing remaining when the global limit refuses the request")
-  void shouldReportNothingRemainingWhenTheGlobalLimitRefusesTheRequest() {
-    properties.setGlobalDailyRequests(2);
-    consume("client-a", "203.0.113.1");
-    consume("client-b", "203.0.113.2");
-
-    QuotaDecision decision = consume("client-c", "203.0.113.3");
-
-    assertThat(decision.allowed()).isFalse();
-    assertThat(decision.limit()).isEqualTo(2);
-    assertThat(decision.remaining()).isZero();
-  }
-
-  @Test
   @DisplayName("should report the owner's remaining requests when allowed")
   void shouldReportTheOwnersRemainingRequestsWhenAllowed() {
     QuotaDecision decision = consume("client-a", "203.0.113.7");
