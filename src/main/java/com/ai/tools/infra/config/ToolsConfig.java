@@ -1,6 +1,6 @@
 package com.ai.tools.infra.config;
 
-import com.ai.tools.domain.model.WeatherReport;
+import com.ai.tools.domain.model.WeatherSimulator;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.TimeZone;
@@ -13,8 +13,8 @@ public class ToolsConfig {
 
   /** Creates the weather report. */
   @Bean
-  WeatherReport weatherReport() {
-    return new WeatherReport();
+  WeatherSimulator weatherSimulator() {
+    return new WeatherSimulator();
   }
 
   /**

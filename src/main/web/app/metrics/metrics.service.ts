@@ -4,7 +4,7 @@ import { Instant } from '@js-joda/core';
 import { API_BASE_URL } from '../http/api.constants';
 import { hasText } from '../shared/presence';
 
-export type MetricsDomain = 'chat' | 'rag' | 'agents' | 'tools' | 'vision' | 'workflow';
+export type MetricsCapability = 'chat' | 'rag' | 'agents' | 'tools' | 'vision' | 'workflow';
 
 export type MetricsRange = '7d' | '30d';
 
@@ -63,7 +63,7 @@ export interface SystemInventoryResponse {
   status: ModuleStatus;
 }
 
-export interface MetricsDomainsResponse {
+export interface MetricsCapabilitiesResponse {
   chat: ChatInventoryResponse;
   rag: RagInventoryResponse;
   agents: AgentsInventoryResponse;
@@ -81,11 +81,11 @@ export interface MetricsOverviewResponse {
   latencyP95Ms: number | null;
   promptTokens: number | null;
   completionTokens: number | null;
-  requestsByDomain: NamedCountResponse[];
-  domains: MetricsDomainsResponse;
+  requestsByCapability: NamedCountResponse[];
+  capabilities: MetricsCapabilitiesResponse;
 }
 
-interface MetricsDomainStats {
+interface MetricsCapabilityStats {
   range: MetricsRange;
   requestCount: number;
   errorCount: number;
@@ -98,18 +98,18 @@ interface MetricsDomainStats {
   modelSeries: SeriesPointResponse[];
 }
 
-/** The inventory shape follows the domain, as built by Java `MetricsService`. */
-export type MetricsDomainResponse = MetricsDomainStats & (
-  | { domain: 'chat'; inventory: ChatInventoryResponse }
-  | { domain: 'rag'; inventory: RagInventoryResponse }
-  | { domain: 'agents'; inventory: AgentsInventoryResponse }
-  | { domain: 'tools'; inventory: ToolsInventoryResponse }
-  | { domain: 'vision' | 'workflow'; inventory: RequestsInventoryResponse }
+/** The inventory shape follows the capability, as built by Java `MetricsService`. */
+export type MetricsCapabilityResponse = MetricsCapabilityStats & (
+  | { capability: 'chat'; inventory: ChatInventoryResponse }
+  | { capability: 'rag'; inventory: RagInventoryResponse }
+  | { capability: 'agents'; inventory: AgentsInventoryResponse }
+  | { capability: 'tools'; inventory: ToolsInventoryResponse }
+  | { capability: 'vision' | 'workflow'; inventory: RequestsInventoryResponse }
 );
 
 export interface SeriesResponse {
   name: string;
-  domain: MetricsDomain | null;
+  capability: MetricsCapability | null;
   range: MetricsRange;
   points: SeriesPointResponse[];
 }
@@ -117,7 +117,7 @@ export interface SeriesResponse {
 export interface InvocationEventResponse {
   id: string;
   occurredAt: string;
-  domain: MetricsDomain;
+  capability: MetricsCapability;
   operation: string;
   outcome: MetricsOutcome;
   latencyMs: number;
@@ -136,7 +136,7 @@ export interface InvocationEventResponse {
 export interface InvocationEvent {
   id: string;
   occurredAt: Instant;
-  domain: MetricsDomain;
+  capability: MetricsCapability;
   operation: string;
   outcome: MetricsOutcome;
   latencyMs: number;
@@ -177,7 +177,7 @@ export function toDrilldownPage(response: DrilldownPageResponse): DrilldownPage 
 }
 
 export interface DrilldownQuery {
-  domain?: MetricsDomain;
+  capability?: MetricsCapability;
   day?: string | undefined;
   outcome?: MetricsOutcome;
   model?: string | undefined;
@@ -188,19 +188,19 @@ export interface DrilldownQuery {
   range?: MetricsRange;
 }
 
-export const METRICS_DOMAINS: MetricsDomain[] = ['chat', 'rag', 'agents', 'tools', 'vision', 'workflow'];
+export const METRICS_CAPABILITIES: MetricsCapability[] = ['chat', 'rag', 'agents', 'tools', 'vision', 'workflow'];
 
-/** Tells whether the value is a known metrics domain. */
-export function isMetricsDomain(
+/** Tells whether the value is a known metrics capability. */
+export function isMetricsCapability(
   value: string | null | undefined,
-): value is MetricsDomain {
-  return hasText(value) && (METRICS_DOMAINS as string[]).includes(value);
+): value is MetricsCapability {
+  return hasText(value) && (METRICS_CAPABILITIES as string[]).includes(value);
 }
 
 export interface SeriesQuery {
   name: string;
   range: MetricsRange;
-  domain?: MetricsDomain;
+  capability?: MetricsCapability;
 }
 
 /** Signal-driven metrics resources; create them from an injection context. */
@@ -218,15 +218,15 @@ export class MetricsService {
     }));
   }
 
-  /** Loads the metrics of a domain. */
-  getDomain(
-    domain: () => MetricsDomain | null,
+  /** Loads the metrics of a capability. */
+  getCapability(
+    capability: () => MetricsCapability | null,
     range: () => MetricsRange,
-  ): HttpResourceRef<MetricsDomainResponse | undefined> {
-    return httpResource<MetricsDomainResponse>(() => {
-      const value = domain();
+  ): HttpResourceRef<MetricsCapabilityResponse | undefined> {
+    return httpResource<MetricsCapabilityResponse>(() => {
+      const value = capability();
       return value !== null
-        ? { url: `${this.#baseUrl}/domains/${value}`, params: { range: range() } }
+        ? { url: `${this.#baseUrl}/capabilities/${value}`, params: { range: range() } }
         : undefined;
     });
   }

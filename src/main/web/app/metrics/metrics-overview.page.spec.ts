@@ -18,8 +18,8 @@ const emptyOverview: MetricsOverviewResponse = {
   latencyP95Ms: 120,
   promptTokens: 100,
   completionTokens: 200,
-  requestsByDomain: [{ name: 'chat', count: 30 }],
-  domains: {
+  requestsByCapability: [{ name: 'chat', count: 30 }],
+  capabilities: {
     chat: {
       sessionCount: 5,
       activeSessionCount: 1,
@@ -81,7 +81,7 @@ describe('MetricsOverviewPageComponent', () => {
       } else if (url.startsWith(`${API_BASE_URL}/metrics/series`)) {
         request.flush({
           name: 'requests',
-          domain: null,
+          capability: null,
           range,
           points: [{ label: 'Mon', value: 10 }],
         });
@@ -97,7 +97,7 @@ describe('MetricsOverviewPageComponent', () => {
     await flushOverviewPage('7d');
 
     expect(fixture.componentInstance.overviewResource.value()?.requestCount).toBe(42);
-    expect(fixture.componentInstance.domainSeries()).toEqual([{ label: 'chat', value: 30 }]);
+    expect(fixture.componentInstance.capabilitySeries()).toEqual([{ label: 'chat', value: 30 }]);
     expect(fixture.componentInstance.requestSeries()).toEqual([{ label: 'Mon', value: 10 }]);
   });
 

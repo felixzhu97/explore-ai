@@ -10,8 +10,8 @@ import static org.mockito.Mockito.when;
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.rag.domain.model.DocumentStatus;
+import com.ai.rag.domain.model.ExtractedDocument;
 import com.ai.rag.domain.model.RagDocument;
-import com.ai.rag.domain.model.RawDocument;
 import com.ai.rag.domain.repository.DocumentChunkRepository;
 import com.ai.rag.domain.repository.DocumentReader;
 import com.ai.rag.domain.repository.DocumentRepository;
@@ -68,8 +68,8 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
   void shouldKeepTheDocumentAsFailedWhenTheFileHasNoText() {
     OwnerKey owner = newOwner();
     when(reader.read(any(byte[].class), eq("blank.txt")))
-        .thenReturn(new RawDocument("  \n ", Map.of(), "blank.txt"));
-    when(transformer.transform(any(RawDocument.class))).thenReturn(List.of());
+        .thenReturn(new ExtractedDocument("  \n ", Map.of(), "blank.txt"));
+    when(transformer.transform(any(ExtractedDocument.class))).thenReturn(List.of());
 
     assertThatThrownBy(() -> service.upload("Blank", "blank.txt", "  \n ", owner.value()))
         .isInstanceOf(DomainException.class)

@@ -6,7 +6,7 @@ export const METRICS_ROUTES: Routes = [
     loadComponent: () => import('./metrics-overview.page').then(m => m.MetricsOverviewPageComponent),
   },
   {
-    path: ':domain',
-    loadComponent: () => import('./metrics-domain.page').then(m => m.MetricsDomainPageComponent),
+    path: ':capability',
+    loadComponent: () => import('./metrics-capability.page').then(m => m.MetricsCapabilityPageComponent),
   },
 ];

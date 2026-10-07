@@ -5,7 +5,7 @@ import java.util.List;
 /** One OpenAI Evals-style golden case (input + ideal + metadata). */
 public record GoldenEvalCase(
     String id,
-    GoldenEvalDomain domain,
+    GoldenEvalCategory category,
     String userText,
     List<String> ideal,
     boolean toolsEnabled,
@@ -22,7 +22,7 @@ public record GoldenEvalCase(
     if (ideal == null || ideal.isEmpty()) {
       throw new IllegalArgumentException("ideal is required");
     }
-    domain = domain == null ? GoldenEvalDomain.CHAT : domain;
+    category = category == null ? GoldenEvalCategory.CHAT : category;
     ideal = List.copyOf(ideal);
     contexts = contexts == null ? List.of() : List.copyOf(contexts);
     documentIds = documentIds == null ? List.of() : List.copyOf(documentIds);

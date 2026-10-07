@@ -2,7 +2,7 @@ package com.ai.rag.service;
 
 import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.RagDocument;
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.model.SourceCitation;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RagApplicationService {
   public record RetrievalResult(
-      String context, List<SourceDocument> sources, String enrichedQuery) {}
+      String context, List<SourceCitation> sources, String enrichedQuery) {}
 
   private final DocumentUploadService uploadService;
   private final DocumentSearchService searchService;

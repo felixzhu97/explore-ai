@@ -5,20 +5,20 @@ import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-/** Immutable chat message; who wrote it is a {@link ChatMessageType}. */
+/** Immutable chat message; who wrote it is a {@link MessageRole}. */
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class ChatMessage {
 
   @EqualsAndHashCode.Include private final MessageId id;
   private final String text;
-  private final ChatMessageType messageType;
+  private final MessageRole role;
   private final Instant timestamp;
 
-  private ChatMessage(MessageId id, String text, ChatMessageType messageType, Instant timestamp) {
+  private ChatMessage(MessageId id, String text, MessageRole role, Instant timestamp) {
     this.id = Objects.requireNonNull(id, "MessageId cannot be null");
     this.text = validateText(text);
-    this.messageType = Objects.requireNonNull(messageType, "messageType");
+    this.role = Objects.requireNonNull(role, "role");
     this.timestamp = Objects.requireNonNull(timestamp, "Timestamp cannot be null");
   }
 
@@ -31,32 +31,32 @@ public final class ChatMessage {
 
   /** Creates a new user message. */
   public static ChatMessage createUserMessage(String text) {
-    return new ChatMessage(MessageId.generate(), text, ChatMessageType.USER, Instant.now());
+    return new ChatMessage(MessageId.generate(), text, MessageRole.USER, Instant.now());
   }
 
   /** Creates a new assistant message. */
   public static ChatMessage createAssistantMessage(String text) {
-    return new ChatMessage(MessageId.generate(), text, ChatMessageType.ASSISTANT, Instant.now());
+    return new ChatMessage(MessageId.generate(), text, MessageRole.ASSISTANT, Instant.now());
   }
 
   /** Rebuilds a stored message. */
   public static ChatMessage restore(
-      MessageId id, String text, ChatMessageType messageType, Instant timestamp) {
-    return new ChatMessage(id, text, messageType, timestamp);
+      MessageId id, String text, MessageRole role, Instant timestamp) {
+    return new ChatMessage(id, text, role, timestamp);
   }
 
   /** Tells whether the user sent the message. */
   public boolean isFromUser() {
-    return messageType == ChatMessageType.USER;
+    return role == MessageRole.USER;
   }
 
   /** Tells whether the assistant sent the message. */
   public boolean isFromAssistant() {
-    return messageType == ChatMessageType.ASSISTANT;
+    return role == MessageRole.ASSISTANT;
   }
 
   @Override
   public String toString() {
-    return "ChatMessage{id=%s, type=%s, timestamp=%s}".formatted(id, messageType, timestamp);
+    return "ChatMessage{id=%s, role=%s, timestamp=%s}".formatted(id, role, timestamp);
   }
 }

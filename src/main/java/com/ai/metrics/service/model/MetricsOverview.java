@@ -12,5 +12,5 @@ public record MetricsOverview(
     Double latencyP95Ms,
     Long promptTokens,
     Long completionTokens,
-    List<NamedCount> requestsByDomain,
-    OverviewDomains domains) {}
+    List<NamedCount> requestsByCapability,
+    OverviewCapabilities capabilities) {}

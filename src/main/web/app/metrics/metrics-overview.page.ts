@@ -3,9 +3,9 @@ import { Router, RouterLink } from '@angular/router';
 import { ChartPanelComponent } from './chart-panel.component';
 import { I18nService } from '../i18n';
 import {
-  MetricsDomainHealthComponent,
-  type DomainHealthItem,
-} from './metrics-domain-health.component';
+  MetricsCapabilityHealthComponent,
+  type CapabilityHealthItem,
+} from './metrics-capability-health.component';
 import {
   MetricsKpiCardsComponent,
   type MetricsKpi,
@@ -24,7 +24,7 @@ import { hasText } from '../shared/presence';
     RouterLink,
     ChartPanelComponent,
     MetricsKpiCardsComponent,
-    MetricsDomainHealthComponent,
+    MetricsCapabilityHealthComponent,
     MetricsDrilldownTableComponent,
   ],
   templateUrl: './metrics-overview.page.html',
@@ -44,7 +44,7 @@ export class MetricsOverviewPageComponent {
       return [];
     }
     const kpi = this.i18n.t().metrics.kpi;
-    const { chat, rag } = overview.domains;
+    const { chat, rag } = overview.capabilities;
     const tokenTotal = (overview.promptTokens ?? 0) + (overview.completionTokens ?? 0);
     const hasTokens =
       overview.promptTokens !== null || overview.completionTokens !== null;
@@ -76,13 +76,13 @@ export class MetricsOverviewPageComponent {
         key: 'sessions',
         label: kpi.sessions,
         value: formatNumber(chat.sessionCount),
-        domain: 'chat',
+        capability: 'chat',
       },
       {
         key: 'documents',
         label: kpi.documents,
         value: formatNumber(rag.documentCount),
-        domain: 'rag',
+        capability: 'rag',
       },
     ];
   });
@@ -97,39 +97,39 @@ export class MetricsOverviewPageComponent {
     }));
   });
 
-  readonly domainSeries = computed(() => {
+  readonly capabilitySeries = computed(() => {
     const overview = this.overviewResource.value();
     if (overview === undefined) {
       return [];
     }
-    return overview.requestsByDomain.map(item => ({
+    return overview.requestsByCapability.map(item => ({
       label: item.name,
       value: item.count,
     }));
   });
 
-  readonly healthItems = computed((): DomainHealthItem[] => {
+  readonly healthItems = computed((): CapabilityHealthItem[] => {
     const overview = this.overviewResource.value();
     if (overview === undefined) {
       return [];
     }
     const health = this.i18n.t().metrics.health;
-    const { chat, rag, agents, mcp, system } = overview.domains;
+    const { chat, rag, agents, mcp, system } = overview.capabilities;
     return [
       {
-        domain: 'chat',
+        capability: 'chat',
         label: health.chat,
         status: 'UP',
         detail: this.i18n.tReplace(health.sessionsDetail, { count: chat.sessionCount }),
       },
       {
-        domain: 'rag',
+        capability: 'rag',
         label: health.rag,
         status: 'UP',
         detail: this.i18n.tReplace(health.documentsDetail, { count: rag.documentCount }),
       },
       {
-        domain: 'agents',
+        capability: 'agents',
         label: health.agents,
         status: agents.status,
         detail: this.i18n.tReplace(health.healthyDetail, {
@@ -138,7 +138,7 @@ export class MetricsOverviewPageComponent {
         }),
       },
       {
-        domain: 'tools',
+        capability: 'tools',
         label: health.toolsMcp,
         status: mcp.status,
         detail: this.i18n.tReplace(health.toolsDetail, {
@@ -147,7 +147,7 @@ export class MetricsOverviewPageComponent {
         }),
       },
       {
-        domain: 'vision',
+        capability: 'vision',
         label: health.vision,
         status: system.status,
         detail: health.visionDetail,
@@ -174,16 +174,16 @@ export class MetricsOverviewPageComponent {
     this.range.set(range);
   }
 
-  /** Opens the domain of the clicked KPI. */
+  /** Opens the capability of the clicked KPI. */
   onKpiClick(kpi: MetricsKpi): void {
-    if (hasText(kpi.domain)) {
-      this.openDomain(kpi.domain);
+    if (hasText(kpi.capability)) {
+      this.openCapability(kpi.capability);
     }
   }
 
-  /** Opens the metrics page of a domain. */
-  openDomain(domain: string): void {
-    void this.#router.navigate(['/metrics', domain], {
+  /** Opens the metrics page of a capability. */
+  openCapability(capability: string): void {
+    void this.#router.navigate(['/metrics', capability], {
       queryParams: { range: this.range() },
     });
   }
@@ -194,7 +194,7 @@ export class MetricsOverviewPageComponent {
       void this.#router.navigate(['/chat', event.sessionId]);
       return;
     }
-    if (hasText(event.documentId) || event.domain === 'rag') {
+    if (hasText(event.documentId) || event.capability === 'rag') {
       void this.#router.navigate(['/rag']);
     }
   }

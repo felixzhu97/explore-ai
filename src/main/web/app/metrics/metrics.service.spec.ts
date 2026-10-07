@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { API_BASE_URL } from '../http/api.constants';
-import { MetricsService, type DrilldownQuery, type MetricsDomain } from './metrics.service';
+import { MetricsService, type DrilldownQuery, type MetricsCapability } from './metrics.service';
 
 describe('MetricsService', () => {
   let service: MetricsService;
@@ -33,23 +33,23 @@ describe('MetricsService', () => {
   });
 
   it('should request drilldown without undefined filters', () => {
-    const query: DrilldownQuery = { domain: 'chat', day: '2026-07-26', model: undefined, page: 0 };
+    const query: DrilldownQuery = { capability: 'chat', day: '2026-07-26', model: undefined, page: 0 };
     TestBed.runInInjectionContext(() => service.getDrilldown(() => query));
     flushEffects();
 
     const request = http.expectOne(
-      r => r.url === `${API_BASE_URL}/metrics/drilldown` && r.params.get('domain') === 'chat',
+      r => r.url === `${API_BASE_URL}/metrics/drilldown` && r.params.get('capability') === 'chat',
     );
     expect(request.request.params.get('day')).toBe('2026-07-26');
     expect(request.request.params.has('model')).toBe(false);
     request.flush({ items: [], total: 0, page: 0, size: 20 });
   });
 
-  it('should skip domain request when domain is unknown', () => {
-    const domain = signal<MetricsDomain | null>(null);
-    TestBed.runInInjectionContext(() => service.getDomain(domain, () => '7d'));
+  it('should skip capability request when capability is unknown', () => {
+    const capability = signal<MetricsCapability | null>(null);
+    TestBed.runInInjectionContext(() => service.getCapability(capability, () => '7d'));
     flushEffects();
 
-    http.expectNone(r => r.url.startsWith(`${API_BASE_URL}/metrics/domains`));
+    http.expectNone(r => r.url.startsWith(`${API_BASE_URL}/metrics/capabilities`));
   });
 });

@@ -1,7 +1,7 @@
 package com.ai.rag.infra.etl;
 
 import com.ai.common.exception.DomainException;
-import com.ai.rag.domain.model.RawDocument;
+import com.ai.rag.domain.model.ExtractedDocument;
 import com.ai.rag.domain.repository.DocumentReader;
 import com.ai.rag.infra.parser.PdfTextExtractor;
 import java.util.Map;
@@ -16,7 +16,7 @@ public class PdfAndTextDocumentReader implements DocumentReader {
   private final PdfTextExtractor pdfTextExtractor;
 
   @Override
-  public RawDocument read(byte[] content, String fileName) {
+  public ExtractedDocument read(byte[] content, String fileName) {
     if (pdfTextExtractor.getExtension(fileName).equalsIgnoreCase("pdf")) {
       String text =
           pdfTextExtractor
@@ -25,8 +25,8 @@ public class PdfAndTextDocumentReader implements DocumentReader {
                   () ->
                       DomainException.unprocessable(
                           "DOCUMENT_UNREADABLE", "Could not extract text from " + fileName));
-      return new RawDocument(text, Map.of("fileName", fileName), fileName);
+      return new ExtractedDocument(text, Map.of("fileName", fileName), fileName);
     }
-    return new RawDocument(new String(content), Map.of("fileName", fileName), fileName);
+    return new ExtractedDocument(new String(content), Map.of("fileName", fileName), fileName);
   }
 }

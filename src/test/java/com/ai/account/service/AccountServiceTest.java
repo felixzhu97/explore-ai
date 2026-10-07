@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.dto.AccountMode;
 import com.ai.account.controller.dto.LoginProvider;
-import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.model.Account;
 import com.ai.account.domain.model.ClientId;
 import com.ai.account.domain.model.ContactEmail;
 import com.ai.account.domain.model.ExternalIdentity;
-import com.ai.account.domain.repository.AccountUserRepository;
+import com.ai.account.domain.repository.AccountRepository;
 import com.ai.account.infra.config.OAuthExploreIamProperties;
 import com.ai.account.infra.config.OAuthGithubProperties;
 import com.ai.account.infra.config.OAuthGoogleProperties;
@@ -48,7 +48,7 @@ class AccountServiceTest {
   private static final String CID_GH = "33333333-3333-3333-3333-333333333333";
   private static final String CID_SHARED = "44444444-4444-4444-4444-444444444444";
 
-  @Mock private AccountUserRepository accountUserRepository;
+  @Mock private AccountRepository accountRepository;
 
   private AccountService useCase;
   private OAuthGoogleProperties oauthGoogleProperties;
@@ -67,8 +67,8 @@ class AccountServiceTest {
     oauthExploreIamProperties.setEnabled(false);
     useCase =
         new AccountService(
-            accountUserRepository,
-            new IamAccountService(accountUserRepository),
+            accountRepository,
+            new IamAccountService(accountRepository),
             new BillingPlanService(billing),
             oauthGoogleProperties,
             oauthGithubProperties,
@@ -112,8 +112,8 @@ class AccountServiceTest {
     SecurityContextHolder.getContext()
         .setAuthentication(
             new OAuth2AuthenticationToken(oidcUser, oidcUser.getAuthorities(), "google"));
-    AccountUser linked = account("google", "sub-1", "user@example.com", CID_1);
-    when(accountUserRepository.findByIdentity(ExternalIdentity.of("google", "sub-1")))
+    Account linked = account("google", "sub-1", "user@example.com", CID_1);
+    when(accountRepository.findByIdentity(ExternalIdentity.of("google", "sub-1")))
         .thenReturn(Optional.of(linked));
 
     var response = useCase.getCurrentAccount(CID_1);
@@ -138,8 +138,8 @@ class AccountServiceTest {
     SecurityContextHolder.getContext()
         .setAuthentication(
             new OAuth2AuthenticationToken(githubUser, githubUser.getAuthorities(), "github"));
-    AccountUser linked = account("github", "42", "octocat@github.com", CID_GH);
-    when(accountUserRepository.findByIdentity(ExternalIdentity.of("github", "42")))
+    Account linked = account("github", "42", "octocat@github.com", CID_GH);
+    when(accountRepository.findByIdentity(ExternalIdentity.of("github", "42")))
         .thenReturn(Optional.of(linked));
 
     var response = useCase.getCurrentAccount(CID_GH);
@@ -164,8 +164,8 @@ class AccountServiceTest {
     SecurityContextHolder.getContext()
         .setAuthentication(
             new OAuth2AuthenticationToken(githubUser, githubUser.getAuthorities(), "github"));
-    AccountUser linked = account("github", "42", null, "octocat", CID_GH);
-    when(accountUserRepository.findByIdentity(ExternalIdentity.of("github", "42")))
+    Account linked = account("github", "42", null, "octocat", CID_GH);
+    when(accountRepository.findByIdentity(ExternalIdentity.of("github", "42")))
         .thenReturn(Optional.of(linked));
 
     var response = useCase.getCurrentAccount(CID_GH);
@@ -177,50 +177,50 @@ class AccountServiceTest {
 
   @Test
   void shouldLinkOAuthUserWhenNewSubject() {
-    when(accountUserRepository.findByIdentity(ExternalIdentity.of("google", "sub-9")))
+    when(accountRepository.findByIdentity(ExternalIdentity.of("google", "sub-9")))
         .thenReturn(Optional.empty());
 
-    when(accountUserRepository.save(org.mockito.ArgumentMatchers.any(AccountUser.class)))
+    when(accountRepository.save(org.mockito.ArgumentMatchers.any(Account.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    AccountUser user = useCase.linkOAuthUser(signIn("google", "sub-9", "a@b.com"), client(CID_1));
+    Account account = useCase.linkOAuthUser(signIn("google", "sub-9", "a@b.com"), client(CID_1));
 
-    assertThat(user.getLinkedClientId()).isEqualTo(client(CID_1));
+    assertThat(account.getLinkedClientId()).isEqualTo(client(CID_1));
   }
 
   @Test
   @DisplayName("should unlink the previous account when another account signs in on the browser")
   void shouldUnlinkThePreviousAccountWhenAnotherAccountSignsInOnTheBrowser() {
-    AccountUser previous = account("google", "sub-a", "a@example.com", CID_SHARED);
-    when(accountUserRepository.findByIdentity(ExternalIdentity.of("github", "sub-b")))
+    Account previous = account("google", "sub-a", "a@example.com", CID_SHARED);
+    when(accountRepository.findByIdentity(ExternalIdentity.of("github", "sub-b")))
         .thenReturn(Optional.empty());
-    when(accountUserRepository.findByLinkedClientId(ClientId.parse(CID_SHARED)))
+    when(accountRepository.findByLinkedClientId(ClientId.parse(CID_SHARED)))
         .thenReturn(Optional.of(previous));
 
     useCase.linkOAuthUser(signIn("github", "sub-b", "b@example.com"), client(CID_SHARED));
 
     assertThat(previous.getLinkedClientId()).isNull();
-    verify(accountUserRepository).save(previous);
+    verify(accountRepository).save(previous);
   }
 
   @Test
   @DisplayName("should keep the link when the same account signs in again")
   void shouldKeepTheLinkWhenTheSameAccountSignsInAgain() {
-    AccountUser user = account("google", "sub-a", "a@example.com", CID_SHARED);
-    when(accountUserRepository.findByIdentity(ExternalIdentity.of("google", "sub-a")))
-        .thenReturn(Optional.of(user));
-    when(accountUserRepository.findByLinkedClientId(ClientId.parse(CID_SHARED)))
-        .thenReturn(Optional.of(user));
+    Account account = account("google", "sub-a", "a@example.com", CID_SHARED);
+    when(accountRepository.findByIdentity(ExternalIdentity.of("google", "sub-a")))
+        .thenReturn(Optional.of(account));
+    when(accountRepository.findByLinkedClientId(ClientId.parse(CID_SHARED)))
+        .thenReturn(Optional.of(account));
 
     useCase.linkOAuthUser(signIn("google", "sub-a", "a@example.com"), client(CID_SHARED));
 
-    assertThat(user.getLinkedClientId()).isEqualTo(client(CID_SHARED));
+    assertThat(account.getLinkedClientId()).isEqualTo(client(CID_SHARED));
   }
 
   @Test
   void shouldReturnAuthenticatedWhenLinkedClientIdPresentWithoutSecurityContext() {
-    AccountUser linked = account("google", "sub-2", "u@example.com", CID_2);
-    when(accountUserRepository.findByLinkedClientId(ClientId.parse(CID_2)))
+    Account linked = account("google", "sub-2", "u@example.com", CID_2);
+    when(accountRepository.findByLinkedClientId(ClientId.parse(CID_2)))
         .thenReturn(Optional.of(linked));
 
     var response = useCase.getCurrentAccount(CID_2);
@@ -276,10 +276,10 @@ class AccountServiceTest {
     SecurityContextHolder.getContext()
         .setAuthentication(
             new JwtAuthenticationToken(jwt, AuthorityUtils.createAuthorityList("ROLE_USER")));
-    AccountUser linked = account("explore-iam", "iam-sub-1", "iam@example.com", null);
-    when(accountUserRepository.findByIdentity(ExternalIdentity.of("explore-iam", "iam-sub-1")))
+    Account linked = account("explore-iam", "iam-sub-1", "iam@example.com", null);
+    when(accountRepository.findByIdentity(ExternalIdentity.of("explore-iam", "iam-sub-1")))
         .thenReturn(Optional.of(linked));
-    when(accountUserRepository.save(linked)).thenReturn(linked);
+    when(accountRepository.save(linked)).thenReturn(linked);
 
     var response = useCase.getCurrentAccount(null);
 
@@ -290,7 +290,7 @@ class AccountServiceTest {
   }
 
   @Test
-  void shouldCreateAccountUserWhenIamJwtSubjectIsNew() {
+  void shouldCreateAccountWhenIamJwtSubjectIsNew() {
     Jwt jwt =
         Jwt.withTokenValue("iam-token")
             .header("alg", "none")
@@ -302,9 +302,9 @@ class AccountServiceTest {
     SecurityContextHolder.getContext()
         .setAuthentication(
             new JwtAuthenticationToken(jwt, AuthorityUtils.createAuthorityList("ROLE_USER")));
-    when(accountUserRepository.findByIdentity(ExternalIdentity.of("explore-iam", "iam-new")))
+    when(accountRepository.findByIdentity(ExternalIdentity.of("explore-iam", "iam-new")))
         .thenReturn(Optional.empty());
-    when(accountUserRepository.save(org.mockito.ArgumentMatchers.any(AccountUser.class)))
+    when(accountRepository.save(org.mockito.ArgumentMatchers.any(Account.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
     var response = useCase.getCurrentAccount(null);
@@ -313,20 +313,19 @@ class AccountServiceTest {
     assertThat(response.email()).isEqualTo("new@example.com");
   }
 
-  private static AccountUser account(
-      String provider, String subject, String email, String clientId) {
+  private static Account account(String provider, String subject, String email, String clientId) {
     return account(provider, subject, email, null, clientId);
   }
 
-  private static AccountUser account(
+  private static Account account(
       String provider, String subject, String email, String displayName, String clientId) {
-    AccountUser user =
-        AccountUser.create(
+    Account account =
+        Account.create(
             ExternalIdentity.of(provider, subject), ContactEmail.ofNullable(email), displayName);
     if (clientId != null) {
-      user.linkBrowser(client(clientId), null, null);
+      account.linkBrowser(client(clientId), null, null);
     }
-    return user;
+    return account;
   }
 
   private static OAuthSignIn signIn(String provider, String subject, String email) {

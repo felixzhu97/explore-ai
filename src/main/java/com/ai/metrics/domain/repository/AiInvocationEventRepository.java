@@ -1,6 +1,6 @@
 package com.ai.metrics.domain.repository;
 
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.InvocationOutcome;
 import java.time.Instant;
@@ -27,7 +27,7 @@ public interface AiInvocationEventRepository {
   }
 
   record DrilldownQuery(
-      Optional<AiDomain> domain,
+      Optional<AiCapability> capability,
       Optional<Instant> from,
       Optional<Instant> to,
       Optional<String> day,

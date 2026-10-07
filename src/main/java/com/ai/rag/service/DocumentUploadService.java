@@ -5,8 +5,8 @@ import com.ai.common.exception.DomainException;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.DocumentStatus;
+import com.ai.rag.domain.model.ExtractedDocument;
 import com.ai.rag.domain.model.RagDocument;
-import com.ai.rag.domain.model.RawDocument;
 import com.ai.rag.domain.repository.DocumentChunkRepository;
 import com.ai.rag.domain.repository.DocumentReader;
 import com.ai.rag.domain.repository.DocumentRepository;
@@ -127,15 +127,16 @@ public class DocumentUploadService {
 
   private UploadResult ingest(RagDocument document, byte[] fileContent) {
     String fileName = document.getFileName();
-    RawDocument raw = reader.read(fileContent, fileName);
-    List<RawDocument> chunkDocs = raw.content().isBlank() ? List.of() : transformer.transform(raw);
+    ExtractedDocument raw = reader.read(fileContent, fileName);
+    List<ExtractedDocument> chunkDocs =
+        raw.content().isBlank() ? List.of() : transformer.transform(raw);
     if (chunkDocs.isEmpty()) {
       throw DomainException.unprocessable("DOCUMENT_UNREADABLE", "No text found in " + fileName);
     }
 
     List<DocumentChunk> chunks = new ArrayList<>();
     for (int i = 0; i < chunkDocs.size(); i++) {
-      RawDocument chunkDoc = chunkDocs.get(i);
+      ExtractedDocument chunkDoc = chunkDocs.get(i);
       chunks.add(document.newChunk(i, chunkDoc.content(), chunkDoc.metadata()));
     }
 

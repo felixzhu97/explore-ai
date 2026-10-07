@@ -1,6 +1,6 @@
 package com.ai.metrics.domain.repository;
 
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.InvocationStats;
 import com.ai.metrics.domain.model.LatencyStats;
 import java.time.Instant;
@@ -11,34 +11,37 @@ import java.util.Optional;
 /** Read-side repository for aggregated invocation counts, latencies, tokens, and inventories. */
 public interface MetricsQueryRepository {
   /** Counts calls and failed calls in the time range in one read. */
-  InvocationStats countInvocationStats(Optional<AiDomain> domain, Instant from, Instant to);
+  InvocationStats countInvocationStats(Optional<AiCapability> capability, Instant from, Instant to);
 
-  /** Counts calls per domain. */
-  List<NamedCount> countByDomain(Instant from, Instant to);
+  /** Counts calls per capability. */
+  List<NamedCount> countByCapability(Instant from, Instant to);
 
   /** Counts calls per model. */
-  List<NamedCount> countByModel(Optional<AiDomain> domain, Instant from, Instant to);
+  List<NamedCount> countByModel(Optional<AiCapability> capability, Instant from, Instant to);
 
   /** Counts calls per agent type. */
   List<NamedCount> countByAgentType(Instant from, Instant to);
 
   /** Calculates the latency percentiles. */
-  LatencyStats calculateLatencyPercentiles(Optional<AiDomain> domain, Instant from, Instant to);
+  LatencyStats calculateLatencyPercentiles(
+      Optional<AiCapability> capability, Instant from, Instant to);
 
   /** Sums the prompt and completion tokens. */
-  TokenTotals sumTokens(Optional<AiDomain> domain, Instant from, Instant to);
+  TokenTotals sumTokens(Optional<AiCapability> capability, Instant from, Instant to);
 
   /** Lists the most used tools. */
-  List<NamedCount> listTopTools(Optional<AiDomain> domain, Instant from, Instant to, int limit);
+  List<NamedCount> listTopTools(
+      Optional<AiCapability> capability, Instant from, Instant to, int limit);
 
   /** Counts calls per day. */
-  List<TimePoint> countDailyRequests(Optional<AiDomain> domain, Instant from, Instant to);
+  List<TimePoint> countDailyRequests(Optional<AiCapability> capability, Instant from, Instant to);
 
   /** Counts failed calls per day. */
-  List<TimePoint> countDailyErrors(Optional<AiDomain> domain, Instant from, Instant to);
+  List<TimePoint> countDailyErrors(Optional<AiCapability> capability, Instant from, Instant to);
 
   /** Calculates the p95 latency per day. */
-  List<TimePoint> calculateDailyLatencyP95(Optional<AiDomain> domain, Instant from, Instant to);
+  List<TimePoint> calculateDailyLatencyP95(
+      Optional<AiCapability> capability, Instant from, Instant to);
 
   /** Counts new chat sessions per day. */
   List<TimePoint> countDailySessionsCreated(Instant from, Instant to);

@@ -48,7 +48,7 @@ public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
         query == null ? null : query.substring(0, Math.min(query.length(), 512));
     jdbcTemplate.update(
         """
-                MERGE INTO chat_web_sources (
+                MERGE INTO chat_web_source (
                     conversation_id, content_hash, query, sources_json, created_at)
                 KEY (conversation_id, content_hash)
                 VALUES (?, ?, ?, ?, ?)
@@ -66,7 +66,7 @@ public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
     jdbcTemplate.query(
         """
                 SELECT content_hash, sources_json
-                FROM chat_web_sources
+                FROM chat_web_source
                 WHERE conversation_id = ?
                 """,
         rs -> {
@@ -81,7 +81,7 @@ public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
   @Override
   @Transactional
   public void deleteByConversationId(String conversationId) {
-    jdbcTemplate.update("DELETE FROM chat_web_sources WHERE conversation_id = ?", conversationId);
+    jdbcTemplate.update("DELETE FROM chat_web_source WHERE conversation_id = ?", conversationId);
   }
 
   private List<WebSource> parseSources(String json) {

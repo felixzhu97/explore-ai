@@ -36,7 +36,7 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
   @NotNull
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 32)
-  private AiDomain domain;
+  private AiCapability capability;
 
   @NotBlank
   @Size(max = 64)
@@ -92,7 +92,7 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
         builder.id != null ? InvocationEventId.of(builder.id) : InvocationEventId.generate(),
         builder.ownerKey);
     this.occurredAt = Objects.requireNonNullElseGet(builder.occurredAt, Instant::now);
-    this.domain = builder.domain;
+    this.capability = builder.capability;
     this.operation = builder.operation;
     this.outcome = builder.outcome;
     this.latencyMs = builder.latency.millis();
@@ -110,15 +110,19 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
 
   /** Starts a successful invocation event; optional context goes on the returned builder. */
   public static Builder succeeded(
-      AiDomain domain, String operation, Latency latency, OwnerKey ownerKey) {
-    return new Builder(domain, operation, InvocationOutcome.SUCCESS, latency, ownerKey, null);
+      AiCapability capability, String operation, Latency latency, OwnerKey ownerKey) {
+    return new Builder(capability, operation, InvocationOutcome.SUCCESS, latency, ownerKey, null);
   }
 
   /** Starts a failed invocation event; optional context goes on the returned builder. */
   public static Builder failed(
-      AiDomain domain, String operation, Latency latency, OwnerKey ownerKey, ErrorSummary error) {
+      AiCapability capability,
+      String operation,
+      Latency latency,
+      OwnerKey ownerKey,
+      ErrorSummary error) {
     return new Builder(
-        domain,
+        capability,
         operation,
         InvocationOutcome.ERROR,
         latency,
@@ -144,7 +148,7 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
 
   /** Optional context of an event started by {@link #succeeded} or {@link #failed}. */
   public static final class Builder {
-    private final AiDomain domain;
+    private final AiCapability capability;
     private final String operation;
     private final InvocationOutcome outcome;
     private final Latency latency;
@@ -161,13 +165,13 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
     private TokenUsage tokens = TokenUsage.UNKNOWN;
 
     private Builder(
-        AiDomain domain,
+        AiCapability capability,
         String operation,
         InvocationOutcome outcome,
         Latency latency,
         OwnerKey ownerKey,
         ErrorSummary error) {
-      this.domain = Objects.requireNonNull(domain, "domain");
+      this.capability = Objects.requireNonNull(capability, "capability");
       this.operation = DomainStrings.requireNonBlank(operation, "operation");
       this.outcome = outcome;
       this.latency = Objects.requireNonNull(latency, "latency");

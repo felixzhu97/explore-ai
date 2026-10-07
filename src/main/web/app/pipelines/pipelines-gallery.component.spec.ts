@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { Instant } from '@js-joda/core';
 import { PipelinesGalleryComponent } from './pipelines-gallery.component';
-import type { PipelineTemplate, PipelineTemplateDefinitionResponse } from './pipelines.service';
+import type { PipelineTemplate, BuiltinPipelineTemplateResponse } from './pipelines.service';
 
-const builtin: PipelineTemplateDefinitionResponse = {
+const builtin: BuiltinPipelineTemplateResponse = {
   id: 'research',
   name: 'Research',
   description: 'Research flow',
@@ -52,7 +52,7 @@ describe('PipelinesGalleryComponent', () => {
 
   it('should emit the template when use is clicked', () => {
     const fixture = setup([]);
-    const emitted: PipelineTemplateDefinitionResponse[] = [];
+    const emitted: BuiltinPipelineTemplateResponse[] = [];
     fixture.componentInstance.useTemplate.subscribe(t => emitted.push(t));
     const host = fixture.nativeElement as HTMLElement;
     host.querySelectorAll('button')[1]?.click();

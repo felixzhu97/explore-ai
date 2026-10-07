@@ -108,7 +108,7 @@ public class RagSearchTool implements DocumentSearchTool {
     return Optional.empty();
   }
 
-  private String formatSources(List<com.ai.rag.domain.model.SourceDocument> sources) {
+  private String formatSources(List<com.ai.rag.domain.model.SourceCitation> sources) {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < sources.size(); i++) {
       var source = sources.get(i);

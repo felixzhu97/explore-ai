@@ -18,31 +18,31 @@ public final class PipelineTemplateCatalog {
   private static final String DEFAULT_LANGUAGE = "en";
   private static final List<String> SUPPORTED_LANGUAGES = List.of("en", "zh", "ja", "fr", "es");
   private static final ObjectMapper MAPPER = new ObjectMapper();
-  private static final Map<String, List<PipelineTemplateDefinition>> BY_LANGUAGE = loadAll();
+  private static final Map<String, List<BuiltinPipelineTemplate>> BY_LANGUAGE = loadAll();
 
   private PipelineTemplateCatalog() {}
 
   /** Lists the pipeline templates in English. */
-  public static List<PipelineTemplateDefinition> listAll() {
+  public static List<BuiltinPipelineTemplate> listAll() {
     return listAll(DEFAULT_LANGUAGE);
   }
 
   /** Lists the pipeline templates in the language. */
-  public static List<PipelineTemplateDefinition> listAll(String language) {
+  public static List<BuiltinPipelineTemplate> listAll(String language) {
     return BY_LANGUAGE.getOrDefault(normalizeLanguage(language), BY_LANGUAGE.get(DEFAULT_LANGUAGE));
   }
 
   /** Finds an English pipeline template by id. */
-  public static Optional<PipelineTemplateDefinition> findById(String templateId) {
+  public static Optional<BuiltinPipelineTemplate> findById(String templateId) {
     return findById(templateId, DEFAULT_LANGUAGE);
   }
 
   /** Finds a template by id in the given language, falling back to the English catalog. */
-  public static Optional<PipelineTemplateDefinition> findById(String templateId, String language) {
+  public static Optional<BuiltinPipelineTemplate> findById(String templateId, String language) {
     if (templateId == null || templateId.isBlank()) {
       return Optional.empty();
     }
-    Optional<PipelineTemplateDefinition> localized =
+    Optional<BuiltinPipelineTemplate> localized =
         listAll(language).stream().filter(template -> template.id().equals(templateId)).findFirst();
     if (localized.isPresent()) {
       return localized;
@@ -58,8 +58,8 @@ public final class PipelineTemplateCatalog {
     if (templateId == null || templateId.isBlank()) {
       return names;
     }
-    for (List<PipelineTemplateDefinition> templates : BY_LANGUAGE.values()) {
-      for (PipelineTemplateDefinition template : templates) {
+    for (List<BuiltinPipelineTemplate> templates : BY_LANGUAGE.values()) {
+      for (BuiltinPipelineTemplate template : templates) {
         if (template.id().equals(templateId)) {
           names.add(template.name());
         }
@@ -78,8 +78,8 @@ public final class PipelineTemplateCatalog {
     return SUPPORTED_LANGUAGES.contains(primary) ? primary : DEFAULT_LANGUAGE;
   }
 
-  private static Map<String, List<PipelineTemplateDefinition>> loadAll() {
-    Map<String, List<PipelineTemplateDefinition>> loaded = new LinkedHashMap<>();
+  private static Map<String, List<BuiltinPipelineTemplate>> loadAll() {
+    Map<String, List<BuiltinPipelineTemplate>> loaded = new LinkedHashMap<>();
     for (String language : SUPPORTED_LANGUAGES) {
       loaded.put(language, loadLanguage(language));
     }
@@ -89,15 +89,14 @@ public final class PipelineTemplateCatalog {
     return Map.copyOf(loaded);
   }
 
-  private static List<PipelineTemplateDefinition> loadLanguage(String language) {
+  private static List<BuiltinPipelineTemplate> loadLanguage(String language) {
     String path = "pipeline-templates/" + language + ".json";
     try (InputStream input =
         PipelineTemplateCatalog.class.getClassLoader().getResourceAsStream(path)) {
       if (input == null) {
         return List.of();
       }
-      List<PipelineTemplateDefinition> templates =
-          MAPPER.readValue(input, new TypeReference<>() {});
+      List<BuiltinPipelineTemplate> templates = MAPPER.readValue(input, new TypeReference<>() {});
       return List.copyOf(templates);
     } catch (IOException ex) {
       throw new IllegalStateException("Failed to load pipeline templates: " + path, ex);

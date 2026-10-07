@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.domain.model.ModuleStatus;
@@ -15,12 +15,12 @@ import com.ai.metrics.domain.repository.MetricsHealthGateway.McpHealth;
 import com.ai.metrics.domain.repository.MetricsQueryRepository.ChatInventory;
 import com.ai.metrics.domain.repository.MetricsQueryRepository.RagInventory;
 import com.ai.metrics.service.MetricsService;
-import com.ai.metrics.service.model.DomainInventory;
+import com.ai.metrics.service.model.CapabilityInventory;
 import com.ai.metrics.service.model.DrilldownPage;
-import com.ai.metrics.service.model.MetricsDomainSnapshot;
+import com.ai.metrics.service.model.MetricsCapabilitySnapshot;
 import com.ai.metrics.service.model.MetricsOverview;
 import com.ai.metrics.service.model.NamedCount;
-import com.ai.metrics.service.model.OverviewDomains;
+import com.ai.metrics.service.model.OverviewCapabilities;
 import com.ai.metrics.service.model.SeriesPoint;
 import com.ai.metrics.service.model.SeriesSnapshot;
 import com.ai.testsupport.SliceWebMvcTest;
@@ -57,7 +57,7 @@ class MetricsControllerTest {
             1000L,
             500L,
             List.of(new NamedCount("chat", 80)),
-            new OverviewDomains(
+            new OverviewCapabilities(
                 new ChatInventory(3, 1, 10, 0),
                 new RagInventory(2, Map.of("READY", 2L), 8, 1024),
                 new AgentsHealth(ModuleStatus.UP, 2, 2),
@@ -76,27 +76,27 @@ class MetricsControllerTest {
         .isEqualTo(100);
     assertThat(result)
         .bodyJson()
-        .extractingPath("$.requestsByDomain[0].name")
+        .extractingPath("$.requestsByCapability[0].name")
         .asString()
         .isEqualTo("chat");
     assertThat(result)
         .bodyJson()
-        .extractingPath("$.domains.mcp.status")
+        .extractingPath("$.capabilities.mcp.status")
         .asString()
         .isEqualTo("DISABLED");
     assertThat(result)
         .bodyJson()
-        .extractingPath("$.domains.system.status")
+        .extractingPath("$.capabilities.system.status")
         .asString()
         .isEqualTo("UP");
     verify(metricsService).getOverview("7d");
   }
 
   @Test
-  @DisplayName("should map domain response from use case")
-  void shouldMapDomainResponseFromService() {
-    MetricsDomainSnapshot snapshot =
-        new MetricsDomainSnapshot(
+  @DisplayName("should map capability response from use case")
+  void shouldMapCapabilityResponseFromService() {
+    MetricsCapabilitySnapshot snapshot =
+        new MetricsCapabilitySnapshot(
             "chat",
             "7d",
             20,
@@ -106,26 +106,26 @@ class MetricsControllerTest {
             35.0,
             100L,
             50L,
-            new DomainInventory.Chat(new ChatInventory(3, 1, 10, 0)),
+            new CapabilityInventory.Chat(new ChatInventory(3, 1, 10, 0)),
             List.of(new SeriesPoint("2026-07-01", 5)),
             List.of(new SeriesPoint("gpt", 4)));
-    when(metricsService.getDomain("chat", "7d")).thenReturn(snapshot);
+    when(metricsService.getCapability("chat", "7d")).thenReturn(snapshot);
 
-    assertThat(mvc.get().uri("/api/metrics/domains/chat").param("range", "7d"))
+    assertThat(mvc.get().uri("/api/metrics/capabilities/chat").param("range", "7d"))
         .hasStatusOk()
         .bodyJson()
-        .extractingPath("$.domain")
+        .extractingPath("$.capability")
         .asString()
         .isEqualTo("chat");
 
-    assertThat(mvc.get().uri("/api/metrics/domains/chat").param("range", "7d"))
+    assertThat(mvc.get().uri("/api/metrics/capabilities/chat").param("range", "7d"))
         .hasStatusOk()
         .bodyJson()
         .extractingPath("$.inventory.sessionCount")
         .convertTo(Integer.class)
         .isEqualTo(3);
 
-    assertThat(mvc.get().uri("/api/metrics/domains/chat").param("range", "7d"))
+    assertThat(mvc.get().uri("/api/metrics/capabilities/chat").param("range", "7d"))
         .hasStatusOk()
         .bodyJson()
         .extractingPath("$.modelSeries[0].label")
@@ -144,7 +144,7 @@ class MetricsControllerTest {
             mvc.get()
                 .uri("/api/metrics/series")
                 .param("name", "requests")
-                .param("domain", "chat")
+                .param("capability", "chat")
                 .param("range", "7d"))
         .hasStatusOk()
         .bodyJson()
@@ -156,7 +156,7 @@ class MetricsControllerTest {
             mvc.get()
                 .uri("/api/metrics/series")
                 .param("name", "requests")
-                .param("domain", "chat")
+                .param("capability", "chat")
                 .param("range", "7d"))
         .hasStatusOk()
         .bodyJson()
@@ -172,7 +172,7 @@ class MetricsControllerTest {
     Instant occurredAt = Instant.parse("2026-07-26T08:00:00Z");
     AiInvocationEvent event =
         AiInvocationEvent.succeeded(
-                AiDomain.TOOLS,
+                AiCapability.TOOLS,
                 "tools.weather",
                 Latency.ofMillis(25),
                 OwnerKey.forClient("11111111-1111-4111-8111-111111111111"))
@@ -191,7 +191,7 @@ class MetricsControllerTest {
     assertThat(
             mvc.get()
                 .uri("/api/metrics/drilldown")
-                .param("domain", "tools")
+                .param("capability", "tools")
                 .param("page", "0")
                 .param("size", "20")
                 .param("range", "7d"))
@@ -204,7 +204,7 @@ class MetricsControllerTest {
     assertThat(
             mvc.get()
                 .uri("/api/metrics/drilldown")
-                .param("domain", "tools")
+                .param("capability", "tools")
                 .param("page", "0")
                 .param("size", "20")
                 .param("range", "7d"))
@@ -217,7 +217,7 @@ class MetricsControllerTest {
     assertThat(
             mvc.get()
                 .uri("/api/metrics/drilldown")
-                .param("domain", "tools")
+                .param("capability", "tools")
                 .param("page", "0")
                 .param("size", "20")
                 .param("range", "7d"))
@@ -231,7 +231,7 @@ class MetricsControllerTest {
   void shouldSerializeOccurredAtAsAnIso8601UtcString() {
     AiInvocationEvent event =
         AiInvocationEvent.succeeded(
-                AiDomain.TOOLS, "tools.weather", Latency.ofMillis(25), OwnerKey.UNOWNED)
+                AiCapability.TOOLS, "tools.weather", Latency.ofMillis(25), OwnerKey.UNOWNED)
             .id(UUID.randomUUID())
             .occurredAt(Instant.parse("2026-07-26T08:00:00.123Z"))
             .build();
@@ -242,7 +242,7 @@ class MetricsControllerTest {
     assertThat(
             mvc.get()
                 .uri("/api/metrics/drilldown")
-                .param("domain", "tools")
+                .param("capability", "tools")
                 .param("page", "0")
                 .param("size", "20")
                 .param("range", "7d"))

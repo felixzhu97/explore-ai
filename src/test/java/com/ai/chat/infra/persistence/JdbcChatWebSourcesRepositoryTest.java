@@ -48,7 +48,7 @@ class JdbcChatWebSourcesRepositoryTest {
 
     verify(jdbcTemplate)
         .update(
-            startsWith("MERGE INTO chat_web_sources"),
+            startsWith("MERGE INTO chat_web_source"),
             eq("conv-1"),
             eq(ContentHash.computeSha256("Assistant reply")),
             eq("query text"),
@@ -92,6 +92,6 @@ class JdbcChatWebSourcesRepositoryTest {
   @DisplayName("should delete by conversation")
   void shouldDeleteByConversation() {
     repository.deleteByConversationId("conv-1");
-    verify(jdbcTemplate).update("DELETE FROM chat_web_sources WHERE conversation_id = ?", "conv-1");
+    verify(jdbcTemplate).update("DELETE FROM chat_web_source WHERE conversation_id = ?", "conv-1");
   }
 }

@@ -12,10 +12,10 @@ import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.DocumentSearchTool;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.common.service.llm.WebSearchTool;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
-import com.ai.tools.domain.model.WeatherReport;
+import com.ai.tools.domain.model.WeatherSimulator;
 import com.ai.tools.infra.tools.WeatherTools;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +33,7 @@ class ToolServiceChatTest {
 
   @Mock private ChatClientProvider chatClientProvider;
   @Mock private WeatherTools weatherTools;
-  @Mock private WeatherReport weatherReport;
+  @Mock private WeatherSimulator weatherSimulator;
   @Mock private DocumentSearchTool documentSearchTool;
   @Mock private WebSearchTool webSearchTool;
   @Mock private AiInvocationRecorder invocationRecorder;
@@ -49,7 +49,7 @@ class ToolServiceChatTest {
         new ToolService(
             chatClientProvider,
             weatherTools,
-            weatherReport,
+            weatherSimulator,
             documentSearchTool,
             webSearchTool,
             invocationRecorder);
@@ -67,6 +67,12 @@ class ToolServiceChatTest {
     assertThat(toolService.chatWithTools("what is weather?", OWNER)).isEqualTo("answer");
     verify(invocationRecorder)
         .recordSuccess(
-            eq(AiDomain.TOOLS), anyString(), any(Latency.class), eq(OWNER), any(), any(), any());
+            eq(AiCapability.TOOLS),
+            anyString(),
+            any(Latency.class),
+            eq(OWNER),
+            any(),
+            any(),
+            any());
   }
 }

@@ -1,6 +1,6 @@
 package com.ai.metrics.test.fixture;
 
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.InvocationStats;
 import com.ai.metrics.domain.model.LatencyStats;
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
@@ -15,7 +15,7 @@ public class FakeMetricsQueryRepository implements MetricsQueryRepository {
 
   public long requestCount;
   public long errorCount;
-  public List<NamedCount> byDomain = List.of();
+  public List<NamedCount> byCapability = List.of();
   public List<NamedCount> topTools = List.of();
   public List<NamedCount> byModel = List.of();
   public List<NamedCount> byAgent = List.of();
@@ -25,28 +25,30 @@ public class FakeMetricsQueryRepository implements MetricsQueryRepository {
   public final Map<String, Long> documentsByStatus = new LinkedHashMap<>();
 
   @Override
-  public InvocationStats countInvocationStats(Optional<AiDomain> domain, Instant from, Instant to) {
+  public InvocationStats countInvocationStats(
+      Optional<AiCapability> capability, Instant from, Instant to) {
     return new InvocationStats(requestCount, errorCount);
   }
 
   @Override
   public LatencyStats calculateLatencyPercentiles(
-      Optional<AiDomain> domain, Instant from, Instant to) {
+      Optional<AiCapability> capability, Instant from, Instant to) {
     return new LatencyStats(10.0, 40.0);
   }
 
   @Override
-  public TokenTotals sumTokens(Optional<AiDomain> domain, Instant from, Instant to) {
+  public TokenTotals sumTokens(Optional<AiCapability> capability, Instant from, Instant to) {
     return new TokenTotals(11L, 22L);
   }
 
   @Override
-  public List<NamedCount> countByDomain(Instant from, Instant to) {
-    return byDomain;
+  public List<NamedCount> countByCapability(Instant from, Instant to) {
+    return byCapability;
   }
 
   @Override
-  public List<NamedCount> countByModel(Optional<AiDomain> domain, Instant from, Instant to) {
+  public List<NamedCount> countByModel(
+      Optional<AiCapability> capability, Instant from, Instant to) {
     return byModel;
   }
 
@@ -57,23 +59,25 @@ public class FakeMetricsQueryRepository implements MetricsQueryRepository {
 
   @Override
   public List<NamedCount> listTopTools(
-      Optional<AiDomain> domain, Instant from, Instant to, int limit) {
+      Optional<AiCapability> capability, Instant from, Instant to, int limit) {
     return topTools;
   }
 
   @Override
-  public List<TimePoint> countDailyRequests(Optional<AiDomain> domain, Instant from, Instant to) {
+  public List<TimePoint> countDailyRequests(
+      Optional<AiCapability> capability, Instant from, Instant to) {
     return dailyRequests;
   }
 
   @Override
-  public List<TimePoint> countDailyErrors(Optional<AiDomain> domain, Instant from, Instant to) {
+  public List<TimePoint> countDailyErrors(
+      Optional<AiCapability> capability, Instant from, Instant to) {
     return dailyErrors;
   }
 
   @Override
   public List<TimePoint> calculateDailyLatencyP95(
-      Optional<AiDomain> domain, Instant from, Instant to) {
+      Optional<AiCapability> capability, Instant from, Instant to) {
     return dailyLatency;
   }
 

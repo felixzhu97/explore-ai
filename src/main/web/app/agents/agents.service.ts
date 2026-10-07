@@ -6,7 +6,7 @@ import { API_BASE_URL } from '../http/api.constants';
 import type { AgentInfoResponse } from '../pipelines/pipelines.service';
 import { I18nService } from '../i18n';
 
-export interface SavedAgentResponse {
+export interface CustomAgentResponse {
   id: string;
   typeKey: string;
   name: string;
@@ -18,7 +18,7 @@ export interface SavedAgentResponse {
   updatedAt: string;
 }
 
-export interface SavedAgent {
+export interface CustomAgent {
   id: string;
   typeKey: string;
   name: string;
@@ -30,8 +30,8 @@ export interface SavedAgent {
   updatedAt: Instant;
 }
 
-/** Maps an API response to a saved agent. */
-export function toSavedAgent(response: SavedAgentResponse): SavedAgent {
+/** Maps an API response to a custom agent. */
+export function toCustomAgent(response: CustomAgentResponse): CustomAgent {
   return {
     ...response,
     createdAt: Instant.parse(response.createdAt),
@@ -39,7 +39,7 @@ export function toSavedAgent(response: SavedAgentResponse): SavedAgent {
   };
 }
 
-export interface CreateSavedAgentRequest {
+export interface CreateCustomAgentRequest {
   typeKey: string;
   name: string;
   description?: string;
@@ -47,7 +47,7 @@ export interface CreateSavedAgentRequest {
   toolKeys?: string[];
 }
 
-export interface UpdateSavedAgentRequest {
+export interface UpdateCustomAgentRequest {
   name: string;
   description?: string;
   systemPrompt: string;
@@ -58,7 +58,7 @@ export interface UpdateSavedAgentRequest {
 export class AgentsService {
   readonly #http = inject(HttpClient);
   readonly #i18n = inject(I18nService);
-  readonly #savedAgentsBase = `${API_BASE_URL}/pipelines/agents`;
+  readonly #customAgentsBase = `${API_BASE_URL}/pipelines/agents`;
 
   /** Merged builtins + enabled library (for display of effective catalog). */
   listCatalog(): Observable<AgentInfoResponse[]> {
@@ -67,36 +67,36 @@ export class AgentsService {
     });
   }
 
-  /** Lists the saved agents. */
-  listSavedAgents(): Observable<SavedAgent[]> {
+  /** Lists the custom agents. */
+  listCustomAgents(): Observable<CustomAgent[]> {
     return this.#http
-      .get<SavedAgentResponse[]>(this.#savedAgentsBase)
-      .pipe(map(agents => agents.map(toSavedAgent)));
+      .get<CustomAgentResponse[]>(this.#customAgentsBase)
+      .pipe(map(agents => agents.map(toCustomAgent)));
   }
 
-  /** Creates a saved agent. */
-  create(request: CreateSavedAgentRequest): Observable<SavedAgent> {
+  /** Creates a custom agent. */
+  create(request: CreateCustomAgentRequest): Observable<CustomAgent> {
     return this.#http
-      .post<SavedAgentResponse>(this.#savedAgentsBase, request)
-      .pipe(map(toSavedAgent));
+      .post<CustomAgentResponse>(this.#customAgentsBase, request)
+      .pipe(map(toCustomAgent));
   }
 
-  /** Updates a saved agent. */
-  update(id: string, request: UpdateSavedAgentRequest): Observable<SavedAgent> {
+  /** Updates a custom agent. */
+  update(id: string, request: UpdateCustomAgentRequest): Observable<CustomAgent> {
     return this.#http
-      .put<SavedAgentResponse>(`${this.#savedAgentsBase}/${id}`, request)
-      .pipe(map(toSavedAgent));
+      .put<CustomAgentResponse>(`${this.#customAgentsBase}/${id}`, request)
+      .pipe(map(toCustomAgent));
   }
 
-  /** Turns a saved agent on or off. */
-  setEnabled(id: string, enabled: boolean): Observable<SavedAgent> {
+  /** Turns a custom agent on or off. */
+  setEnabled(id: string, enabled: boolean): Observable<CustomAgent> {
     return this.#http
-      .patch<SavedAgentResponse>(`${this.#savedAgentsBase}/${id}/enabled`, { enabled })
-      .pipe(map(toSavedAgent));
+      .patch<CustomAgentResponse>(`${this.#customAgentsBase}/${id}/enabled`, { enabled })
+      .pipe(map(toCustomAgent));
   }
 
-  /** Deletes a saved agent. */
+  /** Deletes a custom agent. */
   delete(id: string): Observable<void> {
-    return this.#http.delete<void>(`${this.#savedAgentsBase}/${id}`);
+    return this.#http.delete<void>(`${this.#customAgentsBase}/${id}`);
   }
 }

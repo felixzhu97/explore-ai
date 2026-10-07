@@ -1,6 +1,6 @@
 package com.ai.rag.service.dto;
 
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.model.SourceCitation;
 import java.util.List;
 
-public record RagChatResult(String response, List<SourceDocument> sources) {}
+public record RagChatResult(String response, List<SourceCitation> sources) {}

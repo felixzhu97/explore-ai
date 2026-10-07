@@ -16,7 +16,8 @@ class AiInvocationEventTest {
   @DisplayName("should record success without error when built from succeeded")
   void shouldRecordSuccessWithoutErrorWhenBuiltFromSucceeded() {
     AiInvocationEvent event =
-        AiInvocationEvent.succeeded(AiDomain.TOOLS, " tools.weather ", Latency.ofMillis(-5), OWNER)
+        AiInvocationEvent.succeeded(
+                AiCapability.TOOLS, " tools.weather ", Latency.ofMillis(-5), OWNER)
             .provider("  ")
             .model("gpt")
             .tokens(new TokenUsage(3, 4))
@@ -38,7 +39,7 @@ class AiInvocationEventTest {
   void shouldCarrySanitizedErrorWhenBuiltFromFailed() {
     AiInvocationEvent event =
         AiInvocationEvent.failed(
-                AiDomain.CHAT,
+                AiCapability.CHAT,
                 "chat.stream",
                 Latency.ofMillis(12),
                 OWNER,
@@ -55,7 +56,7 @@ class AiInvocationEventTest {
   @DisplayName("should reject blank operation when starting an event")
   void shouldRejectBlankOperationWhenStartingAnEvent() {
     assertThatThrownBy(
-            () -> AiInvocationEvent.succeeded(AiDomain.CHAT, " ", Latency.ofMillis(1), OWNER))
+            () -> AiInvocationEvent.succeeded(AiCapability.CHAT, " ", Latency.ofMillis(1), OWNER))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("operation");
   }
@@ -64,7 +65,7 @@ class AiInvocationEventTest {
   @DisplayName("should require owner when starting an event")
   void shouldRequireOwnerWhenStartingAnEvent() {
     assertThatThrownBy(
-            () -> AiInvocationEvent.succeeded(AiDomain.CHAT, "chat", Latency.ofMillis(1), null))
+            () -> AiInvocationEvent.succeeded(AiCapability.CHAT, "chat", Latency.ofMillis(1), null))
         .isInstanceOf(NullPointerException.class)
         .hasMessageContaining("ownerKey");
   }
@@ -73,7 +74,9 @@ class AiInvocationEventTest {
   @DisplayName("should require error when starting a failed event")
   void shouldRequireErrorWhenStartingAFailedEvent() {
     assertThatThrownBy(
-            () -> AiInvocationEvent.failed(AiDomain.CHAT, "chat", Latency.ofMillis(1), OWNER, null))
+            () ->
+                AiInvocationEvent.failed(
+                    AiCapability.CHAT, "chat", Latency.ofMillis(1), OWNER, null))
         .isInstanceOf(NullPointerException.class)
         .hasMessageContaining("error");
   }

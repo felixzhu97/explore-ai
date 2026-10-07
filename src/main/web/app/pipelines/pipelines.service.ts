@@ -57,7 +57,7 @@ export interface AgentInvokeRequest {
 }
 
 /** Builtin multilingual workflow template from the backend catalog. */
-export interface PipelineTemplateDefinitionResponse {
+export interface BuiltinPipelineTemplateResponse {
   id: string;
   name: string;
   description: string;
@@ -140,8 +140,8 @@ export class PipelinesService {
   }
 
   /** Lists the built-in pipeline templates. */
-  listTemplateDefinitions(): Observable<PipelineTemplateDefinitionResponse[]> {
-    return this.#http.get<PipelineTemplateDefinitionResponse[]>(
+  listTemplateDefinitions(): Observable<BuiltinPipelineTemplateResponse[]> {
+    return this.#http.get<BuiltinPipelineTemplateResponse[]>(
       `${API_BASE_URL}/pipelines/template-definitions`,
       { params: this.#buildLangParams() },
     );

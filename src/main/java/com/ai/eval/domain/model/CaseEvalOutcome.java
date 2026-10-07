@@ -5,7 +5,7 @@ import java.util.List;
 /** Per-case outcome of a golden suite run. */
 public record CaseEvalOutcome(
     String id,
-    GoldenEvalDomain domain,
+    GoldenEvalCategory category,
     String userText,
     String answer,
     boolean passed,

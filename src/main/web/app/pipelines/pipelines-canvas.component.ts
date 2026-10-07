@@ -21,7 +21,7 @@ import {
   PipelinesService,
   type AgentInfoResponse,
   type PipelineTemplate,
-  type PipelineTemplateDefinitionResponse,
+  type BuiltinPipelineTemplateResponse,
   type CreatePipelineTemplateRequest,
 } from './pipelines.service';
 import {
@@ -109,7 +109,7 @@ export class PipelinesCanvasComponent implements OnInit {
   readonly showAgentPicker = signal(false);
 
   readonly workers = computed(() => this.agents().filter(agent => !agent.supervisor));
-  readonly builtinTemplates = signal<PipelineTemplateDefinitionResponse[]>([]);
+  readonly builtinTemplates = signal<BuiltinPipelineTemplateResponse[]>([]);
   readonly savedTemplates = signal<PipelineTemplate[]>([]);
   readonly addingTemplateId = signal<string | null>(null);
   readonly connections = signal<PipelineConnection[]>([]);
@@ -286,7 +286,7 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   /** Loads a built-in template in use mode. */
-  useTemplate(template: PipelineTemplateDefinitionResponse): void {
+  useTemplate(template: BuiltinPipelineTemplateResponse): void {
     this.#applyTemplate({
       id: template.id,
       name: template.name,
@@ -298,7 +298,7 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   /** Loads a built-in template in edit mode. */
-  editTemplate(template: PipelineTemplateDefinitionResponse): void {
+  editTemplate(template: BuiltinPipelineTemplateResponse): void {
     this.#applyTemplate({
       id: template.id,
       name: template.name,
@@ -310,7 +310,7 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   /** Saves a copy of a built-in template to the library. */
-  addFromTemplate(template: PipelineTemplateDefinitionResponse): void {
+  addFromTemplate(template: BuiltinPipelineTemplateResponse): void {
     if (this.addingTemplateId() !== null || this.isSaved(template)) {
       return;
     }
@@ -467,7 +467,7 @@ export class PipelinesCanvasComponent implements OnInit {
   }
 
   /** Tells whether the template is already in the library. */
-  isSaved(template: PipelineTemplateDefinitionResponse): boolean {
+  isSaved(template: BuiltinPipelineTemplateResponse): boolean {
     return this.savedTemplates().some(item => item.sourceTemplateId === template.id);
   }
 

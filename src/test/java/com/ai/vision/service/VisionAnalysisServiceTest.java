@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.vision.domain.model.CaptionResult;
@@ -63,7 +63,13 @@ class VisionAnalysisServiceTest {
     assertThat(response.processingTimeMs()).isGreaterThanOrEqualTo(0);
     verify(invocationRecorder)
         .recordSuccess(
-            eq(AiDomain.VISION), anyString(), any(Latency.class), eq(OWNER), any(), any(), any());
+            eq(AiCapability.VISION),
+            anyString(),
+            any(Latency.class),
+            eq(OWNER),
+            any(),
+            any(),
+            any());
   }
 
   @Test

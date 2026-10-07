@@ -5,7 +5,7 @@ import java.time.Instant;
 public record InvocationEventResponse(
     String id,
     Instant occurredAt,
-    MetricsDomain domain,
+    MetricsCapability capability,
     String operation,
     MetricsOutcome outcome,
     long latencyMs,

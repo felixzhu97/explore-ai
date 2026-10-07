@@ -14,7 +14,7 @@ import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -148,7 +148,7 @@ public class ChatService {
                     .doOnComplete(
                         () -> {
                           invocationRecorder.recordSuccess(
-                              AiDomain.CHAT,
+                              AiCapability.CHAT,
                               "chat.stream",
                               Latency.since(startedAt),
                               OwnerKey.parse(ownerKey),
@@ -165,7 +165,7 @@ public class ChatService {
                     .doOnError(
                         error -> {
                           invocationRecorder.recordError(
-                              AiDomain.CHAT,
+                              AiCapability.CHAT,
                               "chat.stream",
                               Latency.since(startedAt),
                               OwnerKey.parse(ownerKey),
@@ -226,7 +226,7 @@ public class ChatService {
                 return content;
               });
       invocationRecorder.recordSuccess(
-          AiDomain.CHAT,
+          AiCapability.CHAT,
           "chat.call",
           Latency.since(startedAt),
           OwnerKey.UNOWNED,
@@ -236,7 +236,7 @@ public class ChatService {
       return response;
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
-          AiDomain.CHAT,
+          AiCapability.CHAT,
           "chat.call",
           Latency.since(startedAt),
           OwnerKey.UNOWNED,

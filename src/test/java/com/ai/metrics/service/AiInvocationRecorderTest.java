@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.InvocationOutcome;
 import com.ai.metrics.domain.model.Latency;
@@ -40,7 +40,7 @@ class AiInvocationRecorderTest {
             new SimpleMeterRegistry());
 
     recorder.recordSuccess(
-        AiDomain.CHAT, "chat.stream", Latency.ofMillis(15), OWNER, "openai", "gpt", "s1");
+        AiCapability.CHAT, "chat.stream", Latency.ofMillis(15), OWNER, "openai", "gpt", "s1");
 
     assertThat(saved).hasSize(1);
     assertThat(saved.getFirst().getOutcome()).isEqualTo(InvocationOutcome.SUCCESS);
@@ -68,7 +68,7 @@ class AiInvocationRecorderTest {
     assertThatCode(
             () ->
                 recorder.recordError(
-                    AiDomain.RAG,
+                    AiCapability.RAG,
                     "rag.chat",
                     Latency.ofMillis(20),
                     OWNER,

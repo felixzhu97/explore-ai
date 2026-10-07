@@ -34,6 +34,6 @@ class AgentSkillsRuntimeTest {
     AgentSkillsProperties p = new AgentSkillsProperties();
     p.setEnabled(enabled);
     p.setIds(ids);
-    return new AgentSkillsRuntime(p, new AgentSkillLoader(p));
+    return new AgentSkillsRuntime(p, new BundledSkillLoader(p));
   }
 }

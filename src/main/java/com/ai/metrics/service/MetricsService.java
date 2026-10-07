@@ -1,18 +1,18 @@
 package com.ai.metrics.service;
 
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.InvocationOutcome;
 import com.ai.metrics.domain.model.InvocationStats;
 import com.ai.metrics.domain.model.MetricsWindow;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import com.ai.metrics.domain.repository.MetricsHealthGateway;
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
-import com.ai.metrics.service.model.DomainInventory;
+import com.ai.metrics.service.model.CapabilityInventory;
 import com.ai.metrics.service.model.DrilldownPage;
-import com.ai.metrics.service.model.MetricsDomainSnapshot;
+import com.ai.metrics.service.model.MetricsCapabilitySnapshot;
 import com.ai.metrics.service.model.MetricsOverview;
 import com.ai.metrics.service.model.NamedCount;
-import com.ai.metrics.service.model.OverviewDomains;
+import com.ai.metrics.service.model.OverviewCapabilities;
 import com.ai.metrics.service.model.SeriesPoint;
 import com.ai.metrics.service.model.SeriesSnapshot;
 import java.time.Instant;
@@ -23,7 +23,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/** Builds metrics overviews, per-domain snapshots, daily series, and event drilldowns. */
+/** Builds metrics overviews, per-capability snapshots, daily series, and event drilldowns. */
 @Service
 @RequiredArgsConstructor
 public class MetricsService {
@@ -32,7 +32,9 @@ public class MetricsService {
   private final AiInvocationEventRepository eventRepository;
   private final MetricsHealthGateway healthGateway;
 
-  /** Returns cross-domain request, error, latency, token, and inventory totals for the range. */
+  /**
+   * Returns cross-capability request, error, latency, token, and inventory totals for the range.
+   */
   public MetricsOverview getOverview(String range) {
     RangeWindow window = RangeWindow.endingNow(range);
     Instant activeSince = window.to().minus(24, ChronoUnit.HOURS);
@@ -47,13 +49,13 @@ public class MetricsService {
     var agents = healthGateway.checkAgentsHealth();
     var mcp = healthGateway.checkMcpHealth();
 
-    final List<NamedCount> byDomain =
-        queryRepository.countByDomain(window.from(), window.to()).stream()
+    final List<NamedCount> byCapability =
+        queryRepository.countByCapability(window.from(), window.to()).stream()
             .map(nc -> new NamedCount(nc.name(), nc.count()))
             .toList();
 
-    OverviewDomains domains =
-        new OverviewDomains(chat, rag, agents, mcp, healthGateway.getSystemStatus());
+    OverviewCapabilities capabilities =
+        new OverviewCapabilities(chat, rag, agents, mcp, healthGateway.getSystemStatus());
 
     return new MetricsOverview(
         window.range(),
@@ -65,25 +67,25 @@ public class MetricsService {
         latency.p95Ms(),
         tokens.promptTokens(),
         tokens.completionTokens(),
-        byDomain,
-        domains);
+        byCapability,
+        capabilities);
   }
 
-  /** Returns the named chart series, optionally filtered by domain, over the given range. */
-  public SeriesSnapshot getSeries(String name, String domainRaw, String range) {
+  /** Returns the named chart series, optionally filtered by capability, over the given range. */
+  public SeriesSnapshot getSeries(String name, String capabilityRaw, String range) {
     RangeWindow window = RangeWindow.endingNow(range);
-    Optional<AiDomain> domain = AiDomain.parse(domainRaw);
+    Optional<AiCapability> capability = AiCapability.parse(capabilityRaw);
     String seriesName = name == null ? "" : name.trim().toLowerCase(Locale.ROOT);
 
     List<SeriesPoint> points =
         switch (seriesName) {
           case "requests" ->
-              toPoints(queryRepository.countDailyRequests(domain, window.from(), window.to()));
+              toPoints(queryRepository.countDailyRequests(capability, window.from(), window.to()));
           case "errors" ->
-              toPoints(queryRepository.countDailyErrors(domain, window.from(), window.to()));
+              toPoints(queryRepository.countDailyErrors(capability, window.from(), window.to()));
           case "latency_p95" ->
               toPoints(
-                  queryRepository.calculateDailyLatencyP95(domain, window.from(), window.to()));
+                  queryRepository.calculateDailyLatencyP95(capability, window.from(), window.to()));
           case "sessions_created" ->
               toPoints(queryRepository.countDailySessionsCreated(window.from(), window.to()));
           case "messages_created" ->
@@ -97,7 +99,7 @@ public class MetricsService {
                 .toList();
           }
           case "calls_by_model" ->
-              queryRepository.countByModel(domain, window.from(), window.to()).stream()
+              queryRepository.countByModel(capability, window.from(), window.to()).stream()
                   .map(nc -> new SeriesPoint(nc.name(), nc.count()))
                   .toList();
           case "calls_by_agent" ->
@@ -105,11 +107,11 @@ public class MetricsService {
                   .map(nc -> new SeriesPoint(nc.name(), nc.count()))
                   .toList();
           case "tool_top" ->
-              queryRepository.listTopTools(domain, window.from(), window.to(), 10).stream()
+              queryRepository.listTopTools(capability, window.from(), window.to(), 10).stream()
                   .map(nc -> new SeriesPoint(nc.name(), nc.count()))
                   .toList();
           case "tokens" -> {
-            var tokens = queryRepository.sumTokens(domain, window.from(), window.to());
+            var tokens = queryRepository.sumTokens(capability, window.from(), window.to());
             yield List.of(
                 new SeriesPoint("prompt", tokens.promptTokens()),
                 new SeriesPoint("completion", tokens.completionTokens()));
@@ -118,12 +120,12 @@ public class MetricsService {
         };
 
     return new SeriesSnapshot(
-        seriesName, domain.map(AiDomain::value).orElse(null), window.range(), points);
+        seriesName, capability.map(AiCapability::value).orElse(null), window.range(), points);
   }
 
   /** Returns a page of invocation events matching the filters, defaulting to the last 7 days. */
   public DrilldownPage getDrilldown(
-      String domainRaw,
+      String capabilityRaw,
       String from,
       String to,
       String day,
@@ -147,7 +149,7 @@ public class MetricsService {
     var result =
         eventRepository.findDrilldown(
             new AiInvocationEventRepository.DrilldownQuery(
-                AiDomain.parse(domainRaw),
+                AiCapability.parse(capabilityRaw),
                 fromInstant,
                 toInstant,
                 Optional.ofNullable(toNullIfBlank(day)),
@@ -161,34 +163,37 @@ public class MetricsService {
     return new DrilldownPage(result.items(), result.total(), safePage, safeSize);
   }
 
-  /** Returns request stats, domain-specific inventory, and trend series for one AI domain. */
-  public MetricsDomainSnapshot getDomain(String domainRaw, String range) {
-    AiDomain domain = AiDomain.require(domainRaw);
+  /**
+   * Returns request stats, capability-specific inventory, and trend series for one AI capability.
+   */
+  public MetricsCapabilitySnapshot getCapability(String capabilityRaw, String range) {
+    AiCapability capability = AiCapability.require(capabilityRaw);
     RangeWindow window = RangeWindow.endingNow(range);
-    Optional<AiDomain> filter = Optional.of(domain);
+    Optional<AiCapability> filter = Optional.of(capability);
 
     InvocationStats stats =
         queryRepository.countInvocationStats(filter, window.from(), window.to());
     var latency = queryRepository.calculateLatencyPercentiles(filter, window.from(), window.to());
     var tokens = queryRepository.sumTokens(filter, window.from(), window.to());
 
-    DomainInventory inventory =
-        switch (domain) {
+    CapabilityInventory inventory =
+        switch (capability) {
           case CHAT ->
-              new DomainInventory.Chat(
+              new CapabilityInventory.Chat(
                   queryRepository.getChatInventory(window.to().minus(24, ChronoUnit.HOURS)));
-          case RAG -> new DomainInventory.Rag(queryRepository.getRagInventory());
-          case AGENTS -> new DomainInventory.Agents(healthGateway.checkAgentsHealth());
+          case RAG -> new CapabilityInventory.Rag(queryRepository.getRagInventory());
+          case AGENTS -> new CapabilityInventory.Agents(healthGateway.checkAgentsHealth());
           case TOOLS ->
-              new DomainInventory.Tools(
+              new CapabilityInventory.Tools(
                   queryRepository.listTopTools(filter, window.from(), window.to(), 10).stream()
                       .map(nc -> new NamedCount(nc.name(), nc.count()))
                       .toList());
-          case VISION, WORKFLOW -> new DomainInventory.Requests(stats.requests(), stats.errors());
+          case VISION, WORKFLOW ->
+              new CapabilityInventory.Requests(stats.requests(), stats.errors());
         };
 
-    return new MetricsDomainSnapshot(
-        domain.value(),
+    return new MetricsCapabilitySnapshot(
+        capability.value(),
         window.range(),
         stats.requests(),
         stats.errors(),
@@ -198,8 +203,8 @@ public class MetricsService {
         tokens.promptTokens(),
         tokens.completionTokens(),
         inventory,
-        getSeries("requests", domain.value(), window.range()).points(),
-        getSeries("calls_by_model", domain.value(), window.range()).points());
+        getSeries("requests", capability.value(), window.range()).points(),
+        getSeries("calls_by_model", capability.value(), window.range()).points());
   }
 
   private List<SeriesPoint> toPoints(List<MetricsQueryRepository.TimePoint> points) {

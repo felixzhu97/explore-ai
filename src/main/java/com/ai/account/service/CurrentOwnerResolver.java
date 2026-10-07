@@ -1,8 +1,8 @@
 package com.ai.account.service;
 
-import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.model.Account;
 import com.ai.account.domain.model.ClientId;
-import com.ai.account.domain.repository.AccountUserRepository;
+import com.ai.account.domain.repository.AccountRepository;
 import com.ai.common.domain.model.OwnerKey;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -17,19 +17,18 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CurrentOwnerResolver {
 
-  private final AccountUserRepository accountUserRepository;
+  private final AccountRepository accountRepository;
   private final IamAccountService iamAccountService;
 
   /** Resolves owner from guest Client Identity and/or OAuth / IAM JWT authentication. */
   @Transactional
   public OwnerKey resolve(String clientId, Authentication authentication) {
-    Optional<AccountUser> fromAuth = resolveSignedInUser(authentication);
+    Optional<Account> fromAuth = resolveSignedInUser(authentication);
     if (fromAuth.isPresent()) {
       return fromAuth.get().ownerKey();
     }
     if (ClientId.isValid(clientId)) {
-      Optional<AccountUser> linked =
-          accountUserRepository.findByLinkedClientId(ClientId.parse(clientId));
+      Optional<Account> linked = accountRepository.findByLinkedClientId(ClientId.parse(clientId));
       if (linked.isPresent()) {
         return linked.get().ownerKey();
       }
@@ -48,11 +47,11 @@ public class CurrentOwnerResolver {
     return iamAccountService.signIn(jwt).ownerKey();
   }
 
-  private Optional<AccountUser> resolveSignedInUser(Authentication authentication) {
+  private Optional<Account> resolveSignedInUser(Authentication authentication) {
     if (authentication instanceof JwtAuthenticationToken jwtAuth) {
       return Optional.of(iamAccountService.signIn(jwtAuth.getToken()));
     }
     return OAuthSignIn.from(authentication)
-        .flatMap(signIn -> accountUserRepository.findByIdentity(signIn.identity()));
+        .flatMap(signIn -> accountRepository.findByIdentity(signIn.identity()));
   }
 }

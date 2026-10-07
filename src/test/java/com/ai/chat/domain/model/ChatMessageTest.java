@@ -68,11 +68,11 @@ class ChatMessageTest {
     MessageId id = MessageId.generate();
     Instant timestamp = Instant.now();
 
-    ChatMessage message = ChatMessage.restore(id, "Test", ChatMessageType.ASSISTANT, timestamp);
+    ChatMessage message = ChatMessage.restore(id, "Test", MessageRole.ASSISTANT, timestamp);
 
     assertThat(message.getId()).isEqualTo(id);
     assertThat(message.getText()).isEqualTo("Test");
-    assertThat(message.getMessageType()).isEqualTo(ChatMessageType.ASSISTANT);
+    assertThat(message.getRole()).isEqualTo(MessageRole.ASSISTANT);
     assertThat(message.isFromAssistant()).isTrue();
     assertThat(message.getTimestamp()).isEqualTo(timestamp);
   }
@@ -93,8 +93,8 @@ class ChatMessageTest {
   void shouldBeEqualWhenIdIsSame() {
     MessageId id = MessageId.of("11111111-1111-1111-1111-111111111111");
     Instant now = Instant.now();
-    ChatMessage msg1 = ChatMessage.restore(id, "Text 1", ChatMessageType.USER, now);
-    ChatMessage msg2 = ChatMessage.restore(id, "Text 2", ChatMessageType.ASSISTANT, now);
+    ChatMessage msg1 = ChatMessage.restore(id, "Text 1", MessageRole.USER, now);
+    ChatMessage msg2 = ChatMessage.restore(id, "Text 2", MessageRole.ASSISTANT, now);
 
     assertThat(msg1).isEqualTo(msg2);
     assertThat(msg1.hashCode()).isEqualTo(msg2.hashCode());
@@ -106,27 +106,21 @@ class ChatMessageTest {
     Instant now = Instant.now();
     ChatMessage msg1 =
         ChatMessage.restore(
-            MessageId.of("11111111-1111-1111-1111-111111111111"),
-            "Text",
-            ChatMessageType.USER,
-            now);
+            MessageId.of("11111111-1111-1111-1111-111111111111"), "Text", MessageRole.USER, now);
     ChatMessage msg2 =
         ChatMessage.restore(
-            MessageId.of("22222222-2222-2222-2222-222222222222"),
-            "Text",
-            ChatMessageType.USER,
-            now);
+            MessageId.of("22222222-2222-2222-2222-222222222222"), "Text", MessageRole.USER, now);
 
     assertThat(msg1).isNotEqualTo(msg2);
   }
 
   @Test
-  @DisplayName("should contain id, type and timestamp")
-  void shouldContainIdTypeAndTimestamp() {
+  @DisplayName("should contain id, role and timestamp")
+  void shouldContainIdRoleAndTimestamp() {
     ChatMessage message = ChatMessage.createUserMessage("Test");
 
-    String str = message.toString();
+    String text = message.toString();
 
-    assertThat(str).contains("type=USER");
+    assertThat(text).contains("role=USER");
   }
 }

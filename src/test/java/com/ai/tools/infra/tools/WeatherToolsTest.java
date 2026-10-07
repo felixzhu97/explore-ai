@@ -2,7 +2,7 @@ package com.ai.tools.infra.tools;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.tools.domain.model.WeatherReport;
+import com.ai.tools.domain.model.WeatherSimulator;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 @DisplayName("WeatherTools")
 class WeatherToolsTest {
 
-  private final WeatherTools weatherTools = new WeatherTools(new WeatherReport());
+  private final WeatherTools weatherTools = new WeatherTools(new WeatherSimulator());
 
   @Nested
   @DisplayName("getWeather")

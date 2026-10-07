@@ -1,12 +1,12 @@
 package com.ai.chat.controller;
 
 import com.ai.account.controller.OwnerContext;
-import com.ai.chat.controller.dto.ChatRole;
 import com.ai.chat.controller.dto.ChatStreamRequest;
 import com.ai.chat.controller.dto.ModelsListResponse;
 import com.ai.chat.controller.dto.ProviderInfoResponse;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.MessageId;
+import com.ai.chat.domain.model.MessageRole;
 import com.ai.chat.service.ChatService;
 import com.ai.chat.service.TextProviderCatalog;
 import com.ai.common.service.llm.TextChatOptions;
@@ -71,10 +71,7 @@ public class ChatStreamController {
             .map(
                 dto ->
                     ChatMessage.restore(
-                        MessageId.generate(),
-                        dto.content(),
-                        dto.role().toMessageType(),
-                        Instant.now()))
+                        MessageId.generate(), dto.content(), dto.role(), Instant.now()))
             .toList();
     return chatService.streamChat(messages, options, ownerKey);
   }
@@ -96,7 +93,7 @@ public class ChatStreamController {
   private String extractLastUserMessage(List<ChatStreamRequest.Message> messages) {
     for (int i = messages.size() - 1; i >= 0; i--) {
       ChatStreamRequest.Message message = messages.get(i);
-      if (message.role() == ChatRole.USER) {
+      if (message.role() == MessageRole.USER) {
         return message.content();
       }
     }

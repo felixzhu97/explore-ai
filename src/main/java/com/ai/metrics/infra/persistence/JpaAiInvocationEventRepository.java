@@ -1,7 +1,7 @@
 package com.ai.metrics.infra.persistence;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.ErrorSummary;
 import com.ai.metrics.domain.model.InvocationOutcome;
@@ -30,15 +30,15 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
 
   private static final RowMapper<AiInvocationEvent> ROW_MAPPER =
       (rs, rowNum) -> {
-        AiDomain domain = AiDomain.require(rs.getString("domain"));
+        AiCapability capability = AiCapability.require(rs.getString("capability"));
         String operation = rs.getString("operation");
         Latency latency = Latency.ofMillis(rs.getLong("latency_ms"));
         OwnerKey owner = OwnerKey.parse(rs.getString("owner_key"));
         AiInvocationEvent.Builder event =
             InvocationOutcome.parse(rs.getString("outcome")) == InvocationOutcome.SUCCESS
-                ? AiInvocationEvent.succeeded(domain, operation, latency, owner)
+                ? AiInvocationEvent.succeeded(capability, operation, latency, owner)
                 : AiInvocationEvent.failed(
-                    domain,
+                    capability,
                     operation,
                     latency,
                     owner,
@@ -68,11 +68,11 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
     List<Object> args = new ArrayList<>();
 
     query
-        .domain()
+        .capability()
         .ifPresent(
-            domain -> {
-              where.append(" AND domain = ?");
-              args.add(domain.value());
+            capability -> {
+              where.append(" AND capability = ?");
+              args.add(capability.value());
             });
     query
         .from()
@@ -144,7 +144,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
     List<AiInvocationEvent> items =
         jdbcTemplate.query(
             """
-                SELECT id, occurred_at, domain, operation, outcome, latency_ms,
+                SELECT id, occurred_at, capability, operation, outcome, latency_ms,
                        provider, model, session_id, document_id, agent_type, tool_name,
                        prompt_tokens, completion_tokens, error_code, error_message, owner_key
                 FROM ai_invocation_event

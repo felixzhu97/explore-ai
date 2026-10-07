@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.InvocationOutcome;
 import com.ai.metrics.domain.model.Latency;
@@ -13,7 +13,7 @@ import com.ai.metrics.domain.repository.MetricsHealthGateway;
 import com.ai.metrics.domain.repository.MetricsHealthGateway.AgentsHealth;
 import com.ai.metrics.domain.repository.MetricsHealthGateway.McpHealth;
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
-import com.ai.metrics.service.model.DomainInventory;
+import com.ai.metrics.service.model.CapabilityInventory;
 import com.ai.metrics.service.model.DrilldownPage;
 import com.ai.metrics.service.model.MetricsOverview;
 import com.ai.metrics.service.model.NamedCount;
@@ -64,9 +64,9 @@ class MetricsServiceTest {
     assertThat(overview.errorCount()).isZero();
     assertThat(overview.errorRate()).isZero();
     assertThat(overview.successRate()).isEqualTo(1.0);
-    assertThat(overview.domains().agents()).isEqualTo(new AgentsHealth(ModuleStatus.UP, 2, 2));
-    assertThat(overview.domains().mcp()).isEqualTo(new McpHealth(ModuleStatus.UP, 3, 1));
-    assertThat(overview.domains().system()).isEqualTo(ModuleStatus.UP);
+    assertThat(overview.capabilities().agents()).isEqualTo(new AgentsHealth(ModuleStatus.UP, 2, 2));
+    assertThat(overview.capabilities().mcp()).isEqualTo(new McpHealth(ModuleStatus.UP, 3, 1));
+    assertThat(overview.capabilities().system()).isEqualTo(ModuleStatus.UP);
   }
 
   @Test
@@ -74,7 +74,7 @@ class MetricsServiceTest {
   void shouldComputeErrorRateWhenInvocationsExist() {
     queryRepository.requestCount = 10;
     queryRepository.errorCount = 2;
-    queryRepository.byDomain = List.of(new MetricsQueryRepository.NamedCount("chat", 8));
+    queryRepository.byCapability = List.of(new MetricsQueryRepository.NamedCount("chat", 8));
 
     MetricsOverview overview = useCase.getOverview("7d");
 
@@ -82,15 +82,15 @@ class MetricsServiceTest {
     assertThat(overview.errorCount()).isEqualTo(2);
     assertThat(overview.errorRate()).isEqualTo(0.2);
     assertThat(overview.successRate()).isEqualTo(0.8);
-    assertThat(overview.requestsByDomain()).extracting(NamedCount::name).contains("chat");
+    assertThat(overview.requestsByCapability()).extracting(NamedCount::name).contains("chat");
   }
 
   @Test
-  @DisplayName("should filter drilldown by domain and day")
-  void shouldFilterDrilldownByDomainAndDay() {
+  @DisplayName("should filter drilldown by capability and day")
+  void shouldFilterDrilldownByCapabilityAndDay() {
     eventRepository.events.add(
         AiInvocationEvent.succeeded(
-                AiDomain.CHAT, "chat.stream", Latency.ofMillis(12), OwnerKey.UNOWNED)
+                AiCapability.CHAT, "chat.stream", Latency.ofMillis(12), OwnerKey.UNOWNED)
             .sessionId("s1")
             .build());
 
@@ -99,7 +99,7 @@ class MetricsServiceTest {
 
     assertThat(page.total()).isEqualTo(1);
     assertThat(page.items()).hasSize(1);
-    assertThat(eventRepository.lastQuery.domain()).contains(AiDomain.CHAT);
+    assertThat(eventRepository.lastQuery.capability()).contains(AiCapability.CHAT);
     assertThat(eventRepository.lastQuery.day()).contains("2026-07-26");
   }
 
@@ -112,23 +112,24 @@ class MetricsServiceTest {
   }
 
   @Test
-  @DisplayName("should return domain snapshot for each ai domain")
-  void shouldReturnDomainSnapshotForEachAiDomain() {
+  @DisplayName("should return capability snapshot for each ai capability")
+  void shouldReturnCapabilitySnapshotForEachAiCapability() {
     queryRepository.requestCount = 4;
     queryRepository.errorCount = 1;
     queryRepository.topTools = List.of(new MetricsQueryRepository.NamedCount("weather", 2));
 
-    assertThat(useCase.getDomain("chat", "7d").inventory())
-        .isInstanceOf(DomainInventory.Chat.class);
-    assertThat(useCase.getDomain("rag", "7d").inventory()).isInstanceOf(DomainInventory.Rag.class);
-    assertThat(useCase.getDomain("agents", "7d").inventory())
-        .isEqualTo(new DomainInventory.Agents(new AgentsHealth(ModuleStatus.UP, 2, 2)));
-    assertThat(useCase.getDomain("tools", "7d").inventory())
-        .isEqualTo(new DomainInventory.Tools(List.of(new NamedCount("weather", 2))));
-    assertThat(useCase.getDomain("vision", "30d").inventory())
-        .isEqualTo(new DomainInventory.Requests(4, 1));
-    assertThat(useCase.getDomain("vision", "30d").errorRate()).isEqualTo(0.25);
-    assertThat(useCase.getDomain("workflow", "7d").requestCount()).isEqualTo(4);
+    assertThat(useCase.getCapability("chat", "7d").inventory())
+        .isInstanceOf(CapabilityInventory.Chat.class);
+    assertThat(useCase.getCapability("rag", "7d").inventory())
+        .isInstanceOf(CapabilityInventory.Rag.class);
+    assertThat(useCase.getCapability("agents", "7d").inventory())
+        .isEqualTo(new CapabilityInventory.Agents(new AgentsHealth(ModuleStatus.UP, 2, 2)));
+    assertThat(useCase.getCapability("tools", "7d").inventory())
+        .isEqualTo(new CapabilityInventory.Tools(List.of(new NamedCount("weather", 2))));
+    assertThat(useCase.getCapability("vision", "30d").inventory())
+        .isEqualTo(new CapabilityInventory.Requests(4, 1));
+    assertThat(useCase.getCapability("vision", "30d").errorRate()).isEqualTo(0.25);
+    assertThat(useCase.getCapability("workflow", "7d").requestCount()).isEqualTo(4);
   }
 
   @Test

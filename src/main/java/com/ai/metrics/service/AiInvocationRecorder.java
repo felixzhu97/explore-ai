@@ -1,7 +1,7 @@
 package com.ai.metrics.service;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.ErrorSummary;
 import com.ai.metrics.domain.model.Latency;
@@ -26,8 +26,8 @@ public class AiInvocationRecorder {
       meterRegistry
           .counter(
               "ai.invocations",
-              "domain",
-              event.getDomain().value(),
+              "capability",
+              event.getCapability().value(),
               "outcome",
               event.getOutcome().value(),
               "operation",
@@ -36,8 +36,8 @@ public class AiInvocationRecorder {
       meterRegistry
           .timer(
               "ai.invocation.latency",
-              "domain",
-              event.getDomain().value(),
+              "capability",
+              event.getCapability().value(),
               "outcome",
               event.getOutcome().value())
           .record(Duration.ofMillis(event.getLatencyMs()));
@@ -47,7 +47,7 @@ public class AiInvocationRecorder {
 
   /** Records a successful invocation with its latency, provider, model, and session. */
   public void recordSuccess(
-      AiDomain domain,
+      AiCapability capability,
       String operation,
       Latency latency,
       OwnerKey owner,
@@ -55,7 +55,7 @@ public class AiInvocationRecorder {
       String model,
       String sessionId) {
     record(
-        AiInvocationEvent.succeeded(domain, operation, latency, owner)
+        AiInvocationEvent.succeeded(capability, operation, latency, owner)
             .provider(provider)
             .model(model)
             .sessionId(sessionId)
@@ -64,7 +64,7 @@ public class AiInvocationRecorder {
 
   /** Records a failed invocation with a normalized summary of the error. */
   public void recordError(
-      AiDomain domain,
+      AiCapability capability,
       String operation,
       Latency latency,
       OwnerKey owner,
@@ -73,7 +73,7 @@ public class AiInvocationRecorder {
       String sessionId,
       Throwable error) {
     record(
-        AiInvocationEvent.failed(domain, operation, latency, owner, ErrorSummary.of(error))
+        AiInvocationEvent.failed(capability, operation, latency, owner, ErrorSummary.of(error))
             .provider(provider)
             .model(model)
             .sessionId(sessionId)

@@ -4,7 +4,7 @@ import com.ai.metrics.domain.model.ModuleStatus;
 import com.ai.metrics.domain.repository.MetricsHealthGateway.AgentsHealth;
 
 public record AgentsInventoryResponse(ModuleStatus status, long agentCount, long healthyAgentCount)
-    implements DomainInventoryResponse {
+    implements CapabilityInventoryResponse {
 
   /** Maps agent health to a response. */
   public static AgentsInventoryResponse from(AgentsHealth health) {

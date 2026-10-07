@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.DocumentSearchTool;
 import com.ai.common.service.llm.WebSearchTool;
-import com.ai.tools.domain.model.WeatherReport;
+import com.ai.tools.domain.model.WeatherSimulator;
 import com.ai.tools.infra.tools.DateTimeTools;
 import com.ai.tools.infra.tools.WeatherTools;
 import java.time.Clock;
@@ -49,7 +49,7 @@ class ChatClientFactoryToolSearchTest {
         mock(ChatModelResolver.class),
         mock(ChatMemory.class),
         new PromptTemplates(),
-        new WeatherTools(new WeatherReport()),
+        new WeatherTools(new WeatherSimulator()),
         new StubDocumentSearchTool(),
         new StubWebSearchTool(),
         new DateTimeTools(Clock.systemUTC()),

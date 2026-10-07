@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * Data partition key: guest browser {@code c:{clientId}} or signed-in account {@code
- * u:{accountUserId}}.
+ * u:{accountId}}.
  */
 public record OwnerKey(String value) {
 
@@ -37,12 +37,12 @@ public record OwnerKey(String value) {
     return new OwnerKey(CLIENT_PREFIX + clientId.trim());
   }
 
-  /** Creates a signed-in owner key prefixed with {@code u:} for the given account user id. */
-  public static OwnerKey forAccount(String accountUserId) {
-    if (accountUserId == null || accountUserId.isBlank()) {
-      throw new IllegalArgumentException("accountUserId is required");
+  /** Creates a signed-in owner key prefixed with {@code u:} for the given account id. */
+  public static OwnerKey forAccount(String accountId) {
+    if (accountId == null || accountId.isBlank()) {
+      throw new IllegalArgumentException("accountId is required");
     }
-    return new OwnerKey(ACCOUNT_PREFIX + accountUserId.trim());
+    return new OwnerKey(ACCOUNT_PREFIX + accountId.trim());
   }
 
   /** Wraps a stored owner key value. */
