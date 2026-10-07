@@ -1,68 +1,61 @@
 package com.ai.vision.infra.ocr;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.ai.common.exception.DomainException;
 import com.ai.vision.infra.config.VisionModelProperties;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import net.sourceforge.tess4j.ITesseract;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tess4jOcrEngine")
 class Tess4jOcrEngineTest {
 
+  private static final BufferedImage IMAGE = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+
   @Mock private ITesseract tesseract;
 
-  private Tess4jOcrEngine engine;
+  @TempDir private Path tessdata;
 
-  @BeforeEach
-  void setUp() {
+  @Test
+  @DisplayName(
+      "should return the trimmed text when tesseract and the english tessdata are installed")
+  void shouldReturnTheTrimmedTextWhenTesseractAndTheEnglishTessdataAreInstalled() throws Exception {
+    Files.createFile(tessdata.resolve("eng.traineddata"));
+    Tess4jOcrEngine engine = new Tess4jOcrEngine(tesseract, propertiesWith(tessdata));
+    assumeTrue(engine.isAvailable(), "Tesseract native library is not installed");
+    when(tesseract.doOCR(IMAGE)).thenReturn("  Hello \n");
+
+    assertThat(engine.extract(IMAGE).text()).isEqualTo("Hello");
+  }
+
+  @Test
+  @DisplayName("should refuse to read text when the english tessdata is missing")
+  void shouldRefuseToReadTextWhenTheEnglishTessdataIsMissing() {
+    Tess4jOcrEngine engine = new Tess4jOcrEngine(tesseract, propertiesWith(tessdata));
+
+    assertThat(engine.isAvailable()).isFalse();
+    assertThatThrownBy(() -> engine.extract(IMAGE))
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "VISION_PROVIDER_UNAVAILABLE");
+    verifyNoInteractions(tesseract);
+  }
+
+  private static VisionModelProperties propertiesWith(Path tessdataPath) {
     VisionModelProperties properties = new VisionModelProperties();
-    properties.getOcr().setTessdataPath("models/tessdata");
-    engine = new Tess4jOcrEngine(tesseract, properties);
-    ReflectionTestUtils.setField(engine, "available", true);
-  }
-
-  @Test
-  @DisplayName("should extract text from image")
-  void shouldExtractTextFromImage() throws Exception {
-    when(tesseract.doOCR(any(BufferedImage.class))).thenReturn("Hello");
-
-    var result = engine.extract(helloImage());
-
-    assertThat(result.text()).contains("Hello");
-  }
-
-  @Test
-  @DisplayName("should report available when tessdata exists")
-  @EnabledIfEnvironmentVariable(named = "VISION_MODELS_READY", matches = "true")
-  void shouldReportAvailableWhenTessdataExists() {
-    assertThat(Files.isDirectory(Path.of("models/tessdata"))).isTrue();
-  }
-
-  private BufferedImage helloImage() {
-    BufferedImage image = new BufferedImage(200, 80, BufferedImage.TYPE_INT_RGB);
-    Graphics2D graphics = image.createGraphics();
-    graphics.setColor(Color.WHITE);
-    graphics.fillRect(0, 0, 200, 80);
-    graphics.setColor(Color.BLACK);
-    graphics.setFont(new Font("SansSerif", Font.BOLD, 24));
-    graphics.drawString("Hello", 20, 50);
-    graphics.dispose();
-    return image;
+    properties.getOcr().setTessdataPath(tessdataPath.toString());
+    return properties;
   }
 }

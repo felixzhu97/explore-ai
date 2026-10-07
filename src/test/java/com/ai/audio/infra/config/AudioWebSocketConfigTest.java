@@ -8,7 +8,6 @@ import com.ai.common.infra.config.CorsProperties;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -35,40 +34,35 @@ class AudioWebSocketConfigTest {
     audioWebSocketConfig = new AudioWebSocketConfig(transcriptionHandler, corsProperties);
   }
 
-  @Nested
-  @DisplayName("registerWebSocketHandlers")
-  class RegisterWebSocketHandlers {
+  @Test
+  @DisplayName("should allow configured production origins for audio transcription socket")
+  void shouldAllowConfiguredProductionOriginsWhenRegisteringAudioTranscriptionSocket() {
+    corsProperties.setAllowedOriginPatterns(
+        List.of(
+            " https://explore-ai-git-*-felixzhu97s-projects.vercel.app ",
+            "https://www.felixzhu.chat",
+            "https://felixzhu.chat"));
+    when(registry.addHandler(transcriptionHandler, "/ws/audio/transcribe"))
+        .thenReturn(registration);
 
-    @Test
-    @DisplayName("should allow configured production origins for audio transcription socket")
-    void shouldAllowConfiguredProductionOriginsWhenRegisteringAudioTranscriptionSocket() {
-      corsProperties.setAllowedOriginPatterns(
-          List.of(
-              " https://explore-ai-git-*-felixzhu97s-projects.vercel.app ",
-              "https://www.felixzhu.chat",
-              "https://felixzhu.chat"));
-      when(registry.addHandler(transcriptionHandler, "/ws/audio/transcribe"))
-          .thenReturn(registration);
+    audioWebSocketConfig.registerWebSocketHandlers(registry);
 
-      audioWebSocketConfig.registerWebSocketHandlers(registry);
+    verify(registration)
+        .setAllowedOriginPatterns(
+            "https://explore-ai-git-*-felixzhu97s-projects.vercel.app",
+            "https://www.felixzhu.chat",
+            "https://felixzhu.chat");
+  }
 
-      verify(registration)
-          .setAllowedOriginPatterns(
-              "https://explore-ai-git-*-felixzhu97s-projects.vercel.app",
-              "https://www.felixzhu.chat",
-              "https://felixzhu.chat");
-    }
+  @Test
+  @DisplayName("should register no allowed origin patterns when origins are null")
+  void shouldRegisterNoAllowedOriginPatternsWhenOriginsAreNull() {
+    corsProperties.setAllowedOriginPatterns(null);
+    when(registry.addHandler(transcriptionHandler, "/ws/audio/transcribe"))
+        .thenReturn(registration);
 
-    @Test
-    @DisplayName("should register no allowed origin patterns when origins are null")
-    void shouldRegisterNoAllowedOriginPatternsWhenOriginsAreNull() {
-      corsProperties.setAllowedOriginPatterns(null);
-      when(registry.addHandler(transcriptionHandler, "/ws/audio/transcribe"))
-          .thenReturn(registration);
+    audioWebSocketConfig.registerWebSocketHandlers(registry);
 
-      audioWebSocketConfig.registerWebSocketHandlers(registry);
-
-      verify(registration).setAllowedOriginPatterns();
-    }
+    verify(registration).setAllowedOriginPatterns();
   }
 }

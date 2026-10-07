@@ -91,37 +91,32 @@ class DocumentChunkTest {
     }
   }
 
-  @Nested
-  @DisplayName("withEmbedding()")
-  class WithEmbedding {
+  @Test
+  @DisplayName("should return a new chunk with the embedding and keep the original unchanged")
+  void shouldReturnANewChunkWithTheEmbeddingAndKeepTheOriginalUnchanged() {
+    DocumentChunk original = chunk(TEST_CONTENT, Map.of("key", "value"));
+    float[] embedding = {0.1f, 0.2f, 0.3f};
 
-    @Test
-    @DisplayName("should return a new chunk with the embedding and keep the original unchanged")
-    void shouldReturnANewChunkWithTheEmbeddingAndKeepTheOriginalUnchanged() {
-      DocumentChunk original = chunk(TEST_CONTENT, Map.of("key", "value"));
-      float[] embedding = {0.1f, 0.2f, 0.3f};
+    DocumentChunk embedded = original.withEmbedding(embedding);
 
-      DocumentChunk embedded = original.withEmbedding(embedding);
+    assertThat(embedded.getEmbedding()).containsExactly(0.1f, 0.2f, 0.3f);
+    assertThat(embedded.getId()).isEqualTo(original.getId());
+    assertThat(embedded.getOwnerKey()).isEqualTo(OWNER);
+    assertThat(embedded.getMetadata()).isEqualTo(original.getMetadata());
+    assertThat(embedded.getCreatedAt()).isEqualTo(original.getCreatedAt());
+    assertThat(original.getEmbedding()).isNull();
+  }
 
-      assertThat(embedded.getEmbedding()).containsExactly(0.1f, 0.2f, 0.3f);
-      assertThat(embedded.getId()).isEqualTo(original.getId());
-      assertThat(embedded.getOwnerKey()).isEqualTo(OWNER);
-      assertThat(embedded.getMetadata()).isEqualTo(original.getMetadata());
-      assertThat(embedded.getCreatedAt()).isEqualTo(original.getCreatedAt());
-      assertThat(original.getEmbedding()).isNull();
-    }
+  @Test
+  @DisplayName("should not change when the caller edits the embedding arrays")
+  void shouldNotChangeWhenTheCallerEditsTheEmbeddingArrays() {
+    float[] embedding = {0.1f, 0.2f};
+    DocumentChunk embedded = chunk().withEmbedding(embedding);
 
-    @Test
-    @DisplayName("should not change when the caller edits the embedding arrays")
-    void shouldNotChangeWhenTheCallerEditsTheEmbeddingArrays() {
-      float[] embedding = {0.1f, 0.2f};
-      DocumentChunk embedded = chunk().withEmbedding(embedding);
+    embedding[0] = 9f;
+    embedded.getEmbedding()[1] = 9f;
 
-      embedding[0] = 9f;
-      embedded.getEmbedding()[1] = 9f;
-
-      assertThat(embedded.getEmbedding()).containsExactly(0.1f, 0.2f);
-    }
+    assertThat(embedded.getEmbedding()).containsExactly(0.1f, 0.2f);
   }
 
   @Nested
@@ -188,22 +183,17 @@ class DocumentChunkTest {
     }
   }
 
-  @Nested
-  @DisplayName("excerpt()")
-  class Excerpt {
+  @Test
+  @DisplayName("should keep short content whole")
+  void shouldKeepShortContentWhole() {
+    assertThat(chunk().excerpt()).isEqualTo(TEST_CONTENT);
+  }
 
-    @Test
-    @DisplayName("should keep short content whole")
-    void shouldKeepShortContentWhole() {
-      assertThat(chunk().excerpt()).isEqualTo(TEST_CONTENT);
-    }
+  @Test
+  @DisplayName("should cut long content with an ellipsis")
+  void shouldCutLongContentWithAnEllipsis() {
+    String excerpt = chunk("x".repeat(DocumentChunk.EXCERPT_LENGTH + 10), Map.of()).excerpt();
 
-    @Test
-    @DisplayName("should cut long content with an ellipsis")
-    void shouldCutLongContentWithAnEllipsis() {
-      String excerpt = chunk("x".repeat(DocumentChunk.EXCERPT_LENGTH + 10), Map.of()).excerpt();
-
-      assertThat(excerpt).hasSize(DocumentChunk.EXCERPT_LENGTH + 3).endsWith("...");
-    }
+    assertThat(excerpt).hasSize(DocumentChunk.EXCERPT_LENGTH + 3).endsWith("...");
   }
 }

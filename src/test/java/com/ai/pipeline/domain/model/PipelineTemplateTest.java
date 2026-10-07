@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("PipelineTemplate")
@@ -62,64 +61,59 @@ class PipelineTemplateTest {
     assertThat(template.isRunnable()).isFalse();
   }
 
-  @Nested
-  @DisplayName("composeInvokeMessage")
-  class ComposeInvokeMessage {
+  private static final String BRIEF_PROMPT =
+      """
+          Produce a Competitive Intelligence Brief for the company in context.
 
-    private static final String BRIEF_PROMPT =
-        """
-            Produce a Competitive Intelligence Brief for the company in context.
+          Required sections:
+          ## Thesis
+          ## Recommendation
+          """;
 
-            Required sections:
-            ## Thesis
-            ## Recommendation
-            """;
+  private final PipelineTemplate template =
+      PipelineTemplate.create(
+          OWNER,
+          "Competitor brief",
+          null,
+          List.of("research"),
+          "Competitor landscape brief",
+          BRIEF_PROMPT,
+          null);
 
-    private final PipelineTemplate template =
+  @Test
+  @DisplayName("should put the topic before the instructions when the brief is a topic")
+  void shouldPutTheTopicBeforeTheInstructionsWhenTheBriefIsATopic() {
+    String message = template.composeInvokeMessage("Market entry brief");
+
+    assertThat(message).startsWith("Market entry brief\n\n");
+    assertThat(message).contains("Competitive Intelligence Brief").contains("## Thesis");
+  }
+
+  @Test
+  @DisplayName("should use the template short topic when the brief is the generic text")
+  void shouldUseTheTemplateShortTopicWhenTheBriefIsTheGenericText() {
+    String message = template.composeInvokeMessage(PipelineTemplate.GENERIC_BRIEF);
+
+    assertThat(message).startsWith("Competitor landscape brief\n\n");
+    assertThat(message).doesNotContain(PipelineTemplate.GENERIC_BRIEF);
+  }
+
+  @Test
+  @DisplayName("should use the instructions alone when topic and brief are blank")
+  void shouldUseTheInstructionsAloneWhenTopicAndBriefAreBlank() {
+    PipelineTemplate noTopic =
         PipelineTemplate.create(
-            OWNER,
-            "Competitor brief",
-            null,
-            List.of("research"),
-            "Competitor landscape brief",
-            BRIEF_PROMPT,
-            null);
+            OWNER, "No topic", null, List.of("research"), "  ", BRIEF_PROMPT, null);
 
-    @Test
-    @DisplayName("should put the topic before the instructions when the brief is a topic")
-    void shouldPutTheTopicBeforeTheInstructionsWhenTheBriefIsATopic() {
-      String message = template.composeInvokeMessage("Market entry brief");
+    assertThat(noTopic.composeInvokeMessage("  ")).isEqualTo(BRIEF_PROMPT.trim());
+  }
 
-      assertThat(message).startsWith("Market entry brief\n\n");
-      assertThat(message).contains("Competitive Intelligence Brief").contains("## Thesis");
-    }
+  @Test
+  @DisplayName("should not repeat the instructions when the brief already contains them")
+  void shouldNotRepeatTheInstructionsWhenTheBriefAlreadyContainsThem() {
+    String full = "Custom topic\n\n" + BRIEF_PROMPT.trim();
 
-    @Test
-    @DisplayName("should use the template short topic when the brief is the generic text")
-    void shouldUseTheTemplateShortTopicWhenTheBriefIsTheGenericText() {
-      String message = template.composeInvokeMessage(PipelineTemplate.GENERIC_BRIEF);
-
-      assertThat(message).startsWith("Competitor landscape brief\n\n");
-      assertThat(message).doesNotContain(PipelineTemplate.GENERIC_BRIEF);
-    }
-
-    @Test
-    @DisplayName("should use the instructions alone when topic and brief are blank")
-    void shouldUseTheInstructionsAloneWhenTopicAndBriefAreBlank() {
-      PipelineTemplate noTopic =
-          PipelineTemplate.create(
-              OWNER, "No topic", null, List.of("research"), "  ", BRIEF_PROMPT, null);
-
-      assertThat(noTopic.composeInvokeMessage("  ")).isEqualTo(BRIEF_PROMPT.trim());
-    }
-
-    @Test
-    @DisplayName("should not repeat the instructions when the brief already contains them")
-    void shouldNotRepeatTheInstructionsWhenTheBriefAlreadyContainsThem() {
-      String full = "Custom topic\n\n" + BRIEF_PROMPT.trim();
-
-      assertThat(template.composeInvokeMessage(full)).isEqualTo(full);
-    }
+    assertThat(template.composeInvokeMessage(full)).isEqualTo(full);
   }
 
   private static PipelineTemplate create(List<String> agentTypes) {

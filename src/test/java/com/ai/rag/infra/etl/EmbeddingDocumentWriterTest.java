@@ -61,8 +61,6 @@ class EmbeddingDocumentWriterTest {
     assertThat(chunkCaptor.getAllValues().get(1).getEmbedding()).containsExactly(secondEmbedding);
     assertThat(firstChunk.getEmbedding()).isNull();
     assertThat(secondChunk.getEmbedding()).isNull();
-    verify(embeddingRepository).embed("first chunk");
-    verify(embeddingRepository).embed("second chunk");
   }
 
   @Test

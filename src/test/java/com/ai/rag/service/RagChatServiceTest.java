@@ -24,7 +24,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -84,71 +83,65 @@ class RagChatServiceTest {
     when(requestSpec.call()).thenReturn(callResponseSpec);
   }
 
-  @Nested
-  @DisplayName("chat()")
-  class Chat {
+  @Test
+  @DisplayName("should return chat result with response and sources when question provided")
+  void shouldReturnChatResultWithResponseAndSourcesWhenQuestionProvided() {
+    String question = "What is AI?";
+    String aiResponse = "AI is Artificial Intelligence";
+    Document sourceDoc = new Document("AI definition", Map.of("score", 0.95));
+    stubChatClientResponse(aiResponse, List.of(sourceDoc));
 
-    @Test
-    @DisplayName("should return chat result with response and sources when question provided")
-    void shouldReturnChatResultWithResponseAndSourcesWhenQuestionProvided() {
-      String question = "What is AI?";
-      String aiResponse = "AI is Artificial Intelligence";
-      Document sourceDoc = new Document("AI definition", Map.of("score", 0.95));
-      stubChatClientResponse(aiResponse, List.of(sourceDoc));
+    RagChatResult result = ragChatService.chat(question, null, 5, null, OWNER);
 
-      RagChatResult result = ragChatService.chat(question, null, 5, null, OWNER);
+    assertThat(result).isNotNull();
+    assertThat(result.response()).isEqualTo(aiResponse);
+    assertThat(result.sources()).hasSize(1);
+    assertThat(result.sources().getFirst().content()).isEqualTo("AI definition");
+    assertThat(result.sources().getFirst().score()).isEqualTo(0.95);
+    verify(requestSpec).user(question);
+  }
 
-      assertThat(result).isNotNull();
-      assertThat(result.response()).isEqualTo(aiResponse);
-      assertThat(result.sources()).hasSize(1);
-      assertThat(result.sources().getFirst().content()).isEqualTo("AI definition");
-      assertThat(result.sources().getFirst().score()).isEqualTo(0.95);
-      verify(requestSpec).user(question);
-    }
+  @Test
+  @DisplayName("should filter by owner and doc ids when doc ids are provided")
+  void shouldFilterByOwnerAndDocIdsWhenDocIdsAreProvided() {
+    String docId = UUID.randomUUID().toString();
+    stubChatClientResponse("response", List.of());
 
-    @Test
-    @DisplayName("should filter by owner and doc ids when doc ids are provided")
-    void shouldFilterByOwnerAndDocIdsWhenDocIdsAreProvided() {
-      String docId = UUID.randomUUID().toString();
-      stubChatClientResponse("response", List.of());
+    ragChatService.chat("What is AI?", List.of(docId), 5, null, OWNER);
 
-      ragChatService.chat("What is AI?", List.of(docId), 5, null, OWNER);
+    FilterExpressionBuilder b = new FilterExpressionBuilder();
+    assertThat(capturedFilter())
+        .isEqualTo(
+            b.and(b.eq("ownerKey", OWNER), b.in("document_id", List.<Object>of(docId))).build());
+  }
 
-      FilterExpressionBuilder b = new FilterExpressionBuilder();
-      assertThat(capturedFilter())
-          .isEqualTo(
-              b.and(b.eq("ownerKey", OWNER), b.in("document_id", List.<Object>of(docId))).build());
-    }
+  @Test
+  @DisplayName("should filter by owner only when doc ids are empty")
+  void shouldFilterByOwnerOnlyWhenDocIdsAreEmpty() {
+    stubChatClientResponse("response", List.of());
 
-    @Test
-    @DisplayName("should filter by owner only when doc ids are empty")
-    void shouldFilterByOwnerOnlyWhenDocIdsAreEmpty() {
-      stubChatClientResponse("response", List.of());
+    ragChatService.chat("q", Collections.emptyList(), 10, null, OWNER);
 
-      ragChatService.chat("q", Collections.emptyList(), 10, null, OWNER);
+    assertThat(capturedFilter())
+        .isEqualTo(new FilterExpressionBuilder().eq("ownerKey", OWNER).build());
+  }
 
-      assertThat(capturedFilter())
-          .isEqualTo(new FilterExpressionBuilder().eq("ownerKey", OWNER).build());
-    }
+  @Test
+  @DisplayName("should use bare client for query compression when session id is present")
+  void shouldUseBareClientForQueryCompressionWhenSessionIdIsPresent() {
+    ChatClient compressionClient = mock(ChatClient.class);
+    ChatClient.Builder compressionBuilder = mock(ChatClient.Builder.class);
+    when(chatClientProvider.createBareStateless(any(TextChatOptions.class)))
+        .thenReturn(compressionClient);
+    when(compressionClient.mutate()).thenReturn(compressionBuilder);
+    when(compressionBuilder.build()).thenReturn(compressionClient);
+    stubChatClientResponse("response", List.of());
 
-    @Test
-    @DisplayName("should use bare client for query compression when session id is present")
-    void shouldUseBareClientForQueryCompressionWhenSessionIdIsPresent() {
-      ChatClient compressionClient = mock(ChatClient.class);
-      ChatClient.Builder compressionBuilder = mock(ChatClient.Builder.class);
-      when(chatClientProvider.createBareStateless(any(TextChatOptions.class)))
-          .thenReturn(compressionClient);
-      when(compressionClient.mutate()).thenReturn(compressionBuilder);
-      when(compressionBuilder.build()).thenReturn(compressionClient);
-      stubChatClientResponse("response", List.of());
+    ragChatService.chat("follow-up question", null, 5, "session-1", OWNER);
 
-      ragChatService.chat("follow-up question", null, 5, "session-1", OWNER);
-
-      verify(chatClientProvider)
-          .create(any(TextChatOptions.class), eq(ChatClientProfile.MEMORY), eq("session-1"));
-      verify(compressionClient).mutate();
-      verify(chatClient, never()).mutate();
-    }
+    verify(chatClientProvider)
+        .create(any(TextChatOptions.class), eq(ChatClientProfile.MEMORY), eq("session-1"));
+    verify(chatClient, never()).mutate();
   }
 
   private Object capturedFilter() {

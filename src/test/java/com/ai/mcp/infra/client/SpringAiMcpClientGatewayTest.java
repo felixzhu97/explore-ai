@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.definition.ToolDefinition;
@@ -19,55 +18,45 @@ class SpringAiMcpClientGatewayTest {
     repository = new SpringAiMcpClientGateway();
   }
 
-  @Nested
-  @DisplayName("registerToolCallbacks")
-  class RegisterToolCallbacksTests {
+  @Test
+  @DisplayName("should register tools from MCP server")
+  void shouldRegisterToolsFromMcpServer() {
+    repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "test-server");
 
-    @Test
-    @DisplayName("should register tools from MCP server")
-    void shouldRegisterToolsFromMcpServer() {
-      repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "test-server");
-
-      assertThat(repository.countTools()).isEqualTo(2);
-      assertThat(repository.listServers().keySet()).contains("test-server");
-    }
-
-    @Test
-    @DisplayName("should accumulate tools from multiple servers")
-    void shouldAccumulateToolsFromMultipleServers() {
-      repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "server1");
-      repository.registerToolCallbacks(createMockTools("tool3", "tool4"), "server2");
-
-      assertThat(repository.countTools()).isEqualTo(4);
-      assertThat(repository.listServers().keySet()).hasSize(2);
-    }
-
-    @Test
-    @DisplayName("should replace tools when same server reregisters")
-    void shouldReplaceToolsWhenSameServerReregisters() {
-      repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "test-server");
-      repository.registerToolCallbacks(createMockTools("tool3"), "test-server");
-
-      assertThat(repository.countTools()).isEqualTo(1);
-      assertThat(repository.listTools()).extracting("name").containsExactly("tool3");
-      assertThat(repository.listServers().keySet()).contains("test-server");
-    }
+    assertThat(repository.countTools()).isEqualTo(2);
+    assertThat(repository.listServers().keySet()).contains("test-server");
   }
 
-  @Nested
-  @DisplayName("clearTools")
-  class ClearToolsTests {
+  @Test
+  @DisplayName("should accumulate tools from multiple servers")
+  void shouldAccumulateToolsFromMultipleServers() {
+    repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "server1");
+    repository.registerToolCallbacks(createMockTools("tool3", "tool4"), "server2");
 
-    @Test
-    @DisplayName("should clear all registered tools and servers")
-    void shouldClearAllRegisteredTools() {
-      repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "server1");
+    assertThat(repository.countTools()).isEqualTo(4);
+    assertThat(repository.listServers().keySet()).hasSize(2);
+  }
 
-      repository.clearTools();
+  @Test
+  @DisplayName("should replace tools when same server reregisters")
+  void shouldReplaceToolsWhenSameServerReregisters() {
+    repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "test-server");
+    repository.registerToolCallbacks(createMockTools("tool3"), "test-server");
 
-      assertThat(repository.countTools()).isEqualTo(0);
-      assertThat(repository.listServers()).isEmpty();
-    }
+    assertThat(repository.countTools()).isEqualTo(1);
+    assertThat(repository.listTools()).extracting("name").containsExactly("tool3");
+    assertThat(repository.listServers().keySet()).contains("test-server");
+  }
+
+  @Test
+  @DisplayName("should clear all registered tools and servers")
+  void shouldClearAllRegisteredTools() {
+    repository.registerToolCallbacks(createMockTools("tool1", "tool2"), "server1");
+
+    repository.clearTools();
+
+    assertThat(repository.countTools()).isEqualTo(0);
+    assertThat(repository.listServers()).isEmpty();
   }
 
   private ToolCallback[] createMockTools(String... names) {

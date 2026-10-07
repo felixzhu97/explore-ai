@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -89,178 +88,144 @@ class ChatServiceTest {
                 invocationEventRepository));
   }
 
-  @Nested
-  @DisplayName("createSession()")
-  class CreateSession {
+  @Test
+  @DisplayName("should create and save session with title and client")
+  void shouldCreateAndSaveSessionWhenTitleAndClientProvided() {
 
-    @Test
-    @DisplayName("should create and save session with title and client")
-    void shouldCreateAndSaveSessionWhenTitleAndClientProvided() {
+    ChatSession result = useCase.createSession("My Chat", CLIENT_A);
 
-      ChatSession result = useCase.createSession("My Chat", CLIENT_A);
-
-      assertThat(result.getTitle()).isEqualTo("My Chat");
-      assertThat(result.getOwnerKeyValue()).isEqualTo(CLIENT_A);
-      verify(repository).save(any(ChatSession.class));
-    }
+    assertThat(result.getTitle()).isEqualTo("My Chat");
+    assertThat(result.getOwnerKeyValue()).isEqualTo(CLIENT_A);
+    verify(repository).save(any(ChatSession.class));
   }
 
-  @Nested
-  @DisplayName("chatWithSession() without session id")
-  class ChatInDefaultSession {
+  @Test
+  @DisplayName("should create the default session with the default title when owner has none")
+  void shouldCreateTheDefaultSessionWithTheDefaultTitleWhenOwnerHasNone() {
+    when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(List.of());
+    ArgumentCaptor<ChatSession> saved = ArgumentCaptor.forClass(ChatSession.class);
 
-    @Test
-    @DisplayName("should create the default session with the default title when owner has none")
-    void shouldCreateTheDefaultSessionWithTheDefaultTitleWhenOwnerHasNone() {
-      when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(List.of());
-      ArgumentCaptor<ChatSession> saved = ArgumentCaptor.forClass(ChatSession.class);
+    catchThrowable(() -> useCase.chatWithSession("Hello", CLIENT_A));
 
-      catchThrowable(() -> useCase.chatWithSession("Hello", CLIENT_A));
-
-      verify(repository, atLeastOnce()).save(saved.capture());
-      assertThat(saved.getAllValues().getFirst().getTitle())
-          .isEqualTo(SessionTitle.DEFAULT.value());
-    }
+    verify(repository, atLeastOnce()).save(saved.capture());
+    assertThat(saved.getAllValues().getFirst().getTitle()).isEqualTo(SessionTitle.DEFAULT.value());
   }
 
-  @Nested
-  @DisplayName("getSession()")
-  class GetSession {
+  @Test
+  @DisplayName("should return session when owned by client")
+  void shouldReturnSessionWhenOwnedByClient() {
+    ChatSession session =
+        ChatSession.of(
+            ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
+            "Test",
+            Instant.now(),
+            CLIENT_A);
+    when(repository.findByIdAndOwnerKey(
+            ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_A))
+        .thenReturn(Optional.of(session));
 
-    @Test
-    @DisplayName("should return session when owned by client")
-    void shouldReturnSessionWhenOwnedByClient() {
-      ChatSession session =
-          ChatSession.of(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
-              "Test",
-              Instant.now(),
-              CLIENT_A);
-      when(repository.findByIdAndOwnerKey(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_A))
-          .thenReturn(Optional.of(session));
+    Optional<ChatSession> result =
+        useCase.getSession("22222222-2222-2222-2222-222222222222", CLIENT_A);
 
-      Optional<ChatSession> result =
-          useCase.getSession("22222222-2222-2222-2222-222222222222", CLIENT_A);
-
-      assertThat(result).isPresent().contains(session);
-      verify(conversationMemoryRepository).load("22222222-2222-2222-2222-222222222222");
-    }
+    assertThat(result).isPresent().contains(session);
+    verify(conversationMemoryRepository).load("22222222-2222-2222-2222-222222222222");
   }
 
-  @Nested
-  @DisplayName("findSessionHistoryWithSources()")
-  class GetSessionHistory {
+  @Test
+  @DisplayName("should return stored messages with their sources for an owned session")
+  void shouldReturnStoredMessagesWithTheirSourcesForAnOwnedSession() {
+    ChatSession session =
+        ChatSession.of(
+            ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
+            "Test",
+            Instant.now(),
+            CLIENT_A);
+    when(repository.findByIdAndOwnerKey(
+            ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_A))
+        .thenReturn(Optional.of(session));
+    ChatMessage reply = ChatMessage.createAssistantMessage("Hi!");
+    when(conversationMemoryRepository.load("22222222-2222-2222-2222-222222222222"))
+        .thenReturn(List.of(ChatMessage.createUserMessage("Hello"), reply));
+    List<WebSource> cited = List.of(new WebSource("Spring", "https://spring.io", "Docs"));
+    when(chatWebSourcesRepository.findByConversationId("22222222-2222-2222-2222-222222222222"))
+        .thenReturn(Map.of(ContentHash.computeSha256("Hi!"), cited));
 
-    @Test
-    @DisplayName("should return stored messages with their sources for an owned session")
-    void shouldReturnStoredMessagesWithTheirSourcesForAnOwnedSession() {
-      ChatSession session =
-          ChatSession.of(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
-              "Test",
-              Instant.now(),
-              CLIENT_A);
-      when(repository.findByIdAndOwnerKey(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_A))
-          .thenReturn(Optional.of(session));
-      ChatMessage reply = ChatMessage.createAssistantMessage("Hi!");
-      when(conversationMemoryRepository.load("22222222-2222-2222-2222-222222222222"))
-          .thenReturn(List.of(ChatMessage.createUserMessage("Hello"), reply));
-      List<WebSource> cited = List.of(new WebSource("Spring", "https://spring.io", "Docs"));
-      when(chatWebSourcesRepository.findByConversationId("22222222-2222-2222-2222-222222222222"))
-          .thenReturn(Map.of(ContentHash.computeSha256("Hi!"), cited));
+    SessionHistory history =
+        useCase.findSessionHistoryWithSources("22222222-2222-2222-2222-222222222222", CLIENT_A);
 
-      SessionHistory history =
-          useCase.findSessionHistoryWithSources("22222222-2222-2222-2222-222222222222", CLIENT_A);
-
-      assertThat(history.messages()).hasSize(2);
-      assertThat(history.sourcesFor(reply)).isEqualTo(cited);
-      assertThat(history.sourcesFor(history.messages().getFirst())).isEmpty();
-    }
-
-    @Test
-    @DisplayName("should throw when session not owned")
-    void shouldThrowWhenSessionNotOwned() {
-      when(repository.findByIdAndOwnerKey(
-              ChatSessionId.of("44444444-4444-4444-4444-444444444444"), OWNER_A))
-          .thenReturn(Optional.empty());
-
-      assertThatThrownBy(
-              () ->
-                  useCase.findSessionHistoryWithSources(
-                      "44444444-4444-4444-4444-444444444444", CLIENT_A))
-          .isInstanceOf(DomainException.class)
-          .hasFieldOrPropertyWithValue("code", "SESSION_NOT_FOUND");
-      verify(chatWebSourcesRepository, never()).findByConversationId(any());
-    }
+    assertThat(history.messages()).hasSize(2);
+    assertThat(history.sourcesFor(reply)).isEqualTo(cited);
+    assertThat(history.sourcesFor(history.messages().getFirst())).isEmpty();
   }
 
-  @Nested
-  @DisplayName("deleteSession()")
-  class DeleteSession {
+  @Test
+  @DisplayName("should throw when session not owned")
+  void shouldThrowWhenSessionNotOwned() {
+    when(repository.findByIdAndOwnerKey(
+            ChatSessionId.of("44444444-4444-4444-4444-444444444444"), OWNER_A))
+        .thenReturn(Optional.empty());
 
-    @Test
-    @DisplayName("should delete owned session")
-    void shouldDeleteSessionWhenOwned() {
-      ChatSession session =
-          ChatSession.of(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
-              "Test",
-              Instant.now(),
-              CLIENT_A);
-      when(repository.findByIdAndOwnerKey(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_A))
-          .thenReturn(Optional.of(session));
-
-      useCase.deleteSession("22222222-2222-2222-2222-222222222222", CLIENT_A);
-
-      verify(conversationMemoryRepository).clear("22222222-2222-2222-2222-222222222222");
-      verify(chatWebSourcesRepository)
-          .deleteByConversationId("22222222-2222-2222-2222-222222222222");
-      verify(repository).deleteById(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
-      verify(invocationEventRepository)
-          .deleteBySessionIds(List.of("22222222-2222-2222-2222-222222222222"));
-    }
-
-    @Test
-    @DisplayName("should erase all sessions for client")
-    void shouldEraseAllSessionsWhenClientRequestsPrivacyDelete() {
-      ChatSession owned =
-          ChatSession.of(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
-              "Test",
-              Instant.now(),
-              CLIENT_A);
-      when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A))
-          .thenReturn(List.of(owned));
-
-      useCase.deleteAllSessions(CLIENT_A);
-
-      verify(conversationMemoryRepository).clear("22222222-2222-2222-2222-222222222222");
-      verify(chatWebSourcesRepository)
-          .deleteByConversationId("22222222-2222-2222-2222-222222222222");
-      verify(repository).deleteById(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
-      verify(invocationEventRepository)
-          .deleteBySessionIds(List.of("22222222-2222-2222-2222-222222222222"));
-    }
+    assertThatThrownBy(
+            () ->
+                useCase.findSessionHistoryWithSources(
+                    "44444444-4444-4444-4444-444444444444", CLIENT_A))
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "SESSION_NOT_FOUND");
+    verify(chatWebSourcesRepository, never()).findByConversationId(any());
   }
 
-  @Nested
-  @DisplayName("listSessions()")
-  class ListSessions {
+  @Test
+  @DisplayName("should delete owned session")
+  void shouldDeleteSessionWhenOwned() {
+    ChatSession session =
+        ChatSession.of(
+            ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
+            "Test",
+            Instant.now(),
+            CLIENT_A);
+    when(repository.findByIdAndOwnerKey(
+            ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_A))
+        .thenReturn(Optional.of(session));
 
-    @Test
-    @DisplayName("should return sessions for client")
-    void shouldReturnSessionsWhenClientHasSessions() {
-      List<ChatSession> sessions =
-          List.of(
-              ChatSession.create("Session 1", CLIENT_A), ChatSession.create("Session 2", CLIENT_A));
-      when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(sessions);
+    useCase.deleteSession("22222222-2222-2222-2222-222222222222", CLIENT_A);
 
-      List<ChatSession> result = useCase.listSessions(CLIENT_A);
+    verify(conversationMemoryRepository).clear("22222222-2222-2222-2222-222222222222");
+    verify(chatWebSourcesRepository).deleteByConversationId("22222222-2222-2222-2222-222222222222");
+    verify(repository).deleteById(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
+    verify(invocationEventRepository)
+        .deleteBySessionIds(List.of("22222222-2222-2222-2222-222222222222"));
+  }
 
-      assertThat(result).hasSize(2);
-    }
+  @Test
+  @DisplayName("should erase all sessions for client")
+  void shouldEraseAllSessionsWhenClientRequestsPrivacyDelete() {
+    ChatSession owned =
+        ChatSession.of(
+            ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
+            "Test",
+            Instant.now(),
+            CLIENT_A);
+    when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(List.of(owned));
+
+    useCase.deleteAllSessions(CLIENT_A);
+
+    verify(conversationMemoryRepository).clear("22222222-2222-2222-2222-222222222222");
+    verify(chatWebSourcesRepository).deleteByConversationId("22222222-2222-2222-2222-222222222222");
+    verify(repository).deleteById(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
+    verify(invocationEventRepository)
+        .deleteBySessionIds(List.of("22222222-2222-2222-2222-222222222222"));
+  }
+
+  @Test
+  @DisplayName("should return sessions for client")
+  void shouldReturnSessionsWhenClientHasSessions() {
+    List<ChatSession> sessions =
+        List.of(
+            ChatSession.create("Session 1", CLIENT_A), ChatSession.create("Session 2", CLIENT_A));
+    when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(sessions);
+
+    List<ChatSession> result = useCase.listSessions(CLIENT_A);
+
+    assertThat(result).hasSize(2);
   }
 }

@@ -35,7 +35,7 @@ import reactor.core.publisher.Flux;
 public class VisionChatService {
 
   @Value("${spring.ai.ollama.chat.model:qwen3.5:35b}")
-  private String visionModel;
+  private final String visionModel;
 
   private final RagApplicationService ragApplicationService;
   private final ChatClientProvider chatClientProvider;

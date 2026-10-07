@@ -72,48 +72,38 @@ class ToolCallLoopGuardTest {
     }
   }
 
-  @Nested
-  @DisplayName("hasOnlyBridgeToolResults")
-  class HasOnlyBridgeToolResults {
-
-    @Test
-    void shouldReturnTrueWhenOnlyDateTimeTool() {
-      assertThat(
-              ToolCallLoopGuard.hasOnlyBridgeToolResults(
-                  List.of(toolResponse("call-1", "getCurrentDateTime", "now"))))
-          .isTrue();
-    }
-
-    @Test
-    void shouldReturnFalseWhenSearchWebPresent() {
-      assertThat(
-              ToolCallLoopGuard.hasOnlyBridgeToolResults(
-                  List.of(
-                      toolResponse("call-1", "getCurrentDateTime", "now"),
-                      toolResponse("call-2", "searchWeb", "hits"))))
-          .isFalse();
-    }
+  @Test
+  void shouldReturnTrueWhenOnlyDateTimeTool() {
+    assertThat(
+            ToolCallLoopGuard.hasOnlyBridgeToolResults(
+                List.of(toolResponse("call-1", "getCurrentDateTime", "now"))))
+        .isTrue();
   }
 
-  @Nested
-  @DisplayName("hasToolResults")
-  class HasToolResults {
+  @Test
+  void shouldReturnFalseWhenSearchWebPresent() {
+    assertThat(
+            ToolCallLoopGuard.hasOnlyBridgeToolResults(
+                List.of(
+                    toolResponse("call-1", "getCurrentDateTime", "now"),
+                    toolResponse("call-2", "searchWeb", "hits"))))
+        .isFalse();
+  }
 
-    @Test
-    void shouldReturnFalseWhenNoMessages() {
-      assertThat(ToolCallLoopGuard.hasToolResults(List.of())).isFalse();
-      assertThat(ToolCallLoopGuard.hasToolResults(null)).isFalse();
-    }
+  @Test
+  void shouldReturnFalseWhenNoMessages() {
+    assertThat(ToolCallLoopGuard.hasToolResults(List.of())).isFalse();
+    assertThat(ToolCallLoopGuard.hasToolResults(null)).isFalse();
+  }
 
-    @Test
-    void shouldReturnTrueWhenToolResponsePresent() {
-      assertThat(
-              ToolCallLoopGuard.hasToolResults(
-                  List.of(
-                      new UserMessage("chart please"),
-                      toolResponse("call-1", "searchWeb", "results"))))
-          .isTrue();
-    }
+  @Test
+  void shouldReturnTrueWhenToolResponsePresent() {
+    assertThat(
+            ToolCallLoopGuard.hasToolResults(
+                List.of(
+                    new UserMessage("chart please"),
+                    toolResponse("call-1", "searchWeb", "results"))))
+        .isTrue();
   }
 
   @Nested
@@ -162,34 +152,29 @@ class ToolCallLoopGuardTest {
     }
   }
 
-  @Nested
-  @DisplayName("reminders")
-  class Reminders {
+  @Test
+  void shouldAppendFinalReminderBanningFurtherToolsIncludingFetch() {
+    List<Message> next =
+        ToolCallLoopGuard.withFinalAnswerReminder(
+            List.of(new UserMessage("q"), new AssistantMessage("a")));
 
-    @Test
-    void shouldAppendFinalReminderBanningFurtherToolsIncludingFetch() {
-      List<Message> next =
-          ToolCallLoopGuard.withFinalAnswerReminder(
-              List.of(new UserMessage("q"), new AssistantMessage("a")));
+    assertThat(next.get(2)).isInstanceOf(SystemMessage.class);
+    assertThat(next.get(2).getText()).contains("Do not call any tools again");
+    assertThat(next.get(2).getText()).contains("including searchWeb and fetch");
+    assertThat(next.get(2).getText()).contains("a2ui");
+    assertThat(next.get(2).getText()).contains("Do not output DSML");
+  }
 
-      assertThat(next.get(2)).isInstanceOf(SystemMessage.class);
-      assertThat(next.get(2).getText()).contains("Do not call any tools again");
-      assertThat(next.get(2).getText()).contains("including searchWeb and fetch");
-      assertThat(next.get(2).getText()).contains("a2ui");
-      assertThat(next.get(2).getText()).contains("Do not output DSML");
-    }
+  @Test
+  void shouldAppendContinuationReminderAllowingSearchWeb() {
+    List<Message> next =
+        ToolCallLoopGuard.withContinuationReminder(
+            List.of(toolResponse("call-1", "getCurrentDateTime", "now")));
 
-    @Test
-    void shouldAppendContinuationReminderAllowingSearchWeb() {
-      List<Message> next =
-          ToolCallLoopGuard.withContinuationReminder(
-              List.of(toolResponse("call-1", "getCurrentDateTime", "now")));
-
-      assertThat(next.get(1).getText()).contains("searchWeb exactly once");
-      assertThat(next.get(1).getText()).contains("a2ui");
-      assertThat(next.get(1).getText()).contains("Do not call fetch");
-      assertThat(next.get(1).getText()).doesNotContain("Do not call any tools again");
-    }
+    assertThat(next.get(1).getText()).contains("searchWeb exactly once");
+    assertThat(next.get(1).getText()).contains("a2ui");
+    assertThat(next.get(1).getText()).contains("Do not call fetch");
+    assertThat(next.get(1).getText()).doesNotContain("Do not call any tools again");
   }
 
   @Nested
@@ -222,26 +207,21 @@ class ToolCallLoopGuardTest {
     }
   }
 
-  @Nested
-  @DisplayName("maybeDisableToolsRequest")
-  class MaybeDisableToolsRequest {
+  @Test
+  void shouldDisableToolsWhenTerminalToolPresent() {
+    OpenAiChatOptions options =
+        OpenAiChatOptions.builder().model("deepseek-v4-flash").toolChoice("auto").build();
+    var request =
+        org.springframework.ai.chat.client.ChatClientRequest.builder()
+            .prompt(
+                new org.springframework.ai.chat.prompt.Prompt(
+                    List.of(toolResponse("call-1", "searchWeb", "hits")), options))
+            .build();
 
-    @Test
-    void shouldDisableToolsWhenTerminalToolPresent() {
-      OpenAiChatOptions options =
-          OpenAiChatOptions.builder().model("deepseek-v4-flash").toolChoice("auto").build();
-      var request =
-          org.springframework.ai.chat.client.ChatClientRequest.builder()
-              .prompt(
-                  new org.springframework.ai.chat.prompt.Prompt(
-                      List.of(toolResponse("call-1", "searchWeb", "hits")), options))
-              .build();
+    var adjusted = ToolCallLoopGuard.disableToolsIfNeeded(request);
 
-      var adjusted = ToolCallLoopGuard.disableToolsIfNeeded(request);
-
-      OpenAiChatOptions disabled = (OpenAiChatOptions) adjusted.prompt().getOptions();
-      assertThat(disabled.getToolChoice()).isEqualTo("none");
-    }
+    OpenAiChatOptions disabled = (OpenAiChatOptions) adjusted.prompt().getOptions();
+    assertThat(disabled.getToolChoice()).isEqualTo("none");
   }
 
   private static ToolResponseMessage toolResponse(String id, String name, String data) {

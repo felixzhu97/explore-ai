@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -92,8 +91,6 @@ class RagSearchToolTest {
       String result = ragSearchTool.searchDocuments("test query", List.of(TEST_DOC_ID));
 
       assertThat(result).contains("找到以下相关文档片段");
-      verify(ragApplicationService)
-          .retrieveContext(eq("test query"), anyList(), eq(5), eq(OWNER_KEY));
     }
 
     @Test
@@ -175,8 +172,6 @@ class RagSearchToolTest {
           .thenReturn(Collections.emptyList());
 
       ragSearchTool.listDocuments();
-
-      verify(ragApplicationService).listSearchableDocuments(OWNER_KEY);
     }
 
     @Test

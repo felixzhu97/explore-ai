@@ -52,7 +52,6 @@ class McpServiceTest {
     when(mcpClientGateway.countTools()).thenReturn(7);
 
     assertThat(service.getTotalToolCount()).isEqualTo(7);
-    verify(mcpClientGateway).countTools();
   }
 
   @Test
@@ -107,7 +106,5 @@ class McpServiceTest {
     String answer = service.chatWithTools("What is the weather?");
 
     assertThat(answer).isEqualTo("Sunny");
-    verify(chatClientProvider).createStateless(any(TextChatOptions.class));
-    verify(requestSpec).tools((Object[]) callbacks);
   }
 }

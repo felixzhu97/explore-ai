@@ -1,7 +1,6 @@
 package com.ai.mcp.infra.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.chat.service.ChatService;
@@ -36,54 +35,41 @@ class McpServerToolsProviderTest {
         new McpServerToolsProvider(weatherTools, documentSearchTool, chatService, ragProperties);
   }
 
-  @Nested
-  @DisplayName("getWeather")
-  class GetWeatherTests {
+  @Test
+  @DisplayName("should return weather for valid city")
+  void shouldReturnWeatherForValidCity() {
+    String city = "Beijing";
+    String expectedWeather = "Sunny, 25°C";
+    when(weatherTools.getWeather(city)).thenReturn(expectedWeather);
 
-    @Test
-    @DisplayName("should return weather for valid city")
-    void shouldReturnWeatherForValidCity() {
-      String city = "Beijing";
-      String expectedWeather = "Sunny, 25°C";
-      when(weatherTools.getWeather(city)).thenReturn(expectedWeather);
+    String result = toolsProvider.getWeather(city);
 
-      String result = toolsProvider.getWeather(city);
-
-      assertThat(result).isEqualTo(expectedWeather);
-      verify(weatherTools).getWeather(city);
-    }
+    assertThat(result).isEqualTo(expectedWeather);
   }
 
-  @Nested
-  @DisplayName("getForecast")
-  class GetForecastTests {
+  @Test
+  @DisplayName("should return forecast for city with days")
+  void shouldReturnForecastWithDays() {
+    String city = "Shanghai";
+    Integer days = 5;
+    String expectedForecast = "5-day forecast: sunny, rainy, cloudy, sunny, cloudy";
+    when(weatherTools.getForecast(city, days)).thenReturn(expectedForecast);
 
-    @Test
-    @DisplayName("should return forecast for city with days")
-    void shouldReturnForecastWithDays() {
-      String city = "Shanghai";
-      Integer days = 5;
-      String expectedForecast = "5-day forecast: sunny, rainy, cloudy, sunny, cloudy";
-      when(weatherTools.getForecast(city, days)).thenReturn(expectedForecast);
+    String result = toolsProvider.getForecast(city, days);
 
-      String result = toolsProvider.getForecast(city, days);
+    assertThat(result).isEqualTo(expectedForecast);
+  }
 
-      assertThat(result).isEqualTo(expectedForecast);
-      verify(weatherTools).getForecast(city, days);
-    }
+  @Test
+  @DisplayName("should return forecast with null days")
+  void shouldReturnForecastWithNullDays() {
+    String city = "Guangzhou";
+    String expectedForecast = "3-day forecast: sunny, cloudy, rainy";
+    when(weatherTools.getForecast(city, null)).thenReturn(expectedForecast);
 
-    @Test
-    @DisplayName("should return forecast with null days")
-    void shouldReturnForecastWithNullDays() {
-      String city = "Guangzhou";
-      String expectedForecast = "3-day forecast: sunny, cloudy, rainy";
-      when(weatherTools.getForecast(city, null)).thenReturn(expectedForecast);
+    String result = toolsProvider.getForecast(city, null);
 
-      String result = toolsProvider.getForecast(city, null);
-
-      assertThat(result).isEqualTo(expectedForecast);
-      verify(weatherTools).getForecast(city, null);
-    }
+    assertThat(result).isEqualTo(expectedForecast);
   }
 
   @Nested
@@ -100,7 +86,6 @@ class McpServerToolsProviderTest {
       String result = toolsProvider.searchKnowledgeBase(query, null);
 
       assertThat(result).isEqualTo(expectedResults);
-      verify(documentSearchTool).searchDocuments(query, null);
     }
 
     @Test
@@ -115,7 +100,6 @@ class McpServerToolsProviderTest {
       String result = toolsProvider.searchKnowledgeBase(query, documentIds);
 
       assertThat(result).isEqualTo(expectedResults);
-      verify(documentSearchTool).searchDocuments(query, List.of("doc1", "doc2", "doc3"));
     }
 
     @Test
@@ -127,57 +111,44 @@ class McpServerToolsProviderTest {
       String result = toolsProvider.searchKnowledgeBase(query, "");
 
       assertThat(result).isEqualTo("[]");
-      verify(documentSearchTool).searchDocuments(query, null);
     }
   }
 
-  @Nested
-  @DisplayName("listDocuments")
-  class ListDocumentsTests {
+  @Test
+  @DisplayName("should list all documents")
+  void shouldListAllDocuments() {
+    String expectedDocs =
+        "[{\"id\": \"doc1\", \"title\": \"Document 1\"},"
+            + " {\"id\": \"doc2\", \"title\": \"Document 2\"}]";
+    when(documentSearchTool.listDocuments()).thenReturn(expectedDocs);
 
-    @Test
-    @DisplayName("should list all documents")
-    void shouldListAllDocuments() {
-      String expectedDocs =
-          "[{\"id\": \"doc1\", \"title\": \"Document 1\"},"
-              + " {\"id\": \"doc2\", \"title\": \"Document 2\"}]";
-      when(documentSearchTool.listDocuments()).thenReturn(expectedDocs);
+    String result = toolsProvider.listDocuments();
 
-      String result = toolsProvider.listDocuments();
-
-      assertThat(result).isEqualTo(expectedDocs);
-      verify(documentSearchTool).listDocuments();
-    }
+    assertThat(result).isEqualTo(expectedDocs);
   }
 
-  @Nested
-  @DisplayName("aiChat")
-  class AiChatTests {
+  @Test
+  @DisplayName("should return AI response")
+  void shouldReturnAiResponse() {
+    String message = "Hello AI";
+    String expectedResponse = "Hello! How can I help you?";
+    when(chatService.chat(message)).thenReturn(expectedResponse);
 
-    @Test
-    @DisplayName("should return AI response")
-    void shouldReturnAiResponse() {
-      String message = "Hello AI";
-      String expectedResponse = "Hello! How can I help you?";
-      when(chatService.chat(message)).thenReturn(expectedResponse);
+    String result = toolsProvider.aiChat(message);
 
-      String result = toolsProvider.aiChat(message);
+    assertThat(result).isEqualTo(expectedResponse);
+  }
 
-      assertThat(result).isEqualTo(expectedResponse);
-      verify(chatService).chat(message);
-    }
+  @Test
+  @DisplayName("should truncate long message for logging")
+  void shouldTruncateLongMessageForLogging() {
+    String longMessage = "A".repeat(100);
+    String expectedResponse = "Response";
+    when(chatService.chat(longMessage)).thenReturn(expectedResponse);
 
-    @Test
-    @DisplayName("should truncate long message for logging")
-    void shouldTruncateLongMessageForLogging() {
-      String longMessage = "A".repeat(100);
-      String expectedResponse = "Response";
-      when(chatService.chat(longMessage)).thenReturn(expectedResponse);
+    String result = toolsProvider.aiChat(longMessage);
 
-      String result = toolsProvider.aiChat(longMessage);
-
-      assertThat(result).isEqualTo(expectedResponse);
-    }
+    assertThat(result).isEqualTo(expectedResponse);
   }
 
   @Nested

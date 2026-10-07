@@ -1,7 +1,7 @@
 package com.ai.testsupport;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.OwnerContext;
 import com.ai.common.domain.model.OwnerKey;
@@ -19,8 +19,8 @@ public abstract class AbstractOwnerScopedControllerTest {
 
   @BeforeEach
   void stubOwnerContext() {
-    lenient().when(ownerContext.requireValue(any())).thenReturn(ownerKey());
-    lenient().when(ownerContext.require(any())).thenReturn(OwnerKey.parse(ownerKey()));
+    when(ownerContext.requireValue(any())).thenReturn(ownerKey());
+    when(ownerContext.require(any())).thenReturn(OwnerKey.parse(ownerKey()));
   }
 
   /** Owner key returned by stubbed {@link OwnerContext#requireValue}. */

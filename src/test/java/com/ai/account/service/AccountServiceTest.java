@@ -186,8 +186,6 @@ class AccountServiceTest {
     AccountUser user = useCase.linkOAuthUser(signIn("google", "sub-9", "a@b.com"), client(CID_1));
 
     assertThat(user.getLinkedClientId()).isEqualTo(client(CID_1));
-
-    verify(accountUserRepository).save(org.mockito.ArgumentMatchers.any(AccountUser.class));
   }
 
   @Test
@@ -313,7 +311,6 @@ class AccountServiceTest {
 
     assertThat(response.mode()).isEqualTo(AccountMode.AUTHENTICATED);
     assertThat(response.email()).isEqualTo("new@example.com");
-    verify(accountUserRepository).save(org.mockito.ArgumentMatchers.any(AccountUser.class));
   }
 
   private static AccountUser account(

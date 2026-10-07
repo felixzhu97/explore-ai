@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -45,80 +44,75 @@ class ChunkRowMapperTest {
     adapter = new H2DocumentChunkRepository(jdbcTemplate, objectMapper);
   }
 
-  @Nested
-  @DisplayName("search")
-  class Search {
+  @Test
+  void shouldMapSearchResults() {
+    DocumentChunk expectedChunk = createMockChunk(TEST_CHUNK_ID, TEST_DOCUMENT_ID);
+    when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+        .thenReturn(List.of(expectedChunk));
+    List<ScoredChunk> results =
+        adapter.search(new float[] {1.0f, 0.0f, 0.0f, 0.0f}, 5, "c:owner", List.of());
+    assertThat(results).hasSize(1);
+    DocumentChunk found = results.get(0).chunk();
+    assertThat(found.getId()).isEqualTo(TEST_CHUNK_ID);
+    assertThat(found.getDocumentId()).isEqualTo(TEST_DOCUMENT_ID);
+    assertThat(found.getContent()).isEqualTo("Test content " + TEST_CHUNK_ID);
+    assertThat(found.getEmbedding()).containsExactly(1.0f, 2.0f, 3.0f, 4.0f);
+  }
 
-    @Test
-    void shouldMapSearchResults() {
-      DocumentChunk expectedChunk = createMockChunk(TEST_CHUNK_ID, TEST_DOCUMENT_ID);
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
-          .thenReturn(List.of(expectedChunk));
-      List<ScoredChunk> results =
-          adapter.search(new float[] {1.0f, 0.0f, 0.0f, 0.0f}, 5, "c:owner", List.of());
-      assertThat(results).hasSize(1);
-      DocumentChunk found = results.get(0).chunk();
-      assertThat(found.getId()).isEqualTo(TEST_CHUNK_ID);
-      assertThat(found.getDocumentId()).isEqualTo(TEST_DOCUMENT_ID);
-      assertThat(found.getContent()).isEqualTo("Test content " + TEST_CHUNK_ID);
-      assertThat(found.getEmbedding()).containsExactly(1.0f, 2.0f, 3.0f, 4.0f);
-    }
+  @Test
+  void shouldReturnEmptyList() {
+    when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+        .thenReturn(List.of());
+    List<ScoredChunk> results = adapter.search(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
+    assertThat(results).isEmpty();
+  }
 
-    @Test
-    void shouldReturnEmptyList() {
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
-          .thenReturn(List.of());
-      List<ScoredChunk> results = adapter.search(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
-      assertThat(results).isEmpty();
-    }
+  @Test
+  void shouldRankByCosineSimilarity() {
+    DocumentChunk lowScore =
+        DocumentChunk.create(TEST_CHUNK_ID, TEST_DOCUMENT_ID, OWNER, "low", 0, Map.of())
+            .withEmbedding(new float[] {0.0f, 1.0f});
+    DocumentChunk highScore =
+        DocumentChunk.create(ChunkId.generate(), TEST_DOCUMENT_ID, OWNER, "high", 1, Map.of())
+            .withEmbedding(new float[] {1.0f, 0.0f});
+    when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+        .thenReturn(List.of(lowScore, highScore));
 
-    @Test
-    void shouldRankByCosineSimilarity() {
-      DocumentChunk lowScore =
-          DocumentChunk.create(TEST_CHUNK_ID, TEST_DOCUMENT_ID, OWNER, "low", 0, Map.of())
-              .withEmbedding(new float[] {0.0f, 1.0f});
-      DocumentChunk highScore =
-          DocumentChunk.create(ChunkId.generate(), TEST_DOCUMENT_ID, OWNER, "high", 1, Map.of())
-              .withEmbedding(new float[] {1.0f, 0.0f});
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
-          .thenReturn(List.of(lowScore, highScore));
+    List<ScoredChunk> results = adapter.search(new float[] {1.0f, 0.0f}, 1, "c:owner", List.of());
 
-      List<ScoredChunk> results = adapter.search(new float[] {1.0f, 0.0f}, 1, "c:owner", List.of());
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).chunk().getContent()).isEqualTo("high");
+  }
 
-      assertThat(results).hasSize(1);
-      assertThat(results.get(0).chunk().getContent()).isEqualTo("high");
-    }
+  @Test
+  void shouldSelectAllRequiredColumns() {
+    when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+        .thenReturn(List.of());
+    adapter.search(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
+    ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
+    verify(jdbcTemplate).query(sqlCaptor.capture(), any(RowMapper.class), any(Object[].class));
+    String sql = sqlCaptor.getValue();
+    assertThat(sql)
+        .contains("id")
+        .contains("document_id")
+        .contains("owner_key,")
+        .contains("content")
+        .contains("embedding")
+        .contains("metadata")
+        .contains("created_at")
+        .contains("owner_key = ?");
+  }
 
-    @Test
-    void shouldSelectAllRequiredColumns() {
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
-          .thenReturn(List.of());
-      adapter.search(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
-      ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
-      verify(jdbcTemplate).query(sqlCaptor.capture(), any(RowMapper.class), any(Object[].class));
-      String sql = sqlCaptor.getValue();
-      assertThat(sql)
-          .contains("id")
-          .contains("document_id")
-          .contains("owner_key,")
-          .contains("content")
-          .contains("embedding")
-          .contains("metadata")
-          .contains("created_at")
-          .contains("owner_key = ?");
-    }
-
-    @Test
-    void shouldPassMetadataToResults() {
-      Map<String, Object> metadata = Map.of("source", "test.pdf", "page", 1);
-      DocumentChunk chunkWithMetadata =
-          DocumentChunk.create(TEST_CHUNK_ID, TEST_DOCUMENT_ID, OWNER, "Test content", 0, metadata)
-              .withEmbedding(new float[] {1.0f, 2.0f});
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
-          .thenReturn(List.of(chunkWithMetadata));
-      List<ScoredChunk> results = adapter.search(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
-      assertThat(results.get(0).chunk().getMetadata()).containsKey("source");
-    }
+  @Test
+  void shouldPassMetadataToResults() {
+    Map<String, Object> metadata = Map.of("source", "test.pdf", "page", 1);
+    DocumentChunk chunkWithMetadata =
+        DocumentChunk.create(TEST_CHUNK_ID, TEST_DOCUMENT_ID, OWNER, "Test content", 0, metadata)
+            .withEmbedding(new float[] {1.0f, 2.0f});
+    when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+        .thenReturn(List.of(chunkWithMetadata));
+    List<ScoredChunk> results = adapter.search(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
+    assertThat(results.get(0).chunk().getMetadata()).containsKey("source");
   }
 
   private DocumentChunk createMockChunk(ChunkId id, DocumentId documentId) {
