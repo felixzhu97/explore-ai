@@ -125,18 +125,6 @@ class AutomationScheduleTest {
           .hasMessageContaining("already completed");
       assertThat(schedule.isEnabled()).isFalse();
     }
-
-    @Test
-    @DisplayName("should refuse the inherited enable so the next run cannot go stale")
-    void shouldRefuseTheInheritedEnableSoTheNextRunCannotGoStale() {
-      AutomationSchedule schedule = cronSchedule();
-      schedule.disable();
-
-      assertThatThrownBy(schedule::enable).isInstanceOf(UnsupportedOperationException.class);
-      assertThatThrownBy(() -> schedule.changeEnabled(true))
-          .isInstanceOf(UnsupportedOperationException.class);
-      assertThat(schedule.isEnabled()).isFalse();
-    }
   }
 
   @Nested

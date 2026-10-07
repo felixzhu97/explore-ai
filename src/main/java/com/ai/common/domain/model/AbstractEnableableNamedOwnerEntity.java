@@ -2,61 +2,40 @@ package com.ai.common.domain.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
-import java.time.Instant;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Named owner-keyed aggregate that can be enabled or disabled. */
+/** Owner-aware entity with a validated name that can be turned off. */
 @MappedSuperclass
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractEnableableNamedOwnerEntity<IdT extends AbstractEmbeddable>
-    extends AbstractNamedOwnerEntity<IdT> {
+    extends AbstractOwnerAwareEntity<IdT> {
+
+  @NotBlank
+  @Size(max = 120)
+  @Column(nullable = false, length = 120)
+  protected String name;
 
   @Column(nullable = false)
   protected boolean enabled;
 
-  protected AbstractEnableableNamedOwnerEntity(
-      IdT id,
-      OwnerKey ownerKey,
-      String name,
-      boolean enabled,
-      Instant createdAt,
-      Instant updatedAt) {
-    super(id, ownerKey, name, createdAt, updatedAt);
-    this.enabled = enabled;
-  }
-
-  protected AbstractEnableableNamedOwnerEntity(
-      IdT id, String ownerKey, String name, boolean enabled, Instant createdAt, Instant updatedAt) {
-    super(id, ownerKey, name, createdAt, updatedAt);
-    this.enabled = enabled;
-  }
-
-  /** Turns the entity on. */
-  public void enable() {
+  protected AbstractEnableableNamedOwnerEntity(IdT id, String ownerKey, String name) {
+    super(id, OwnerKey.parse(ownerKey));
+    this.name = DomainStrings.requireName(name);
     this.enabled = true;
-    touchUpdatedAt();
+  }
+
+  /** Renames the entity. */
+  protected void rename(String nextName) {
+    this.name = DomainStrings.requireName(nextName);
   }
 
   /** Turns the entity off. */
   public void disable() {
     this.enabled = false;
-    touchUpdatedAt();
-  }
-
-  /** Turns the entity on or off. */
-  public void changeEnabled(boolean enabled) {
-    if (enabled) {
-      enable();
-    } else {
-      disable();
-    }
-  }
-
-  /** Tells whether the entity is on. */
-  public boolean isEnabled() {
-    return enabled;
   }
 }

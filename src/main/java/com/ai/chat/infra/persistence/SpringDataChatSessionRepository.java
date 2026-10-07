@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringDataChatSessionRepository extends JpaRepository<ChatSession, ChatSessionId> {
 
-  List<ChatSession> findByUpdatedAtBeforeOrderByUpdatedAtAsc(Instant cutoff);
+  List<ChatSession> findByLastActivityAtBeforeOrderByLastActivityAtAsc(Instant cutoff);
 }

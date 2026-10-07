@@ -1,5 +1,6 @@
 package com.ai.metrics.domain.model;
 
+import jakarta.persistence.EnumeratedValue;
 import java.util.Locale;
 
 /** Result of an AI invocation, persisted as {@code success} or {@code error}. */
@@ -7,7 +8,7 @@ public enum InvocationOutcome {
   SUCCESS("success"),
   ERROR("error");
 
-  private final String value;
+  @EnumeratedValue private final String value;
 
   InvocationOutcome(String value) {
     this.value = value;

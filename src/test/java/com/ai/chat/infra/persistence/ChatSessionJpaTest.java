@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.model.ChatSessionId;
+import com.ai.chat.domain.model.SessionTitle;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;
@@ -76,6 +77,22 @@ class ChatSessionJpaTest extends AbstractDataJpaTest {
     List<ChatSession> sessions = jpaRepository.findByOwnerKey(OWNER_KEY);
 
     assertThat(sessions).extracting(ChatSession::getTitle).containsExactly("Newer", "Older");
+  }
+
+  @Test
+  @DisplayName("should keep last activity when a generated title is stored")
+  void shouldKeepLastActivityWhenAGeneratedTitleIsStored() {
+    Instant lastActivity = Instant.parse("2026-01-01T00:00:00Z");
+    ChatSession session = ChatSession.of(ChatSessionId.generate(), null, lastActivity, OWNER_KEY);
+    springDataRepository.saveAndFlush(session);
+
+    session.applyGeneratedTitle(SessionTitle.generated("Trip plan"));
+    springDataRepository.saveAndFlush(session);
+    em.clear();
+
+    ChatSession reloaded = springDataRepository.findById(session.getId()).orElseThrow();
+    assertThat(reloaded.getTitle()).isEqualTo("Trip plan");
+    assertThat(reloaded.getLastActivityAt()).isEqualTo(lastActivity);
   }
 
   @Test

@@ -4,17 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ai.skill.domain.model.SkillId;
-import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("AbstractOwnerKeyedEntity")
-class AbstractOwnerKeyedEntityTest {
+@DisplayName("AbstractOwnerAwareEntity")
+class AbstractOwnerAwareEntityTest {
 
-  static final class TestEntity extends AbstractOwnerKeyedEntity<SkillId> {
+  static final class TestEntity extends AbstractOwnerAwareEntity<SkillId> {
 
     TestEntity(String ownerKey) {
-      super(SkillId.generate(), ownerKey, Instant.now(), Instant.now());
+      super(SkillId.generate(), OwnerKey.parse(ownerKey));
     }
   }
 

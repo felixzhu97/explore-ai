@@ -3,8 +3,8 @@ package com.ai.common.domain.model;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-/** JPA converter for {@link OwnerKey} stored as owner_key column values. */
-@Converter(autoApply = false)
+/** Stores every {@link OwnerKey} attribute as its owner_key column value. */
+@Converter(autoApply = true)
 public class OwnerKeyAttributeConverter implements AttributeConverter<OwnerKey, String> {
 
   @Override

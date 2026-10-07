@@ -8,7 +8,6 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,11 +45,8 @@ public class SavedAgent extends AbstractEnableableDescribedOwnerEntity<SavedAgen
       String name,
       String description,
       String systemPrompt,
-      List<String> toolKeys,
-      boolean enabled,
-      Instant createdAt,
-      Instant updatedAt) {
-    super(id, ownerKey, name, description, enabled, createdAt, updatedAt);
+      List<String> toolKeys) {
+    super(id, ownerKey, name, description);
     this.typeKey = requireTypeKey(typeKey);
     this.systemPrompt = DomainStrings.requireNonBlank(systemPrompt, "systemPrompt");
     this.toolKeys = copyToolKeys(toolKeys);
@@ -64,18 +60,8 @@ public class SavedAgent extends AbstractEnableableDescribedOwnerEntity<SavedAgen
       String description,
       String systemPrompt,
       List<String> toolKeys) {
-    Instant now = Instant.now();
     return new SavedAgent(
-        SavedAgentId.generate(),
-        ownerKey,
-        typeKey,
-        name,
-        description,
-        systemPrompt,
-        toolKeys,
-        true,
-        now,
-        now);
+        SavedAgentId.generate(), ownerKey, typeKey, name, description, systemPrompt, toolKeys);
   }
 
   /** Replaces name, description, system prompt and tools, bumping the update timestamp. */
@@ -85,7 +71,6 @@ public class SavedAgent extends AbstractEnableableDescribedOwnerEntity<SavedAgen
     updateDescription(description);
     this.systemPrompt = DomainStrings.requireNonBlank(systemPrompt, "systemPrompt");
     this.toolKeys = copyToolKeys(toolKeys);
-    touchUpdatedAt();
     return this;
   }
 

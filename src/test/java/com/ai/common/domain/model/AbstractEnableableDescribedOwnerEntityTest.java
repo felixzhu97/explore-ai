@@ -6,7 +6,6 @@ import com.ai.skill.domain.model.SkillId;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import java.time.Instant;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -24,14 +23,7 @@ class AbstractEnableableDescribedOwnerEntityTest {
   static final class TestEntity extends AbstractEnableableDescribedOwnerEntity<SkillId> {
 
     TestEntity(String description) {
-      super(
-          SkillId.generate(),
-          "c:client-1",
-          "name",
-          description,
-          true,
-          Instant.now(),
-          Instant.now());
+      super(SkillId.generate(), "c:client-1", "name", description);
     }
 
     void describe(String description) {
