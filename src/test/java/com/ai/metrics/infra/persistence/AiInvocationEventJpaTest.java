@@ -3,7 +3,7 @@ package com.ai.metrics.infra.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.ErrorSummary;
 import com.ai.metrics.domain.model.InvocationOutcome;
@@ -31,7 +31,7 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
   @DisplayName("should persist and reload invocation event when round tripping")
   void shouldPersistAndReloadInvocationEventWhenRoundTripping() {
     AiInvocationEvent event =
-        AiInvocationEvent.succeeded(AiDomain.CHAT, "completion", Latency.ofMillis(250), OWNER)
+        AiInvocationEvent.succeeded(AiCapability.CHAT, "completion", Latency.ofMillis(250), OWNER)
             .provider("openai")
             .model("gpt-4")
             .build();
@@ -49,11 +49,11 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
   }
 
   @Test
-  @DisplayName("should store domain and outcome values when persisting event")
-  void shouldStoreDomainAndOutcomeValuesWhenPersistingEvent() {
+  @DisplayName("should store capability and outcome values when persisting event")
+  void shouldStoreCapabilityAndOutcomeValuesWhenPersistingEvent() {
     AiInvocationEvent event =
         AiInvocationEvent.failed(
-                AiDomain.RAG,
+                AiCapability.RAG,
                 "embed",
                 Latency.ofMillis(90),
                 OWNER,
@@ -65,17 +65,17 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
 
     AiInvocationEvent reloaded = em.find(AiInvocationEvent.class, event.getId());
 
-    assertThat(reloaded.getDomain()).isEqualTo(AiDomain.RAG);
+    assertThat(reloaded.getCapability()).isEqualTo(AiCapability.RAG);
     assertThat(reloaded.getOutcome()).isEqualTo(InvocationOutcome.ERROR);
     assertThat(reloaded.getErrorCode()).isEqualTo("timeout");
   }
 
   @Test
-  @DisplayName("should store lowercase domain and outcome when persisting event")
-  void shouldStoreLowercaseDomainAndOutcomeWhenPersistingEvent() {
+  @DisplayName("should store lowercase capability and outcome when persisting event")
+  void shouldStoreLowercaseCapabilityAndOutcomeWhenPersistingEvent() {
     AiInvocationEvent event =
         AiInvocationEvent.failed(
-                AiDomain.VISION,
+                AiCapability.VISION,
                 "describe",
                 Latency.ofMillis(5),
                 OWNER,
@@ -85,7 +85,7 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
     em.persistAndFlush(event);
     em.clear();
 
-    assertThat(rawColumn(event, "domain")).isEqualTo("vision");
+    assertThat(rawColumn(event, "capability")).isEqualTo("vision");
     assertThat(rawColumn(event, "outcome")).isEqualTo("error");
   }
 
@@ -94,7 +94,7 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
   void shouldPreserveOccurredAtTimestampWhenRoundTrippingEvent() {
     Instant occurredAt = Instant.parse("2026-03-15T12:00:00Z");
     AiInvocationEvent event =
-        AiInvocationEvent.succeeded(AiDomain.WORKFLOW, "execute", Latency.ofMillis(500), OWNER)
+        AiInvocationEvent.succeeded(AiCapability.WORKFLOW, "execute", Latency.ofMillis(500), OWNER)
             .occurredAt(occurredAt)
             .build();
 
@@ -111,7 +111,7 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
   void shouldFilterAndReadOccurredAtAsInstantWhenQueryingThroughJdbc() {
     Instant occurredAt = Instant.parse("2026-03-15T12:00:00.250Z");
     AiInvocationEvent event =
-        AiInvocationEvent.succeeded(AiDomain.WORKFLOW, "execute", Latency.ofMillis(500), OWNER)
+        AiInvocationEvent.succeeded(AiCapability.WORKFLOW, "execute", Latency.ofMillis(500), OWNER)
             .occurredAt(occurredAt)
             .build();
     em.persistAndFlush(event);
@@ -119,7 +119,7 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
     PageResult page =
         repository.findDrilldown(
             new DrilldownQuery(
-                Optional.of(AiDomain.WORKFLOW),
+                Optional.of(AiCapability.WORKFLOW),
                 Optional.of(occurredAt),
                 Optional.of(occurredAt.plusMillis(1)),
                 Optional.empty(),
@@ -168,7 +168,7 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
   }
 
   private static AiInvocationEvent event(String sessionId, Instant occurredAt) {
-    return AiInvocationEvent.succeeded(AiDomain.CHAT, "completion", Latency.ofMillis(10), OWNER)
+    return AiInvocationEvent.succeeded(AiCapability.CHAT, "completion", Latency.ofMillis(10), OWNER)
         .sessionId(sessionId)
         .occurredAt(occurredAt)
         .build();

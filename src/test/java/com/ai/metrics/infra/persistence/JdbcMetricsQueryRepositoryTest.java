@@ -10,7 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.InvocationStats;
 import com.ai.metrics.domain.model.LatencyStats;
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
@@ -62,7 +62,8 @@ class JdbcMetricsQueryRepositoryTest {
         .when(jdbcTemplate)
         .query(anyString(), any(ResultSetExtractor.class), any(Object[].class));
 
-    InvocationStats stats = repository.countInvocationStats(Optional.of(AiDomain.CHAT), from, to);
+    InvocationStats stats =
+        repository.countInvocationStats(Optional.of(AiCapability.CHAT), from, to);
 
     assertThat(stats).isEqualTo(new InvocationStats(7L, 2L));
     verify(jdbcTemplate)
@@ -76,7 +77,7 @@ class JdbcMetricsQueryRepositoryTest {
         .thenReturn(List.of());
 
     LatencyStats stats =
-        repository.calculateLatencyPercentiles(Optional.of(AiDomain.RAG), from, to);
+        repository.calculateLatencyPercentiles(Optional.of(AiCapability.RAG), from, to);
 
     assertThat(stats.p50Ms()).isNull();
     assertThat(stats.p95Ms()).isNull();
@@ -123,7 +124,7 @@ class JdbcMetricsQueryRepositoryTest {
         .query(anyString(), any(ResultSetExtractor.class), any(Object[].class));
 
     MetricsQueryRepository.TokenTotals totals =
-        repository.sumTokens(Optional.of(AiDomain.CHAT), from, to);
+        repository.sumTokens(Optional.of(AiCapability.CHAT), from, to);
 
     assertThat(totals.promptTokens()).isEqualTo(120L);
     assertThat(totals.completionTokens()).isEqualTo(45L);
@@ -151,8 +152,8 @@ class JdbcMetricsQueryRepositoryTest {
   }
 
   @Test
-  @DisplayName("should map named counts for domain model and agent queries")
-  void shouldMapNamedCountsForDomainModelAndAgentQueries() {
+  @DisplayName("should map named counts for capability model and agent queries")
+  void shouldMapNamedCountsForCapabilityModelAndAgentQueries() {
     when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
         .thenAnswer(
             invocation -> {
@@ -164,10 +165,10 @@ class JdbcMetricsQueryRepositoryTest {
               return List.of(mapper.mapRow(rs, 0));
             });
 
-    assertThat(repository.countByDomain(from, to))
+    assertThat(repository.countByCapability(from, to))
         .extracting(MetricsQueryRepository.NamedCount::name)
         .containsExactly("chat");
-    assertThat(repository.countByModel(Optional.of(AiDomain.CHAT), from, to)).hasSize(1);
+    assertThat(repository.countByModel(Optional.of(AiCapability.CHAT), from, to)).hasSize(1);
     assertThat(repository.countByAgentType(from, to)).hasSize(1);
   }
 
@@ -177,7 +178,7 @@ class JdbcMetricsQueryRepositoryTest {
     when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
         .thenReturn(List.of());
 
-    repository.listTopTools(Optional.of(AiDomain.TOOLS), from, to, 0);
+    repository.listTopTools(Optional.of(AiCapability.TOOLS), from, to, 0);
 
     verify(jdbcTemplate).query(contains("LIMIT ?"), any(RowMapper.class), any(Object[].class));
   }
@@ -196,7 +197,7 @@ class JdbcMetricsQueryRepositoryTest {
               return List.of(mapper.mapRow(rs, 0));
             });
 
-    assertThat(repository.countDailyRequests(Optional.of(AiDomain.CHAT), from, to)).hasSize(1);
+    assertThat(repository.countDailyRequests(Optional.of(AiCapability.CHAT), from, to)).hasSize(1);
     assertThat(repository.countDailyErrors(Optional.empty(), from, to)).hasSize(1);
     assertThat(repository.countDailySessionsCreated(from, to)).hasSize(1);
     assertThat(repository.countDailyMessagesCreated(from, to)).hasSize(1);
@@ -221,7 +222,7 @@ class JdbcMetricsQueryRepositoryTest {
         .query(anyString(), any(RowCallbackHandler.class), any(Object[].class));
 
     List<MetricsQueryRepository.TimePoint> points =
-        repository.calculateDailyLatencyP95(Optional.of(AiDomain.AGENTS), from, to);
+        repository.calculateDailyLatencyP95(Optional.of(AiCapability.AGENTS), from, to);
 
     assertThat(points).hasSize(2);
     assertThat(points.get(0).day()).isEqualTo("2026-07-01");
@@ -243,7 +244,7 @@ class JdbcMetricsQueryRepositoryTest {
     when(jdbcTemplate.queryForObject(
             eq("SELECT COUNT(*) FROM SPRING_AI_CHAT_MEMORY"), eq(Long.class)))
         .thenReturn(10L);
-    when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM chat_web_sources"), eq(Long.class)))
+    when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM chat_web_source"), eq(Long.class)))
         .thenReturn(1L);
 
     MetricsQueryRepository.ChatInventory inventory = repository.getChatInventory(from);
@@ -259,7 +260,7 @@ class JdbcMetricsQueryRepositoryTest {
   void shouldBuildRagInventoryWithStatusBreakdown() {
     when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM rag_document"), eq(Long.class)))
         .thenReturn(4L);
-    when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM document_chunks"), eq(Long.class)))
+    when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM document_chunk"), eq(Long.class)))
         .thenReturn(12L);
     when(jdbcTemplate.queryForObject(
             eq("SELECT COALESCE(SUM(file_size), 0) FROM rag_document"), eq(Long.class)))

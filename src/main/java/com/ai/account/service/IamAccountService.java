@@ -1,9 +1,9 @@
 package com.ai.account.service;
 
-import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.model.Account;
 import com.ai.account.domain.model.ContactEmail;
 import com.ai.account.domain.model.ExternalIdentity;
-import com.ai.account.domain.repository.AccountUserRepository;
+import com.ai.account.domain.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -14,20 +14,20 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class IamAccountService {
 
-  private final AccountUserRepository accountUserRepository;
+  private final AccountRepository accountRepository;
 
   /** Returns the account for the token subject, creating it on first use. */
   @Transactional
-  public AccountUser signIn(Jwt jwt) {
+  public Account signIn(Jwt jwt) {
     ExternalIdentity identity = ExternalIdentity.iam(jwt.getSubject());
     ContactEmail email = ContactEmail.ofNullable(jwt.getClaimAsString("email"));
-    return accountUserRepository
+    return accountRepository
         .findByIdentity(identity)
         .map(
-            user -> {
-              user.recordSignIn(email, null);
-              return accountUserRepository.save(user);
+            account -> {
+              account.recordSignIn(email, null);
+              return accountRepository.save(account);
             })
-        .orElseGet(() -> accountUserRepository.save(AccountUser.create(identity, email, null)));
+        .orElseGet(() -> accountRepository.save(Account.create(identity, email, null)));
   }
 }

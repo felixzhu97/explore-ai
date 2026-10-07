@@ -10,7 +10,7 @@ import com.ai.chat.infra.prompt.LocalizedRagPromptBuilder;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.model.SourceCitation;
 import com.ai.rag.service.RagApplicationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
@@ -64,7 +64,7 @@ class VisionChatServiceTest {
         .thenReturn(
             new RagApplicationService.RetrievalResult(
                 "context chunk",
-                List.of(new SourceDocument("source text", 0.9, Map.of())),
+                List.of(new SourceCitation("source text", 0.9, Map.of())),
                 "question"));
     when(localizedRagPromptBuilder.build(anyString(), anyString())).thenReturn("prompt");
     when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);

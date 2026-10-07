@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.model.Account;
 import com.ai.account.domain.model.ClientId;
 import com.ai.account.domain.model.ExternalIdentity;
-import com.ai.account.domain.repository.AccountUserRepository;
+import com.ai.account.domain.repository.AccountRepository;
 import com.ai.common.domain.model.OwnerKey;
 import java.time.Instant;
 import java.util.List;
@@ -34,14 +34,14 @@ class CurrentOwnerResolverTest {
 
   private static final String CLIENT_ID = "11111111-1111-1111-1111-111111111111";
 
-  @Mock private AccountUserRepository accountUserRepository;
+  @Mock private AccountRepository accountRepository;
   @Mock private IamAccountService iamAccountService;
 
   @InjectMocks private CurrentOwnerResolver resolver;
 
   @Test
   void shouldReturnClientOwnerWhenGuestWithoutLink() {
-    when(accountUserRepository.findByLinkedClientId(ClientId.parse(CLIENT_ID)))
+    when(accountRepository.findByLinkedClientId(ClientId.parse(CLIENT_ID)))
         .thenReturn(Optional.empty());
 
     OwnerKey key = resolver.resolve(CLIENT_ID, null);
@@ -51,9 +51,9 @@ class CurrentOwnerResolverTest {
 
   @Test
   void shouldReturnAccountOwnerWhenLinkedClientIdPresent() {
-    AccountUser user = AccountUser.create(ExternalIdentity.of("google", "sub"), null, null);
-    when(accountUserRepository.findByLinkedClientId(ClientId.parse(CLIENT_ID)))
-        .thenReturn(Optional.of(user));
+    Account account = Account.create(ExternalIdentity.of("google", "sub"), null, null);
+    when(accountRepository.findByLinkedClientId(ClientId.parse(CLIENT_ID)))
+        .thenReturn(Optional.of(account));
 
     OwnerKey key =
         resolver.resolve(
@@ -61,7 +61,7 @@ class CurrentOwnerResolverTest {
             new AnonymousAuthenticationToken(
                 "key", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 
-    assertThat(key).isEqualTo(user.ownerKey());
+    assertThat(key).isEqualTo(account.ownerKey());
   }
 
   @Test
@@ -70,14 +70,14 @@ class CurrentOwnerResolverTest {
     OwnerKey key = resolver.resolve("cid-legacy", null);
 
     assertThat(key).isEqualTo(OwnerKey.forClient("cid-legacy"));
-    verifyNoInteractions(accountUserRepository);
+    verifyNoInteractions(accountRepository);
   }
 
   @Test
   void shouldReturnAccountOwnerWhenOAuthAuthenticated() {
-    AccountUser user = AccountUser.create(ExternalIdentity.of("google", "sub-9"), null, null);
-    when(accountUserRepository.findByIdentity(ExternalIdentity.of("google", "sub-9")))
-        .thenReturn(Optional.of(user));
+    Account account = Account.create(ExternalIdentity.of("google", "sub-9"), null, null);
+    when(accountRepository.findByIdentity(ExternalIdentity.of("google", "sub-9")))
+        .thenReturn(Optional.of(account));
 
     OidcIdToken idToken =
         new OidcIdToken(
@@ -88,21 +88,21 @@ class CurrentOwnerResolverTest {
 
     OwnerKey key = resolver.resolve(CLIENT_ID, auth);
 
-    assertThat(key).isEqualTo(user.ownerKey());
+    assertThat(key).isEqualTo(account.ownerKey());
   }
 
   @Test
   void shouldReturnAccountOwnerWhenIamJwtAuthenticated() {
-    AccountUser user = AccountUser.create(ExternalIdentity.iam("iam-sub"), null, null);
+    Account account = Account.create(ExternalIdentity.iam("iam-sub"), null, null);
     Jwt jwt = IamAccountServiceTest.jwt("iam-sub", "iam@example.com");
-    when(iamAccountService.signIn(jwt)).thenReturn(user);
+    when(iamAccountService.signIn(jwt)).thenReturn(account);
 
     OwnerKey key =
         resolver.resolve(
             CLIENT_ID,
             new JwtAuthenticationToken(jwt, AuthorityUtils.createAuthorityList("ROLE_USER")));
 
-    assertThat(key).isEqualTo(user.ownerKey());
-    verifyNoInteractions(accountUserRepository);
+    assertThat(key).isEqualTo(account.ownerKey());
+    verifyNoInteractions(accountRepository);
   }
 }

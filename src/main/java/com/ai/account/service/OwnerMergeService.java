@@ -1,6 +1,6 @@
 package com.ai.account.service;
 
-import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.model.Account;
 import com.ai.account.domain.repository.OwnerPartitionRepository;
 import com.ai.common.domain.model.OwnerKey;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +16,12 @@ public class OwnerMergeService {
 
   /** Moves the linked browser's guest rows to the account's Owner Key. */
   @Transactional
-  public void mergeGuestIntoAccount(AccountUser user) {
+  public void mergeGuestIntoAccount(Account account) {
     OwnerKey from =
-        user.guestOwnerKey()
+        account
+            .guestOwnerKey()
             .orElseThrow(() -> new IllegalStateException("account is not linked to a browser"));
-    OwnerKey to = user.ownerKey();
+    OwnerKey to = account.ownerKey();
     from.requireMergeableInto(to);
     ownerPartitionRepository.reassignOwner(from, to);
   }

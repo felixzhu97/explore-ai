@@ -2,7 +2,7 @@ package com.ai.eval;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.eval.domain.model.GoldenEvalDomain;
+import com.ai.eval.domain.model.GoldenEvalCategory;
 import com.ai.eval.domain.model.GoldenSuiteReport;
 import com.ai.eval.service.GoldenEvalService;
 import java.util.List;
@@ -30,7 +30,7 @@ class GoldenEvalIT {
   @Test
   @DisplayName("should report pass rate when chat golden suite runs")
   void shouldReportPassRateWhenChatGoldenSuiteRuns() {
-    GoldenSuiteReport report = goldenEvalService.run(List.of(GoldenEvalDomain.CHAT), List.of());
+    GoldenSuiteReport report = goldenEvalService.run(List.of(GoldenEvalCategory.CHAT), List.of());
     logReport("CHAT", report);
 
     assertThat(report.total()).isGreaterThan(0);
@@ -42,11 +42,11 @@ class GoldenEvalIT {
   @Test
   @DisplayName("should report pass rate when rag golden suite runs")
   void shouldReportPassRateWhenRagGoldenSuiteRuns() {
-    GoldenSuiteReport report = goldenEvalService.run(List.of(GoldenEvalDomain.RAG), List.of());
+    GoldenSuiteReport report = goldenEvalService.run(List.of(GoldenEvalCategory.RAG), List.of());
     logReport("RAG", report);
 
     assertThat(report.total()).isGreaterThan(0);
-    assertThat(report.cases()).allMatch(c -> c.domain() == GoldenEvalDomain.RAG);
+    assertThat(report.cases()).allMatch(c -> c.category() == GoldenEvalCategory.RAG);
     assertThat(report.passRate()).isBetween(0.0, 1.0);
   }
 

@@ -5,7 +5,7 @@ import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.rag.domain.model.DocumentId;
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.model.SourceCitation;
 import com.ai.rag.service.RagApplicationService;
 import com.ai.rag.service.dto.RagSourceEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,7 +53,7 @@ public class VisionChatService {
     var retrievalResult =
         ragApplicationService.retrieveContext(question, documentIdList, topK, ownerKey);
     String prompt = buildPrompt(question, retrievalResult.context());
-    List<SourceDocument> sources = retrievalResult.sources();
+    List<SourceCitation> sources = retrievalResult.sources();
 
     return streamVision(prompt, mediaList).concatWith(Flux.defer(() -> buildSourceEvents(sources)));
   }
@@ -90,7 +90,7 @@ public class VisionChatService {
     return ServerSentEvent.<String>builder().event("error").data(message).build();
   }
 
-  private Flux<ServerSentEvent<String>> buildSourceEvents(List<SourceDocument> sources) {
+  private Flux<ServerSentEvent<String>> buildSourceEvents(List<SourceCitation> sources) {
     if (sources.isEmpty()) {
       return Flux.empty();
     }

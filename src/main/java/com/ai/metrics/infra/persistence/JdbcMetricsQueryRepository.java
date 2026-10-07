@@ -1,6 +1,6 @@
 package com.ai.metrics.infra.persistence;
 
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.InvocationStats;
 import com.ai.metrics.domain.model.LatencyStats;
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
@@ -22,7 +22,8 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   private final JdbcTemplate jdbcTemplate;
 
   @Override
-  public InvocationStats countInvocationStats(Optional<AiDomain> domain, Instant from, Instant to) {
+  public InvocationStats countInvocationStats(
+      Optional<AiCapability> capability, Instant from, Instant to) {
     StringBuilder sql =
         new StringBuilder(
             """
@@ -32,7 +33,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
                 WHERE 1=1
                 """);
     List<Object> args = new ArrayList<>();
-    appendDomainAndRange(sql, args, domain, from, to, true);
+    appendCapabilityAndRange(sql, args, capability, from, to, true);
     return jdbcTemplate.query(
         sql.toString(),
         rs -> {
@@ -46,10 +47,10 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   @Override
   public LatencyStats calculateLatencyPercentiles(
-      Optional<AiDomain> domain, Instant from, Instant to) {
+      Optional<AiCapability> capability, Instant from, Instant to) {
     StringBuilder sql = new StringBuilder("SELECT latency_ms FROM ai_invocation_event WHERE 1=1");
     List<Object> args = new ArrayList<>();
-    appendDomainAndRange(sql, args, domain, from, to, true);
+    appendCapabilityAndRange(sql, args, capability, from, to, true);
     sql.append(" ORDER BY latency_ms");
     List<Long> latencies =
         jdbcTemplate.query(
@@ -58,7 +59,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   @Override
-  public TokenTotals sumTokens(Optional<AiDomain> domain, Instant from, Instant to) {
+  public TokenTotals sumTokens(Optional<AiCapability> capability, Instant from, Instant to) {
     StringBuilder sql =
         new StringBuilder(
             """
@@ -68,7 +69,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
                 WHERE 1=1
                 """);
     List<Object> args = new ArrayList<>();
-    appendDomainAndRange(sql, args, domain, from, to, true);
+    appendCapabilityAndRange(sql, args, capability, from, to, true);
     return jdbcTemplate.query(
         sql.toString(),
         rs -> {
@@ -81,13 +82,13 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   @Override
-  public List<NamedCount> countByDomain(Instant from, Instant to) {
+  public List<NamedCount> countByCapability(Instant from, Instant to) {
     return queryNamedCounts(
         """
-                SELECT domain AS name, COUNT(*) AS cnt
+                SELECT capability AS name, COUNT(*) AS cnt
                 FROM ai_invocation_event
                 WHERE occurred_at >= ? AND occurred_at < ?
-                GROUP BY domain
+                GROUP BY capability
                 ORDER BY cnt DESC
                 """,
         from,
@@ -95,7 +96,8 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   @Override
-  public List<NamedCount> countByModel(Optional<AiDomain> domain, Instant from, Instant to) {
+  public List<NamedCount> countByModel(
+      Optional<AiCapability> capability, Instant from, Instant to) {
     StringBuilder sql =
         new StringBuilder(
             """
@@ -104,7 +106,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
                 WHERE 1=1
                 """);
     List<Object> args = new ArrayList<>();
-    appendDomainAndRange(sql, args, domain, from, to, true);
+    appendCapabilityAndRange(sql, args, capability, from, to, true);
     sql.append(" GROUP BY COALESCE(model, 'unknown') ORDER BY cnt DESC");
     return jdbcTemplate.query(
         sql.toString(),
@@ -118,7 +120,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
         """
                 SELECT COALESCE(agent_type, 'unknown') AS name, COUNT(*) AS cnt
                 FROM ai_invocation_event
-                WHERE domain = 'agents' AND occurred_at >= ? AND occurred_at < ?
+                WHERE capability = 'agents' AND occurred_at >= ? AND occurred_at < ?
                 GROUP BY COALESCE(agent_type, 'unknown')
                 ORDER BY cnt DESC
                 """,
@@ -128,7 +130,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
 
   @Override
   public List<NamedCount> listTopTools(
-      Optional<AiDomain> domain, Instant from, Instant to, int limit) {
+      Optional<AiCapability> capability, Instant from, Instant to, int limit) {
     StringBuilder sql =
         new StringBuilder(
             """
@@ -137,7 +139,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
                 WHERE tool_name IS NOT NULL
                 """);
     List<Object> args = new ArrayList<>();
-    appendDomainAndRange(sql, args, domain, from, to, true);
+    appendCapabilityAndRange(sql, args, capability, from, to, true);
     sql.append(" GROUP BY COALESCE(tool_name, 'unknown') ORDER BY cnt DESC LIMIT ?");
     args.add(Math.max(1, limit));
     return jdbcTemplate.query(
@@ -147,18 +149,20 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   @Override
-  public List<TimePoint> countDailyRequests(Optional<AiDomain> domain, Instant from, Instant to) {
-    return countDailyFromEvents("COUNT(*)", domain, from, to, null);
+  public List<TimePoint> countDailyRequests(
+      Optional<AiCapability> capability, Instant from, Instant to) {
+    return countDailyFromEvents("COUNT(*)", capability, from, to, null);
   }
 
   @Override
-  public List<TimePoint> countDailyErrors(Optional<AiDomain> domain, Instant from, Instant to) {
-    return countDailyFromEvents("COUNT(*)", domain, from, to, "outcome = 'error'");
+  public List<TimePoint> countDailyErrors(
+      Optional<AiCapability> capability, Instant from, Instant to) {
+    return countDailyFromEvents("COUNT(*)", capability, from, to, "outcome = 'error'");
   }
 
   @Override
   public List<TimePoint> calculateDailyLatencyP95(
-      Optional<AiDomain> domain, Instant from, Instant to) {
+      Optional<AiCapability> capability, Instant from, Instant to) {
     StringBuilder sql =
         new StringBuilder(
             """
@@ -167,7 +171,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
                 WHERE 1=1
                 """);
     List<Object> args = new ArrayList<>();
-    appendDomainAndRange(sql, args, domain, from, to, true);
+    appendCapabilityAndRange(sql, args, capability, from, to, true);
     sql.append(" ORDER BY bucket_day, latency_ms");
     Map<String, List<Long>> byDay = new LinkedHashMap<>();
     jdbcTemplate.query(
@@ -240,7 +244,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     Long messages =
         jdbcTemplate.queryForObject("SELECT COUNT(*) FROM SPRING_AI_CHAT_MEMORY", Long.class);
     Long webSources =
-        jdbcTemplate.queryForObject("SELECT COUNT(*) FROM chat_web_sources", Long.class);
+        jdbcTemplate.queryForObject("SELECT COUNT(*) FROM chat_web_source", Long.class);
     return new ChatInventory(
         toZeroIfNull(sessions),
         toZeroIfNull(active),
@@ -251,7 +255,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   @Override
   public RagInventory getRagInventory() {
     Long documents = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM rag_document", Long.class);
-    Long chunks = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM document_chunks", Long.class);
+    Long chunks = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM document_chunk", Long.class);
     Long bytes =
         jdbcTemplate.queryForObject(
             "SELECT COALESCE(SUM(file_size), 0) FROM rag_document", Long.class);
@@ -266,7 +270,11 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
   }
 
   private List<TimePoint> countDailyFromEvents(
-      String valueExpr, Optional<AiDomain> domain, Instant from, Instant to, String extraWhere) {
+      String valueExpr,
+      Optional<AiCapability> capability,
+      Instant from,
+      Instant to,
+      String extraWhere) {
     StringBuilder sql =
         new StringBuilder(
             "SELECT CAST(occurred_at AS DATE) AS bucket_day, "
@@ -276,7 +284,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     if (extraWhere != null && !extraWhere.isBlank()) {
       sql.append(" AND ").append(extraWhere);
     }
-    appendDomainAndRange(sql, args, domain, from, to, true);
+    appendCapabilityAndRange(sql, args, capability, from, to, true);
     sql.append(" GROUP BY CAST(occurred_at AS DATE) ORDER BY bucket_day");
     return jdbcTemplate.query(
         sql.toString(),
@@ -289,17 +297,17 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
         sql, (rs, rowNum) -> new NamedCount(rs.getString("name"), rs.getLong("cnt")), from, to);
   }
 
-  private void appendDomainAndRange(
+  private void appendCapabilityAndRange(
       StringBuilder sql,
       List<Object> args,
-      Optional<AiDomain> domain,
+      Optional<AiCapability> capability,
       Instant from,
       Instant to,
       boolean alreadyHasWhere) {
     String joiner = alreadyHasWhere ? " AND " : " WHERE ";
-    if (domain.isPresent()) {
-      sql.append(joiner).append("domain = ?");
-      args.add(domain.get().value());
+    if (capability.isPresent()) {
+      sql.append(joiner).append("capability = ?");
+      args.add(capability.get().value());
       joiner = " AND ";
     }
     sql.append(joiner).append("occurred_at >= ? AND occurred_at < ?");

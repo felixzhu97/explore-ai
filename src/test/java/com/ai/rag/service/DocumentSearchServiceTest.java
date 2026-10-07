@@ -11,7 +11,7 @@ import com.ai.rag.domain.model.ChunkId;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.ScoredChunk;
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.model.SourceCitation;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
 import com.ai.rag.infra.config.PropertiesRagRetrievalSettings;
@@ -105,7 +105,7 @@ class DocumentSearchServiceTest {
 
     DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
 
-    assertThat(result.sources()).extracting(SourceDocument::score).containsExactly(0.9, 0.5, 0.2);
+    assertThat(result.sources()).extracting(SourceCitation::score).containsExactly(0.9, 0.5, 0.2);
     assertThat(result.context()).isEqualTo("high\n\nmedium\n\nlow");
   }
 
@@ -118,7 +118,7 @@ class DocumentSearchServiceTest {
 
     DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
 
-    assertThat(result.sources()).extracting(SourceDocument::content).containsExactly("kept");
+    assertThat(result.sources()).extracting(SourceCitation::content).containsExactly("kept");
     assertThat(result.context()).isEqualTo("kept");
   }
 

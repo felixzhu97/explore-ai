@@ -272,8 +272,8 @@ export interface Translations {
   metrics: {
     overviewTitle: string;
     overviewSubtitle: string;
-    domainTitle: string;
-    domainSubtitle: string;
+    capabilityTitle: string;
+    capabilitySubtitle: string;
     dayFilter: string;
     modelFilter: string;
     clearFilters: string;
@@ -281,15 +281,15 @@ export interface Translations {
     range30d: string;
     loading: string;
     loadingOverview: string;
-    unknownDomain: string;
-    unknownDomainTitle: string;
+    unknownCapability: string;
+    unknownCapabilityTitle: string;
     backToOverview: string;
-    openDomainHint: string;
+    openCapabilityHint: string;
     charts: {
       aiRequests: string;
       aiRequestsEmpty: string;
-      requestsByDomain: string;
-      requestsByDomainEmpty: string;
+      requestsByCapability: string;
+      requestsByCapabilityEmpty: string;
       requestsOverTime: string;
       requestsOverTimeEmpty: string;
       callsByModel: string;
@@ -334,7 +334,7 @@ export interface Translations {
     };
     errors: {
       loadOverviewFailed: string;
-      loadDomainFailed: string;
+      loadCapabilityFailed: string;
     };
   };
   eval: {

@@ -1,0 +1,95 @@
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
+  <nav class="text-sm text-muted-foreground">
+    <a routerLink="/metrics" class="underline">{{ i18n.t().nav.metrics }}</a>
+    <span class="mx-1.5">/</span>
+    <span class="text-foreground">{{ title() }}</span>
+  </nav>
+
+  @if (capability() === null) {
+    <p class="text-sm text-rose-600">
+      {{ i18n.t().metrics.unknownCapability }}
+      <a routerLink="/metrics" class="underline">{{ i18n.t().metrics.backToOverview }}</a>
+    </p>
+  } @else {
+    <header class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-foreground">{{ capabilityHeading() }}</h1>
+        <p class="mt-1 text-sm text-muted-foreground">
+          {{ i18n.t().metrics.capabilitySubtitle }}
+          @if (day() !== undefined) {
+            <span>{{ dayFilterLabel() }}</span>
+          }
+          @if (model() !== undefined) {
+            <span>{{ modelFilterLabel() }}</span>
+          }
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        @if (day() !== undefined || model() !== undefined) {
+          <button type="button" class="text-sm text-muted-foreground underline" (click)="clearFilters()">
+            {{ i18n.t().metrics.clearFilters }}
+          </button>
+        }
+        <div class="inline-flex rounded-lg border border-border p-0.5">
+          <button
+            type="button"
+            class="rounded-md px-3 py-1.5 text-sm"
+            [class.bg-card]="range() === '7d'"
+            (click)="setRange('7d')"
+          >
+            {{ i18n.t().metrics.range7d }}
+          </button>
+          <button
+            type="button"
+            class="rounded-md px-3 py-1.5 text-sm"
+            [class.bg-card]="range() === '30d'"
+            (click)="setRange('30d')"
+          >
+            {{ i18n.t().metrics.range30d }}
+          </button>
+        </div>
+      </div>
+    </header>
+
+    @if (capabilityResource.error() !== undefined) {
+      <p class="text-sm text-rose-600">{{ i18n.t().metrics.errors.loadCapabilityFailed }}</p>
+    } @else if (capabilityResource.isLoading() && capabilityResource.value() === undefined) {
+      <p class="text-sm text-muted-foreground">{{ i18n.t().metrics.loading }}</p>
+    } @else {
+      <app-metrics-kpi-cards [items]="kpis()" />
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        <app-chart-panel
+          type="line"
+          [heading]="i18n.t().metrics.charts.requestsOverTime"
+          [emptyText]="i18n.t().metrics.charts.requestsOverTimeEmpty"
+          [data]="requestSeries()"
+          (chartClicked)="onRequestClick($event)"
+        />
+        <app-chart-panel
+          type="bar"
+          [heading]="i18n.t().metrics.charts.callsByModel"
+          [emptyText]="i18n.t().metrics.charts.callsByModelEmpty"
+          [data]="modelSeries()"
+          (chartClicked)="onModelClick($event)"
+        />
+      </div>
+
+      @if (capability() === 'rag') {
+        <app-chart-panel
+          type="doughnut"
+          [heading]="i18n.t().metrics.charts.documentsByStatus"
+          [emptyText]="i18n.t().metrics.charts.documentsByStatusEmpty"
+          [data]="docsSeries()"
+        />
+      }
+
+      <app-metrics-drilldown-table
+        [heading]="i18n.t().metrics.drilldown.filteredHeading"
+        [items]="drilldownItems()"
+        [total]="drilldownTotal()"
+        (rowSelected)="onRowClick($event)"
+      />
+    }
+  }
+</div>

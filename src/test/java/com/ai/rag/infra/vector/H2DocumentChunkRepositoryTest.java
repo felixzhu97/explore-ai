@@ -62,7 +62,7 @@ class H2DocumentChunkRepositoryTest {
                   "sa",
                   ""));
       h2.execute(
-          "CREATE TABLE document_chunks (id UUID PRIMARY KEY, document_id UUID,"
+          "CREATE TABLE document_chunk (id UUID PRIMARY KEY, document_id UUID,"
               + " content CLOB, chunk_index INT, embedding CLOB, metadata CLOB,"
               + " created_at VARCHAR(40), owner_key VARCHAR(80) NOT NULL)");
       repository = new H2DocumentChunkRepository(h2, objectMapper);

@@ -3,7 +3,7 @@ package com.ai.tools.infra.tools;
 import com.ai.common.exception.DomainException;
 import com.ai.tools.domain.model.WeatherForecast;
 import com.ai.tools.domain.model.WeatherQuery;
-import com.ai.tools.domain.model.WeatherReport;
+import com.ai.tools.domain.model.WeatherSimulator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class WeatherTools {
 
-  private final WeatherReport weatherReport;
+  private final WeatherSimulator weatherSimulator;
 
   @Tool(
       description =
@@ -24,7 +24,7 @@ public class WeatherTools {
   public String getWeather(
       @ToolParam(description = "City name in Chinese or English (e.g. 北京, beijing)") String city) {
     try {
-      return weatherReport.lookupCurrent(WeatherQuery.of(city)).getContent();
+      return weatherSimulator.lookupCurrent(WeatherQuery.of(city)).getContent();
     } catch (DomainException e) {
       return e.getMessage();
     }
@@ -41,7 +41,9 @@ public class WeatherTools {
     try {
       WeatherQuery query = WeatherQuery.of(city);
       int forecastDays = days != null ? Math.max(1, Math.min(7, days)) : 3;
-      return weatherReport.generateForecast(WeatherForecast.of(query, forecastDays)).getContent();
+      return weatherSimulator
+          .generateForecast(WeatherForecast.of(query, forecastDays))
+          .getContent();
     } catch (DomainException e) {
       return e.getMessage();
     }

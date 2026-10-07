@@ -3,7 +3,7 @@ package com.ai.chat.infra.memory;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.chat.domain.model.ChatMessage;
-import com.ai.chat.domain.model.ChatMessageType;
+import com.ai.chat.domain.model.MessageRole;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -75,9 +75,9 @@ class ChatMemorySessionBridgeTest {
     List<ChatMessage> loaded = bridge.load("conv-1");
 
     assertThat(loaded).hasSize(2);
-    assertThat(loaded.get(0).getMessageType()).isEqualTo(ChatMessageType.USER);
+    assertThat(loaded.get(0).getRole()).isEqualTo(MessageRole.USER);
     assertThat(loaded.get(0).getText()).isEqualTo("chart please");
-    assertThat(loaded.get(1).getMessageType()).isEqualTo(ChatMessageType.ASSISTANT);
+    assertThat(loaded.get(1).getRole()).isEqualTo(MessageRole.ASSISTANT);
     assertThat(loaded.get(1).getText()).contains("前言").contains("后记").doesNotContain("DSML");
   }
 

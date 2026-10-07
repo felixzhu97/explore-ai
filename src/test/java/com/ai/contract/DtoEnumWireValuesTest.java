@@ -11,11 +11,11 @@ import com.ai.automation.domain.model.EmailDeliveryStatus;
 import com.ai.automation.domain.model.RunStatus;
 import com.ai.automation.domain.model.ScheduleKind;
 import com.ai.billing.domain.model.Plan;
-import com.ai.chat.controller.dto.ChatRole;
 import com.ai.chat.controller.dto.ProviderStatus;
+import com.ai.chat.domain.model.MessageRole;
 import com.ai.common.controller.dto.HealthStatus;
 import com.ai.image.controller.dto.ImageGenerationStatus;
-import com.ai.metrics.controller.dto.MetricsDomain;
+import com.ai.metrics.controller.dto.MetricsCapability;
 import com.ai.metrics.controller.dto.MetricsOutcome;
 import com.ai.metrics.controller.dto.MetricsRange;
 import com.ai.pipeline.controller.dto.AgentRuntime;
@@ -35,8 +35,8 @@ class DtoEnumWireValuesTest {
 
   static Stream<Arguments> wireValues() {
     return Stream.of(
-        Arguments.of(ChatRole.USER, "user"),
-        Arguments.of(ChatRole.ASSISTANT, "assistant"),
+        Arguments.of(MessageRole.USER, "user"),
+        Arguments.of(MessageRole.ASSISTANT, "assistant"),
         Arguments.of(ProviderStatus.AVAILABLE, "available"),
         Arguments.of(ProviderStatus.UNAVAILABLE, "unavailable"),
         Arguments.of(HealthStatus.UP, "UP"),
@@ -48,8 +48,8 @@ class DtoEnumWireValuesTest {
         Arguments.of(AutomationActionType.RUN_PIPELINE_TEMPLATE, "RUN_PIPELINE_TEMPLATE"),
         Arguments.of(RunStatus.SUCCESS, "SUCCESS"),
         Arguments.of(EmailDeliveryStatus.SENT, "SENT"),
-        Arguments.of(MetricsDomain.CHAT, "chat"),
-        Arguments.of(MetricsDomain.WORKFLOW, "workflow"),
+        Arguments.of(MetricsCapability.CHAT, "chat"),
+        Arguments.of(MetricsCapability.WORKFLOW, "workflow"),
         Arguments.of(MetricsOutcome.SUCCESS, "success"),
         Arguments.of(MetricsOutcome.ERROR, "error"),
         Arguments.of(MetricsRange.LAST_7_DAYS, "7d"),
@@ -75,14 +75,14 @@ class DtoEnumWireValuesTest {
 
   @Test
   @DisplayName("should read chat role case insensitively when request sends it")
-  void shouldReadChatRoleCaseInsensitivelyWhenRequestSendsIt() {
-    assertThat(JSON.readValue("\"User\"", ChatRole.class)).isEqualTo(ChatRole.USER);
+  void shouldReadMessageRoleCaseInsensitivelyWhenRequestSendsIt() {
+    assertThat(JSON.readValue("\"User\"", MessageRole.class)).isEqualTo(MessageRole.USER);
   }
 
   @Test
   @DisplayName("should reject chat role when value is unknown")
-  void shouldRejectChatRoleWhenValueIsUnknown() {
-    assertThatThrownBy(() -> JSON.readValue("\"system\"", ChatRole.class))
+  void shouldRejectMessageRoleWhenValueIsUnknown() {
+    assertThatThrownBy(() -> JSON.readValue("\"system\"", MessageRole.class))
         .hasRootCauseInstanceOf(IllegalArgumentException.class);
   }
 

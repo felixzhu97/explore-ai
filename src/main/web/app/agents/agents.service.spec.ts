@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { AgentsService, type SavedAgentResponse } from './agents.service';
+import { AgentsService, type CustomAgentResponse } from './agents.service';
 import { API_BASE_URL } from '../http/api.constants';
 
 const STAMPS = { createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-02T00:00:00Z' };
@@ -10,7 +10,7 @@ const STAMPS = { createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-02T00:00
 describe('AgentsService', () => {
   let service: AgentsService;
   let httpMock: HttpTestingController;
-  const savedAgentsBase = `${API_BASE_URL}/pipelines/agents`;
+  const customAgentsBase = `${API_BASE_URL}/pipelines/agents`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -20,15 +20,15 @@ describe('AgentsService', () => {
     httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('should list saved agents from api', () => {
-    service.listSavedAgents().subscribe((agents) => {
+  it('should list custom agents from api', () => {
+    service.listCustomAgents().subscribe((agents) => {
       expect(agents).toHaveLength(1);
       expect(agents[0]?.typeKey).toBe('researcher');
     });
 
-    const request = httpMock.expectOne(savedAgentsBase);
+    const request = httpMock.expectOne(customAgentsBase);
     expect(request.request.method).toBe('GET');
-    const response: SavedAgentResponse[] = [
+    const response: CustomAgentResponse[] = [
       {
         id: '1',
         typeKey: 'researcher',
@@ -43,7 +43,7 @@ describe('AgentsService', () => {
     request.flush(response);
   });
 
-  it('should create saved agent', () => {
+  it('should create custom agent', () => {
     const body = {
       typeKey: 'custom',
       name: 'Custom',
@@ -55,10 +55,10 @@ describe('AgentsService', () => {
       expect(agent.id).toBe('42');
     });
 
-    const request = httpMock.expectOne(savedAgentsBase);
+    const request = httpMock.expectOne(customAgentsBase);
     expect(request.request.method).toBe('POST');
     expect(request.request.body).toEqual(body);
-    const response: SavedAgentResponse = { id: '42', ...body, enabled: true, ...STAMPS };
+    const response: CustomAgentResponse = { id: '42', ...body, enabled: true, ...STAMPS };
     request.flush(response);
   });
 
@@ -67,10 +67,10 @@ describe('AgentsService', () => {
       expect(agent.enabled).toBe(false);
     });
 
-    const request = httpMock.expectOne(`${savedAgentsBase}/42/enabled`);
+    const request = httpMock.expectOne(`${customAgentsBase}/42/enabled`);
     expect(request.request.method).toBe('PATCH');
     expect(request.request.body).toEqual({ enabled: false });
-    const response: SavedAgentResponse = {
+    const response: CustomAgentResponse = {
       id: '42',
       typeKey: 'custom',
       name: 'Custom',

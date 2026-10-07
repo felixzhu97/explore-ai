@@ -1,9 +1,9 @@
 package com.ai.pipeline.controller;
 
 import com.ai.account.controller.OwnerContext;
+import com.ai.pipeline.controller.dto.BuiltinPipelineTemplateResponse;
 import com.ai.pipeline.controller.dto.CreatePipelineTemplateFromDefinitionRequest;
 import com.ai.pipeline.controller.dto.CreatePipelineTemplateRequest;
-import com.ai.pipeline.controller.dto.PipelineTemplateDefinitionResponse;
 import com.ai.pipeline.controller.dto.PipelineTemplateResponse;
 import com.ai.pipeline.controller.dto.SetPipelineTemplateEnabledRequest;
 import com.ai.pipeline.controller.dto.UpdatePipelineTemplateRequest;
@@ -36,11 +36,11 @@ public class PipelineTemplateController {
 
   /** Lists the built-in pipeline templates. */
   @GetMapping("/template-definitions")
-  public List<PipelineTemplateDefinitionResponse> listTemplates(
+  public List<BuiltinPipelineTemplateResponse> listTemplates(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
     String language = resolveLanguage(lang, request);
     return pipelineTemplateService.listTemplates(language).stream()
-        .map(PipelineTemplateDefinitionResponse::from)
+        .map(BuiltinPipelineTemplateResponse::from)
         .toList();
   }
 

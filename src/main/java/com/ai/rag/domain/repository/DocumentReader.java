@@ -1,14 +1,14 @@
 package com.ai.rag.domain.repository;
 
-import com.ai.rag.domain.model.RawDocument;
+import com.ai.rag.domain.model.ExtractedDocument;
 
-/** Reads raw content from a source into a RawDocument. */
+/** Reads raw content from a source into a ExtractedDocument. */
 public interface DocumentReader {
   /** Reads a file into a raw document. */
-  RawDocument read(byte[] content, String fileName);
+  ExtractedDocument read(byte[] content, String fileName);
 
   /** Reads text into a raw document. */
-  default RawDocument read(String content, String fileName) {
+  default ExtractedDocument read(String content, String fileName) {
     return read(content.getBytes(), fileName);
   }
 }

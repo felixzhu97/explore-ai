@@ -17,8 +17,8 @@ import com.ai.common.exception.DomainException;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.DocumentStatus;
+import com.ai.rag.domain.model.ExtractedDocument;
 import com.ai.rag.domain.model.RagDocument;
-import com.ai.rag.domain.model.RawDocument;
 import com.ai.rag.domain.repository.DocumentChunkRepository;
 import com.ai.rag.domain.repository.DocumentReader;
 import com.ai.rag.domain.repository.DocumentRepository;
@@ -82,12 +82,12 @@ class DocumentUploadServiceTest {
     when(documentRepository.save(any(RagDocument.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
     when(reader.read(any(byte[].class), eq(fileName)))
-        .thenReturn(new RawDocument(content, Map.of("fileName", fileName), fileName));
-    when(transformer.transform(any(RawDocument.class)))
+        .thenReturn(new ExtractedDocument(content, Map.of("fileName", fileName), fileName));
+    when(transformer.transform(any(ExtractedDocument.class)))
         .thenReturn(
             List.of(
-                new RawDocument("chunk1", Map.of("fileName", fileName), fileName),
-                new RawDocument("chunk2", Map.of("fileName", fileName), fileName)));
+                new ExtractedDocument("chunk1", Map.of("fileName", fileName), fileName),
+                new ExtractedDocument("chunk2", Map.of("fileName", fileName), fileName)));
     doNothing().when(writer).write(any());
 
     DocumentUploadService.UploadResult result =
@@ -107,9 +107,9 @@ class DocumentUploadServiceTest {
     when(documentRepository.save(any(RagDocument.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
     when(reader.read(any(byte[].class), any()))
-        .thenReturn(new RawDocument(content, Map.of(), "test"));
-    when(transformer.transform(any(RawDocument.class)))
-        .thenReturn(List.of(new RawDocument("chunk", Map.of(), "test")));
+        .thenReturn(new ExtractedDocument(content, Map.of(), "test"));
+    when(transformer.transform(any(ExtractedDocument.class)))
+        .thenReturn(List.of(new ExtractedDocument("chunk", Map.of(), "test")));
     doNothing().when(writer).write(any());
 
     service.upload("Title", "file.txt", content, "c:test-owner");
@@ -131,9 +131,10 @@ class DocumentUploadServiceTest {
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(eq(content), eq(fileName)))
-          .thenReturn(new RawDocument("processed", Map.of("fileName", fileName), fileName));
-      when(transformer.transform(any(RawDocument.class)))
-          .thenReturn(List.of(new RawDocument("chunk", Map.of("fileName", fileName), fileName)));
+          .thenReturn(new ExtractedDocument("processed", Map.of("fileName", fileName), fileName));
+      when(transformer.transform(any(ExtractedDocument.class)))
+          .thenReturn(
+              List.of(new ExtractedDocument("chunk", Map.of("fileName", fileName), fileName)));
       doNothing().when(writer).write(any());
 
       DocumentUploadService.UploadResult result =
@@ -169,7 +170,7 @@ class DocumentUploadServiceTest {
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), eq("blank.txt")))
-          .thenReturn(new RawDocument(" \n", Map.of(), "blank.txt"));
+          .thenReturn(new ExtractedDocument(" \n", Map.of(), "blank.txt"));
 
       assertThatThrownBy(() -> service.upload("Blank", "blank.txt", " \n", "c:test-owner"))
           .isInstanceOf(DomainException.class)
@@ -206,11 +207,12 @@ class DocumentUploadServiceTest {
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), eq(originalFileName)))
           .thenReturn(
-              new RawDocument("content", Map.of("fileName", originalFileName), originalFileName));
-      when(transformer.transform(any(RawDocument.class)))
+              new ExtractedDocument(
+                  "content", Map.of("fileName", originalFileName), originalFileName));
+      when(transformer.transform(any(ExtractedDocument.class)))
           .thenReturn(
               List.of(
-                  new RawDocument(
+                  new ExtractedDocument(
                       "chunk", Map.of("fileName", originalFileName), originalFileName)));
       doNothing().when(writer).write(any());
 
@@ -231,11 +233,12 @@ class DocumentUploadServiceTest {
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), eq(originalFileName)))
           .thenReturn(
-              new RawDocument("content", Map.of("fileName", originalFileName), originalFileName));
-      when(transformer.transform(any(RawDocument.class)))
+              new ExtractedDocument(
+                  "content", Map.of("fileName", originalFileName), originalFileName));
+      when(transformer.transform(any(ExtractedDocument.class)))
           .thenReturn(
               List.of(
-                  new RawDocument(
+                  new ExtractedDocument(
                       "chunk", Map.of("fileName", originalFileName), originalFileName)));
       doNothing().when(writer).write(any());
 
@@ -268,8 +271,8 @@ class DocumentUploadServiceTest {
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), any()))
-          .thenReturn(new RawDocument(content, Map.of(), "test"));
-      when(transformer.transform(any(RawDocument.class)))
+          .thenReturn(new ExtractedDocument(content, Map.of(), "test"));
+      when(transformer.transform(any(ExtractedDocument.class)))
           .thenThrow(new RuntimeException("Transformation failed"));
 
       assertThatThrownBy(() -> service.upload("Title", "file.txt", content, "c:test-owner"))
@@ -285,9 +288,9 @@ class DocumentUploadServiceTest {
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), any()))
-          .thenReturn(new RawDocument(content, Map.of(), "test"));
-      when(transformer.transform(any(RawDocument.class)))
-          .thenReturn(List.of(new RawDocument("chunk", Map.of(), "test")));
+          .thenReturn(new ExtractedDocument(content, Map.of(), "test"));
+      when(transformer.transform(any(ExtractedDocument.class)))
+          .thenReturn(List.of(new ExtractedDocument("chunk", Map.of(), "test")));
       doThrow(new RuntimeException("Embedding failed")).when(writer).write(any());
 
       assertThatThrownBy(() -> service.upload("Title", "file.txt", content, "c:test-owner"))
@@ -308,8 +311,8 @@ class DocumentUploadServiceTest {
           .thenAnswer(invocation -> invocation.getArgument(0))
           .thenThrow(saveFailure);
       when(reader.read(any(byte[].class), any()))
-          .thenReturn(new RawDocument(content, Map.of(), "test"));
-      when(transformer.transform(any(RawDocument.class)))
+          .thenReturn(new ExtractedDocument(content, Map.of(), "test"));
+      when(transformer.transform(any(ExtractedDocument.class)))
           .thenThrow(new RuntimeException("Transformation failed"));
 
       assertThatThrownBy(() -> service.upload("Title", "file.txt", content, "c:test-owner"))
@@ -323,9 +326,9 @@ class DocumentUploadServiceTest {
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(any(byte[].class), any()))
-          .thenReturn(new RawDocument("text", Map.of(), "test"));
-      when(transformer.transform(any(RawDocument.class)))
-          .thenReturn(List.of(new RawDocument("chunk", Map.of("page", 1), "test")));
+          .thenReturn(new ExtractedDocument("text", Map.of(), "test"));
+      when(transformer.transform(any(ExtractedDocument.class)))
+          .thenReturn(List.of(new ExtractedDocument("chunk", Map.of("page", 1), "test")));
 
       service.upload("Title", "file.txt", "text", "c:test-owner");
 

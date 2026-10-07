@@ -1,14 +1,14 @@
 package com.ai.metrics.controller;
 
 import com.ai.metrics.controller.dto.AgentsInventoryResponse;
+import com.ai.metrics.controller.dto.CapabilityInventoryResponse;
 import com.ai.metrics.controller.dto.ChatInventoryResponse;
-import com.ai.metrics.controller.dto.DomainInventoryResponse;
 import com.ai.metrics.controller.dto.DrilldownPageResponse;
 import com.ai.metrics.controller.dto.InvocationEventResponse;
 import com.ai.metrics.controller.dto.McpInventoryResponse;
-import com.ai.metrics.controller.dto.MetricsDomain;
-import com.ai.metrics.controller.dto.MetricsDomainResponse;
-import com.ai.metrics.controller.dto.MetricsDomainsResponse;
+import com.ai.metrics.controller.dto.MetricsCapabilitiesResponse;
+import com.ai.metrics.controller.dto.MetricsCapability;
+import com.ai.metrics.controller.dto.MetricsCapabilityResponse;
 import com.ai.metrics.controller.dto.MetricsOutcome;
 import com.ai.metrics.controller.dto.MetricsOverviewResponse;
 import com.ai.metrics.controller.dto.MetricsRange;
@@ -21,11 +21,11 @@ import com.ai.metrics.controller.dto.SystemInventoryResponse;
 import com.ai.metrics.controller.dto.ToolsInventoryResponse;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.service.MetricsService;
-import com.ai.metrics.service.model.DomainInventory;
+import com.ai.metrics.service.model.CapabilityInventory;
 import com.ai.metrics.service.model.DrilldownPage;
-import com.ai.metrics.service.model.MetricsDomainSnapshot;
+import com.ai.metrics.service.model.MetricsCapabilitySnapshot;
 import com.ai.metrics.service.model.MetricsOverview;
-import com.ai.metrics.service.model.OverviewDomains;
+import com.ai.metrics.service.model.OverviewCapabilities;
 import com.ai.metrics.service.model.SeriesSnapshot;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -56,15 +56,15 @@ public class MetricsController {
   @Operation(summary = "Metrics time series or categorical series")
   public ResponseEntity<SeriesResponse> getSeries(
       @RequestParam String name,
-      @RequestParam(required = false) String domain,
+      @RequestParam(required = false) String capability,
       @RequestParam(defaultValue = "7d") String range) {
-    return ResponseEntity.ok(toSeries(metricsService.getSeries(name, domain, range)));
+    return ResponseEntity.ok(toSeries(metricsService.getSeries(name, capability, range)));
   }
 
   @GetMapping("/drilldown")
   @Operation(summary = "Paged AI invocation events for drill-down")
   public ResponseEntity<DrilldownPageResponse> getDrilldown(
-      @RequestParam(required = false) String domain,
+      @RequestParam(required = false) String capability,
       @RequestParam(required = false) String from,
       @RequestParam(required = false) String to,
       @RequestParam(required = false) String day,
@@ -78,14 +78,24 @@ public class MetricsController {
     return ResponseEntity.ok(
         toDrilldown(
             metricsService.getDrilldown(
-                domain, from, to, day, outcome, model, agentType, toolName, page, size, range)));
+                capability,
+                from,
+                to,
+                day,
+                outcome,
+                model,
+                agentType,
+                toolName,
+                page,
+                size,
+                range)));
   }
 
-  @GetMapping("/domains/{domain}")
-  @Operation(summary = "Domain-scoped AI metrics")
-  public ResponseEntity<MetricsDomainResponse> getDomain(
-      @PathVariable String domain, @RequestParam(defaultValue = "7d") String range) {
-    return ResponseEntity.ok(toDomain(metricsService.getDomain(domain, range)));
+  @GetMapping("/capabilities/{capability}")
+  @Operation(summary = "Capability-scoped AI metrics")
+  public ResponseEntity<MetricsCapabilityResponse> getCapability(
+      @PathVariable String capability, @RequestParam(defaultValue = "7d") String range) {
+    return ResponseEntity.ok(toCapability(metricsService.getCapability(capability, range)));
   }
 
   private MetricsOverviewResponse toOverview(MetricsOverview overview) {
@@ -99,39 +109,39 @@ public class MetricsController {
         overview.latencyP95Ms(),
         overview.promptTokens(),
         overview.completionTokens(),
-        overview.requestsByDomain().stream()
+        overview.requestsByCapability().stream()
             .map(nc -> new NamedCountResponse(nc.name(), nc.count()))
             .toList(),
-        toDomains(overview.domains()));
+        toCapabilities(overview.capabilities()));
   }
 
-  private MetricsDomainsResponse toDomains(OverviewDomains domains) {
-    return new MetricsDomainsResponse(
-        ChatInventoryResponse.from(domains.chat()),
-        RagInventoryResponse.from(domains.rag()),
-        AgentsInventoryResponse.from(domains.agents()),
-        McpInventoryResponse.from(domains.mcp()),
-        new SystemInventoryResponse(domains.system()));
+  private MetricsCapabilitiesResponse toCapabilities(OverviewCapabilities capabilities) {
+    return new MetricsCapabilitiesResponse(
+        ChatInventoryResponse.from(capabilities.chat()),
+        RagInventoryResponse.from(capabilities.rag()),
+        AgentsInventoryResponse.from(capabilities.agents()),
+        McpInventoryResponse.from(capabilities.mcp()),
+        new SystemInventoryResponse(capabilities.system()));
   }
 
-  private DomainInventoryResponse toInventory(DomainInventory inventory) {
+  private CapabilityInventoryResponse toInventory(CapabilityInventory inventory) {
     return switch (inventory) {
-      case DomainInventory.Chat chat -> ChatInventoryResponse.from(chat.inventory());
-      case DomainInventory.Rag rag -> RagInventoryResponse.from(rag.inventory());
-      case DomainInventory.Agents agents -> AgentsInventoryResponse.from(agents.health());
-      case DomainInventory.Tools tools ->
+      case CapabilityInventory.Chat chat -> ChatInventoryResponse.from(chat.inventory());
+      case CapabilityInventory.Rag rag -> RagInventoryResponse.from(rag.inventory());
+      case CapabilityInventory.Agents agents -> AgentsInventoryResponse.from(agents.health());
+      case CapabilityInventory.Tools tools ->
           new ToolsInventoryResponse(
               tools.topTools().stream()
                   .map(nc -> new NamedCountResponse(nc.name(), nc.count()))
                   .toList());
-      case DomainInventory.Requests totals ->
+      case CapabilityInventory.Requests totals ->
           new RequestsInventoryResponse(totals.requests(), totals.errors());
     };
   }
 
-  private MetricsDomainResponse toDomain(MetricsDomainSnapshot snapshot) {
-    return new MetricsDomainResponse(
-        MetricsDomain.fromValue(snapshot.domain()),
+  private MetricsCapabilityResponse toCapability(MetricsCapabilitySnapshot snapshot) {
+    return new MetricsCapabilityResponse(
+        MetricsCapability.fromValue(snapshot.capability()),
         MetricsRange.fromValue(snapshot.range()),
         snapshot.requestCount(),
         snapshot.errorCount(),
@@ -152,7 +162,7 @@ public class MetricsController {
   private SeriesResponse toSeries(SeriesSnapshot snapshot) {
     return new SeriesResponse(
         snapshot.name(),
-        snapshot.domain() == null ? null : MetricsDomain.fromValue(snapshot.domain()),
+        snapshot.capability() == null ? null : MetricsCapability.fromValue(snapshot.capability()),
         MetricsRange.fromValue(snapshot.range()),
         snapshot.points().stream()
             .map(p -> new SeriesPointResponse(p.label(), p.value()))
@@ -168,7 +178,7 @@ public class MetricsController {
     return new InvocationEventResponse(
         event.getId().toString(),
         event.getOccurredAt(),
-        MetricsDomain.from(event.getDomain()),
+        MetricsCapability.from(event.getCapability()),
         event.getOperation(),
         MetricsOutcome.from(event.getOutcome()),
         event.getLatencyMs(),

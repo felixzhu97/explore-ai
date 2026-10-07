@@ -14,12 +14,12 @@ public class JdbcOwnerPartitionRepository implements OwnerPartitionRepository {
   private static final String[] OWNER_TABLES = {
     "chat_session",
     "skill",
-    "saved_agent",
+    "custom_agent",
     "pipeline_template",
     "automation_schedule",
     "automation_run",
     "rag_document",
-    "document_chunks",
+    "document_chunk",
     "ai_invocation_event"
   };
 
@@ -39,11 +39,11 @@ public class JdbcOwnerPartitionRepository implements OwnerPartitionRepository {
     // Child / dependent tables first where FK-like ordering matters
     jdbcTemplate.update("DELETE FROM automation_run WHERE owner_key = ?", key);
     jdbcTemplate.update("DELETE FROM automation_schedule WHERE owner_key = ?", key);
-    jdbcTemplate.update("DELETE FROM document_chunks WHERE owner_key = ?", key);
+    jdbcTemplate.update("DELETE FROM document_chunk WHERE owner_key = ?", key);
     jdbcTemplate.update("DELETE FROM rag_document WHERE owner_key = ?", key);
     jdbcTemplate.update("DELETE FROM ai_invocation_event WHERE owner_key = ?", key);
     jdbcTemplate.update("DELETE FROM skill WHERE owner_key = ?", key);
-    jdbcTemplate.update("DELETE FROM saved_agent WHERE owner_key = ?", key);
+    jdbcTemplate.update("DELETE FROM custom_agent WHERE owner_key = ?", key);
     jdbcTemplate.update("DELETE FROM pipeline_template WHERE owner_key = ?", key);
 
     // Chat memory + web sources keyed by conversation id owned by this partition
@@ -56,7 +56,7 @@ public class JdbcOwnerPartitionRepository implements OwnerPartitionRepository {
         key);
     jdbcTemplate.update(
         """
-                DELETE FROM chat_web_sources
+                DELETE FROM chat_web_source
                 WHERE conversation_id IN (
                     SELECT CAST(id AS VARCHAR) FROM chat_session WHERE owner_key = ?)
                 """,

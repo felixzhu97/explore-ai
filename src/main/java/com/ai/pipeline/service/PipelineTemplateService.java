@@ -20,7 +20,7 @@ public class PipelineTemplateService {
   private final PipelineTemplateRepository repository;
 
   /** Lists the built-in pipeline templates. */
-  public List<PipelineTemplateDefinition> listTemplates(String language) {
+  public List<BuiltinPipelineTemplate> listTemplates(String language) {
     return PipelineTemplateCatalog.listAll(language);
   }
 
@@ -31,7 +31,7 @@ public class PipelineTemplateService {
 
   /** Copies a built-in template into the owner's library. */
   public PipelineTemplate createFromTemplate(String ownerKey, String templateId, String language) {
-    PipelineTemplateDefinition template =
+    BuiltinPipelineTemplate template =
         PipelineTemplateCatalog.findById(templateId, language)
             .orElseThrow(
                 () -> new IllegalArgumentException("Unknown pipeline template: " + templateId));

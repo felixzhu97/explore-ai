@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 import com.ai.account.controller.OwnerContext;
 import com.ai.common.infra.llm.ToolEventChannel;
 import com.ai.rag.domain.model.RagDocument;
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.model.SourceCitation;
 import com.ai.rag.service.RagApplicationService;
 import java.util.Collections;
 import java.util.List;
@@ -61,10 +61,10 @@ class RagSearchToolTest {
     @Test
     @DisplayName("should return search results with sources")
     void shouldReturnSearchResultsWithSources() {
-      List<SourceDocument> sources =
+      List<SourceCitation> sources =
           List.of(
-              new SourceDocument("Test content 1", 0.95, Map.of("title", TEST_DOC_TITLE)),
-              new SourceDocument("Test content 2", 0.85, Map.of("title", TEST_DOC_TITLE)));
+              new SourceCitation("Test content 1", 0.95, Map.of("title", TEST_DOC_TITLE)),
+              new SourceCitation("Test content 2", 0.85, Map.of("title", TEST_DOC_TITLE)));
       RagApplicationService.RetrievalResult retrievalResult =
           new RagApplicationService.RetrievalResult("context", sources, "query");
       when(ragApplicationService.retrieveContext(eq("test query"), isNull(), eq(5), eq(OWNER_KEY)))
@@ -81,8 +81,8 @@ class RagSearchToolTest {
     @Test
     @DisplayName("should search with specific document IDs")
     void shouldSearchWithSpecificDocIds() {
-      List<SourceDocument> sources =
-          List.of(new SourceDocument("Test content", 0.95, Map.of("title", TEST_DOC_TITLE)));
+      List<SourceCitation> sources =
+          List.of(new SourceCitation("Test content", 0.95, Map.of("title", TEST_DOC_TITLE)));
       RagApplicationService.RetrievalResult retrievalResult =
           new RagApplicationService.RetrievalResult("context", sources, "query");
       when(ragApplicationService.retrieveContext(eq("test query"), anyList(), eq(5), eq(OWNER_KEY)))
@@ -128,8 +128,8 @@ class RagSearchToolTest {
     @DisplayName("should truncate long content")
     void shouldTruncateLongContent() {
       String longContent = "A".repeat(600);
-      List<SourceDocument> sources =
-          List.of(new SourceDocument(longContent, 0.95, Map.of("title", TEST_DOC_TITLE)));
+      List<SourceCitation> sources =
+          List.of(new SourceCitation(longContent, 0.95, Map.of("title", TEST_DOC_TITLE)));
       RagApplicationService.RetrievalResult retrievalResult =
           new RagApplicationService.RetrievalResult("context", sources, "query");
       when(ragApplicationService.retrieveContext(anyString(), any(), anyInt(), anyString()))

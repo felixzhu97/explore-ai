@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.ai.rag.domain.model.RagDocument;
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.model.SourceCitation;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +40,7 @@ class RagApplicationServiceTest {
   @Test
   @DisplayName("should return the retrieved context with its sources and the query")
   void shouldReturnTheRetrievedContextWithItsSourcesAndTheQuery() {
-    SourceDocument source = new SourceDocument("source text", 0.95, Map.of());
+    SourceCitation source = new SourceCitation("source text", 0.95, Map.of());
     when(searchService.retrieve("test query", null, 5, OWNER))
         .thenReturn(new DocumentSearchService.RetrievalResult("context", List.of(source)));
 

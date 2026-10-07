@@ -10,8 +10,8 @@ import { NotificationService } from '../ui/notification.service';
 import { I18nService } from '../i18n';
 import {
   AgentsService,
-  type SavedAgent,
-  type UpdateSavedAgentRequest,
+  type CustomAgent,
+  type UpdateCustomAgentRequest,
 } from './agents.service';
 import type { AgentInfoResponse } from '../pipelines/pipelines.service';
 import { ZardButtonComponent } from '../ui/button';
@@ -72,7 +72,7 @@ export class AgentsPageComponent implements OnInit {
   readonly builtins = computed(() => this.catalog().filter(agent => !agent.supervisor),
   );
 
-  readonly savedAgents = signal<SavedAgent[]>([]);
+  readonly customAgents = signal<CustomAgent[]>([]);
 
   ngOnInit(): void {
     this.reload();
@@ -106,7 +106,7 @@ export class AgentsPageComponent implements OnInit {
     }
     const draft = this.#draft();
     const typeKey = draft.typeKey.trim().toLowerCase();
-    const request: UpdateSavedAgentRequest = {
+    const request: UpdateCustomAgentRequest = {
       name: draft.name.trim(),
       description: draft.description.trim(),
       systemPrompt: draft.systemPrompt.trim(),
@@ -138,11 +138,11 @@ export class AgentsPageComponent implements OnInit {
     this.editingId.set(null);
   }
 
-  /** Open form to override a builtin: create or edit its saved agent. */
+  /** Open form to override a builtin: create or edit its custom agent. */
   customizeBuiltin(agent: AgentInfoResponse): void {
-    const existing = this.findSavedAgentForType(agent.type);
+    const existing = this.findCustomAgentForType(agent.type);
     if (existing !== undefined) {
-      this.startEditSavedAgent(existing);
+      this.startEditCustomAgent(existing);
       return;
     }
     this.editingId.set(null);
@@ -157,8 +157,8 @@ export class AgentsPageComponent implements OnInit {
     this.showForm.set(true);
   }
 
-  /** Opens the form to edit a saved agent. */
-  startEditSavedAgent(agent: SavedAgent): void {
+  /** Opens the form to edit a custom agent. */
+  startEditCustomAgent(agent: CustomAgent): void {
     this.editingId.set(agent.id);
     this.isFormTypeKeyLocked.set(true);
     this.#draft.set({
@@ -171,16 +171,16 @@ export class AgentsPageComponent implements OnInit {
     this.showForm.set(true);
   }
 
-  /** Turns a saved agent on or off. */
-  toggleEnabled(agent: SavedAgent): void {
+  /** Turns a custom agent on or off. */
+  toggleEnabled(agent: CustomAgent): void {
     this.#agentsApi.setEnabled(agent.id, !agent.enabled).subscribe({
       next: () => this.reload(),
       error: () => this.error.set(this.i18n.t().agents.errors.updateFailed),
     });
   }
 
-  /** Deletes a saved agent after confirmation. */
-  delete(agent: SavedAgent): void {
+  /** Deletes a custom agent after confirmation. */
+  delete(agent: CustomAgent): void {
     const message = this.i18n.t().agents.deleteConfirm.replace('{name}', agent.name);
     if (!globalThis.confirm(message)) {
       return;
@@ -191,7 +191,7 @@ export class AgentsPageComponent implements OnInit {
     });
   }
 
-  /** Loads the agent catalog and saved agents. */
+  /** Loads the agent catalog and custom agents. */
   reload(): void {
     this.isLoading.set(true);
     this.error.set(null);
@@ -205,14 +205,14 @@ export class AgentsPageComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
-    this.#agentsApi.listSavedAgents().subscribe({
-      next: savedAgents => this.savedAgents.set(savedAgents),
+    this.#agentsApi.listCustomAgents().subscribe({
+      next: customAgents => this.customAgents.set(customAgents),
       error: () => undefined,
     });
   }
 
-  /** Finds the saved agent for the agent type. */
-  findSavedAgentForType(typeKey: string): SavedAgent | undefined {
-    return this.savedAgents().find(item => item.typeKey === typeKey);
+  /** Finds the custom agent for the agent type. */
+  findCustomAgentForType(typeKey: string): CustomAgent | undefined {
+    return this.customAgents().find(item => item.typeKey === typeKey);
   }
 }

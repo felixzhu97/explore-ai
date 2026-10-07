@@ -4,7 +4,7 @@ export interface MetricsKpi {
   key: string;
   label: string;
   value: string;
-  domain?: string;
+  capability?: string;
 }
 
 @Component({

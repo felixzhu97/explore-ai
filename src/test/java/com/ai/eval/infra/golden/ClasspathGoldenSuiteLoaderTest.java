@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ai.eval.domain.model.GoldenEvalCase;
-import com.ai.eval.domain.model.GoldenEvalDomain;
+import com.ai.eval.domain.model.GoldenEvalCategory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -24,13 +24,13 @@ class ClasspathGoldenSuiteLoaderTest {
     String jsonl =
         "{\"id\":\"c1\",\"input\":\"What is Explore AI?\","
             + "\"ideal\":\"A demo platform.\","
-            + "\"metadata\":{\"domain\":\"CHAT\",\"tools_enabled\":false}}\n";
+            + "\"metadata\":{\"category\":\"CHAT\",\"tools_enabled\":false}}\n";
     List<GoldenEvalCase> cases = loader.readResource(resource(jsonl));
 
     assertThat(cases).hasSize(1);
     GoldenEvalCase evalCase = cases.getFirst();
     assertThat(evalCase.id()).isEqualTo("c1");
-    assertThat(evalCase.domain()).isEqualTo(GoldenEvalDomain.CHAT);
+    assertThat(evalCase.category()).isEqualTo(GoldenEvalCategory.CHAT);
     assertThat(evalCase.userText()).isEqualTo("What is Explore AI?");
     assertThat(evalCase.ideal()).containsExactly("A demo platform.");
     assertThat(evalCase.toolsEnabled()).isFalse();
@@ -42,13 +42,13 @@ class ClasspathGoldenSuiteLoaderTest {
     String jsonl =
         "{\"id\":\"r1\",\"input\":[{\"role\":\"user\",\"content\":\"Which modules?\"}],"
             + "\"ideal\":[\"Chat\",\"RAG\"],"
-            + "\"metadata\":{\"domain\":\"RAG\",\"fixture_keys\":[\"overview\"],"
+            + "\"metadata\":{\"category\":\"RAG\",\"fixture_keys\":[\"overview\"],"
             + "\"contexts\":[\"Chat and RAG\"]}}\n";
     List<GoldenEvalCase> cases = loader.readResource(resource(jsonl));
 
     assertThat(cases).hasSize(1);
     GoldenEvalCase evalCase = cases.getFirst();
-    assertThat(evalCase.domain()).isEqualTo(GoldenEvalDomain.RAG);
+    assertThat(evalCase.category()).isEqualTo(GoldenEvalCategory.RAG);
     assertThat(evalCase.userText()).isEqualTo("Which modules?");
     assertThat(evalCase.ideal()).containsExactly("Chat", "RAG");
     assertThat(evalCase.fixtureKeys()).containsExactly("overview");

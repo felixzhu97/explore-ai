@@ -1,7 +1,7 @@
 package com.ai.eval.infra.golden;
 
 import com.ai.eval.domain.model.GoldenEvalCase;
-import com.ai.eval.domain.model.GoldenEvalDomain;
+import com.ai.eval.domain.model.GoldenEvalCategory;
 import com.ai.eval.domain.repository.GoldenSuiteRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,11 +43,11 @@ public class ClasspathGoldenSuiteLoader implements GoldenSuiteRepository {
   }
 
   @Override
-  public List<GoldenEvalCase> loadByDomains(List<GoldenEvalDomain> domains) {
-    if (domains == null || domains.isEmpty()) {
+  public List<GoldenEvalCase> loadByCategories(List<GoldenEvalCategory> categories) {
+    if (categories == null || categories.isEmpty()) {
       return loadAll();
     }
-    return loadAll().stream().filter(c -> domains.contains(c.domain())).toList();
+    return loadAll().stream().filter(c -> categories.contains(c.category())).toList();
   }
 
   /** Reads the golden cases from a JSONL resource. */
@@ -96,14 +96,14 @@ public class ClasspathGoldenSuiteLoader implements GoldenSuiteRepository {
     List<String> ideal = extractIdeal(root.get("ideal"));
 
     JsonNode metadata = root.path("metadata");
-    GoldenEvalDomain domain = parseDomain(metadata.path("domain").asText(null));
+    GoldenEvalCategory category = parseCategory(metadata.path("category").asText(null));
     boolean toolsEnabled = metadata.path("tools_enabled").asBoolean(false);
     List<String> contexts = readStringList(metadata.get("contexts"));
     List<String> documentIds = readStringList(metadata.get("document_ids"));
     List<String> fixtureKeys = readStringList(metadata.get("fixture_keys"));
 
     return new GoldenEvalCase(
-        id, domain, userText, ideal, toolsEnabled, contexts, documentIds, fixtureKeys);
+        id, category, userText, ideal, toolsEnabled, contexts, documentIds, fixtureKeys);
   }
 
   private static String extractInput(JsonNode inputNode) {
@@ -145,11 +145,11 @@ public class ClasspathGoldenSuiteLoader implements GoldenSuiteRepository {
     throw new IllegalArgumentException("ideal must be a string or string array");
   }
 
-  private static GoldenEvalDomain parseDomain(String raw) {
+  private static GoldenEvalCategory parseCategory(String raw) {
     if (raw == null || raw.isBlank()) {
-      return GoldenEvalDomain.CHAT;
+      return GoldenEvalCategory.CHAT;
     }
-    return GoldenEvalDomain.valueOf(raw.trim().toUpperCase(Locale.ROOT));
+    return GoldenEvalCategory.valueOf(raw.trim().toUpperCase(Locale.ROOT));
   }
 
   private static List<String> readStringList(JsonNode node) {

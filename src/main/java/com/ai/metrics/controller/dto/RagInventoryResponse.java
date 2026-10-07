@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public record RagInventoryResponse(
     long documentCount, Map<String, Long> documentsByStatus, long chunkCount, long totalFileBytes)
-    implements DomainInventoryResponse {
+    implements CapabilityInventoryResponse {
 
   /** Maps the knowledge base inventory read from the metrics store. */
   public static RagInventoryResponse from(RagInventory inventory) {

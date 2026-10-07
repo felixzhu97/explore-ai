@@ -5,12 +5,12 @@ import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.DocumentSearchTool;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.common.service.llm.WebSearchTool;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.tools.domain.model.WeatherForecast;
 import com.ai.tools.domain.model.WeatherQuery;
-import com.ai.tools.domain.model.WeatherReport;
+import com.ai.tools.domain.model.WeatherSimulator;
 import com.ai.tools.infra.tools.WeatherTools;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,19 +24,19 @@ public class ToolService {
 
   private final ChatClientProvider chatClientProvider;
   private final WeatherTools weatherTools;
-  private final WeatherReport weatherReport;
+  private final WeatherSimulator weatherSimulator;
   private final DocumentSearchTool documentSearchTool;
   private final WebSearchTool webSearchTool;
   private final AiInvocationRecorder invocationRecorder;
 
   /** Looks up today's weather in the city. */
   public String lookupWeather(String city) {
-    return weatherReport.lookupCurrent(WeatherQuery.of(city)).getContent();
+    return weatherSimulator.lookupCurrent(WeatherQuery.of(city)).getContent();
   }
 
   /** Returns a formatted weather forecast for the city over the requested number of days. */
   public String lookupForecast(String city, Integer days) {
-    return weatherReport
+    return weatherSimulator
         .generateForecast(WeatherForecast.of(WeatherQuery.of(city), days))
         .getContent();
   }
@@ -59,11 +59,18 @@ public class ToolService {
           chatClientProvider.createStateless(TextChatOptions.of("openai", null, true));
       String content = chatClient.prompt().user(question).call().content();
       invocationRecorder.recordSuccess(
-          AiDomain.TOOLS, "tool.chat", Latency.since(startedAt), owner, "openai", null, null);
+          AiCapability.TOOLS, "tool.chat", Latency.since(startedAt), owner, "openai", null, null);
       return content;
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
-          AiDomain.TOOLS, "tool.chat", Latency.since(startedAt), owner, "openai", null, null, ex);
+          AiCapability.TOOLS,
+          "tool.chat",
+          Latency.since(startedAt),
+          owner,
+          "openai",
+          null,
+          null,
+          ex);
       throw ex;
     }
   }

@@ -3,7 +3,7 @@ package com.ai.metrics.infra.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.repository.MetricsQueryRepository.TimePoint;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -45,14 +45,14 @@ class JdbcMetricsQueryRepositorySchemaTest {
   @Test
   @DisplayName("should run every metrics query when schema comes from liquibase")
   void shouldRunEveryMetricsQueryWhenSchemaComesFromLiquibase() {
-    Optional<AiDomain> chat = Optional.of(AiDomain.CHAT);
+    Optional<AiCapability> chat = Optional.of(AiCapability.CHAT);
 
     assertThatCode(
             () -> {
               repository.countInvocationStats(chat, FROM, TO);
               repository.calculateLatencyPercentiles(chat, FROM, TO);
               repository.sumTokens(chat, FROM, TO);
-              repository.countByDomain(FROM, TO);
+              repository.countByCapability(FROM, TO);
               repository.countByModel(chat, FROM, TO);
               repository.countByAgentType(FROM, TO);
               repository.listTopTools(chat, FROM, TO, 5);

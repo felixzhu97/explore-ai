@@ -1,5 +1,6 @@
 package com.ai.chat.controller.dto;
 
+import com.ai.chat.domain.model.MessageRole;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -28,5 +29,6 @@ public record ChatStreamRequest(
   public static final int MAX_CONTENT_LENGTH = 32_000;
 
   /** A single chat message with role and content. */
-  public record Message(@NotNull ChatRole role, @Size(max = MAX_CONTENT_LENGTH) String content) {}
+  public record Message(
+      @NotNull MessageRole role, @Size(max = MAX_CONTENT_LENGTH) String content) {}
 }

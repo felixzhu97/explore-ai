@@ -1,6 +1,6 @@
 package com.ai.common.infra.skills;
 
-import com.ai.common.domain.model.AgentSkill;
+import com.ai.common.domain.model.BundledSkill;
 import com.ai.common.infra.config.AgentSkillsProperties;
 import java.util.List;
 import java.util.Optional;
@@ -15,10 +15,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class AgentSkillsRuntime {
   private final boolean enabled;
-  private final List<AgentSkill> skills;
+  private final List<BundledSkill> skills;
   private final ToolCallback skillToolCallback;
 
-  AgentSkillsRuntime(AgentSkillsProperties agentProperties, AgentSkillLoader skillLoader) {
+  AgentSkillsRuntime(AgentSkillsProperties agentProperties, BundledSkillLoader skillLoader) {
     this.enabled = agentProperties.isEnabled();
     this.skills = skillLoader.loadEnabledSkills();
     this.skillToolCallback = buildSkillToolCallback(this.skills);
@@ -30,7 +30,7 @@ public class AgentSkillsRuntime {
   }
 
   /** Returns the loaded skills. */
-  public List<AgentSkill> getSkills() {
+  public List<BundledSkill> getSkills() {
     return skills;
   }
 
@@ -57,13 +57,13 @@ public class AgentSkillsRuntime {
         + catalog;
   }
 
-  private static ToolCallback buildSkillToolCallback(List<AgentSkill> skills) {
+  private static ToolCallback buildSkillToolCallback(List<BundledSkill> skills) {
     if (skills.isEmpty()) {
       return null;
     }
     ResourceLoader resourceLoader = new DefaultResourceLoader();
     SkillsTool.Builder builder = SkillsTool.builder();
-    for (AgentSkill skill : skills) {
+    for (BundledSkill skill : skills) {
       try {
         builder.addSkillsResource(
             resourceLoader.getResource(toSpringResourceLocation(skill.resourceLocation())));

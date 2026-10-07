@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class H2DocumentChunkRepository
     implements DocumentChunkRepository, DocumentChunkSearchRepository {
 
-  private static final String TABLE_NAME = "document_chunks";
+  private static final String TABLE_NAME = "document_chunk";
   private static final String SELECT_COLUMNS =
       "SELECT id, document_id, owner_key, content, chunk_index, embedding, metadata, created_at";
 

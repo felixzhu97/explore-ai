@@ -4,12 +4,12 @@ import com.ai.chat.service.ChatService;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.eval.domain.model.CaseEvalOutcome;
 import com.ai.eval.domain.model.GoldenEvalCase;
-import com.ai.eval.domain.model.GoldenEvalDomain;
+import com.ai.eval.domain.model.GoldenEvalCategory;
 import com.ai.eval.domain.model.GoldenSuiteReport;
 import com.ai.eval.domain.model.OfficialGateResult;
 import com.ai.eval.domain.repository.GoldenSuiteRepository;
 import com.ai.eval.infra.golden.GoldenRagFixtureSeeder;
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.model.SourceCitation;
 import com.ai.rag.service.RagChatService;
 import com.ai.rag.service.dto.RagChatResult;
 import java.util.ArrayList;
@@ -43,16 +43,16 @@ public class GoldenEvalService {
   private final RagChatService ragChatService;
   private final GoldenRagFixtureSeeder fixtureSeeder;
 
-  /** Runs golden cases for the domains, optionally filtered by id, and aggregates a report. */
-  public GoldenSuiteReport run(List<GoldenEvalDomain> domains, List<String> caseIds) {
-    List<GoldenEvalCase> cases = suiteRepository.loadByDomains(domains);
+  /** Runs golden cases for the categories, optionally filtered by id, and aggregates a report. */
+  public GoldenSuiteReport run(List<GoldenEvalCategory> categories, List<String> caseIds) {
+    List<GoldenEvalCase> cases = suiteRepository.loadByCategories(categories);
     if (caseIds != null && !caseIds.isEmpty()) {
       Set<String> wanted = new LinkedHashSet<>(caseIds);
       cases = cases.stream().filter(c -> wanted.contains(c.id())).toList();
     }
 
     Map<String, String> fixtureIds =
-        cases.stream().anyMatch(c -> c.domain() == GoldenEvalDomain.RAG)
+        cases.stream().anyMatch(c -> c.category() == GoldenEvalCategory.RAG)
             ? fixtureSeeder.ensureFixtures()
             : Map.of();
 
@@ -71,7 +71,7 @@ public class GoldenEvalService {
           officialEvaluators.evaluate(evalCase.userText(), generated.answer(), context);
       return new CaseEvalOutcome(
           evalCase.id(),
-          evalCase.domain(),
+          evalCase.category(),
           evalCase.userText(),
           truncate(generated.answer()),
           gate.passed(),
@@ -82,7 +82,7 @@ public class GoldenEvalService {
     } catch (RuntimeException ex) {
       return new CaseEvalOutcome(
           evalCase.id(),
-          evalCase.domain(),
+          evalCase.category(),
           evalCase.userText(),
           "",
           false,
@@ -94,14 +94,14 @@ public class GoldenEvalService {
   }
 
   private GeneratedAnswer generate(GoldenEvalCase evalCase, Map<String, String> fixtureIds) {
-    if (evalCase.domain() == GoldenEvalDomain.RAG) {
+    if (evalCase.category() == GoldenEvalCategory.RAG) {
       List<String> documentIds = resolveDocumentIds(evalCase, fixtureIds);
       RagChatResult result =
           ragChatService.chat(
               evalCase.userText(), documentIds, 5, null, GoldenRagFixtureSeeder.OWNER_KEY);
       List<String> sources =
           result.sources().stream()
-              .map(SourceDocument::content)
+              .map(SourceCitation::content)
               .filter(text -> text != null && !text.isBlank())
               .toList();
       return new GeneratedAnswer(result.response(), sources);

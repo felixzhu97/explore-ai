@@ -1,7 +1,7 @@
 import { Component, inject, input, output } from '@angular/core';
 import { I18nService } from '../i18n';
 import { ZardButtonComponent } from '../ui/button';
-import type { PipelineTemplate, PipelineTemplateDefinitionResponse } from './pipelines.service';
+import type { PipelineTemplate, BuiltinPipelineTemplateResponse } from './pipelines.service';
 
 @Component({
   selector: 'app-pipelines-gallery',
@@ -12,13 +12,13 @@ import type { PipelineTemplate, PipelineTemplateDefinitionResponse } from './pip
 export class PipelinesGalleryComponent {
   readonly i18n = inject(I18nService);
 
-  readonly builtinTemplates = input.required<PipelineTemplateDefinitionResponse[]>();
+  readonly builtinTemplates = input.required<BuiltinPipelineTemplateResponse[]>();
   readonly savedTemplates = input.required<PipelineTemplate[]>();
   readonly addingTemplateId = input<string | null>(null);
   readonly addWorkflow = output<void>();
-  readonly useTemplate = output<PipelineTemplateDefinitionResponse>();
-  readonly editTemplate = output<PipelineTemplateDefinitionResponse>();
-  readonly addTemplate = output<PipelineTemplateDefinitionResponse>();
+  readonly useTemplate = output<BuiltinPipelineTemplateResponse>();
+  readonly editTemplate = output<BuiltinPipelineTemplateResponse>();
+  readonly addTemplate = output<BuiltinPipelineTemplateResponse>();
   readonly useSavedTemplate = output<PipelineTemplate>();
   readonly editSavedTemplate = output<PipelineTemplate>();
   readonly deleteSavedTemplate = output<PipelineTemplate>();
@@ -29,7 +29,7 @@ export class PipelinesGalleryComponent {
   }
 
   /** Tells whether the template is already in the library. */
-  isSaved(template: PipelineTemplateDefinitionResponse): boolean {
+  isSaved(template: BuiltinPipelineTemplateResponse): boolean {
     return this.savedTemplates().some(item => item.sourceTemplateId === template.id);
   }
 }

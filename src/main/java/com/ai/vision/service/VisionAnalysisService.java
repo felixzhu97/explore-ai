@@ -3,7 +3,7 @@ package com.ai.vision.service;
 import com.ai.common.controller.dto.HealthStatus;
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.vision.controller.dto.CaptionResponse;
@@ -79,7 +79,7 @@ public class VisionAnalysisService {
       long processingTimeMs = Latency.since(startedAt).millis();
       captionTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
-          AiDomain.VISION,
+          AiCapability.VISION,
           "vision.caption",
           Latency.ofMillis(processingTimeMs),
           owner,
@@ -89,7 +89,14 @@ public class VisionAnalysisService {
       return new CaptionResponse(result.text(), processingTimeMs);
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
-          AiDomain.VISION, "vision.caption", Latency.since(startedAt), owner, null, null, null, ex);
+          AiCapability.VISION,
+          "vision.caption",
+          Latency.since(startedAt),
+          owner,
+          null,
+          null,
+          null,
+          ex);
       throw ex;
     }
   }
@@ -104,7 +111,7 @@ public class VisionAnalysisService {
       long processingTimeMs = Latency.since(startedAt).millis();
       detectTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
-          AiDomain.VISION,
+          AiCapability.VISION,
           "vision.detect",
           Latency.ofMillis(processingTimeMs),
           owner,
@@ -114,7 +121,14 @@ public class VisionAnalysisService {
       return new DetectResponse(detections, processingTimeMs);
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
-          AiDomain.VISION, "vision.detect", Latency.since(startedAt), owner, null, null, null, ex);
+          AiCapability.VISION,
+          "vision.detect",
+          Latency.since(startedAt),
+          owner,
+          null,
+          null,
+          null,
+          ex);
       throw ex;
     }
   }
@@ -128,7 +142,7 @@ public class VisionAnalysisService {
       long processingTimeMs = Latency.since(startedAt).millis();
       ocrTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
-          AiDomain.VISION,
+          AiCapability.VISION,
           "vision.ocr",
           Latency.ofMillis(processingTimeMs),
           owner,
@@ -138,7 +152,7 @@ public class VisionAnalysisService {
       return new OcrResponse(result.text(), processingTimeMs);
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
-          AiDomain.VISION, "vision.ocr", Latency.since(startedAt), owner, null, null, null, ex);
+          AiCapability.VISION, "vision.ocr", Latency.since(startedAt), owner, null, null, null, ex);
       throw ex;
     }
   }

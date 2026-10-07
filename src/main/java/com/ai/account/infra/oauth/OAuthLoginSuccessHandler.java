@@ -1,6 +1,6 @@
 package com.ai.account.infra.oauth;
 
-import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.model.Account;
 import com.ai.account.domain.model.ClientId;
 import com.ai.account.infra.config.OAuthSpaProperties;
 import com.ai.account.service.AccountService;
@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
 
-/** Links the OAuth user to an account, merges the client's data, and redirects to the SPA. */
+/** Links the OAuth account to an account, merges the client's data, and redirects to the SPA. */
 @Component
 @ConditionalOnBean(ClientRegistrationRepository.class)
 public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -50,8 +50,8 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     Object attribute = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
     Optional<OAuthSignIn> signIn = OAuthSignIn.from(authentication);
     if (attribute instanceof String raw && ClientId.isValid(raw) && signIn.isPresent()) {
-      AccountUser user = accountService.linkOAuthUser(signIn.get(), ClientId.parse(raw));
-      ownerMergeService.mergeGuestIntoAccount(user);
+      Account account = accountService.linkOAuthUser(signIn.get(), ClientId.parse(raw));
+      ownerMergeService.mergeGuestIntoAccount(account);
     }
 
     SecurityContext context = SecurityContextHolder.createEmptyContext();

@@ -6,9 +6,9 @@ import com.ai.common.infra.prompt.ClasspathPromptLoader;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentType;
-import com.ai.pipeline.domain.model.SavedAgent;
+import com.ai.pipeline.domain.model.CustomAgent;
 import com.ai.pipeline.domain.repository.AgentRegistry;
-import com.ai.pipeline.domain.repository.SavedAgentRepository;
+import com.ai.pipeline.domain.repository.CustomAgentRepository;
 import com.ai.pipeline.service.AgentTemplate;
 import com.ai.pipeline.service.AgentTemplateCatalog;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 public class CatalogAgentRegistry implements AgentRegistry {
 
   private final PromptTemplates promptTemplates;
-  private final SavedAgentRepository savedAgentRepository;
+  private final CustomAgentRepository customAgentRepository;
 
   /** Test helper: fixed in-memory catalog (not a Spring bean). */
   public static AgentRegistry fixed(List<AgentDefinition> definitions) {
@@ -87,7 +87,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
     for (AgentDefinition builtin : listBuiltins(language)) {
       byType.put(builtin.getType().value(), builtin);
     }
-    for (SavedAgent saved : library(ownerKey)) {
+    for (CustomAgent saved : library(ownerKey)) {
       byType.put(saved.getTypeKey(), saved.toAgentDefinition());
     }
     return List.copyOf(byType.values());
@@ -109,7 +109,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
     return library(ownerKey).stream()
         .filter(saved -> saved.hasType(type))
         .findFirst()
-        .map(SavedAgent::toAgentDefinition)
+        .map(CustomAgent::toAgentDefinition)
         .or(
             () ->
                 AgentTemplateCatalog.findByTypeKey(type.value(), language).map(this::toDefinition));
@@ -123,11 +123,11 @@ public class CatalogAgentRegistry implements AgentRegistry {
                 DomainException.notFound("AGENT_NOT_FOUND", "Unknown agent type: " + type.value()));
   }
 
-  private List<SavedAgent> library(String ownerKey) {
+  private List<CustomAgent> library(String ownerKey) {
     if (ownerKey == null || ownerKey.isBlank()) {
       return List.of();
     }
-    return savedAgentRepository.findAllByOwnerKeyAndEnabledTrueOrderByNameAsc(
+    return customAgentRepository.findAllByOwnerKeyAndEnabledTrueOrderByNameAsc(
         OwnerKey.parse(ownerKey));
   }
 

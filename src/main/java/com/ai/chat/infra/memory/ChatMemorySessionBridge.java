@@ -1,8 +1,8 @@
 package com.ai.chat.infra.memory;
 
 import com.ai.chat.domain.model.ChatMessage;
-import com.ai.chat.domain.model.ChatMessageType;
 import com.ai.chat.domain.model.MessageId;
+import com.ai.chat.domain.model.MessageRole;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.common.infra.llm.ToolCallMarkupFilter;
 import java.time.Instant;
@@ -40,7 +40,7 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
   @Override
   public List<ChatMessage> load(String conversationId) {
     return chatMemory.get(conversationId).stream()
-        .filter(message -> toMessageType(message.getMessageType()) != null)
+        .filter(message -> toRole(message.getMessageType()) != null)
         .map(this::toDomainMessage)
         .toList();
   }
@@ -58,18 +58,18 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
   }
 
   private ChatMessage toDomainMessage(Message message) {
-    ChatMessageType type = toMessageType(message.getMessageType());
+    MessageRole type = toRole(message.getMessageType());
     String text = message.getText() == null ? "" : message.getText();
-    if (type == ChatMessageType.ASSISTANT && ToolCallMarkupFilter.looksLikeToolMarkup(text)) {
+    if (type == MessageRole.ASSISTANT && ToolCallMarkupFilter.looksLikeToolMarkup(text)) {
       text = ToolCallMarkupFilter.sanitize(text);
     }
     return ChatMessage.restore(MessageId.generate(), text, type, Instant.now());
   }
 
-  private static ChatMessageType toMessageType(MessageType type) {
+  private static MessageRole toRole(MessageType type) {
     return switch (type) {
-      case USER -> ChatMessageType.USER;
-      case ASSISTANT -> ChatMessageType.ASSISTANT;
+      case USER -> MessageRole.USER;
+      case ASSISTANT -> MessageRole.ASSISTANT;
       default -> null;
     };
   }

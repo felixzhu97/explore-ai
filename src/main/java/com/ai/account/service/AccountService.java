@@ -4,10 +4,10 @@ import com.ai.account.controller.dto.AccountMeResponse;
 import com.ai.account.controller.dto.AccountMode;
 import com.ai.account.controller.dto.AccountPlan;
 import com.ai.account.controller.dto.LoginProvider;
-import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.model.Account;
 import com.ai.account.domain.model.ClientId;
 import com.ai.account.domain.model.ContactEmail;
-import com.ai.account.domain.repository.AccountUserRepository;
+import com.ai.account.domain.repository.AccountRepository;
 import com.ai.account.infra.config.OAuthExploreIamProperties;
 import com.ai.account.infra.config.OAuthGithubProperties;
 import com.ai.account.infra.config.OAuthGoogleProperties;
@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AccountService {
 
-  private final AccountUserRepository accountUserRepository;
+  private final AccountRepository accountRepository;
   private final IamAccountService iamAccountService;
   private final BillingPlanService billingPlanService;
   private final OAuthGoogleProperties oauthGoogleProperties;
@@ -49,16 +49,15 @@ public class AccountService {
     }
     Optional<OAuthSignIn> signIn = OAuthSignIn.from(authentication);
     if (signIn.isPresent()) {
-      return accountUserRepository
+      return accountRepository
           .findByIdentity(signIn.get().identity())
-          .map(user -> authenticated(clientId, user))
+          .map(account -> authenticated(clientId, account))
           .orElseGet(() -> authenticated(clientId, signIn.get()));
     }
 
     // Session may be missing after a host mismatch; Client Identity link still proves login.
     if (ClientId.isValid(clientId)) {
-      Optional<AccountUser> byClient =
-          accountUserRepository.findByLinkedClientId(ClientId.parse(clientId));
+      Optional<Account> byClient = accountRepository.findByLinkedClientId(ClientId.parse(clientId));
       if (byClient.isPresent()) {
         return authenticated(clientId, byClient.get());
       }
@@ -77,22 +76,22 @@ public class AccountService {
 
   /** Links the OAuth sign-in to the browser, unlinking any other account, and returns it. */
   @Transactional
-  public AccountUser linkOAuthUser(OAuthSignIn signIn, ClientId clientId) {
-    AccountUser user =
-        accountUserRepository
+  public Account linkOAuthUser(OAuthSignIn signIn, ClientId clientId) {
+    Account account =
+        accountRepository
             .findByIdentity(signIn.identity())
             .orElseGet(
-                () -> AccountUser.create(signIn.identity(), signIn.email(), signIn.displayName()));
-    accountUserRepository
+                () -> Account.create(signIn.identity(), signIn.email(), signIn.displayName()));
+    accountRepository
         .findByLinkedClientId(clientId)
-        .filter(previous -> !previous.getId().equals(user.getId()))
+        .filter(previous -> !previous.getId().equals(account.getId()))
         .ifPresent(
             previous -> {
               previous.unlinkBrowser();
-              accountUserRepository.save(previous);
+              accountRepository.save(previous);
             });
-    user.linkBrowser(clientId, signIn.email(), signIn.displayName());
-    return accountUserRepository.save(user);
+    account.linkBrowser(clientId, signIn.email(), signIn.displayName());
+    return accountRepository.save(account);
   }
 
   /** Clears OAuth ↔ Client Identity link so the browser returns to guest mode. */
@@ -101,12 +100,12 @@ public class AccountService {
     if (!ClientId.isValid(clientId)) {
       return;
     }
-    accountUserRepository
+    accountRepository
         .findByLinkedClientId(ClientId.parse(clientId))
         .ifPresent(
-            user -> {
-              user.unlinkBrowser();
-              accountUserRepository.save(user);
+            account -> {
+              account.unlinkBrowser();
+              accountRepository.save(account);
             });
   }
 
@@ -130,9 +129,12 @@ public class AccountService {
     return List.copyOf(providers);
   }
 
-  private AccountMeResponse authenticated(String clientId, AccountUser user) {
+  private AccountMeResponse authenticated(String clientId, Account account) {
     return authenticated(
-        clientId, user.getId().toString(), user.getEmail(), user.displayLabel().orElse(null));
+        clientId,
+        account.getId().toString(),
+        account.getEmail(),
+        account.displayLabel().orElse(null));
   }
 
   private AccountMeResponse authenticated(String clientId, OAuthSignIn signIn) {

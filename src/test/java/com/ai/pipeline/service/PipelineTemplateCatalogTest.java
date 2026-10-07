@@ -12,7 +12,7 @@ class PipelineTemplateCatalogTest {
   @DisplayName("should list built in templates when catalog loaded")
   void shouldListBuiltInTemplatesWhenCatalogLoaded() {
     assertThat(PipelineTemplateCatalog.listAll())
-        .extracting(PipelineTemplateDefinition::id)
+        .extracting(BuiltinPipelineTemplate::id)
         .containsExactly(
             "competitiveIntel",
             "policyQa",
@@ -31,19 +31,19 @@ class PipelineTemplateCatalogTest {
     assertThat(PipelineTemplateCatalog.findById("competitiveIntel", "zh"))
         .isPresent()
         .get()
-        .extracting(PipelineTemplateDefinition::name)
+        .extracting(BuiltinPipelineTemplate::name)
         .isEqualTo("竞品情报");
 
     assertThat(PipelineTemplateCatalog.findById("incidentReview", "zh"))
         .isPresent()
         .get()
-        .extracting(PipelineTemplateDefinition::name)
+        .extracting(BuiltinPipelineTemplate::name)
         .isEqualTo("事故复盘");
 
     assertThat(PipelineTemplateCatalog.findById("policyQa", "en"))
         .isPresent()
         .get()
-        .extracting(PipelineTemplateDefinition::agentTypes)
+        .extracting(BuiltinPipelineTemplate::agentTypes)
         .isEqualTo(java.util.List.of("vectordb", "analyst"));
   }
 
@@ -53,7 +53,7 @@ class PipelineTemplateCatalogTest {
     assertThat(PipelineTemplateCatalog.findById("meetingPrep", "de"))
         .isPresent()
         .get()
-        .extracting(PipelineTemplateDefinition::name)
+        .extracting(BuiltinPipelineTemplate::name)
         .isEqualTo("Stakeholder meeting prep");
   }
 

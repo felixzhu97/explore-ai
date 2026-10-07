@@ -45,17 +45,17 @@
       />
       <app-chart-panel
         type="doughnut"
-        [heading]="i18n.t().metrics.charts.requestsByDomain"
-        [emptyText]="i18n.t().metrics.charts.requestsByDomainEmpty"
-        [data]="domainSeries()"
-        (chartClicked)="openDomain($event.label)"
+        [heading]="i18n.t().metrics.charts.requestsByCapability"
+        [emptyText]="i18n.t().metrics.charts.requestsByCapabilityEmpty"
+        [data]="capabilitySeries()"
+        (chartClicked)="openCapability($event.label)"
       />
     </div>
 
-    <app-metrics-domain-health
+    <app-metrics-capability-health
       [heading]="i18n.t().metrics.health.heading"
       [items]="healthItems()"
-      (domainSelected)="openDomain($event)"
+      (capabilitySelected)="openCapability($event)"
     />
 
     <app-metrics-drilldown-table
@@ -66,7 +66,7 @@
     />
 
     <p class="text-xs text-muted-foreground">
-      {{ i18n.t().metrics.openDomainHint }}
+      {{ i18n.t().metrics.openCapabilityHint }}
       <a routerLink="/metrics/chat" class="underline">{{ i18n.t().metrics.health.chat }}</a>,
       <a routerLink="/metrics/rag" class="underline">{{ i18n.t().metrics.health.rag }}</a>,
       <a routerLink="/metrics/agents" class="underline">{{ i18n.t().metrics.health.agents }}</a>.

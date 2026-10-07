@@ -12,7 +12,7 @@ import com.ai.common.service.llm.ToolCallEvent;
 import com.ai.common.service.llm.ToolResultEvent;
 import com.ai.common.service.llm.WebSourcesEvent;
 import com.ai.pipeline.service.PipelineHandoffEvent;
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.model.SourceCitation;
 import com.ai.rag.service.dto.RagSourceEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
@@ -79,9 +79,9 @@ class StreamEventWireFormatTest {
     List<RagSourceEvent> events =
         RagSourceEvent.fromAll(
             List.of(
-                new SourceDocument("chunk", 0.5, Map.of("source", "a.md")),
-                new SourceDocument(" ", 0.1, Map.of()),
-                new SourceDocument("bare", 0.2, null)));
+                new SourceCitation("chunk", 0.5, Map.of("source", "a.md")),
+                new SourceCitation(" ", 0.1, Map.of()),
+                new SourceCitation("bare", 0.2, null)));
 
     assertThat(json.writeValueAsString(events))
         .isEqualTo(

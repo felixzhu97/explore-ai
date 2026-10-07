@@ -2,7 +2,7 @@ package com.ai.rag.service;
 
 import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.ScoredChunk;
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.model.SourceCitation;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DocumentSearchService {
 
-  public record RetrievalResult(String context, List<SourceDocument> sources) {}
+  public record RetrievalResult(String context, List<SourceCitation> sources) {}
 
   private final TextEmbeddingGateway embeddingRepository;
   private final DocumentChunkSearchRepository chunkSearchRepository;
@@ -46,11 +46,11 @@ public class DocumentSearchService {
             .map(scored -> scored.chunk().getContent())
             .collect(Collectors.joining("\n\n"));
 
-    List<SourceDocument> sources =
+    List<SourceCitation> sources =
         matches.stream()
             .map(
                 scored ->
-                    new SourceDocument(
+                    new SourceCitation(
                         scored.chunk().excerpt(), scored.score(), scored.chunk().getMetadata()))
             .toList();
 

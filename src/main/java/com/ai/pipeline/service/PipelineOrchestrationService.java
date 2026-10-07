@@ -2,7 +2,7 @@ package com.ai.pipeline.service;
 
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.ErrorSummary;
 import com.ai.metrics.domain.model.Latency;
@@ -98,9 +98,9 @@ public class PipelineOrchestrationService {
     OwnerKey owner = OwnerKey.parse(ownerKey);
     AiInvocationEvent.Builder event =
         error == null
-            ? AiInvocationEvent.succeeded(AiDomain.AGENTS, operation, latency, owner)
+            ? AiInvocationEvent.succeeded(AiCapability.AGENTS, operation, latency, owner)
             : AiInvocationEvent.failed(
-                AiDomain.AGENTS, operation, latency, owner, ErrorSummary.of(error));
+                AiCapability.AGENTS, operation, latency, owner, ErrorSummary.of(error));
     invocationRecorder.record(event.agentType(agentType).build());
   }
 

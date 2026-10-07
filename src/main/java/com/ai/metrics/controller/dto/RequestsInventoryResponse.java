@@ -1,5 +1,5 @@
 package com.ai.metrics.controller.dto;
 
-/** Request totals for domains without a dedicated inventory (vision, workflow). */
+/** Request totals for capabilities without a dedicated inventory (vision, workflow). */
 public record RequestsInventoryResponse(long requests, long errors)
-    implements DomainInventoryResponse {}
+    implements CapabilityInventoryResponse {}

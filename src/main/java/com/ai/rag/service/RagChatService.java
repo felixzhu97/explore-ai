@@ -6,11 +6,11 @@ import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
-import com.ai.rag.domain.model.SourceDocument;
+import com.ai.rag.domain.model.SourceCitation;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
 import com.ai.rag.infra.vector.ChunkMetadataKeys;
 import com.ai.rag.service.dto.RagChatResult;
@@ -55,7 +55,7 @@ public class RagChatService {
     TextChatOptions options = TextChatOptions.withoutTools();
     String documentId =
         documentIds != null && !documentIds.isEmpty() ? documentIds.getFirst() : null;
-    AtomicReference<List<SourceDocument>> sourcesRef = new AtomicReference<>(List.of());
+    AtomicReference<List<SourceCitation>> sourcesRef = new AtomicReference<>(List.of());
 
     ChatClient.ChatClientRequestSpec promptSpec;
     try {
@@ -69,7 +69,7 @@ public class RagChatService {
         .chatClientResponse()
         .mapNotNull(
             response -> {
-              List<SourceDocument> sources = extractSources(response);
+              List<SourceCitation> sources = extractSources(response);
               if (!sources.isEmpty()) {
                 sourcesRef.set(sources);
               }
@@ -99,7 +99,7 @@ public class RagChatService {
           buildPrompt(question, documentIds, topK, sessionId, ownerKey, options);
       ChatClientResponse clientResponse = promptSpec.call().chatClientResponse();
       String aiResponse = extractContent(clientResponse);
-      List<SourceDocument> sources = extractSources(clientResponse);
+      List<SourceCitation> sources = extractSources(clientResponse);
       recordSuccess(options, sessionId, ownerKey, documentId, startedAt);
       return new RagChatResult(aiResponse, sources);
     } catch (RuntimeException ex) {
@@ -177,7 +177,7 @@ public class RagChatService {
       long startedAt) {
     invocationRecorder.record(
         AiInvocationEvent.succeeded(
-                AiDomain.RAG, "rag.chat", Latency.since(startedAt), OwnerKey.parse(ownerKey))
+                AiCapability.RAG, "rag.chat", Latency.since(startedAt), OwnerKey.parse(ownerKey))
             .provider(options.provider())
             .model(options.model())
             .sessionId(sessionId)
@@ -187,7 +187,7 @@ public class RagChatService {
 
   private void recordError(String sessionId, String ownerKey, long startedAt, Throwable ex) {
     invocationRecorder.recordError(
-        AiDomain.RAG,
+        AiCapability.RAG,
         "rag.chat",
         Latency.since(startedAt),
         OwnerKey.parse(ownerKey),
@@ -197,7 +197,7 @@ public class RagChatService {
         ex);
   }
 
-  private Flux<ServerSentEvent<String>> buildSourceEvents(List<SourceDocument> sources) {
+  private Flux<ServerSentEvent<String>> buildSourceEvents(List<SourceCitation> sources) {
     if (sources.isEmpty()) {
       return Flux.empty();
     }
@@ -226,7 +226,7 @@ public class RagChatService {
     return output != null && output.getText() != null ? output.getText() : "";
   }
 
-  private static List<SourceDocument> extractSources(ChatClientResponse clientResponse) {
+  private static List<SourceCitation> extractSources(ChatClientResponse clientResponse) {
     Object raw = clientResponse.context().get(RetrievalAugmentationAdvisor.DOCUMENT_CONTEXT);
     if (!(raw instanceof List<?> documents) || documents.isEmpty()) {
       return List.of();
@@ -234,11 +234,11 @@ public class RagChatService {
     return documents.stream()
         .filter(Document.class::isInstance)
         .map(Document.class::cast)
-        .map(RagChatService::toSourceDocument)
+        .map(RagChatService::toSourceCitation)
         .toList();
   }
 
-  private static SourceDocument toSourceDocument(Document document) {
+  private static SourceCitation toSourceCitation(Document document) {
     Map<String, Object> metadata = document.getMetadata();
     double score = 0.0;
     Object scoreMeta = metadata.get("score");
@@ -247,7 +247,7 @@ public class RagChatService {
     } else if (document.getScore() != null) {
       score = document.getScore();
     }
-    return new SourceDocument(
+    return new SourceCitation(
         document.getText() != null ? document.getText() : "", score, metadata);
   }
 }
