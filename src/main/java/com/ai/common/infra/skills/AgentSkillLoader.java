@@ -14,8 +14,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
@@ -24,7 +22,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class AgentSkillLoader {
-  private static final Logger log = LoggerFactory.getLogger(AgentSkillLoader.class);
   private static final Pattern SKILL_NAME = Pattern.compile("^[a-z0-9-]{1,64}$");
   private final AgentSkillsProperties agentProperties;
 
@@ -40,7 +37,6 @@ public class AgentSkillLoader {
             .filter(id -> !id.isBlank())
             .collect(Collectors.toUnmodifiableSet());
     if (allowedIds.isEmpty()) {
-      log.info("Agent Skills enabled but no skill ids configured; skipping load");
       return List.of();
     }
     Map<String, AgentSkill> loaded = new LinkedHashMap<>();
@@ -53,18 +49,11 @@ public class AgentSkillLoader {
                     return;
                   }
                   if (loaded.containsKey(skill.name())) {
-                    log.warn("Duplicate Agent Skill '{}'; keeping first match", skill.name());
                     return;
                   }
                   loaded.put(skill.name(), skill);
                 });
-      } catch (Exception ex) {
-        log.warn("Skipping invalid Agent Skill at {}: {}", resource, ex.getMessage());
-      }
-    }
-    for (String configuredId : allowedIds) {
-      if (!loaded.containsKey(configuredId)) {
-        log.warn("Configured Agent Skill '{}' was not loaded (missing or invalid)", configuredId);
+      } catch (Exception expected) {
       }
     }
     return List.copyOf(loaded.values());
@@ -75,7 +64,6 @@ public class AgentSkillLoader {
     try {
       return new PathMatchingResourcePatternResolver().getResources(pattern);
     } catch (IOException ex) {
-      log.warn("Failed to scan Agent Skills at {}: {}", pattern, ex.getMessage());
       return new Resource[0];
     }
   }

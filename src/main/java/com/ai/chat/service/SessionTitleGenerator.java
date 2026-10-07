@@ -4,8 +4,6 @@ import com.ai.chat.domain.vo.SessionTitle;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
@@ -14,8 +12,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class SessionTitleGenerator {
-
-  private static final Logger log = LoggerFactory.getLogger(SessionTitleGenerator.class);
 
   private static final String SYSTEM_PROMPT =
       """
@@ -48,8 +44,7 @@ public class SessionTitleGenerator {
           return generated;
         }
       }
-    } catch (Exception e) {
-      log.warn("Failed to generate session title via LLM, using fallback", e);
+    } catch (Exception expected) {
     }
     return fallback;
   }

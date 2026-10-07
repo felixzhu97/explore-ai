@@ -9,8 +9,6 @@ import com.ai.metrics.domain.vo.Latency;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /** Records AI invocation events for metrics dashboards without failing the business path. */
@@ -18,12 +16,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AiInvocationRecorder {
 
-  private static final Logger log = LoggerFactory.getLogger(AiInvocationRecorder.class);
-
   private final AiInvocationEventRepository eventRepository;
   private final MeterRegistry meterRegistry;
 
-  /** Persists the event and updates Micrometer meters; failures are logged, never thrown. */
+  /** Persists the event and updates Micrometer meters; failures are swallowed, never thrown. */
   public void record(AiInvocationEvent event) {
     try {
       eventRepository.save(event);
@@ -45,12 +41,7 @@ public class AiInvocationRecorder {
               "outcome",
               event.getOutcome().value())
           .record(Duration.ofMillis(event.getLatencyMs()));
-    } catch (Exception ex) {
-      log.warn(
-          "Failed to record AI invocation event domain={} operation={}",
-          event.getDomain().value(),
-          event.getOperation(),
-          ex);
+    } catch (Exception expected) {
     }
   }
 

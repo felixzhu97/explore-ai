@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -29,7 +27,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GoldenRagFixtureSeeder {
 
-  private static final Logger log = LoggerFactory.getLogger(GoldenRagFixtureSeeder.class);
   private static final String PATTERN = "classpath:eval/golden/fixtures/*";
   private static final String TITLE_PREFIX = "golden-fixture-";
 
@@ -68,7 +65,6 @@ public class GoldenRagFixtureSeeder {
         String id = uploaded.documentId().value().toString();
         resolved.put(key, id);
         byTitle.put(title, id);
-        log.info("Seeded golden RAG fixture {} as document {}", key, id);
       }
       return Map.copyOf(resolved);
     } catch (IOException ex) {

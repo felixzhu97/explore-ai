@@ -164,8 +164,6 @@ app:
       model: ${IMAGE_MODEL:x/flux2-klein}
       api-key: ${IMAGE_API_KEY:ollama}
       base-url: ${IMAGE_BASE_URL:http://localhost:11434/v1}
-    logging-advisor:
-      enabled: ${AI_LOGGING_ADVISOR_ENABLED:true}
     tool-search:
       enabled: ${AI_TOOL_SEARCH_ENABLED:false}
     tts:
@@ -275,11 +273,3 @@ app:
       tessdata-path: ${TESSDATA_PATH:models/tessdata}
       languages: eng+chi_sim
       page-seg-mode: 3
-
-logging:
-  level:
-    com.ai: DEBUG
-    org.springframework.ai: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

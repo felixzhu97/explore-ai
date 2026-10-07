@@ -1,8 +1,6 @@
 package com.ai.common.infra.prompt;
 
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 
 /**
@@ -10,8 +8,6 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
  * are the single source for chat, RAG system, and agents.
  */
 public class PromptTemplates {
-
-  private static final Logger log = LoggerFactory.getLogger(PromptTemplates.class);
 
   private final String sharedStyle;
   private final String defaultSystemPrompt;
@@ -72,19 +68,16 @@ public class PromptTemplates {
 
   /** Builds a prompt that summarizes the text. */
   public String buildSummarizationPrompt(String text) {
-    log.debug("Building summarization prompt for text of length: {}", text.length());
     return summarizationTemplate.render(Map.of("text", text));
   }
 
   /** Builds a prompt that translates the text. */
   public String buildTranslationPrompt(String text, String targetLanguage) {
-    log.debug("Building translation prompt to {}", targetLanguage);
     return translationTemplate.render(Map.of("text", text, "targetLanguage", targetLanguage));
   }
 
   /** Builds a prompt that answers the question from the context. */
   public String buildQuestionAnswerPrompt(String context, String question) {
-    log.debug("Building Q&A prompt with context length: {}", context.length());
     return questionAnswerTemplate.render(Map.of("context", context, "question", question));
   }
 

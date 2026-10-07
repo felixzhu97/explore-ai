@@ -7,8 +7,6 @@ import java.util.Optional;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,12 +15,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class PdfTextExtractor {
 
-  private static final Logger log = LoggerFactory.getLogger(PdfTextExtractor.class);
-
   /** Extracts position-sorted text from the PDF, or empty if unreadable or textless. */
   public Optional<String> extractText(byte[] bytes) {
     if (bytes == null || bytes.length == 0) {
-      log.warn("Cannot extract text from empty PDF bytes");
       return Optional.empty();
     }
 
@@ -35,14 +30,12 @@ public class PdfTextExtractor {
       String text = stripper.getText(document);
 
       if (text == null || text.isBlank()) {
-        log.warn("No text content extracted from PDF");
         return Optional.empty();
       }
 
       return Optional.of(text.trim());
 
     } catch (IOException e) {
-      log.error("Failed to extract text from PDF", e);
       return Optional.empty();
     }
   }

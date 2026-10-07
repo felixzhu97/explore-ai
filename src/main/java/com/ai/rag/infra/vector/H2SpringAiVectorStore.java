@@ -1,6 +1,5 @@
 package com.ai.rag.infra.vector;
 
-import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.rag.domain.model.ChunkMetadataKeys;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
@@ -13,8 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
@@ -32,7 +29,6 @@ public class H2SpringAiVectorStore implements VectorStore {
 
   public static final String DOCUMENT_ID_METADATA_KEY = ChunkMetadataKeys.DOCUMENT_ID;
   public static final String OWNER_KEY_METADATA_KEY = ChunkMetadataKeys.OWNER_KEY;
-  private static final Logger log = LoggerFactory.getLogger(H2SpringAiVectorStore.class);
 
   private final TextEmbeddingGateway embeddingRepository;
   private final DocumentChunkSearchRepository chunkSearchRepository;
@@ -66,7 +62,6 @@ public class H2SpringAiVectorStore implements VectorStore {
     if (query == null || query.isBlank()) {
       return List.of();
     }
-    log.info("RAG retrieval: query length={}", LogSanitizer.lengthOf(query));
 
     Filter.Expression filter = request.getFilterExpression();
     Optional<String> ownerKey =
@@ -74,7 +69,6 @@ public class H2SpringAiVectorStore implements VectorStore {
             .flatMap(f -> findValue(f, Filter.ExpressionType.EQ, OWNER_KEY_METADATA_KEY))
             .map(Object::toString);
     if (ownerKey.isEmpty()) {
-      log.warn("Rejected RAG retrieval without an {} filter", OWNER_KEY_METADATA_KEY);
       return List.of();
     }
 
@@ -90,7 +84,6 @@ public class H2SpringAiVectorStore implements VectorStore {
             .filter(scored -> scored.meets(threshold))
             .map(H2SpringAiVectorStore::toDocument)
             .toList();
-    log.info("Retrieved {} chunks after score threshold {}", results.size(), threshold);
     if (results.isEmpty() && !documentIds.isEmpty()) {
       return selectLeadingChunks(queryEmbedding, ownerKey.get(), documentIds, topK);
     }
@@ -107,7 +100,6 @@ public class H2SpringAiVectorStore implements VectorStore {
         chunkSearchRepository.findLeadingChunks(ownerKey, documentIds, topK).stream()
             .map(chunk -> toDocument(ScoredChunk.of(chunk, queryEmbedding)))
             .toList();
-    log.info("Fell back to {} opening chunks of the selected documents", results.size());
     return results;
   }
 

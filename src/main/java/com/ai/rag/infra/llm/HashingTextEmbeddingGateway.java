@@ -6,8 +6,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -21,17 +19,11 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "app.rag.embedding.provider", havingValue = "hash")
 public class HashingTextEmbeddingGateway implements TextEmbeddingGateway {
 
-  private static final Logger log = LoggerFactory.getLogger(HashingTextEmbeddingGateway.class);
-
   private final int dimensions;
 
   public HashingTextEmbeddingGateway(
       @Value("${app.rag.embedding.dimensions:1024}") int dimensions) {
     this.dimensions = dimensions;
-    log.warn(
-        "Using HashingTextEmbeddingGateway (dimensions={}); set"
-            + " app.rag.embedding.provider=openai and OPENAI_API_KEY for real embeddings",
-        dimensions);
   }
 
   @Override

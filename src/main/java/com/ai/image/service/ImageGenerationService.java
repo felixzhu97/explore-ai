@@ -1,6 +1,5 @@
 package com.ai.image.service;
 
-import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.domain.repository.ImageGenerationGateway;
@@ -10,8 +9,6 @@ import com.ai.image.domain.vo.ImagePrompt;
 import com.ai.image.infra.config.ImageProperties;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -19,8 +16,6 @@ import org.springframework.util.StringUtils;
 @Service
 @RequiredArgsConstructor
 public class ImageGenerationService {
-
-  private static final Logger log = LoggerFactory.getLogger(ImageGenerationService.class);
 
   private final ImageGenerationGateway imageGenerationGateway;
   private final ImageProperties imageProperties;
@@ -44,8 +39,6 @@ public class ImageGenerationService {
   public GeneratedImage generateImage(
       String prompt, String model, String quality, int width, int height, int n) {
     ensureProviderConfigured();
-    log.info(
-        "ImageGenerationService.generateImage: prompt length={}", LogSanitizer.lengthOf(prompt));
     GeneratedImage image =
         imageGenerationGateway.generate(
             ImagePrompt.of(prompt),

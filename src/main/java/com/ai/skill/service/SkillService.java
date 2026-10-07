@@ -10,16 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /** Skill use case that enforces per-owner unique names and derives names from templates. */
 @Service
 @RequiredArgsConstructor
 public class SkillService {
-
-  private static final Logger log = LoggerFactory.getLogger(SkillService.class);
 
   private final SkillRepository skillRepository;
 
@@ -38,12 +34,6 @@ public class SkillService {
       return Optional.empty();
     }
     List<Skill> skills = skillRepository.findEnabledByOwnerKeyAndIds(ownerKey, ids);
-    if (skills.size() < ids.size()) {
-      log.debug(
-          "Ignored unknown or disabled skill ids: requested={}, resolved={}",
-          ids.size(),
-          skills.size());
-    }
     return Optional.ofNullable(SkillSystemPromptBuilder.build(skills));
   }
 
@@ -146,8 +136,7 @@ public class SkillService {
       }
       try {
         parsed.add(SkillId.of(skillId.trim()));
-      } catch (IllegalArgumentException ignored) {
-        log.debug("Ignoring invalid skill id");
+      } catch (IllegalArgumentException expected) {
       }
     }
     return parsed;

@@ -8,8 +8,6 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -25,10 +23,7 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Component
 public class SpeechStreamingTranscriptionClient implements StreamingTranscriptionGateway {
 
-  private static final Logger log =
-      LoggerFactory.getLogger(SpeechStreamingTranscriptionClient.class);
-
-  /** Client-facing reason; exception details stay in the server log. */
+  /** Client-facing reason; exception details are never sent to the client. */
   static final String TRANSCRIPTION_FAILED = "Transcription failed";
 
   private final String wsUri;
@@ -56,7 +51,6 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
       }
       upstream.sendMessage(new TextMessage(payload));
     } catch (Exception e) {
-      log.error("Failed to forward audio chunk to speech", e);
       sendError(session, TRANSCRIPTION_FAILED);
     }
   }
@@ -84,8 +78,7 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
       if (upstream != null && upstream.isOpen()) {
         upstream.sendMessage(new TextMessage(controlJson));
       }
-    } catch (Exception e) {
-      log.warn("Failed to forward control frame to speech", e);
+    } catch (Exception expected) {
     }
   }
 
@@ -129,7 +122,6 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
       }
       send(client, frame);
     } catch (Exception e) {
-      log.warn("Failed to relay speech ASR frame", e);
       sendError(client, "Transcription relay failed");
     }
   }
@@ -139,8 +131,7 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
     if (upstream != null && upstream.isOpen()) {
       try {
         upstream.close(CloseStatus.NORMAL);
-      } catch (Exception e) {
-        log.debug("Upstream close failed: {}", e.toString());
+      } catch (Exception expected) {
       }
     }
   }
@@ -151,8 +142,7 @@ public class SpeechStreamingTranscriptionClient implements StreamingTranscriptio
     }
     try {
       session.sendMessage(new TextMessage(objectMapper.writeValueAsString(frame)));
-    } catch (Exception e) {
-      log.error("Error sending WebSocket message", e);
+    } catch (Exception expected) {
     }
   }
 

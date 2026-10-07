@@ -3,7 +3,6 @@ package com.ai.rag.infra.tools;
 import com.ai.account.controller.OwnerContext;
 import com.ai.common.domain.tool.DocumentSearchTool;
 import com.ai.common.infra.llm.ToolEventChannel;
-import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.rag.domain.model.ChunkMetadataKeys;
 import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.service.RagApplicationService;
@@ -11,8 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
@@ -24,7 +21,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @RequiredArgsConstructor
 public class RagSearchTool implements DocumentSearchTool {
 
-  private static final Logger log = LoggerFactory.getLogger(RagSearchTool.class);
   private static final int DEFAULT_TOP_K = 5;
   private static final int MAX_CONTENT_LENGTH = 500;
   private static final String UNKNOWN_OWNER_MESSAGE = "当前上下文无法识别用户，暂时无法访问文档。";
@@ -64,10 +60,8 @@ public class RagSearchTool implements DocumentSearchTool {
 
       return "找到以下相关文档片段：\n\n" + formatSources(result.sources());
     } catch (IllegalArgumentException e) {
-      log.warn("Invalid document ID format in searchDocuments", e);
       return "文档ID格式无效，请提供有效的UUID格式的文档ID。";
     } catch (Exception e) {
-      log.error("Error searching documents", e);
       return "搜索文档时发生未知错误，请稍后重试。";
     }
   }
@@ -99,7 +93,6 @@ public class RagSearchTool implements DocumentSearchTool {
       return response.toString();
 
     } catch (Exception e) {
-      log.error("Error listing documents", e);
       return "获取文档列表时发生未知错误，请稍后重试。";
     }
   }
@@ -119,7 +112,7 @@ public class RagSearchTool implements DocumentSearchTool {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < sources.size(); i++) {
       var source = sources.get(i);
-      String content = LogSanitizer.truncate(source.content(), MAX_CONTENT_LENGTH);
+      String content = excerpt(source.content());
       sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.score(), content));
       if (source.metadata() != null
           && source.metadata().get(ChunkMetadataKeys.TITLE) instanceof String title) {
@@ -128,5 +121,12 @@ public class RagSearchTool implements DocumentSearchTool {
       sb.append("---\n\n");
     }
     return sb.toString();
+  }
+
+  private static String excerpt(String content) {
+    if (content == null || content.length() <= MAX_CONTENT_LENGTH) {
+      return content;
+    }
+    return content.substring(0, MAX_CONTENT_LENGTH) + "...";
   }
 }

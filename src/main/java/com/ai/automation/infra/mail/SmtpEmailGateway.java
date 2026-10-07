@@ -6,8 +6,6 @@ import com.ai.automation.infra.config.MailProperties;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.mail.SimpleMailMessage;
@@ -22,8 +20,6 @@ import org.springframework.stereotype.Component;
 @EnableConfigurationProperties(MailProperties.class)
 @RequiredArgsConstructor
 public class SmtpEmailGateway implements EmailGateway {
-
-  private static final Logger log = LoggerFactory.getLogger(SmtpEmailGateway.class);
 
   private final JavaMailSender mailSender;
   private final MailProperties mailProperties;
@@ -40,7 +36,6 @@ public class SmtpEmailGateway implements EmailGateway {
       mail.setText(message.textBody());
       mailSender.send(mail);
     }
-    log.info("Sent automation email toFp={}", fingerprint(message.to()));
   }
 
   private void sendMultipart(EmailMessage message) {
@@ -55,12 +50,5 @@ public class SmtpEmailGateway implements EmailGateway {
     } catch (MessagingException e) {
       throw new IllegalStateException("Failed to send multipart email via SMTP", e);
     }
-  }
-
-  private static String fingerprint(String email) {
-    if (email == null || email.length() < 3) {
-      return "***";
-    }
-    return email.charAt(0) + "***@" + email.substring(email.indexOf('@') + 1);
   }
 }

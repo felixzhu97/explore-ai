@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,6 @@ import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorato
 @Service
 public class StreamingTranscriptionService {
 
-  private static final Logger log = LoggerFactory.getLogger(StreamingTranscriptionService.class);
   private static final int SEND_TIME_LIMIT_MS = 5_000;
   private static final int BUFFER_SIZE_LIMIT = 512 * 1024;
 
@@ -43,14 +40,12 @@ public class StreamingTranscriptionService {
     WebSocketSession session =
         new ConcurrentWebSocketSessionDecorator(rawSession, SEND_TIME_LIMIT_MS, BUFFER_SIZE_LIMIT);
     sessions.put(rawSession.getId(), new SessionState(UUID.randomUUID().toString(), session));
-    log.info("Started transcription session: {}", rawSession.getId());
   }
 
   /** Handle incoming WebSocket message from client. */
   public void handleMessage(WebSocketSession rawSession, String payload) {
     SessionState state = sessions.get(rawSession.getId());
     if (state == null) {
-      log.warn("Received message for unknown session: {}", rawSession.getId());
       return;
     }
 
@@ -70,7 +65,6 @@ public class StreamingTranscriptionService {
   /** Clean up session resources after connection is closed. */
   public void endSession(WebSocketSession rawSession) {
     sessions.remove(rawSession.getId());
-    log.info("Ended transcription session: {}", rawSession.getId());
   }
 
   private void processAudioChunk(String sessionId, SessionState state, String payload) {
@@ -106,7 +100,6 @@ public class StreamingTranscriptionService {
       Map<String, String> message = objectMapper.readValue(payload, new TypeReference<>() {});
       return message.getOrDefault("type", "");
     } catch (Exception e) {
-      log.warn("Failed to parse WebSocket message type", e);
       return "";
     }
   }
@@ -117,8 +110,7 @@ public class StreamingTranscriptionService {
     }
     try {
       session.close(CloseStatus.NORMAL);
-    } catch (Exception e) {
-      log.warn("Failed to close WebSocket session {}", session.getId(), e);
+    } catch (Exception expected) {
     }
   }
 

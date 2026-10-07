@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class H2DocumentChunkRepository
     implements DocumentChunkRepository, DocumentChunkSearchRepository {
 
-  private static final Logger log = LoggerFactory.getLogger(H2DocumentChunkRepository.class);
   private static final String TABLE_NAME = "document_chunks";
   private static final String SELECT_COLUMNS =
       "SELECT id, document_id, owner_key, content, chunk_index, embedding, metadata, created_at";
@@ -153,7 +150,6 @@ public class H2DocumentChunkRepository
     try {
       return objectMapper.writeValueAsString(metadata);
     } catch (JsonProcessingException e) {
-      log.error("Failed to serialize metadata", e);
       return null;
     }
   }

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.client.advisor.toolsearch.ToolSearchToolCallingAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -26,7 +25,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/** Builds chat clients per profile with memory, logging, system prompt, and tool advisors. */
+/** Builds chat clients per profile with memory, system prompt, and tool advisors. */
 @Component
 public class ChatClientFactory implements ChatClientProvider {
 
@@ -34,7 +33,6 @@ public class ChatClientFactory implements ChatClientProvider {
   private final ChatMemory chatMemory;
   private final PromptTemplates promptTemplates;
   private final ObjectProvider<ToolCallback[]> mcpToolCallbacks;
-  private final boolean loggingAdvisorEnabled;
   private final boolean toolSearchEnabled;
   private final ToolCallback[] localToolCallbacks;
   private final RegexToolIndex toolSearchIndex;
@@ -48,13 +46,11 @@ public class ChatClientFactory implements ChatClientProvider {
       WebSearchTool webSearchTool,
       DateTimeTool dateTimeTool,
       ObjectProvider<ToolCallback[]> mcpToolCallbacks,
-      @Value("${app.ai.logging-advisor.enabled:true}") boolean loggingAdvisorEnabled,
       @Value("${app.ai.tool-search.enabled:false}") boolean toolSearchEnabled) {
     this.chatModelResolver = chatModelResolver;
     this.chatMemory = chatMemory;
     this.promptTemplates = promptTemplates;
     this.mcpToolCallbacks = mcpToolCallbacks;
-    this.loggingAdvisorEnabled = loggingAdvisorEnabled;
     this.toolSearchEnabled = toolSearchEnabled;
     this.toolSearchIndex = new RegexToolIndex();
     this.localToolCallbacks =
@@ -106,9 +102,6 @@ public class ChatClientFactory implements ChatClientProvider {
     List<Advisor> advisors = new ArrayList<>();
     if (withMemory) {
       advisors.add(MessageChatMemoryAdvisor.builder(chatMemory).build());
-    }
-    if (loggingAdvisorEnabled) {
-      advisors.add(SimpleLoggerAdvisor.builder().build());
     }
     if (withTools) {
       // ToolAdvisor in the chain skips ChatClient's auto-registered ToolCallingAdvisor.

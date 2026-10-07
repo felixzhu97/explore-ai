@@ -11,7 +11,6 @@ import com.ai.common.domain.exception.AiServiceException;
 import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.infra.llm.ToolCallMarkupFilter;
 import com.ai.common.infra.llm.ToolEventChannel;
-import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.StreamTokenEvent;
@@ -27,8 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -47,7 +44,6 @@ import reactor.core.scheduler.Schedulers;
 @RequiredArgsConstructor
 public class ChatService {
 
-  private static final Logger log = LoggerFactory.getLogger(ChatService.class);
   private static final ObjectMapper JSON = new ObjectMapper();
   private static final String REPAIR_USER_PROMPT =
       """
@@ -105,11 +101,6 @@ public class ChatService {
   public ChatSession createSession(String title, String ownerKey) {
     ChatSession session = ChatSession.create(title, ownerKey);
     repository.save(session);
-    log.info(
-        "Created new session titleLength={} idFp={} clientFp={}",
-        LogSanitizer.lengthOf(session.getTitle()),
-        LogSanitizer.fingerprint(session.getId().value()),
-        LogSanitizer.fingerprint(ownerKey));
     return session;
   }
 
@@ -120,7 +111,6 @@ public class ChatService {
             .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
             .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
     sessionEraser.eraseAll(List.of(session));
-    log.info("Deleted sessionFp={}", LogSanitizer.fingerprint(sessionId));
   }
 
   /** Streams a reply within a session, persisting both turns after completion. */
@@ -173,10 +163,6 @@ public class ChatService {
                         })
                     .doOnError(
                         error -> {
-                          log.error(
-                              "Stream failed for sessionFp={}",
-                              LogSanitizer.fingerprint(sessionId),
-                              error);
                           invocationRecorder.recordError(
                               AiDomain.CHAT,
                               "chat.stream",
@@ -225,7 +211,6 @@ public class ChatService {
    * as evals and the MCP server use it, so the event has no visitor owner.
    */
   public String chat(String userMessage, TextChatOptions options) {
-    log.info("Chat request with retry: message length={}", LogSanitizer.lengthOf(userMessage));
     long startedAt = System.nanoTime();
     try {
       String response =
@@ -271,12 +256,7 @@ public class ChatService {
   /** Deletes every session owned by the client. */
   public void deleteAllSessions(String ownerKey) {
     List<ChatSession> sessions = repository.findByOwnerKey(ownerKey);
-    int metricsDeleted = sessionEraser.eraseAll(sessions);
-    log.info(
-        "Erased {} sessions and {} metrics events for clientFp={}",
-        sessions.size(),
-        metricsDeleted,
-        LogSanitizer.fingerprint(ownerKey));
+    sessionEraser.eraseAll(sessions);
   }
 
   /** Clears the model memory of a conversation. */
@@ -292,9 +272,6 @@ public class ChatService {
     if (!ToolCallMarkupFilter.sanitize(rawAssistant).isBlank()) {
       return Flux.empty();
     }
-    log.warn(
-        "Assistant returned tool markup only for sessionFp={}; repairing without tools",
-        LogSanitizer.fingerprint(sessionId));
     TextChatOptions noTools = TextChatOptions.of(options.provider(), options.model(), false);
     final ChatClient repairClient = chatClientProvider.createBareStateless(noTools);
     List<Message> promptMessages = new ArrayList<>();
@@ -383,8 +360,7 @@ public class ChatService {
           channelId,
           root.path("query").asText(""),
           CapturedWebSources.parseItems(root.get("items")));
-    } catch (JsonProcessingException e) {
-      log.debug("Skipping non-JSON tool event for sources capture");
+    } catch (JsonProcessingException expected) {
     }
   }
 
@@ -458,17 +434,9 @@ public class ChatService {
                         session -> {
                           if (session.applyGeneratedTitle(title)) {
                             repository.save(session);
-                            log.info(
-                                "Renamed sessionFp={} titleLength={}",
-                                LogSanitizer.fingerprint(sessionId.value()),
-                                LogSanitizer.lengthOf(title.value()));
                           }
                         }),
-            error ->
-                log.warn(
-                    "Async title generation failed for sessionFp={}",
-                    LogSanitizer.fingerprint(sessionId.value()),
-                    error));
+            error -> {});
   }
 
   private ChatSession withStoredMessages(ChatSession session) {

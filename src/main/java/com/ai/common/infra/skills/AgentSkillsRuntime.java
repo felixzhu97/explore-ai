@@ -5,8 +5,6 @@ import com.ai.common.infra.config.AgentSkillsProperties;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springaicommunity.agent.tools.SkillsTool;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.core.io.DefaultResourceLoader;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Component;
 /** Holds loaded agent skills and exposes their tool callback and system-prompt catalog. */
 @Component
 public class AgentSkillsRuntime {
-  private static final Logger log = LoggerFactory.getLogger(AgentSkillsRuntime.class);
   private final boolean enabled;
   private final List<AgentSkill> skills;
   private final ToolCallback skillToolCallback;
@@ -25,9 +22,6 @@ public class AgentSkillsRuntime {
     this.enabled = agentProperties.isEnabled();
     this.skills = skillLoader.loadEnabledSkills();
     this.skillToolCallback = buildSkillToolCallback(this.skills);
-    if (enabled) {
-      log.info("Agent Skills runtime enabled with {} skill(s)", skills.size());
-    }
   }
 
   /** Tells whether skills are on and at least one is loaded. */
@@ -73,15 +67,12 @@ public class AgentSkillsRuntime {
       try {
         builder.addSkillsResource(
             resourceLoader.getResource(toSpringResourceLocation(skill.resourceLocation())));
-      } catch (Exception ex) {
-        log.warn(
-            "Skipping Agent Skill tool registration for '{}': {}", skill.name(), ex.getMessage());
+      } catch (Exception expected) {
       }
     }
     try {
       return builder.build();
     } catch (Exception ex) {
-      log.warn("Failed to build Agent Skills tool callback: {}", ex.getMessage());
       return null;
     }
   }

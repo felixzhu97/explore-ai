@@ -2,15 +2,12 @@ package com.ai.rag.infra.websearch;
 
 import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.infra.llm.ToolEventChannel;
-import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.service.llm.WebSourcesEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +22,6 @@ import org.springframework.web.client.RestClient;
 @Component
 public class SerperWebSearchTool implements WebSearchTool {
 
-  private static final Logger log = LoggerFactory.getLogger(SerperWebSearchTool.class);
   private static final ObjectMapper JSON = new ObjectMapper();
   private static final int RESULT_COUNT = 8;
 
@@ -71,10 +67,7 @@ public class SerperWebSearchTool implements WebSearchTool {
       return "Please provide a valid search query.";
     }
 
-    log.info("Web search query length={}", LogSanitizer.lengthOf(query));
-
     if (apiKey == null || apiKey.isBlank()) {
-      log.warn("Serper API key not configured");
       return "Web search is not available. Please configure SERPER_API_KEY.";
     }
 
@@ -102,7 +95,6 @@ public class SerperWebSearchTool implements WebSearchTool {
       return formatResults(query, response);
 
     } catch (Exception e) {
-      log.error("Web search failed, query length={}", LogSanitizer.lengthOf(query), e);
       return "Failed to search the web. Please try again later.";
     }
   }
@@ -123,8 +115,7 @@ public class SerperWebSearchTool implements WebSearchTool {
     }
     try {
       ToolEventChannel.publish(JSON.writeValueAsString(WebSourcesEvent.of(query, items)));
-    } catch (JsonProcessingException e) {
-      log.warn("Failed to publish search sources event", e);
+    } catch (JsonProcessingException expected) {
     }
   }
 

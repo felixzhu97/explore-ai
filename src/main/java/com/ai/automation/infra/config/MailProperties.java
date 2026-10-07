@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 public class MailProperties {
 
-  /** When false, emails are logged only ({@code LoggingEmailGateway}). */
+  /** When false, emails are dropped ({@code DisabledEmailGateway}). */
   private boolean enabled = false;
 
   /** Delivery backend when {@link #enabled} is true: {@code resend} (HTTP API) or {@code smtp}. */

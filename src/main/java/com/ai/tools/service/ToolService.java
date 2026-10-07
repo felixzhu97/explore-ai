@@ -3,7 +3,6 @@ package com.ai.tools.service;
 import com.ai.common.domain.tool.DocumentSearchTool;
 import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.domain.vo.OwnerKey;
-import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.metrics.domain.vo.AiDomain;
@@ -15,8 +14,6 @@ import com.ai.tools.domain.vo.WeatherQuery;
 import com.ai.tools.infra.tools.WeatherTools;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +21,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ToolService {
-
-  private static final Logger log = LoggerFactory.getLogger(ToolService.class);
 
   private final ChatClientProvider chatClientProvider;
   private final WeatherTools weatherTools;
@@ -36,13 +31,11 @@ public class ToolService {
 
   /** Looks up today's weather in the city. */
   public String lookupWeather(String city) {
-    log.info("ToolService.lookupWeather: {}", city);
     return weatherReport.lookupCurrent(WeatherQuery.of(city)).content();
   }
 
   /** Returns a formatted weather forecast for the city over the requested number of days. */
   public String lookupForecast(String city, Integer days) {
-    log.info("ToolService.lookupForecast: {} days={}", city, days);
     return weatherReport
         .generateForecast(WeatherForecast.of(WeatherQuery.of(city), days))
         .content();
@@ -50,19 +43,16 @@ public class ToolService {
 
   /** Searches the uploaded documents. */
   public String searchDocuments(String query, List<String> documentIds) {
-    log.info("ToolService.searchDocuments: query length={}", LogSanitizer.lengthOf(query));
     return documentSearchTool.searchDocuments(query, documentIds);
   }
 
   /** Lists the uploaded documents. */
   public String listDocuments() {
-    log.info("ToolService.listDocuments");
     return documentSearchTool.listDocuments();
   }
 
   /** Answers the question via a tool-enabled OpenAI chat client and records the invocation. */
   public String chatWithTools(String question, OwnerKey owner) {
-    log.info("ToolService.chatWithTools: question length={}", LogSanitizer.lengthOf(question));
     long startedAt = System.nanoTime();
     try {
       ChatClient chatClient =
@@ -80,7 +70,6 @@ public class ToolService {
 
   /** Searches the web. */
   public String searchWeb(String query) {
-    log.info("ToolService.searchWeb: query length={}", LogSanitizer.lengthOf(query));
     return webSearchTool.searchWeb(query);
   }
 }

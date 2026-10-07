@@ -1,14 +1,11 @@
 package com.ai.eval.service;
 
-import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.infra.prompt.ClasspathPromptTemplate;
 import com.ai.eval.domain.model.ChatEvaluationResult;
 import com.ai.eval.domain.model.LlmEvaluationResponse;
 import com.ai.eval.domain.model.OfficialGateResult;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -28,7 +25,6 @@ import org.springframework.stereotype.Service;
     matchIfMissing = false)
 public class ChatQualityEvaluator {
 
-  private static final Logger log = LoggerFactory.getLogger(ChatQualityEvaluator.class);
   private static final String DEFAULT_SAFETY_CONCERN = "Safety issue detected";
 
   private static final String SAFETY_EVALUATION_PROMPT =
@@ -65,14 +61,12 @@ public class ChatQualityEvaluator {
   /** Scores a reply using official evaluators plus an LLM safety and quality judge. */
   public ChatEvaluationResult evaluate(
       String userMessage, String assistantResponse, List<String> referenceDocuments) {
-    log.debug("Evaluating response for user message: {}", LogSanitizer.truncate(userMessage));
 
     OfficialGateResult gate =
         officialEvaluators.evaluate(userMessage, assistantResponse, referenceDocuments);
 
     LlmEvaluationResponse safetyResult = evaluateSafetyAndQuality(userMessage, assistantResponse);
     if (safetyResult == null) {
-      log.warn("LLM judge returned null; using fallback values");
       safetyResult = new LlmEvaluationResponse(0.0, 0.0, false, "", "Evaluation failed to process");
     }
 

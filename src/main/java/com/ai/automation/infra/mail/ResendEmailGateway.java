@@ -6,8 +6,6 @@ import com.ai.automation.infra.config.MailProperties;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -26,8 +24,6 @@ import org.springframework.web.client.RestClientResponseException;
     matchIfMissing = true)
 @EnableConfigurationProperties(MailProperties.class)
 public class ResendEmailGateway implements EmailGateway {
-
-  private static final Logger log = LoggerFactory.getLogger(ResendEmailGateway.class);
 
   private final RestClient restClient;
   private final MailProperties mailProperties;
@@ -73,7 +69,6 @@ public class ResendEmailGateway implements EmailGateway {
           .body(body)
           .retrieve()
           .toBodilessEntity();
-      log.info("Sent automation email via Resend toFp={}", fingerprint(message.to()));
     } catch (RestClientResponseException e) {
       throw new IllegalStateException(
           "Resend API rejected email: HTTP "
@@ -89,16 +84,5 @@ public class ResendEmailGateway implements EmailGateway {
       return "https://api.resend.com";
     }
     return url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
-  }
-
-  private static String fingerprint(String email) {
-    if (email == null || email.length() < 3) {
-      return "***";
-    }
-    int at = email.indexOf('@');
-    if (at < 1) {
-      return "***";
-    }
-    return email.charAt(0) + "***@" + email.substring(at + 1);
   }
 }
