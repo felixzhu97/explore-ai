@@ -33,7 +33,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
   public static AgentRegistry fixed(List<AgentDefinition> definitions) {
     Map<String, AgentDefinition> map = new LinkedHashMap<>();
     for (AgentDefinition definition : definitions) {
-      map.put(definition.type().value(), definition);
+      map.put(definition.getType().value(), definition);
     }
     Map<String, AgentDefinition> fixed = Map.copyOf(map);
     return new AgentRegistry() {
@@ -84,7 +84,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
   public List<AgentDefinition> listAll(String ownerKey, String language) {
     Map<String, AgentDefinition> byType = new LinkedHashMap<>();
     for (AgentDefinition builtin : listBuiltins(language)) {
-      byType.put(builtin.type().value(), builtin);
+      byType.put(builtin.getType().value(), builtin);
     }
     for (SavedAgent saved : library(ownerKey)) {
       byType.put(saved.getTypeKey(), saved.toAgentDefinition());

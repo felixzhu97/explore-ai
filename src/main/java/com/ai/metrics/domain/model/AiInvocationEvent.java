@@ -1,6 +1,7 @@
 package com.ai.metrics.domain.model;
 
 import com.ai.common.domain.model.AbstractOwnerAwareImmutable;
+import com.ai.common.domain.model.DomainStrings;
 import com.ai.common.domain.model.OwnerKey;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -137,13 +138,6 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
         : Optional.empty();
   }
 
-  private static String requireNonBlank(String value, String name) {
-    if (value == null || value.isBlank()) {
-      throw new IllegalArgumentException(name + " must not be blank");
-    }
-    return value.trim();
-  }
-
   private static String toNullIfBlank(String value) {
     return value == null || value.isBlank() ? null : value.trim();
   }
@@ -174,7 +168,7 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
         OwnerKey ownerKey,
         ErrorSummary error) {
       this.domain = Objects.requireNonNull(domain, "domain");
-      this.operation = requireNonBlank(operation, "operation");
+      this.operation = DomainStrings.requireNonBlank(operation, "operation");
       this.outcome = outcome;
       this.latency = Objects.requireNonNull(latency, "latency");
       this.ownerKey = Objects.requireNonNull(ownerKey, "ownerKey");

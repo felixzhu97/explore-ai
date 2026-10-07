@@ -13,16 +13,12 @@ import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.OwnerContext;
 import com.ai.common.infra.llm.ToolEventChannel;
-import com.ai.rag.domain.model.DocumentId;
-import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.service.RagApplicationService;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -197,24 +193,14 @@ class RagSearchToolTest {
     @Test
     @DisplayName("should return document list")
     void shouldReturnDocumentList() {
-      DocumentId docId = DocumentId.of(UUID.fromString(TEST_DOC_ID));
-      RagDocument doc =
-          RagDocument.restore(
-              docId,
-              TEST_DOC_TITLE,
-              "test.pdf",
-              1024L,
-              DocumentStatus.READY,
-              1,
-              Instant.now(),
-              Instant.now(),
-              OWNER_KEY);
+      RagDocument doc = RagDocument.startIngestion(TEST_DOC_TITLE, "test.pdf", 1024L, OWNER_KEY);
+      doc.completeIngestion(1);
       when(ragApplicationService.listSearchableDocuments(anyString())).thenReturn(List.of(doc));
 
       String result = ragSearchTool.listDocuments();
 
       assertThat(result).contains("知识库中的文档列表");
-      assertThat(result).contains(TEST_DOC_ID);
+      assertThat(result).contains(doc.getId().toString());
       assertThat(result).contains(TEST_DOC_TITLE);
     }
 

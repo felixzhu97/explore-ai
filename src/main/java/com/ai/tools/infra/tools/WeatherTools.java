@@ -24,7 +24,7 @@ public class WeatherTools {
   public String getWeather(
       @ToolParam(description = "City name in Chinese or English (e.g. 北京, beijing)") String city) {
     try {
-      return weatherReport.lookupCurrent(WeatherQuery.of(city)).content();
+      return weatherReport.lookupCurrent(WeatherQuery.of(city)).getContent();
     } catch (DomainException e) {
       return e.getMessage();
     }
@@ -41,7 +41,7 @@ public class WeatherTools {
     try {
       WeatherQuery query = WeatherQuery.of(city);
       int forecastDays = days != null ? Math.max(1, Math.min(7, days)) : 3;
-      return weatherReport.generateForecast(WeatherForecast.of(query, forecastDays)).content();
+      return weatherReport.generateForecast(WeatherForecast.of(query, forecastDays)).getContent();
     } catch (DomainException e) {
       return e.getMessage();
     }

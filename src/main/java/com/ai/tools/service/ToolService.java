@@ -31,14 +31,14 @@ public class ToolService {
 
   /** Looks up today's weather in the city. */
   public String lookupWeather(String city) {
-    return weatherReport.lookupCurrent(WeatherQuery.of(city)).content();
+    return weatherReport.lookupCurrent(WeatherQuery.of(city)).getContent();
   }
 
   /** Returns a formatted weather forecast for the city over the requested number of days. */
   public String lookupForecast(String city, Integer days) {
     return weatherReport
         .generateForecast(WeatherForecast.of(WeatherQuery.of(city), days))
-        .content();
+        .getContent();
   }
 
   /** Searches the uploaded documents. */

@@ -44,7 +44,7 @@ public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallba
         .findActiveByServerName(serverName)
         .ifPresent(
             session -> {
-              sessionRegistry.closeSession(session.id());
+              sessionRegistry.closeSession(session.getId());
             });
     serverTools.put(serverName, List.copyOf(tools));
     sessionRegistry.registerSession(serverName, tools.size());
@@ -63,8 +63,9 @@ public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallba
         .forEach(
             session ->
                 servers.put(
-                    session.serverName(),
-                    McpServerConnection.connected(session.serverName(), session.toolCount())));
+                    session.getServerName(),
+                    McpServerConnection.connected(
+                        session.getServerName(), session.getToolCount())));
     return servers;
   }
 

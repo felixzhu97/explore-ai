@@ -10,11 +10,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
+import lombok.Getter;
 
 /**
  * User-authored multi-agent pipeline graph (nodes + directed edges). Each node carries an editable
  * agent snapshot used at invoke time.
  */
+@Getter
 public final class AgentPipeline {
 
   private final List<PipelineNode> nodes;
@@ -30,16 +32,6 @@ public final class AgentPipeline {
     Objects.requireNonNull(nodes, "nodes");
     Objects.requireNonNull(edges, "edges");
     return new AgentPipeline(nodes, edges);
-  }
-
-  /** Returns the nodes. */
-  public List<PipelineNode> nodes() {
-    return nodes;
-  }
-
-  /** Returns the edges. */
-  public List<PipelineEdge> edges() {
-    return edges;
   }
 
   /** Validates the graph and returns worker nodes in topological order. */
@@ -180,9 +172,9 @@ public final class AgentPipeline {
       return AgentDefinition.create(
           agentType,
           name,
-          description.isBlank() ? fallback.description() : description,
-          fallback.systemPrompt(),
-          toolKeys.isEmpty() ? fallback.toolKeys() : toolKeys,
+          description.isBlank() ? fallback.getDescription() : description,
+          fallback.getSystemPrompt(),
+          toolKeys.isEmpty() ? fallback.getToolKeys() : toolKeys,
           AgentDefinition.RUNTIME_SINGLE);
     }
 

@@ -3,8 +3,10 @@ package com.ai.mcp.domain.model;
 import com.ai.common.exception.DomainException;
 import java.util.Objects;
 import java.util.UUID;
+import lombok.Getter;
 
 /** Connection session to an MCP server, tracking its tool count and active or closed status. */
+@Getter
 public class McpSession {
 
   private final UUID id;
@@ -24,20 +26,6 @@ public class McpSession {
     return new McpSession(UUID.randomUUID(), serverName, toolCount);
   }
 
-  /** Restores a stored session. */
-  public static McpSession reconstitute(
-      UUID id, String serverName, int toolCount, McpSessionStatus status) {
-    McpSession session = new McpSession(id, serverName, toolCount);
-    session.status = status;
-    return session;
-  }
-
-  /** Marks the session active. */
-  public void activate() {
-    ensureNotClosed();
-    status = McpSessionStatus.ACTIVE;
-  }
-
   /** Marks the session closed, rejecting a second close. */
   public void close() {
     if (status == McpSessionStatus.CLOSED) {
@@ -49,32 +37,6 @@ public class McpSession {
   /** Tells whether the session is active. */
   public boolean isActive() {
     return status == McpSessionStatus.ACTIVE;
-  }
-
-  /** Returns the session id. */
-  public UUID id() {
-    return id;
-  }
-
-  /** Returns the server name. */
-  public String serverName() {
-    return serverName;
-  }
-
-  /** Returns the number of tools. */
-  public int toolCount() {
-    return toolCount;
-  }
-
-  /** Returns the session status. */
-  public McpSessionStatus status() {
-    return status;
-  }
-
-  private void ensureNotClosed() {
-    if (status == McpSessionStatus.CLOSED) {
-      throw DomainException.invalid("INVALID_MCP_SESSION", "Cannot activate closed session: " + id);
-    }
   }
 
   private static String validateServerName(String serverName) {

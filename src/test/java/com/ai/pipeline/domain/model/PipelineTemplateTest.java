@@ -44,8 +44,8 @@ class PipelineTemplateTest {
   void shouldRunTheAgentsOneAfterAnotherWhenBuiltAsALinearPipeline() {
     AgentPipeline pipeline = create(List.of("research", "analyst")).toLinearPipeline();
 
-    assertThat(pipeline.nodes()).hasSize(2);
-    assertThat(pipeline.edges()).hasSize(1);
+    assertThat(pipeline.getNodes()).hasSize(2);
+    assertThat(pipeline.getEdges()).hasSize(1);
     assertThat(pipeline.resolveExecutionOrder())
         .extracting(node -> node.agentType().value())
         .containsExactly("research", "analyst");

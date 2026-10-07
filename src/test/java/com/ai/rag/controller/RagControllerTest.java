@@ -14,7 +14,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.controller.GlobalExceptionHandler;
-import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.service.DocumentUploadService;
@@ -316,8 +315,12 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
   }
 
   private RagDocument createTestDocument(String title, DocumentStatus status, int chunkCount) {
-    Instant now = Instant.now();
-    return RagDocument.restore(
-        DocumentId.generate(), title, title, 1024L, status, chunkCount, now, now, "c:test");
+    RagDocument document = RagDocument.startIngestion(title, title, 1024L, "c:test");
+    if (status == DocumentStatus.READY) {
+      document.completeIngestion(chunkCount);
+    } else if (status == DocumentStatus.FAILED) {
+      document.failIngestion();
+    }
+    return document;
   }
 }

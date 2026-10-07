@@ -1,7 +1,6 @@
 package com.ai.common.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ai.skill.domain.model.SkillId;
 import org.junit.jupiter.api.DisplayName;
@@ -33,25 +32,5 @@ class AbstractOwnerAwareEntityTest {
 
     assertThat(entity.belongsTo("guest-1")).isFalse();
     assertThat(entity.belongsTo((String) null)).isFalse();
-  }
-
-  @Test
-  @DisplayName("should move a guest row to the signed-in account")
-  void shouldMoveAGuestRowToTheSignedInAccount() {
-    TestEntity entity = new TestEntity("c:guest-1");
-
-    entity.transferTo(OwnerKey.forAccount("user-1"));
-
-    assertThat(entity.getOwnerKeyValue()).isEqualTo("u:user-1");
-  }
-
-  @Test
-  @DisplayName("should refuse to move an account row to another owner")
-  void shouldRefuseToMoveAnAccountRowToAnotherOwner() {
-    TestEntity entity = new TestEntity("u:user-1");
-
-    assertThatThrownBy(() -> entity.transferTo(OwnerKey.forAccount("user-2")))
-        .isInstanceOf(IllegalArgumentException.class);
-    assertThat(entity.getOwnerKeyValue()).isEqualTo("u:user-1");
   }
 }

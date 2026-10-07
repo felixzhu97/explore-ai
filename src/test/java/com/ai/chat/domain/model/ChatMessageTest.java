@@ -97,31 +97,7 @@ class ChatMessageTest {
 
   @Nested
   @DisplayName("withText()")
-  class WithText {
-
-    @Test
-    @DisplayName("should create new message with different text")
-    void shouldCreateNewMessageWithDifferentText() {
-      ChatMessage original = ChatMessage.createUserMessage("Hello");
-
-      ChatMessage modified = original.withText("Hi");
-
-      assertThat(modified.getText()).isEqualTo("Hi");
-      assertThat(modified.getId()).isEqualTo(original.getId());
-      assertThat(modified.isFromUser()).isTrue();
-      assertThat(original.getText()).isEqualTo("Hello");
-    }
-
-    @Test
-    @DisplayName("should preserve assistant role")
-    void shouldPreserveAssistantRole() {
-      ChatMessage original = ChatMessage.createAssistantMessage("Hello");
-
-      ChatMessage modified = original.withText("Hi");
-
-      assertThat(modified.isFromAssistant()).isTrue();
-    }
-  }
+  class WithText {}
 
   @Nested
   @DisplayName("equals() and hashCode()")

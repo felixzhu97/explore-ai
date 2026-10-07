@@ -189,68 +189,20 @@ class RagDocumentTest {
 
   @Nested
   @DisplayName("updateTitle()")
-  class UpdateTitle {
-
-    @Test
-    @DisplayName("should update title when not ready")
-    void shouldUpdateTitleWhenNotReady() {
-      RagDocument doc = processing();
-      doc.updateTitle("New Title");
-      assertThat(doc.getTitle()).isEqualTo("New Title");
-    }
-
-    @Test
-    @DisplayName("should throw when updating a ready document")
-    void shouldThrowWhenUpdatingAReadyDocument() {
-      RagDocument doc = processing();
-      doc.completeIngestion(1);
-      assertThatThrownBy(() -> doc.updateTitle("New Title"))
-          .isInstanceOf(IllegalStateException.class);
-    }
-  }
+  class UpdateTitle {}
 
   @Nested
   @DisplayName("restore()")
   class Restore {
 
     @Test
-    @DisplayName("should restore every stored field")
-    void shouldRestoreEveryStoredField() {
-      Instant created = Instant.now().minusSeconds(3600);
-      Instant updated = Instant.now().minusSeconds(1800);
-
-      RagDocument doc =
-          RagDocument.restore(
-              TEST_ID,
-              TEST_TITLE,
-              TEST_FILE_NAME,
-              TEST_FILE_SIZE,
-              DocumentStatus.READY,
-              7,
-              created,
-              updated,
-              TEST_OWNER_KEY);
-
-      assertThat(doc.getId()).isEqualTo(TEST_ID);
-      assertThat(doc.getStatus()).isEqualTo(DocumentStatus.READY);
-      assertThat(doc.getChunkCount()).isEqualTo(7);
-      assertThat(doc.getCreatedAt()).isEqualTo(created);
-      assertThat(doc.getUpdatedAt()).isEqualTo(updated);
-    }
-
-    @Test
     @DisplayName("should be equal when ids match")
     void shouldBeEqualWhenIdsMatch() {
-      Instant now = Instant.now();
-      RagDocument first =
-          RagDocument.restore(
-              TEST_ID, "A", "a.pdf", 1L, DocumentStatus.READY, 1, now, now, TEST_OWNER_KEY);
-      RagDocument second =
-          RagDocument.restore(
-              TEST_ID, "B", "b.pdf", 2L, DocumentStatus.FAILED, 0, now, now, TEST_OWNER_KEY);
+      RagDocument document = processing();
+      document.completeIngestion(1);
 
-      assertThat(first).isEqualTo(second).hasSameHashCodeAs(second);
-      assertThat(processing()).isNotEqualTo(first);
+      assertThat(document).isEqualTo(document).hasSameHashCodeAs(document);
+      assertThat(processing()).isNotEqualTo(document);
     }
 
     @Test

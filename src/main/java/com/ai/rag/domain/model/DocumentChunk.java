@@ -5,11 +5,10 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import lombok.Getter;
 
-/**
- * DocumentChunk entity - represents a chunk of a document in the RAG system. Immutable value object
- * with factory method for creation.
- */
+/** Immutable chunk of an uploaded document, with its embedding once one is computed. */
+@Getter
 public class DocumentChunk {
 
   /** Longest excerpt shown to the model or the user for one chunk. */
@@ -115,43 +114,8 @@ public class DocumentChunk {
         : content.substring(0, EXCERPT_LENGTH) + "...";
   }
 
-  /** Returns the chunk id. */
-  public ChunkId getId() {
-    return id;
-  }
-
-  /** Returns the document id. */
-  public DocumentId getDocumentId() {
-    return documentId;
-  }
-
-  /** Returns the owner of the document the chunk came from. */
-  public OwnerKey getOwnerKey() {
-    return ownerKey;
-  }
-
-  /** Returns the chunk text. */
-  public String getContent() {
-    return content;
-  }
-
-  /** Returns the position of the chunk in the document. */
-  public int getChunkIndex() {
-    return chunkIndex;
-  }
-
-  /** Returns the metadata, without the owner. */
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
-
   /** Returns a copy of the embedding, or null when it has none. */
   public float[] getEmbedding() {
     return embedding != null ? embedding.clone() : null;
-  }
-
-  /** Returns when the chunk was created. */
-  public Instant getCreatedAt() {
-    return createdAt;
   }
 }

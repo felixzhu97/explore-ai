@@ -15,13 +15,13 @@ public record AgentInfoResponse(
   /** Builds a response from an agent definition, flagging whether it is the supervisor. */
   public static AgentInfoResponse from(AgentDefinition definition) {
     return new AgentInfoResponse(
-        definition.type().value(),
-        definition.name(),
-        definition.description(),
-        definition.healthy(),
-        definition.type().isSupervisor(),
-        AgentRuntime.from(definition.runtime()),
-        definition.toolKeys(),
-        definition.systemPrompt());
+        definition.getType().value(),
+        definition.getName(),
+        definition.getDescription(),
+        definition.isHealthy(),
+        definition.getType().isSupervisor(),
+        AgentRuntime.from(definition.getRuntime()),
+        definition.getToolKeys(),
+        definition.getSystemPrompt());
   }
 }

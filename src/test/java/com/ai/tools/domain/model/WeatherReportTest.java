@@ -16,7 +16,7 @@ class WeatherReportTest {
     var result = weatherReport.lookupCurrent(WeatherQuery.of("beijing"));
 
     assertThat(result.isSuccess()).isTrue();
-    assertThat(result.content()).contains("北京");
+    assertThat(result.getContent()).contains("北京");
   }
 
   @Test
@@ -26,6 +26,6 @@ class WeatherReportTest {
         weatherReport.generateForecast(WeatherForecast.of(WeatherQuery.of("unknown-city"), 3));
 
     assertThat(result.isSuccess()).isTrue();
-    assertThat(result.content()).contains("未来3天天气预报");
+    assertThat(result.getContent()).contains("未来3天天气预报");
   }
 }

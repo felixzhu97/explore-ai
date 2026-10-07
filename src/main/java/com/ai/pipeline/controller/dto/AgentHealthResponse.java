@@ -7,6 +7,8 @@ public record AgentHealthResponse(String type, boolean healthy, HealthStatus sta
   /** Maps an agent definition to a health response. */
   public static AgentHealthResponse from(AgentDefinition definition) {
     return new AgentHealthResponse(
-        definition.type().value(), definition.healthy(), HealthStatus.of(definition.healthy()));
+        definition.getType().value(),
+        definition.isHealthy(),
+        HealthStatus.of(definition.isHealthy()));
   }
 }

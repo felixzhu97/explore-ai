@@ -26,7 +26,7 @@ public class DomainHealthGateway implements MetricsHealthGateway {
   @Override
   public AgentsHealth checkAgentsHealth() {
     List<AgentDefinition> agents = pipelineService.listAgents(null, "en");
-    long healthy = agents.stream().filter(AgentDefinition::healthy).count();
+    long healthy = agents.stream().filter(AgentDefinition::isHealthy).count();
     ModuleStatus status =
         healthy == agents.size() && !agents.isEmpty() ? ModuleStatus.UP : ModuleStatus.DEGRADED;
     return new AgentsHealth(status, agents.size(), healthy);

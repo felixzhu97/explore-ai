@@ -2,8 +2,10 @@ package com.ai.pipeline.domain.model;
 
 import java.util.List;
 import java.util.Objects;
+import lombok.Getter;
 
 /** Immutable definition of a specialized or supervisor agent. */
+@Getter
 public final class AgentDefinition {
 
   public static final String RUNTIME_SINGLE = "single";
@@ -50,41 +52,6 @@ public final class AgentDefinition {
       List<String> toolKeys,
       String runtime) {
     return new AgentDefinition(type, name, description, systemPrompt, toolKeys, runtime, true);
-  }
-
-  /** Returns the agent type. */
-  public AgentType type() {
-    return type;
-  }
-
-  /** Returns the display name. */
-  public String name() {
-    return name;
-  }
-
-  /** Returns the description. */
-  public String description() {
-    return description;
-  }
-
-  /** Returns the system prompt. */
-  public String systemPrompt() {
-    return systemPrompt;
-  }
-
-  /** Returns the tool keys. */
-  public List<String> toolKeys() {
-    return toolKeys;
-  }
-
-  /** Returns the runtime. */
-  public String runtime() {
-    return runtime;
-  }
-
-  /** Tells whether the agent is healthy. */
-  public boolean healthy() {
-    return healthy;
   }
 
   /** Tells whether the agent can be a pipeline worker. */

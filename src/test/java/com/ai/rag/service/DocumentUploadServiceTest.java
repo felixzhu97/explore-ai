@@ -25,7 +25,6 @@ import com.ai.rag.domain.repository.DocumentRepository;
 import com.ai.rag.domain.repository.DocumentTransformer;
 import com.ai.rag.domain.repository.DocumentWriter;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -381,9 +380,9 @@ class DocumentUploadServiceTest {
     @Test
     @DisplayName("should delete document and its chunks")
     void shouldDeleteDocumentAndItsChunks() {
-      UUID documentId = UUID.randomUUID();
-      DocumentId docId = DocumentId.of(documentId);
-      RagDocument document = stored(docId, DocumentStatus.READY, 2);
+      RagDocument document = stored(DocumentStatus.READY, 2);
+      DocumentId docId = document.getId();
+      UUID documentId = docId.getValue();
 
       when(documentRepository.findByIdAndOwnerKey(documentId, "c:test-owner"))
           .thenReturn(Optional.of(document));
@@ -409,9 +408,9 @@ class DocumentUploadServiceTest {
     @Test
     @DisplayName("should delete chunks even when document has no chunks")
     void shouldDeleteChunksEvenWhenDocumentHasNoChunks() {
-      UUID documentId = UUID.randomUUID();
-      DocumentId docId = DocumentId.of(documentId);
-      RagDocument document = stored(docId, DocumentStatus.FAILED, 0);
+      RagDocument document = stored(DocumentStatus.FAILED, 0);
+      DocumentId docId = document.getId();
+      UUID documentId = docId.getValue();
 
       when(documentRepository.findByIdAndOwnerKey(documentId, "c:test-owner"))
           .thenReturn(Optional.of(document));
@@ -422,10 +421,14 @@ class DocumentUploadServiceTest {
       verify(documentRepository).deleteByIdAndOwnerKey(documentId, "c:test-owner");
     }
 
-    private RagDocument stored(DocumentId docId, DocumentStatus status, int chunkCount) {
-      Instant now = Instant.now();
-      return RagDocument.restore(
-          docId, "Test Doc", "test.txt", 100L, status, chunkCount, now, now, "c:test");
+    private RagDocument stored(DocumentStatus status, int chunkCount) {
+      RagDocument document = RagDocument.startIngestion("Test Doc", "test.txt", 100L, "c:test");
+      if (status == DocumentStatus.READY) {
+        document.completeIngestion(chunkCount);
+      } else if (status == DocumentStatus.FAILED) {
+        document.failIngestion();
+      }
+      return document;
     }
   }
 }
