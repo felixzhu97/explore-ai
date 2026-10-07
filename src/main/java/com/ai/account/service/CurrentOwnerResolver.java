@@ -1,9 +1,9 @@
 package com.ai.account.service;
 
 import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.model.ClientId;
 import com.ai.account.domain.repository.AccountUserRepository;
-import com.ai.account.domain.vo.ClientId;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;

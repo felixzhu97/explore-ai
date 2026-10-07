@@ -1,13 +1,7 @@
 package com.ai.account.domain.model;
 
-import com.ai.account.domain.vo.AccountUserId;
-import com.ai.account.domain.vo.ClientId;
-import com.ai.account.domain.vo.ClientIdAttributeConverter;
-import com.ai.account.domain.vo.ContactEmail;
-import com.ai.account.domain.vo.ContactEmailAttributeConverter;
-import com.ai.account.domain.vo.ExternalIdentity;
 import com.ai.common.domain.model.AbstractEntity;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;

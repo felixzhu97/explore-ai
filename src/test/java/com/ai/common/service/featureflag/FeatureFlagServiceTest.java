@@ -2,8 +2,8 @@ package com.ai.common.service.featureflag;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ai.common.domain.model.ModuleFlag;
 import com.ai.common.domain.repository.FeatureFlagRepository;
-import com.ai.common.domain.vo.ModuleFlag;
 import com.ai.common.infra.config.LaunchDarklyProperties;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;

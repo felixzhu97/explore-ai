@@ -3,9 +3,6 @@ package com.ai.automation.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.automation.domain.vo.EmailDeliveryStatus;
-import com.ai.automation.domain.vo.RunStatus;
-import com.ai.automation.domain.vo.ScheduleId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

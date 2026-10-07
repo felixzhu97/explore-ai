@@ -1,6 +1,6 @@
 package com.ai.metrics.domain.repository;
 
-import com.ai.metrics.domain.vo.ModuleStatus;
+import com.ai.metrics.domain.model.ModuleStatus;
 
 /** Gateway supplying system, agent, and MCP health to the metrics dashboard. */
 public interface MetricsHealthGateway {

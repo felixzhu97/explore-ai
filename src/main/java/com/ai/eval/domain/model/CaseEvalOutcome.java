@@ -1,6 +1,5 @@
 package com.ai.eval.domain.model;
 
-import com.ai.eval.domain.vo.GoldenEvalDomain;
 import java.util.List;
 
 /** Per-case outcome of a golden suite run. */

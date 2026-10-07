@@ -2,7 +2,7 @@ package com.ai.audio.infra.tts;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.audio.domain.vo.VoiceSelection;
+import com.ai.audio.domain.model.VoiceSelection;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.time.Duration;

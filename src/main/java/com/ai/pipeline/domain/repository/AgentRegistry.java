@@ -1,7 +1,7 @@
 package com.ai.pipeline.domain.repository;
 
 import com.ai.pipeline.domain.model.AgentDefinition;
-import com.ai.pipeline.domain.vo.AgentType;
+import com.ai.pipeline.domain.model.AgentType;
 import java.util.List;
 import java.util.Optional;
 

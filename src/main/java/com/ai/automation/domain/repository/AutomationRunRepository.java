@@ -1,7 +1,7 @@
 package com.ai.automation.domain.repository;
 
 import com.ai.automation.domain.model.AutomationRun;
-import com.ai.automation.domain.vo.ScheduleId;
+import com.ai.automation.domain.model.ScheduleId;
 import java.util.List;
 
 /** Persists automation run records and lists a schedule's recent runs for its owner. */

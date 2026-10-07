@@ -1,7 +1,7 @@
 package com.ai.pipeline.infra.persistence;
 
 import com.ai.pipeline.domain.model.PipelineTemplate;
-import com.ai.pipeline.domain.vo.PipelineTemplateId;
+import com.ai.pipeline.domain.model.PipelineTemplateId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

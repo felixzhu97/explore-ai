@@ -1,9 +1,9 @@
 package com.ai.automation.infra.persistence;
 
 import com.ai.automation.domain.model.AutomationRun;
+import com.ai.automation.domain.model.ScheduleId;
 import com.ai.automation.domain.repository.AutomationRunRepository;
-import com.ai.automation.domain.vo.ScheduleId;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
 import jakarta.persistence.EntityManager;
 import java.util.List;

@@ -7,9 +7,9 @@ import static org.mockito.Mockito.when;
 
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
-import com.ai.chat.domain.vo.ChatSessionId;
-import com.ai.chat.domain.vo.ContentHash;
-import com.ai.chat.domain.vo.WebSource;
+import com.ai.chat.domain.model.ChatSessionId;
+import com.ai.chat.domain.model.ContentHash;
+import com.ai.chat.domain.model.WebSource;
 import com.ai.chat.service.ChatService;
 import com.ai.chat.service.SessionHistory;
 import com.ai.common.exception.DomainException;

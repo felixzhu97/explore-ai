@@ -1,6 +1,5 @@
 package com.ai.common.domain.model;
 
-import com.ai.common.domain.vo.AbstractUuidId;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

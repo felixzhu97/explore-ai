@@ -1,16 +1,8 @@
 package com.ai.metrics.domain.model;
 
 import com.ai.common.domain.model.AbstractAppendOnlyEvent;
-import com.ai.common.domain.vo.OwnerKey;
-import com.ai.common.domain.vo.OwnerKeyAttributeConverter;
-import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.AiDomainAttributeConverter;
-import com.ai.metrics.domain.vo.ErrorSummary;
-import com.ai.metrics.domain.vo.InvocationEventId;
-import com.ai.metrics.domain.vo.InvocationOutcome;
-import com.ai.metrics.domain.vo.InvocationOutcomeAttributeConverter;
-import com.ai.metrics.domain.vo.Latency;
-import com.ai.metrics.domain.vo.TokenUsage;
+import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerKeyAttributeConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;

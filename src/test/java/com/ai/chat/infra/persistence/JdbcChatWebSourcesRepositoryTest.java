@@ -12,8 +12,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.ai.chat.domain.vo.ContentHash;
-import com.ai.chat.domain.vo.WebSource;
+import com.ai.chat.domain.model.ContentHash;
+import com.ai.chat.domain.model.WebSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;

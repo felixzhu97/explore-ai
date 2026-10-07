@@ -3,7 +3,7 @@ package com.ai.account.service;
 import static org.mockito.Mockito.verify;
 
 import com.ai.account.domain.repository.OwnerPartitionRepository;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

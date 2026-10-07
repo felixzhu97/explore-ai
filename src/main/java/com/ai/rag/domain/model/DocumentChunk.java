@@ -1,9 +1,7 @@
 package com.ai.rag.domain.model;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.rag.domain.service.VectorSimilarity;
-import com.ai.rag.domain.vo.ChunkId;
-import com.ai.rag.domain.vo.DocumentId;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;

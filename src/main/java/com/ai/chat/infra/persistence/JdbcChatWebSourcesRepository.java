@@ -1,8 +1,8 @@
 package com.ai.chat.infra.persistence;
 
+import com.ai.chat.domain.model.ContentHash;
+import com.ai.chat.domain.model.WebSource;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
-import com.ai.chat.domain.vo.ContentHash;
-import com.ai.chat.domain.vo.WebSource;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

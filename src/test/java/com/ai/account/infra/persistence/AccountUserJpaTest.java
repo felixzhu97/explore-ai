@@ -3,9 +3,9 @@ package com.ai.account.infra.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.account.domain.model.AccountUser;
-import com.ai.account.domain.vo.ClientId;
-import com.ai.account.domain.vo.ContactEmail;
-import com.ai.account.domain.vo.ExternalIdentity;
+import com.ai.account.domain.model.ClientId;
+import com.ai.account.domain.model.ContactEmail;
+import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;
 import java.util.Optional;

@@ -1,8 +1,8 @@
 package com.ai.chat.infra.store;
 
 import com.ai.chat.domain.model.ChatSession;
+import com.ai.chat.domain.model.ChatSessionId;
 import com.ai.chat.domain.repository.ChatSessionRepository;
-import com.ai.chat.domain.vo.ChatSessionId;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;

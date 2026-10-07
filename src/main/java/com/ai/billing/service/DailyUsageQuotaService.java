@@ -1,10 +1,10 @@
 package com.ai.billing.service;
 
-import com.ai.billing.domain.vo.DailyUsage;
-import com.ai.billing.domain.vo.QuotaDecision;
-import com.ai.billing.domain.vo.QuotaPolicy;
-import com.ai.billing.domain.vo.QuotaSubject;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.billing.domain.model.DailyUsage;
+import com.ai.billing.domain.model.QuotaDecision;
+import com.ai.billing.domain.model.QuotaPolicy;
+import com.ai.billing.domain.model.QuotaSubject;
+import com.ai.common.domain.model.OwnerKey;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.time.Duration;

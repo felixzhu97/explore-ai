@@ -1,10 +1,10 @@
 package com.ai.pipeline.infra.persistence;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.pipeline.domain.model.PipelineTemplate;
+import com.ai.pipeline.domain.model.PipelineTemplateId;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
-import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

@@ -5,10 +5,10 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.model.ClientId;
+import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.account.domain.repository.AccountUserRepository;
-import com.ai.account.domain.vo.ClientId;
-import com.ai.account.domain.vo.ExternalIdentity;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;

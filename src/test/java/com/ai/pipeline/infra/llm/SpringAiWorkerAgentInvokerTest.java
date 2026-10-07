@@ -15,7 +15,7 @@ import com.ai.common.infra.skills.AgentSkillsRuntime;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.pipeline.domain.model.AgentDefinition;
-import com.ai.pipeline.domain.vo.AgentType;
+import com.ai.pipeline.domain.model.AgentType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

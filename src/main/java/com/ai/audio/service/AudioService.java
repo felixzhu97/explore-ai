@@ -1,12 +1,12 @@
 package com.ai.audio.service;
 
+import com.ai.audio.domain.model.SpeechText;
 import com.ai.audio.domain.model.SynthesizedAudio;
+import com.ai.audio.domain.model.VoiceCatalog;
+import com.ai.audio.domain.model.VoiceInfo;
+import com.ai.audio.domain.model.VoiceSelection;
 import com.ai.audio.domain.repository.TextToSpeechGateway;
 import com.ai.audio.domain.repository.TtsConfiguration;
-import com.ai.audio.domain.vo.SpeechText;
-import com.ai.audio.domain.vo.VoiceCatalog;
-import com.ai.audio.domain.vo.VoiceInfo;
-import com.ai.audio.domain.vo.VoiceSelection;
 import com.ai.common.exception.DomainException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

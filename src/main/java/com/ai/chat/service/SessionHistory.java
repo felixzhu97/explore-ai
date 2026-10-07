@@ -1,8 +1,8 @@
 package com.ai.chat.service;
 
 import com.ai.chat.domain.model.ChatMessage;
-import com.ai.chat.domain.vo.ContentHash;
-import com.ai.chat.domain.vo.WebSource;
+import com.ai.chat.domain.model.ContentHash;
+import com.ai.chat.domain.model.WebSource;
 import java.util.List;
 import java.util.Map;
 

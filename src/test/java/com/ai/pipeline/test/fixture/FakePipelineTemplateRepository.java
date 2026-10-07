@@ -1,8 +1,8 @@
 package com.ai.pipeline.test.fixture;
 
 import com.ai.pipeline.domain.model.PipelineTemplate;
+import com.ai.pipeline.domain.model.PipelineTemplateId;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
-import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import com.ai.testsupport.fake.AbstractOwnerScopedFakeRepository;
 import java.util.List;
 import java.util.Optional;

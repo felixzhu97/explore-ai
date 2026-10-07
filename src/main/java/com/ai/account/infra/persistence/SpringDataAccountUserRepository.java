@@ -1,8 +1,8 @@
 package com.ai.account.infra.persistence;
 
 import com.ai.account.domain.model.AccountUser;
-import com.ai.account.domain.vo.AccountUserId;
-import com.ai.account.domain.vo.ClientId;
+import com.ai.account.domain.model.AccountUserId;
+import com.ai.account.domain.model.ClientId;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

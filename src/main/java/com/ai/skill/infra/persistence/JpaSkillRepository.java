@@ -1,10 +1,10 @@
 package com.ai.skill.infra.persistence;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.skill.domain.model.Skill;
+import com.ai.skill.domain.model.SkillId;
 import com.ai.skill.domain.repository.SkillRepository;
-import com.ai.skill.domain.vo.SkillId;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

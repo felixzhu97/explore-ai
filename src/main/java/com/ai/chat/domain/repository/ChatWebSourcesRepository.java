@@ -1,6 +1,6 @@
 package com.ai.chat.domain.repository;
 
-import com.ai.chat.domain.vo.WebSource;
+import com.ai.chat.domain.model.WebSource;
 import java.util.List;
 import java.util.Map;
 

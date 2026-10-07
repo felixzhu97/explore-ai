@@ -1,6 +1,6 @@
 package com.ai.chat.controller.dto;
 
-import com.ai.chat.domain.vo.WebSource;
+import com.ai.chat.domain.model.WebSource;
 
 /**
  * A cited web search result attached to an assistant reply.

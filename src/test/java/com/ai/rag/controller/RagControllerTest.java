@@ -14,9 +14,9 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.controller.GlobalExceptionHandler;
+import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
-import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.service.DocumentUploadService;
 import com.ai.rag.service.RagApplicationService;
 import com.ai.rag.service.RagChatService;

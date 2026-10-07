@@ -1,7 +1,7 @@
 package com.ai.skill.infra.persistence;
 
 import com.ai.skill.domain.model.Skill;
-import com.ai.skill.domain.vo.SkillId;
+import com.ai.skill.domain.model.SkillId;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

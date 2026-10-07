@@ -1,9 +1,7 @@
 package com.ai.chat.domain.model;
 
-import com.ai.chat.domain.vo.ChatSessionId;
-import com.ai.chat.domain.vo.SessionTitle;
 import com.ai.common.domain.model.AbstractOwnerKeyedEntity;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;

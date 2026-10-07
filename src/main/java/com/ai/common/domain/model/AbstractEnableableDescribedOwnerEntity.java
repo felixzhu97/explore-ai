@@ -1,8 +1,5 @@
 package com.ai.common.domain.model;
 
-import com.ai.common.domain.vo.AbstractUuidId;
-import com.ai.common.domain.vo.DomainStrings;
-import com.ai.common.domain.vo.OwnerKey;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.Size;

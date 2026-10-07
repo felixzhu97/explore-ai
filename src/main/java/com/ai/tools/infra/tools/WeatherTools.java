@@ -2,9 +2,9 @@ package com.ai.tools.infra.tools;
 
 import com.ai.common.domain.tool.WeatherTool;
 import com.ai.common.exception.DomainException;
+import com.ai.tools.domain.model.WeatherForecast;
+import com.ai.tools.domain.model.WeatherQuery;
 import com.ai.tools.domain.model.WeatherReport;
-import com.ai.tools.domain.vo.WeatherForecast;
-import com.ai.tools.domain.vo.WeatherQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;

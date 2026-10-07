@@ -3,7 +3,7 @@ package com.ai.chat.infra.store;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.chat.domain.model.ChatSession;
-import com.ai.chat.domain.vo.ChatSessionId;
+import com.ai.chat.domain.model.ChatSessionId;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;

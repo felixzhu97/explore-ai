@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.pipeline.domain.model.AgentDefinition;
+import com.ai.pipeline.domain.model.AgentType;
 import com.ai.pipeline.domain.model.SavedAgent;
+import com.ai.pipeline.domain.model.SavedAgentId;
 import com.ai.pipeline.domain.repository.SavedAgentRepository;
-import com.ai.pipeline.domain.vo.AgentType;
-import com.ai.pipeline.domain.vo.SavedAgentId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

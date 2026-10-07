@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ai.eval.domain.model.GoldenEvalCase;
-import com.ai.eval.domain.vo.GoldenEvalDomain;
+import com.ai.eval.domain.model.GoldenEvalDomain;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.List;

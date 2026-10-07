@@ -1,7 +1,7 @@
 package com.ai.automation.infra.persistence;
 
 import com.ai.automation.domain.model.AutomationSchedule;
-import com.ai.automation.domain.vo.ScheduleId;
+import com.ai.automation.domain.model.ScheduleId;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.data.domain.Pageable;

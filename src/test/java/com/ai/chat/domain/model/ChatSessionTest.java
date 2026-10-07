@@ -3,8 +3,6 @@ package com.ai.chat.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.chat.domain.vo.ChatSessionId;
-import com.ai.chat.domain.vo.SessionTitle;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -71,7 +69,7 @@ class ChatSessionTest {
     @Test
     @DisplayName("should create session with id and title")
     void shouldCreateSessionWithIdAndTitle() {
-      var id = com.ai.chat.domain.vo.ChatSessionId.of("11111111-1111-1111-1111-111111111111");
+      var id = com.ai.chat.domain.model.ChatSessionId.of("11111111-1111-1111-1111-111111111111");
       Instant createdAt = Instant.now();
 
       ChatSession session = ChatSession.of(id, "Title", createdAt, "c:client-a");
@@ -304,7 +302,7 @@ class ChatSessionTest {
     void shouldKeepLastActivityWhenStoredMessagesAreRestored() {
       ChatSession session =
           ChatSession.of(
-              com.ai.chat.domain.vo.ChatSessionId.generate(), "Test", lastActive, "c:client-a");
+              com.ai.chat.domain.model.ChatSessionId.generate(), "Test", lastActive, "c:client-a");
 
       session.restoreMessages(List.of(ChatMessage.createUserMessage("Hello")));
 
@@ -317,7 +315,7 @@ class ChatSessionTest {
     void shouldMoveLastActivityForwardWhenAnExchangeIsRecorded() {
       ChatSession session =
           ChatSession.of(
-              com.ai.chat.domain.vo.ChatSessionId.generate(), "Test", lastActive, "c:client-a");
+              com.ai.chat.domain.model.ChatSessionId.generate(), "Test", lastActive, "c:client-a");
 
       session.recordExchange(
           List.of(ChatMessage.createUserMessage("Hi"), ChatMessage.createAssistantMessage("Yo")));
@@ -331,7 +329,7 @@ class ChatSessionTest {
     void shouldBeInactiveOnlyWhenLastActivityIsBeforeTheCutoff() {
       ChatSession session =
           ChatSession.of(
-              com.ai.chat.domain.vo.ChatSessionId.generate(), "Test", lastActive, "c:client-a");
+              com.ai.chat.domain.model.ChatSessionId.generate(), "Test", lastActive, "c:client-a");
 
       assertThat(session.isInactiveSince(lastActive.plusSeconds(1))).isTrue();
       assertThat(session.isInactiveSince(lastActive)).isFalse();
@@ -360,7 +358,7 @@ class ChatSessionTest {
     @Test
     @DisplayName("should be equal when id is same")
     void shouldBeEqualWhenIdIsSame() {
-      var id = com.ai.chat.domain.vo.ChatSessionId.of("11111111-1111-1111-1111-111111111111");
+      var id = com.ai.chat.domain.model.ChatSessionId.of("11111111-1111-1111-1111-111111111111");
       ChatSession session1 = ChatSession.of(id, "Title 1", Instant.now(), "c:client-a");
       ChatSession session2 = ChatSession.of(id, "Title 2", Instant.now(), "c:client-a");
 
@@ -373,13 +371,13 @@ class ChatSessionTest {
     void shouldNotBeEqualWhenIdIsDifferent() {
       ChatSession session1 =
           ChatSession.of(
-              com.ai.chat.domain.vo.ChatSessionId.of("11111111-1111-1111-1111-111111111111"),
+              com.ai.chat.domain.model.ChatSessionId.of("11111111-1111-1111-1111-111111111111"),
               "Title",
               Instant.now(),
               "c:client-a");
       ChatSession session2 =
           ChatSession.of(
-              com.ai.chat.domain.vo.ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
+              com.ai.chat.domain.model.ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
               "Title",
               Instant.now(),
               "c:client-a");

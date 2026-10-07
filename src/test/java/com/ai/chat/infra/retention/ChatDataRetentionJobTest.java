@@ -7,10 +7,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.chat.domain.model.ChatSession;
+import com.ai.chat.domain.model.ChatSessionId;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
-import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.chat.service.ChatSessionEraser;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import java.time.Duration;

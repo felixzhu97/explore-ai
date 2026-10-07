@@ -2,11 +2,11 @@ package com.ai.billing.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.billing.domain.vo.Plan;
-import com.ai.billing.domain.vo.QuotaDecision;
-import com.ai.billing.domain.vo.QuotaSubject;
+import com.ai.billing.domain.model.Plan;
+import com.ai.billing.domain.model.QuotaDecision;
+import com.ai.billing.domain.model.QuotaSubject;
 import com.ai.billing.infra.config.BillingProperties;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

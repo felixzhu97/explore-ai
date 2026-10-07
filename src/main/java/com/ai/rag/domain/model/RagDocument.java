@@ -1,8 +1,6 @@
 package com.ai.rag.domain.model;
 
 import com.ai.common.domain.model.AbstractOwnerKeyedEntity;
-import com.ai.rag.domain.vo.ChunkId;
-import com.ai.rag.domain.vo.DocumentId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

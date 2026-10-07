@@ -13,10 +13,10 @@ import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.OwnerContext;
 import com.ai.common.infra.llm.ToolEventChannel;
+import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.SourceDocument;
-import com.ai.rag.domain.vo.DocumentId;
 import com.ai.rag.service.RagApplicationService;
 import java.time.Instant;
 import java.util.Collections;

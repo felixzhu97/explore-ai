@@ -7,12 +7,12 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.ai.metrics.domain.model.ModuleStatus;
 import com.ai.metrics.domain.repository.McpHealthProbe;
 import com.ai.metrics.domain.repository.MetricsHealthGateway.AgentsHealth;
 import com.ai.metrics.domain.repository.MetricsHealthGateway.McpHealth;
-import com.ai.metrics.domain.vo.ModuleStatus;
 import com.ai.pipeline.domain.model.AgentDefinition;
-import com.ai.pipeline.domain.vo.AgentType;
+import com.ai.pipeline.domain.model.AgentType;
 import com.ai.pipeline.service.PipelineService;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

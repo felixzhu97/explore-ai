@@ -2,7 +2,7 @@ package com.ai.common.infra.skills;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.common.domain.vo.AgentSkill;
+import com.ai.common.domain.model.AgentSkill;
 import com.ai.common.infra.config.AgentSkillsProperties;
 import java.nio.charset.StandardCharsets;
 import java.util.List;

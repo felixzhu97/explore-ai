@@ -1,8 +1,8 @@
 package com.ai.skill.test.fixture;
 
 import com.ai.skill.domain.model.Skill;
+import com.ai.skill.domain.model.SkillId;
 import com.ai.skill.domain.repository.SkillRepository;
-import com.ai.skill.domain.vo.SkillId;
 import com.ai.testsupport.fake.AbstractOwnerScopedFakeRepository;
 import java.util.List;
 import java.util.Optional;

@@ -1,7 +1,7 @@
 package com.ai.rag.domain.repository;
 
 import com.ai.rag.domain.model.DocumentChunk;
-import com.ai.rag.domain.vo.ScoredChunk;
+import com.ai.rag.domain.model.ScoredChunk;
 import java.util.List;
 import java.util.UUID;
 

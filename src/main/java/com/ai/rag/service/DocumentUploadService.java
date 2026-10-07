@@ -2,6 +2,7 @@ package com.ai.rag.service;
 
 import com.ai.common.exception.DomainException;
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.RawDocument;
@@ -10,7 +11,6 @@ import com.ai.rag.domain.repository.DocumentReader;
 import com.ai.rag.domain.repository.DocumentRepository;
 import com.ai.rag.domain.repository.DocumentTransformer;
 import com.ai.rag.domain.repository.DocumentWriter;
-import com.ai.rag.domain.vo.DocumentId;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;

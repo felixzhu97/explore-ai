@@ -4,9 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ai.automation.domain.service.CronSchedule;
-import com.ai.automation.domain.vo.AutomationActionType;
-import com.ai.automation.domain.vo.ScheduleKind;
-import com.ai.automation.domain.vo.ScheduleTiming;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

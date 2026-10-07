@@ -1,10 +1,10 @@
 package com.ai.billing.controller.filter;
 
-import com.ai.billing.domain.vo.QuotaDecision;
-import com.ai.billing.domain.vo.QuotaSubject;
+import com.ai.billing.domain.model.QuotaDecision;
+import com.ai.billing.domain.model.QuotaSubject;
 import com.ai.billing.service.DailyUsageQuotaService;
 import com.ai.common.controller.ClientIdentity;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

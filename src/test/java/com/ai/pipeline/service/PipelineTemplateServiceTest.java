@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
-import com.ai.pipeline.domain.vo.PipelineTemplateId;
+import com.ai.pipeline.domain.model.PipelineTemplateId;
 import com.ai.pipeline.test.fixture.FakePipelineTemplateRepository;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

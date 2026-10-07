@@ -1,9 +1,9 @@
 package com.ai.image.infra.llm;
 
 import com.ai.image.domain.model.GeneratedImage;
+import com.ai.image.domain.model.ImageOptions;
+import com.ai.image.domain.model.ImagePrompt;
 import com.ai.image.domain.repository.ImageGenerationGateway;
-import com.ai.image.domain.vo.ImageOptions;
-import com.ai.image.domain.vo.ImagePrompt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.image.ImageModel;
 import org.springframework.ai.image.ImageResponse;

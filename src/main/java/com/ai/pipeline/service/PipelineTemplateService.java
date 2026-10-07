@@ -1,10 +1,10 @@
 package com.ai.pipeline.service;
 
-import com.ai.common.domain.vo.DomainStrings;
+import com.ai.common.domain.model.DomainStrings;
 import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
+import com.ai.pipeline.domain.model.PipelineTemplateId;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
-import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

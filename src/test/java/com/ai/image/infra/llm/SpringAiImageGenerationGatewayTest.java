@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.image.domain.vo.ImageOptions;
+import com.ai.image.domain.model.ImageOptions;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +48,7 @@ class SpringAiImageGenerationGatewayTest {
 
     var result =
         repository.generate(
-            com.ai.image.domain.vo.ImagePrompt.of("sunset"),
+            com.ai.image.domain.model.ImagePrompt.of("sunset"),
             ImageOptions.of("dall-e-3", "standard", 1024, 1024, 1));
 
     assertThat(result.url()).isEqualTo(expectedUrl);
@@ -70,7 +70,7 @@ class SpringAiImageGenerationGatewayTest {
 
     var result =
         repository.generate(
-            com.ai.image.domain.vo.ImagePrompt.of("sunset"),
+            com.ai.image.domain.model.ImagePrompt.of("sunset"),
             ImageOptions.of("dall-e-3", "standard", 1024, 1024, 1));
 
     assertThat(result.base64()).isEqualTo(expectedBase64);
@@ -86,7 +86,7 @@ class SpringAiImageGenerationGatewayTest {
 
     var result =
         repository.generate(
-            com.ai.image.domain.vo.ImagePrompt.of("empty"),
+            com.ai.image.domain.model.ImagePrompt.of("empty"),
             ImageOptions.of(null, null, 1024, 1024, 1));
 
     assertThat(result.isAvailable()).isFalse();
@@ -99,7 +99,7 @@ class SpringAiImageGenerationGatewayTest {
 
     var result =
         repository.generate(
-            com.ai.image.domain.vo.ImagePrompt.of("empty"),
+            com.ai.image.domain.model.ImagePrompt.of("empty"),
             ImageOptions.of(null, null, 1024, 1024, 1));
 
     assertThat(result.isAvailable()).isFalse();
@@ -117,7 +117,7 @@ class SpringAiImageGenerationGatewayTest {
 
     var result =
         repository.generate(
-            com.ai.image.domain.vo.ImagePrompt.of("empty"),
+            com.ai.image.domain.model.ImagePrompt.of("empty"),
             ImageOptions.of(null, null, 1024, 1024, 1));
 
     assertThat(result.isAvailable()).isFalse();

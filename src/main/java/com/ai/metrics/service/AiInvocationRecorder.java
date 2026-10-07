@@ -1,11 +1,11 @@
 package com.ai.metrics.service;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
+import com.ai.metrics.domain.model.AiDomain;
 import com.ai.metrics.domain.model.AiInvocationEvent;
+import com.ai.metrics.domain.model.ErrorSummary;
+import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
-import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.ErrorSummary;
-import com.ai.metrics.domain.vo.Latency;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;

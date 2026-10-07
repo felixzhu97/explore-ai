@@ -1,9 +1,9 @@
 package com.ai.chat.infra.persistence;
 
 import com.ai.chat.domain.model.ChatSession;
+import com.ai.chat.domain.model.ChatSessionId;
 import com.ai.chat.domain.repository.ChatSessionRepository;
-import com.ai.chat.domain.vo.ChatSessionId;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
 import java.time.Instant;
 import java.util.List;

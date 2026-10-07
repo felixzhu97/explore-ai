@@ -2,10 +2,10 @@ package com.ai.image.service;
 
 import com.ai.common.exception.DomainException;
 import com.ai.image.domain.model.GeneratedImage;
+import com.ai.image.domain.model.ImageCatalog;
+import com.ai.image.domain.model.ImageOptions;
+import com.ai.image.domain.model.ImagePrompt;
 import com.ai.image.domain.repository.ImageGenerationGateway;
-import com.ai.image.domain.vo.ImageCatalog;
-import com.ai.image.domain.vo.ImageOptions;
-import com.ai.image.domain.vo.ImagePrompt;
 import com.ai.image.infra.config.ImageProperties;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

@@ -1,10 +1,10 @@
 package com.ai.vision.service;
 
 import com.ai.common.controller.dto.HealthStatus;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
-import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.Latency;
+import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.vision.controller.dto.CaptionResponse;
 import com.ai.vision.controller.dto.DetectResponse;

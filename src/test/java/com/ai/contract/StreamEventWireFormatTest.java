@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.ai.audio.controller.dto.TranscriptionResponse;
 import com.ai.audio.controller.dto.TranscriptionResponse.TranscriptionType;
 import com.ai.chat.controller.dto.WebSourceResponse;
-import com.ai.chat.domain.vo.WebSource;
+import com.ai.chat.domain.model.WebSource;
 import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.ToolCallEvent;
 import com.ai.common.service.llm.ToolResultEvent;

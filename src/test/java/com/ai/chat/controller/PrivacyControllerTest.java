@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import com.ai.account.controller.OwnerContext;
 import com.ai.account.service.OwnerErasureService;
 import com.ai.common.controller.ClientIdentityCookieFactory;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.infra.config.ClientIdentityProperties;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;

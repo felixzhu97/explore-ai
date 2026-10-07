@@ -7,9 +7,9 @@ import static org.mockito.Mockito.when;
 
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
+import com.ai.mcp.domain.model.McpServerConnection;
 import com.ai.mcp.domain.model.McpToolDefinition;
 import com.ai.mcp.domain.repository.McpClientGateway;
-import com.ai.mcp.domain.vo.McpServerConnection;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;

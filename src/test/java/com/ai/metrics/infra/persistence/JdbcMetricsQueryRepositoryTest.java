@@ -10,10 +10,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.InvocationStats;
+import com.ai.metrics.domain.model.LatencyStats;
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
-import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.InvocationStats;
-import com.ai.metrics.domain.vo.LatencyStats;
 import java.sql.ResultSet;
 import java.time.Instant;
 import java.util.ArrayList;

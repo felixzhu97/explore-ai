@@ -1,6 +1,6 @@
 package com.ai.chat.service;
 
-import com.ai.chat.domain.vo.SessionTitle;
+import com.ai.chat.domain.model.SessionTitle;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import lombok.RequiredArgsConstructor;

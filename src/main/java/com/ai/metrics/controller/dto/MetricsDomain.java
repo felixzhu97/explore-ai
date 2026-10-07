@@ -1,6 +1,6 @@
 package com.ai.metrics.controller.dto;
 
-import com.ai.metrics.domain.vo.AiDomain;
+import com.ai.metrics.domain.model.AiDomain;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /** AI domain on the metrics wire, serialized as its lowercase value. */

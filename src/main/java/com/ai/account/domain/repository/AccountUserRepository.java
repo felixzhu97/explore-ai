@@ -1,8 +1,8 @@
 package com.ai.account.domain.repository;
 
 import com.ai.account.domain.model.AccountUser;
-import com.ai.account.domain.vo.ClientId;
-import com.ai.account.domain.vo.ExternalIdentity;
+import com.ai.account.domain.model.ClientId;
+import com.ai.account.domain.model.ExternalIdentity;
 import java.util.Optional;
 
 /** Repository of account users looked up by sign-in identity or linked client id. */

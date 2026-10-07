@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.vo.ModuleFlag;
+import com.ai.common.domain.model.ModuleFlag;
 import com.ai.common.service.featureflag.FeatureFlagService;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.BeforeEach;

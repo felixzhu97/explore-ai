@@ -1,10 +1,10 @@
 package com.ai.skill.service;
 
-import com.ai.common.domain.vo.DomainStrings;
+import com.ai.common.domain.model.DomainStrings;
 import com.ai.common.exception.DomainException;
 import com.ai.skill.domain.model.Skill;
+import com.ai.skill.domain.model.SkillId;
 import com.ai.skill.domain.repository.SkillRepository;
-import com.ai.skill.domain.vo.SkillId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

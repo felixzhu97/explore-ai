@@ -1,7 +1,7 @@
 package com.ai.rag.domain.repository;
 
 import com.ai.rag.domain.model.DocumentChunk;
-import com.ai.rag.domain.vo.DocumentId;
+import com.ai.rag.domain.model.DocumentId;
 import java.util.List;
 
 /**

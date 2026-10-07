@@ -1,6 +1,6 @@
 package com.ai.account.controller.dto;
 
-import com.ai.billing.domain.vo.Plan;
+import com.ai.billing.domain.model.Plan;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /** Billing plan shown for the account. */

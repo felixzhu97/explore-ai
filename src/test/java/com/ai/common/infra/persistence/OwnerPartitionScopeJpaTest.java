@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ai.automation.domain.model.AutomationRun;
-import com.ai.automation.domain.vo.ScheduleId;
+import com.ai.automation.domain.model.ScheduleId;
 import com.ai.automation.infra.persistence.JpaAutomationRunRepository;
 import com.ai.automation.infra.persistence.SpringDataAutomationRunRepository;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.infra.persistence.JpaSkillRepository;
 import com.ai.skill.infra.persistence.SpringDataSkillRepository;

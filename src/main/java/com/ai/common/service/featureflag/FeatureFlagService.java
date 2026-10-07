@@ -1,7 +1,7 @@
 package com.ai.common.service.featureflag;
 
+import com.ai.common.domain.model.ModuleFlag;
 import com.ai.common.domain.repository.FeatureFlagRepository;
-import com.ai.common.domain.vo.ModuleFlag;
 import com.ai.common.infra.config.LaunchDarklyProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
