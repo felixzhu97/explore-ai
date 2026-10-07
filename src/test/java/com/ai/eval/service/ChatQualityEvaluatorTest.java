@@ -10,8 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.eval.domain.model.ChatEvaluationResult;
-import com.ai.eval.domain.model.LlmEvaluationResponse;
 import com.ai.eval.domain.model.OfficialGateResult;
+import com.ai.eval.service.ChatQualityEvaluator.LlmEvaluationResponse;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,19 +40,6 @@ class ChatQualityEvaluatorTest {
   @BeforeEach
   void setUp() {
     evaluator = new ChatQualityEvaluator(officialEvaluators, evaluationChatClient);
-  }
-
-  @Test
-  @DisplayName("LlmEvaluationResponse should hold values correctly")
-  void shouldHoldValuesCorrectly() {
-    LlmEvaluationResponse response =
-        new LlmEvaluationResponse(0.9, 0.85, true, "Harmful content", "Avoid such content");
-
-    assertThat(response.coherenceScore()).isEqualTo(0.9);
-    assertThat(response.helpfulnessScore()).isEqualTo(0.85);
-    assertThat(response.hasSafetyIssues()).isTrue();
-    assertThat(response.safetyConcern()).isEqualTo("Harmful content");
-    assertThat(response.suggestion()).isEqualTo("Avoid such content");
   }
 
   @Test

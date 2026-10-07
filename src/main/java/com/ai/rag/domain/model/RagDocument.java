@@ -21,6 +21,8 @@ public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
 
   public static final String UNTITLED = "Untitled";
   static final int MAX_TITLE_LENGTH = 255;
+  private static final String TITLE_METADATA_KEY = "title";
+  private static final String FILE_NAME_METADATA_KEY = "fileName";
 
   @Column(nullable = false)
   private String title;
@@ -133,9 +135,9 @@ public class RagDocument extends AbstractOwnerKeyedEntity<DocumentId> {
   /** Creates the chunk at {@code index}, tagged with this document's owner, title and file. */
   public DocumentChunk newChunk(int index, String content, Map<String, Object> sourceMetadata) {
     Map<String, Object> metadata = new HashMap<>(sourceMetadata);
-    metadata.put(ChunkMetadataKeys.TITLE, title);
+    metadata.put(TITLE_METADATA_KEY, title);
     if (fileName != null) {
-      metadata.put(ChunkMetadataKeys.FILE_NAME, fileName);
+      metadata.put(FILE_NAME_METADATA_KEY, fileName);
     }
     return DocumentChunk.create(ChunkId.generate(), getId(), ownerKey, content, index, metadata);
   }

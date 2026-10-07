@@ -16,6 +16,8 @@ public class DocumentChunk {
   /** Longest excerpt shown to the model or the user for one chunk. */
   public static final int EXCERPT_LENGTH = 500;
 
+  private static final String OWNER_KEY_METADATA_KEY = "ownerKey";
+
   private final ChunkId id;
   private final DocumentId documentId;
   private final OwnerKey ownerKey;
@@ -75,7 +77,7 @@ public class DocumentChunk {
       return Map.of();
     }
     Map<String, Object> copy = new HashMap<>(metadata);
-    copy.remove(ChunkMetadataKeys.OWNER_KEY);
+    copy.remove(OWNER_KEY_METADATA_KEY);
     return Map.copyOf(copy);
   }
 

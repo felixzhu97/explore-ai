@@ -3,7 +3,6 @@ package com.ai.pipeline.infra.registry;
 import com.ai.common.exception.DomainException;
 import com.ai.common.infra.prompt.ClasspathPromptLoader;
 import com.ai.common.infra.prompt.PromptTemplates;
-import com.ai.pipeline.domain.model.AgentCatalog;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentType;
 import com.ai.pipeline.domain.model.SavedAgent;
@@ -83,7 +82,14 @@ public class CatalogAgentRegistry implements AgentRegistry {
 
   @Override
   public List<AgentDefinition> listAll(String ownerKey, String language) {
-    return AgentCatalog.merge(listBuiltins(language), library(ownerKey));
+    Map<String, AgentDefinition> byType = new LinkedHashMap<>();
+    for (AgentDefinition builtin : listBuiltins(language)) {
+      byType.put(builtin.type().value(), builtin);
+    }
+    for (SavedAgent saved : library(ownerKey)) {
+      byType.put(saved.getTypeKey(), saved.toAgentDefinition());
+    }
+    return List.copyOf(byType.values());
   }
 
   @Override

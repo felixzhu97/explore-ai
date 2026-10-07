@@ -2,7 +2,6 @@ package com.ai.eval.service;
 
 import com.ai.common.infra.prompt.ClasspathPromptTemplate;
 import com.ai.eval.domain.model.ChatEvaluationResult;
-import com.ai.eval.domain.model.LlmEvaluationResponse;
 import com.ai.eval.domain.model.OfficialGateResult;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +23,14 @@ import org.springframework.stereotype.Service;
     havingValue = "true",
     matchIfMissing = false)
 public class ChatQualityEvaluator {
+
+  /** Structured verdict returned by the LLM judge. */
+  record LlmEvaluationResponse(
+      double coherenceScore,
+      double helpfulnessScore,
+      boolean hasSafetyIssues,
+      String safetyConcern,
+      String suggestion) {}
 
   private static final String DEFAULT_SAFETY_CONCERN = "Safety issue detected";
 

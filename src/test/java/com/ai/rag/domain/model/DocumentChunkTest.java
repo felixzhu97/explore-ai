@@ -56,8 +56,7 @@ class DocumentChunkTest {
     @Test
     @DisplayName("should drop the owner from metadata when stored rows still carry it")
     void shouldDropTheOwnerFromMetadataWhenStoredRowsStillCarryIt() {
-      DocumentChunk chunk =
-          chunk(TEST_CONTENT, Map.of(ChunkMetadataKeys.OWNER_KEY, "c:owner", "page", 1));
+      DocumentChunk chunk = chunk(TEST_CONTENT, Map.of("ownerKey", "c:owner", "page", 1));
 
       assertThat(chunk.getMetadata()).containsOnlyKeys("page");
     }

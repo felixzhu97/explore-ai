@@ -1,6 +1,5 @@
 package com.ai.rag.infra.vector;
 
-import com.ai.rag.domain.model.ChunkMetadataKeys;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.ScoredChunk;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
