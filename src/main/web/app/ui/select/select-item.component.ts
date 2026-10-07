@@ -24,7 +24,7 @@ import { mergeClasses, noopFn } from '../merge-classes';
 // Interface to avoid circular dependency
 interface SelectHost {
   selectedValue(): string[];
-  selectItem(value: string, label: string): void;
+  selectItem(value: string): void;
   navigateTo(): void;
 }
 
@@ -108,6 +108,6 @@ export class ZardSelectItemComponent {
     if (this.zDisabled()) {
       return;
     }
-    this.select()?.selectItem(this.zValue(), this.label());
+    this.select()?.selectItem(this.zValue());
   }
 }

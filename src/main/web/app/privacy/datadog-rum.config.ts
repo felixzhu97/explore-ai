@@ -33,7 +33,6 @@ export function initDatadogRum(): void {
 
 export class DatadogErrorHandler implements ErrorHandler {
   handleError(error: unknown): void {
-    console.error(error);
     if (rumInitialized) {
       datadogRum.addError(error);
     }

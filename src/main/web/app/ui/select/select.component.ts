@@ -262,13 +262,12 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
     }
   }
 
-  selectItem(value: string, label: string) {
+  selectItem(value: string) {
     if (this.disabledState()) {
       return;
     }
 
     if (value === undefined || value === null || value === '') {
-      console.warn('Attempted to select item with invalid value:', { value, label });
       return;
     }
 
@@ -310,7 +309,7 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
             ? (this.zValue() as string[])
             : [this.zValue() as string]
         ),
-        selectItem: (value: string, label: string) => this.selectItem(value, label),
+        selectItem: (value: string) => this.selectItem(value),
         navigateTo: () => this.navigateTo(index),
       });
       item.zSize.set(this.zSize());
@@ -476,49 +475,45 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
     } // Already created
 
     if (isPlatformBrowser(this.platformId)) {
-      try {
-        const positionStrategy = this.overlayPositionBuilder
-          .flexibleConnectedTo(this.elementRef)
-          .withPositions([
-            {
-              originX: 'center',
-              originY: 'bottom',
-              overlayX: 'center',
-              overlayY: 'top',
-              offsetY: 4,
-            },
-            {
-              originX: 'center',
-              originY: 'top',
-              overlayX: 'center',
-              overlayY: 'bottom',
-              offsetY: -4,
-            },
-          ])
-          .withPush(false);
+      const positionStrategy = this.overlayPositionBuilder
+        .flexibleConnectedTo(this.elementRef)
+        .withPositions([
+          {
+            originX: 'center',
+            originY: 'bottom',
+            overlayX: 'center',
+            overlayY: 'top',
+            offsetY: 4,
+          },
+          {
+            originX: 'center',
+            originY: 'top',
+            overlayX: 'center',
+            overlayY: 'bottom',
+            offsetY: -4,
+          },
+        ])
+        .withPush(false);
 
-        const elementWidth = this.elementRef.nativeElement.offsetWidth || 200;
+      const elementWidth = this.elementRef.nativeElement.offsetWidth || 200;
 
-        this.overlayRef = this.overlay.create({
-          positionStrategy,
-          hasBackdrop: false,
-          scrollStrategy: this.overlay.scrollStrategies.reposition(),
-          width: elementWidth,
-          maxHeight: 384, // max-h-96 equivalent
+      this.overlayRef = this.overlay.create({
+        positionStrategy,
+        hasBackdrop: false,
+        scrollStrategy: this.overlay.scrollStrategies.reposition(),
+        width: elementWidth,
+        maxHeight: 384, // max-h-96 equivalent
+      });
+      this.overlayRef
+        .outsidePointerEvents()
+        .pipe(
+          filter(event => !this.elementRef.nativeElement.contains(event.target)),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe(() => {
+          this.isFocus.set(false);
+          this.close();
         });
-        this.overlayRef
-          .outsidePointerEvents()
-          .pipe(
-            filter(event => !this.elementRef.nativeElement.contains(event.target)),
-            takeUntilDestroyed(this.destroyRef),
-          )
-          .subscribe(() => {
-            this.isFocus.set(false);
-            this.close();
-          });
-      } catch (error) {
-        console.error('Error creating overlay:', error);
-      }
     }
   }
 
@@ -562,14 +557,11 @@ export class ZardSelectComponent implements ControlValueAccessor, OnDestroy {
     const item = items[currentIndex];
     if (item) {
       const value = item.getAttribute('value');
-      const label = item.textContent?.trim() ?? '';
-
       if (value === null || value === undefined) {
-        console.warn('No value attribute found on selected item:', item);
         return;
       }
 
-      this.selectItem(value, label);
+      this.selectItem(value);
     }
   }
 
