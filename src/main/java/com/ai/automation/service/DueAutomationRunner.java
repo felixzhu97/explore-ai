@@ -12,6 +12,7 @@ import com.ai.billing.service.DailyUsageQuotaService;
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +33,8 @@ public class DueAutomationRunner {
   @Transactional
   public int executeDue() {
     Instant now = Instant.now();
-    List<AutomationSchedule> due = scheduleRepository.findDue(now, properties.getScanBatchSize());
+    List<AutomationSchedule> due =
+        scheduleRepository.findDue(now, Limit.of(properties.getScanBatchSize()));
     int executed = 0;
     for (AutomationSchedule schedule : due) {
       Instant provisional = schedule.provisionalNextRunAt(now);

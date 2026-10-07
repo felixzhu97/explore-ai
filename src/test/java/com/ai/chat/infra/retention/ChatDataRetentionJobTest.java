@@ -60,7 +60,7 @@ class ChatDataRetentionJobTest {
 
     job.purgeExpiredData();
 
-    verify(sessionRepository, never()).findInactiveSince(any());
+    verify(sessionRepository, never()).findAllByLastActivityAtBeforeOrderByLastActivityAtAsc(any());
   }
 
   @Test
@@ -71,7 +71,8 @@ class ChatDataRetentionJobTest {
             "Old",
             java.time.Instant.now(),
             "c:client-a");
-    when(sessionRepository.findInactiveSince(any())).thenReturn(List.of(expired));
+    when(sessionRepository.findAllByLastActivityAtBeforeOrderByLastActivityAtAsc(any()))
+        .thenReturn(List.of(expired));
     when(invocationEventRepository.deleteBySessionIds(anyCollection())).thenReturn(2);
     when(invocationEventRepository.deleteOlderThan(any())).thenReturn(1);
 
@@ -79,7 +80,7 @@ class ChatDataRetentionJobTest {
 
     verify(conversationMemoryRepository).clear("33333333-3333-3333-3333-333333333333");
     verify(chatWebSourcesRepository).deleteByConversationId("33333333-3333-3333-3333-333333333333");
-    verify(sessionRepository).delete(ChatSessionId.of("33333333-3333-3333-3333-333333333333"));
+    verify(sessionRepository).deleteById(ChatSessionId.of("33333333-3333-3333-3333-333333333333"));
     verify(invocationEventRepository)
         .deleteBySessionIds(List.of("33333333-3333-3333-3333-333333333333"));
     verify(invocationEventRepository).deleteOlderThan(any());

@@ -1,6 +1,7 @@
 package com.ai.automation.infra.pipeline;
 
 import com.ai.automation.domain.repository.PipelineGateway;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.model.PipelineTemplateId;
@@ -25,7 +26,8 @@ public class InProcessPipelineGateway implements PipelineGateway {
       String ownerKey, String pipelineTemplateId, String brief, String language) {
     PipelineTemplate template =
         pipelineTemplateRepository
-            .findByIdAndOwnerKey(PipelineTemplateId.of(pipelineTemplateId), ownerKey)
+            .findByIdAndOwnerKey(
+                PipelineTemplateId.of(pipelineTemplateId), OwnerKey.parse(ownerKey))
             .filter(PipelineTemplate::isRunnable)
             .orElseThrow(
                 () ->

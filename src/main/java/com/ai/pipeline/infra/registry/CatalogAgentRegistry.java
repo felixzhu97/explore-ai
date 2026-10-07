@@ -1,5 +1,6 @@
 package com.ai.pipeline.infra.registry;
 
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.common.infra.prompt.ClasspathPromptLoader;
 import com.ai.common.infra.prompt.PromptTemplates;
@@ -126,7 +127,8 @@ public class CatalogAgentRegistry implements AgentRegistry {
     if (ownerKey == null || ownerKey.isBlank()) {
       return List.of();
     }
-    return savedAgentRepository.findEnabledByOwnerKey(ownerKey);
+    return savedAgentRepository.findAllByOwnerKeyAndEnabledTrueOrderByNameAsc(
+        OwnerKey.parse(ownerKey));
   }
 
   private AgentDefinition toDefinition(AgentTemplate template) {

@@ -1,6 +1,7 @@
 package com.ai.skill.service;
 
 import com.ai.common.domain.model.DomainStrings;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.model.SkillId;
@@ -10,9 +11,11 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Skill use case that enforces per-owner unique names and derives names from templates. */
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class SkillService {
 
@@ -20,7 +23,7 @@ public class SkillService {
 
   /** Lists the owner's skills. */
   public List<Skill> list(String ownerKey) {
-    return skillRepository.findAllByOwnerKey(ownerKey);
+    return skillRepository.findAllByOwnerKeyOrderByNameAsc(OwnerKey.parse(ownerKey));
   }
 
   /**
@@ -32,7 +35,7 @@ public class SkillService {
     if (ids.isEmpty()) {
       return Optional.empty();
     }
-    List<Skill> skills = skillRepository.findEnabledByOwnerKeyAndIds(ownerKey, ids);
+    List<Skill> skills = skillRepository.findEnabledByOwnerKeyAndIds(OwnerKey.parse(ownerKey), ids);
     return Optional.ofNullable(SkillSystemPromptBuilder.build(skills));
   }
 
@@ -96,26 +99,28 @@ public class SkillService {
   /** Deletes the owner's skill. */
   public void delete(String ownerKey, String id) {
     findOwnedSkill(ownerKey, id);
-    skillRepository.deleteByIdAndOwnerKey(SkillId.of(id), ownerKey);
+    skillRepository.deleteByIdAndOwnerKey(SkillId.of(id), OwnerKey.parse(ownerKey));
   }
 
   private Skill findOwnedSkill(String ownerKey, String id) {
     return skillRepository
-        .findByIdAndOwnerKey(SkillId.of(id), ownerKey)
+        .findByIdAndOwnerKey(SkillId.of(id), OwnerKey.parse(ownerKey))
         .orElseThrow(() -> DomainException.notFound("SKILL_NOT_FOUND", "Skill not found: " + id));
   }
 
   private void assertNameAvailable(String ownerKey, String name, SkillId excludeId) {
     String normalized = DomainStrings.normalizeName(name);
-    if (skillRepository.existsByOwnerKeyAndNameIgnoringId(ownerKey, normalized, excludeId)) {
+    if (skillRepository.existsByOwnerKeyAndNameIgnoringId(
+        OwnerKey.parse(ownerKey), normalized, excludeId)) {
       throw DomainException.conflict(
           "SKILL_NAME_CONFLICT", "Skill name already exists: " + normalized);
     }
   }
 
   private String findNextAvailableName(String ownerKey, String baseName) {
+    OwnerKey owner = OwnerKey.parse(ownerKey);
     return DomainStrings.copyNameCandidates(baseName, DomainStrings.DEFAULT_NAME_MAX)
-        .filter(name -> !skillRepository.existsByOwnerKeyAndNameIgnoringId(ownerKey, name, null))
+        .filter(name -> !skillRepository.existsByOwnerKeyAndNameIgnoringId(owner, name, null))
         .findFirst()
         .orElseGet(
             () ->

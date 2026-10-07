@@ -44,7 +44,6 @@ Container_Boundary(backend, "AI Platform Backend (Spring Boot)") {
     Component(rag_infra, "rag infra", "infra", "H2 vector · ETL · Ollama embed")
     Component(pipeline_infra, "pipeline infra", "infra", "Agent registry · Supervisor · Worker invoker · JPA skills / templates")
     Component(platform_infra, "platform infra", "infra", "LaunchDarkly · Resend · JPA events + JDBC drill-down · prompts")
-    Component(owner_scope, "OwnerPartitionScope", "common infra", "Enables Hibernate ownerPartition filter per owner-scoped repository call")
 }
 
 Container_Boundary(ios_native, "AI iOS (src/main/ios)") {
@@ -118,10 +117,6 @@ Rel(media_app, chat_infra, "Ports")
 Rel(media_app, rag_infra, "Ports")
 Rel(media_app, platform_infra, "Ports")
 
-Rel(chat_infra, owner_scope, "Owner-scoped reads")
-Rel(rag_infra, owner_scope, "Owner-scoped reads")
-Rel(pipeline_infra, owner_scope, "Owner-scoped reads")
-Rel(platform_infra, owner_scope, "Owner-scoped reads")
 Rel(chat_infra, h2, "JPA / JDBC")
 Rel(rag_infra, h2, "JDBC + vector")
 Rel(rag_infra, ollama, "Embed / vision", "HTTP")

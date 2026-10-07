@@ -39,7 +39,7 @@ public class ChatSessionEraser {
       conversationMemoryRepository.clear(sessionId);
       chatWebSourcesRepository.deleteByConversationId(sessionId);
       CapturedWebSources.clear(sessionId);
-      sessionRepository.delete(session.getId());
+      sessionRepository.deleteById(session.getId());
     }
     return metricsDeleted;
   }

@@ -19,6 +19,7 @@ import com.ai.chat.domain.model.WebSource;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProvider;
@@ -44,7 +45,9 @@ import org.springframework.retry.support.RetryTemplate;
 class ChatServiceTest {
 
   private static final String CLIENT_A = "c:11111111-1111-1111-1111-111111111111";
-  private static final String CLIENT_B = "22222222-2222-2222-2222-222222222222";
+  private static final OwnerKey OWNER_A = OwnerKey.parse(CLIENT_A);
+  private static final String CLIENT_B = "c:22222222-2222-2222-2222-222222222222";
+  private static final OwnerKey OWNER_B = OwnerKey.parse(CLIENT_B);
 
   @Mock private ChatClientProvider chatClientProvider;
 
@@ -94,7 +97,6 @@ class ChatServiceTest {
     @Test
     @DisplayName("should create and save session with title and client")
     void shouldCreateAndSaveSessionWhenTitleAndClientProvided() {
-      doNothing().when(repository).save(any(ChatSession.class));
 
       ChatSession result = useCase.createSession("My Chat", CLIENT_A);
 
@@ -111,7 +113,7 @@ class ChatServiceTest {
     @Test
     @DisplayName("should create the default session with the default title when owner has none")
     void shouldCreateTheDefaultSessionWithTheDefaultTitleWhenOwnerHasNone() {
-      when(repository.findByOwnerKey(CLIENT_A)).thenReturn(List.of());
+      when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(List.of());
       ArgumentCaptor<ChatSession> saved = ArgumentCaptor.forClass(ChatSession.class);
 
       catchThrowable(() -> useCase.chatWithSession("Hello", CLIENT_A));
@@ -136,7 +138,7 @@ class ChatServiceTest {
               Instant.now(),
               CLIENT_A);
       when(repository.findByIdAndOwnerKey(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_A))
           .thenReturn(Optional.of(session));
 
       Optional<ChatSession> result =
@@ -150,7 +152,7 @@ class ChatServiceTest {
     @DisplayName("should return empty when owned by another client")
     void shouldReturnEmptyWhenOwnedByAnotherClient() {
       when(repository.findByIdAndOwnerKey(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_B))
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_B))
           .thenReturn(Optional.empty());
 
       Optional<ChatSession> result =
@@ -174,7 +176,7 @@ class ChatServiceTest {
               Instant.now(),
               CLIENT_A);
       when(repository.findByIdAndOwnerKey(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_A))
           .thenReturn(Optional.of(session));
       ChatMessage reply = ChatMessage.createAssistantMessage("Hi!");
       when(conversationMemoryRepository.load("22222222-2222-2222-2222-222222222222"))
@@ -195,7 +197,7 @@ class ChatServiceTest {
     @DisplayName("should throw when session not owned")
     void shouldThrowWhenSessionNotOwned() {
       when(repository.findByIdAndOwnerKey(
-              ChatSessionId.of("44444444-4444-4444-4444-444444444444"), CLIENT_A))
+              ChatSessionId.of("44444444-4444-4444-4444-444444444444"), OWNER_A))
           .thenReturn(Optional.empty());
 
       assertThatThrownBy(
@@ -222,16 +224,15 @@ class ChatServiceTest {
               Instant.now(),
               CLIENT_A);
       when(repository.findByIdAndOwnerKey(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_A))
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_A))
           .thenReturn(Optional.of(session));
-      doNothing().when(repository).delete(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
 
       useCase.deleteSession("22222222-2222-2222-2222-222222222222", CLIENT_A);
 
       verify(conversationMemoryRepository).clear("22222222-2222-2222-2222-222222222222");
       verify(chatWebSourcesRepository)
           .deleteByConversationId("22222222-2222-2222-2222-222222222222");
-      verify(repository).delete(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
+      verify(repository).deleteById(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
       verify(invocationEventRepository)
           .deleteBySessionIds(List.of("22222222-2222-2222-2222-222222222222"));
     }
@@ -240,14 +241,14 @@ class ChatServiceTest {
     @DisplayName("should throw when deleting another client's session")
     void shouldThrowWhenDeletingAnotherClientsSession() {
       when(repository.findByIdAndOwnerKey(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), CLIENT_B))
+              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_B))
           .thenReturn(Optional.empty());
 
       assertThatThrownBy(
               () -> useCase.deleteSession("22222222-2222-2222-2222-222222222222", CLIENT_B))
           .isInstanceOf(DomainException.class)
           .hasFieldOrPropertyWithValue("code", "SESSION_NOT_FOUND");
-      verify(repository, never()).delete(any());
+      verify(repository, never()).deleteById(any());
     }
 
     @Test
@@ -259,14 +260,15 @@ class ChatServiceTest {
               "Test",
               Instant.now(),
               CLIENT_A);
-      when(repository.findByOwnerKey(CLIENT_A)).thenReturn(List.of(owned));
+      when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A))
+          .thenReturn(List.of(owned));
 
       useCase.deleteAllSessions(CLIENT_A);
 
       verify(conversationMemoryRepository).clear("22222222-2222-2222-2222-222222222222");
       verify(chatWebSourcesRepository)
           .deleteByConversationId("22222222-2222-2222-2222-222222222222");
-      verify(repository).delete(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
+      verify(repository).deleteById(ChatSessionId.of("22222222-2222-2222-2222-222222222222"));
       verify(invocationEventRepository)
           .deleteBySessionIds(List.of("22222222-2222-2222-2222-222222222222"));
     }
@@ -282,7 +284,7 @@ class ChatServiceTest {
       List<ChatSession> sessions =
           List.of(
               ChatSession.create("Session 1", CLIENT_A), ChatSession.create("Session 2", CLIENT_A));
-      when(repository.findByOwnerKey(CLIENT_A)).thenReturn(sessions);
+      when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(sessions);
 
       List<ChatSession> result = useCase.listSessions(CLIENT_A);
 
@@ -292,7 +294,7 @@ class ChatServiceTest {
     @Test
     @DisplayName("should return empty list when client has no sessions")
     void shouldReturnEmptyListWhenClientHasNoSessions() {
-      when(repository.findByOwnerKey(CLIENT_A)).thenReturn(List.of());
+      when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(List.of());
 
       List<ChatSession> result = useCase.listSessions(CLIENT_A);
 

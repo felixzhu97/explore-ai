@@ -61,7 +61,7 @@ class ChatSessionEraserTest {
     assertThat(CapturedWebSources.peek(SESSION_ID)).isNull();
     verify(conversationMemoryRepository).clear(SESSION_ID);
     verify(chatWebSourcesRepository).deleteByConversationId(SESSION_ID);
-    verify(sessionRepository).delete(ChatSessionId.of(SESSION_ID));
+    verify(sessionRepository).deleteById(ChatSessionId.of(SESSION_ID));
   }
 
   @Test
@@ -81,7 +81,7 @@ class ChatSessionEraserTest {
     order.verify(invocationEventRepository).deleteBySessionIds(List.of(SESSION_ID));
     order.verify(conversationMemoryRepository).clear(SESSION_ID);
     order.verify(chatWebSourcesRepository).deleteByConversationId(SESSION_ID);
-    order.verify(sessionRepository).delete(ChatSessionId.of(SESSION_ID));
+    order.verify(sessionRepository).deleteById(ChatSessionId.of(SESSION_ID));
   }
 
   @Test

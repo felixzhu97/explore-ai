@@ -29,7 +29,7 @@ Container_Boundary(chat_domain, "Chat Domain") {
     Container(chat_stream_controller, "ChatStreamController", "@RestController", "/api/chat/providers, /api/chat/models, /api/chat/stream (SSE)")
     Container(chat_service, "ChatService", "Application Service", "Spring AI 对话 + 流式")
     Container(chat_session, "ChatSession", "Aggregate Root", "聊天会话聚合根")
-    Container(jdbc_sess_repo, "JpaChatSessionRepository", "@Repository", "chat_session 元数据 JPA · ownerPartition 过滤")
+    Container(jdbc_sess_repo, "ChatSessionRepository", "Spring Data JPA", "chat_session 元数据 · 按 OwnerKey 查询")
     Container(jdbc_chat_memory, "JdbcChatMemoryRepository", "Spring AI", "消息记忆 JDBC")
 }
 
@@ -41,7 +41,7 @@ Container_Boundary(pipeline_domain, "Pipeline Domain") {
     Container(pipeline_template_controller, "PipelineTemplateController", "@RestController", "/api/pipelines/template-definitions + /api/pipelines/templates CRUD")
     Container(pipeline_service, "PipelineService", "Application Service", "Worker / Supervisor / Pipeline 编排入口")
     Container(pipeline_template_service, "PipelineTemplateService", "Application Service", "内置模版定义 + 已保存模版")
-    Container(pipeline_template_repo, "JpaPipelineTemplateRepository", "@Repository", "pipeline_template 表 JPA · ownerPartition 过滤")
+    Container(pipeline_template_repo, "PipelineTemplateRepository", "Spring Data JPA", "pipeline_template 表 · 按 OwnerKey 查询")
     Container(orchestration_service, "PipelineOrchestrationService", "Application Service", "编排 Worker 流水线")
     Container(agent_registry, "CatalogAgentRegistry", "@Component", "Agent 注册表")
     Container(supervisor_router, "SpringAiSupervisorRouter", "@Component", "Supervisor 路由")
@@ -54,7 +54,7 @@ Container_Boundary(pipeline_domain, "Pipeline Domain") {
 Container_Boundary(skill_domain, "Skill Domain") {
     Container(skill_controller, "SkillController", "@RestController", "/api/skills CRUD + templates")
     Container(skill_service, "SkillService", "Application Service", "用户 Skill 管理")
-    Container(skill_repo, "JpaSkillRepository", "@Repository", "skill 表 JPA · ownerPartition 过滤")
+    Container(skill_repo, "SkillRepository", "Spring Data JPA", "skill 表 · 按 OwnerKey 查询")
     Container(skill_prompt, "SkillSystemPromptBuilder", "Application", "Chat system 注入 Active Skills")
 }
 

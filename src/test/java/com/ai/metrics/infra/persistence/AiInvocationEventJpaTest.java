@@ -11,26 +11,18 @@ import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository.DrilldownQuery;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository.PageResult;
 import com.ai.testsupport.AbstractDataJpaTest;
-import com.ai.testsupport.JpaTestPackages;
 import java.time.Instant;
 import java.util.Optional;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
-import org.springframework.boot.persistence.autoconfigure.EntityScan;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-@EntityScan(basePackages = {"com.ai.metrics.domain", JpaTestPackages.COMMON})
-@EnableJpaRepositories(basePackageClasses = JpaAiInvocationEventRepository.class)
 class AiInvocationEventJpaTest extends AbstractDataJpaTest {
 
   private static final String OWNER_KEY = "c:77777777-7777-7777-7777-777777777777";
   private static final OwnerKey OWNER = OwnerKey.parse(OWNER_KEY);
-
-  @Autowired private TestEntityManager em;
 
   @Autowired private DataSource dataSource;
 

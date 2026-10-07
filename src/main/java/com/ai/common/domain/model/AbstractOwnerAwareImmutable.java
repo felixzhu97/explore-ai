@@ -7,11 +7,9 @@ import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Filter;
 
 /** Immutable entity partitioned by owner_key. */
 @MappedSuperclass
-@Filter(name = "ownerPartition")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractOwnerAwareImmutable<IdT extends AbstractEmbeddable>

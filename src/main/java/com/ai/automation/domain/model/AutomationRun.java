@@ -16,12 +16,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Filter;
 
 /** Automation execution run record partitioned by owner_key. */
 @Entity
 @DynamicUpdate
-@Filter(name = "ownerPartition")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class AutomationRun extends AbstractOwnerAwareImmutable<RunId> {
@@ -65,7 +63,12 @@ public class AutomationRun extends AbstractOwnerAwareImmutable<RunId> {
 
   /** Starts a run for the schedule now, provisionally failed with its email pending. */
   public static AutomationRun start(ScheduleId scheduleId, String ownerKey) {
-    return new AutomationRun(scheduleId, ownerKey, Instant.now());
+    return start(scheduleId, ownerKey, Instant.now());
+  }
+
+  /** Starts a run for the schedule at the time, provisionally failed with its email pending. */
+  public static AutomationRun start(ScheduleId scheduleId, String ownerKey, Instant startedAt) {
+    return new AutomationRun(scheduleId, ownerKey, startedAt);
   }
 
   /** Tells whether the run has finished. */
