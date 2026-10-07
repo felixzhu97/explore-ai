@@ -121,23 +121,18 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ----- |
-| Entity ID | 实体标识 | Typed UUID wrapper for `@EmbeddedId` | Value Object | `EntityId`, `AbstractUuidId` | Package `com.ai.common.domain.model` |
-| Abstract Entity | 可变实体基类 | JPA `@MappedSuperclass` with id, audit timestamps, optimistic `@Version` | Mapped Superclass | `AbstractEntity<IdT>` | Subclasses call `touchUpdatedAt()` on mutation |
-| Abstract Immutable | 不可变记录基类 | Append-only rows: id + `created_at` only | Mapped Superclass | `AbstractImmutableEntity<IdT>` | Used for event streams |
-| Base JPA Config | JPA 内核配置 | `@EnableJpaAuditing`, repository scan | Configuration | `JpaRepositoriesConfig` | Replaces per-module duplicate JPA config |
-| Owner-Keyed Entity | 归属键实体基类 | Rows partitioned by `owner_key` | Mapped Superclass | `AbstractOwnerKeyedEntity<IdT>` | `belongsTo`, `getOwnerKeyValue`, `transferTo` (guest `c:` → account `u:` only, via `OwnerKey.requireMergeableInto`) |
-| Owner Partition Filter | 归属分区过滤器 | Hibernate filter limiting queries and loads by id to one Owner Key | Persistence | `ownerPartition` (defined in `common.infra.persistence`), `OwnerPartitionScope` | Enabled per adapter call inside a transaction; background jobs stay unfiltered |
-| Named Owner Entity | 命名归属实体 | Owner-keyed row with validated `name` | Mapped Superclass | `AbstractNamedOwnerEntity<IdT>` | Max 120 chars via `DomainStrings` |
-| Enableable Entity | 可启用实体 | Named owner row with an `enabled` flag; the described variant adds `description` | Mapped Superclass | `AbstractEnableableNamedOwnerEntity<IdT>`, `AbstractEnableableDescribedOwnerEntity<IdT>` | `enable()` / `disable()` / `changeEnabled(boolean)`; schedules use the named variant and re-arm through `turnOn` |
-| Timed Run Entity | 定时运行记录 | `started_at` / `finished_at` without `updated_at` | Mapped Superclass | `AbstractTimedRunEntity<IdT>` | Extends Abstract Immutable (`createdAt` → `started_at`); automation runs |
-| Append-Only Event | 追加事件 | Immutable AI invocation / audit event | Mapped Superclass | `AbstractAppendOnlyEvent<IdT>` | Maps `createdAt` → `occurred_at` |
-| Owner-Scoped Repository | 归属仓储契约 | Owner-scoped CRUD contract | Repository | `OwnerScopedRepository<E, I>` | `findByIdAndOwnerKey`, etc. |
+| Entity ID | 实体标识 | Typed UUID identity of one aggregate, used as `@EmbeddedId` | Value Object | `@Embeddable` Lombok classes such as `ScheduleId` with one `UUID value` | `generate()` / `of(text)`; ids of different aggregates never compare equal |
+| Abstract Embeddable | 值对象基类 | Layer supertype of the value objects embedded in entities | Mapped Superclass | `AbstractEmbeddable` | Carries `Serializable`, which embedded ids require, so no value object declares it |
+| Abstract Immutable | 不可变实体基类 | Root of every entity: assigned id and creation time | Mapped Superclass | `AbstractImmutable<IdT>` | Hibernate stamps `createdAt`; implements Spring Data `Persistable` so `save` inserts without a merge |
+| Abstract Entity | 可变实体基类 | Immutable base plus update time and optimistic `@Version` | Mapped Superclass | `AbstractEntity<IdT>` | Hibernate stamps `updatedAt` when a dirty row is flushed |
+| Owner-Aware Entity | 归属实体基类 | Rows partitioned by `owner_key`, in a mutable and an immutable variant | Mapped Superclass | `AbstractOwnerAwareEntity<IdT>`, `AbstractOwnerAwareImmutable<IdT>` | `getOwnerKeyValue`; `OwnerMergeService` moves guest `c:` rows to the account `u:` in bulk; automation runs use the immutable variant |
+| Enableable Entity | 可启用实体 | Owner row with a validated `name` and an `enabled` flag; the described variant adds `description` | Mapped Superclass | `AbstractEnableableNamedOwnerEntity<IdT>`, `AbstractEnableableDescribedOwnerEntity<IdT>` | Name max 120 chars via `DomainStrings`; `disable()` on both; `enable()` / `changeEnabled(boolean)` on the described variant; schedules re-arm through `turnOn` |
+| Owner-Scoped Repository | 归属仓储契约 | Owner-scoped Spring Data contract | Repository | `OwnerScopedRepository<E, I>` (`@NoRepositoryBean`, extends `Repository<E, I>`) | Every read and delete takes the `OwnerKey` (`findByIdAndOwnerKey`, `deleteByIdAndOwnerKey`); there is no implicit owner filter |
 | Domain Strings | 域字符串校验 | Shared name/description normalization and copy-name candidates | Utility | `DomainStrings` | `normalizeName` before uniqueness checks; `copyNameCandidates` stays within the 120-char limit |
-| Owner Keys | 归属键工具 | Parse and build `c:` / `u:` keys | Utility | `OwnerKeys` | Replaces duplicated `requireClientId` |
 
 **Layer packages (per feature module):** `controller` → `service` → `domain` ← `infra` (+ `mapper` when needed). Legacy names `web`, `application`, `infrastructure` are forbidden in new code.
 
-**Domain packages:** `domain.model` holds only entities, aggregate roots, value objects and domain events; `domain.repository` holds repository and gateway interfaces. LLM tools (`DocumentSearchTool`, `WebSearchTool`) and Effective Agents workflows are application ports in `service`, not domain types. There is no `domain.vo`, `domain.service`, `domain.tool` or `domain.exception`; rule violations raise `DomainException` from `com.ai.common.exception`.
+**Domain packages:** `domain.model` holds only entities, aggregate roots, value objects and domain events; `domain.repository` holds repository and gateway interfaces. JPA-backed repositories extend Spring Data `Repository<T, ID>` and are implemented by Spring Data; `infra` only implements repositories backed by JDBC, the vector store, Spring AI or external services. LLM tools (`DocumentSearchTool`, `WebSearchTool`) and Effective Agents workflows are application ports in `service`, not domain types. There is no `domain.vo`, `domain.service`, `domain.tool` or `domain.exception`; rule violations raise `DomainException` from `com.ai.common.exception`.
 
 ---
 
@@ -226,7 +221,7 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Agent Prompt Catalog     | Agent 提示词目录   | **Superseded** — builtins from `agent-templates/{lang}.json` via `AgentTemplateCatalog` | — | Historical `prompts/agent/*.st` optional reference | Authority: Pipeline `AgentTemplateCatalog` |
 | Agent Skill              | Agent 技能      | Reusable SKILL.md instruction pack for pipeline workers | Value Object   | `AgentSkill`, `agent/skills/*/SKILL.md`        | Opt-in via `app.agent-skills`; shared in `com.ai.common`; ≠ user **Skill** |
 | Skill                    | 技能            | User-managed instruction pack stored per client                  | Entity         | `Skill`, `com.ai.skill`                        | CRUD `/skills`; applied via Chat `skillIds`                        |
-| Skill Registry           | 技能仓储        | Persistence for user Skills                                      | Repository     | `SkillRepository`, `JdbcSkillRepository`       | Scoped by Owner Key                                                |
+| Skill Registry           | 技能仓储        | Persistence for user Skills                                      | Repository     | `SkillRepository` (Spring Data)                 | Scoped by Owner Key                                                |
 | Agent Skills Runtime     | Agent 技能运行时   | Loads controlled skill ids and injects prompt/tool metadata        | Infrastructure | `AgentSkillsRuntime` (`com.ai.common`)         | Default off; used by Pipeline workers         |
 | Prompt Catalog           | 提示词目录         | Versioned prompt fragments under classpath resources               | Infrastructure | `classpath:prompts/**`                         | shared / chat / rag / agent / task / guards     |
 | Prompt Templates         | 提示词组合服务       | Composes default system, RAG system, and Agent prompts             | Infrastructure | `PromptTemplates`, `ClasspathPromptTemplate`     | Injected into ChatClientFactory                 |
@@ -478,7 +473,7 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | Entity                   | 实体   | Domain object with identity and mutable lifecycle                                     | Architecture | `ChatMessage`, `Document`, `AgentDefinition`                  | Distinguished by ID                         |
 | Value Object             | 值对象  | Immutable object compared by value, no standalone identity                            | Architecture | `ChatSessionId`, `DocumentId`, `SourceDocument`, `AgentType`  | Use `record` or factory methods             |
 | Application Service      | 应用服务 | Application-layer orchestration of domain objects, repositories and gateways          | Architecture | `RagChatService`, `ChatService`, `PipelineService`            | `*Service` in `service/`; no business-rule details |
-| Repository               | 仓储   | Persistence abstraction for an aggregate                                              | Architecture | `ChatSessionRepository`, `DocumentRepository`                 | Interface in `domain/repository`, impl in `infra/` (`Jpa*`, `Jdbc*`, `H2*`) |
+| Repository               | 仓储   | Persistence abstraction for an aggregate                                              | Architecture | `ChatSessionRepository`, `DocumentRepository`                 | Interface in `domain/repository`; JPA ones extend Spring Data `Repository`, others are implemented in `infra/` (`Jdbc*`, `H2*`) |
 | Gateway                  | 网关   | Outbound call to an external system (LLM, TTS, embedding, email, MCP)                 | Architecture | `TextToSpeechGateway`, `TextEmbeddingGateway`, `EmailGateway` | Interface in `domain/repository`, impl in `infra/` named by technology |
 | Streaming (SSE)          | 流式响应 | Real-time AI output via Server-Sent Events                                            | Technical    | Chat / RAG / Agent SSE endpoints                              | Shared frontend `sse-client`                |
 | Provider                 | 提供商  | LLM or AI service vendor (e.g. OpenAI, Ollama)                                        | Business     | Frontend `selectedProvider`                                   | User-selectable model source                |
@@ -680,7 +675,7 @@ References:
 | `com.ai.mcp.server` / `.client` packages     | `**com.ai.mcp`**             | Single package in code                                                        |
 | `domain.port`                                | `**domain.repository`**      | Project architecture rule                                                     |
 | `*UseCase` / `*Facade` / `*Impl` classes     | **Application Service** (`*Service`) | One class per service; no interface + `Impl` pair                     |
-| `*Adapter` / `I*` interfaces                 | **Repository** / **Gateway** | Name implementations by technology (`JpaDocumentRepository`)                  |
+| `*Adapter` / `I*` interfaces                 | **Repository** / **Gateway** | Name implementations by technology (`JdbcMetricsQueryRepository`)             |
 | Workflow Template (Pipeline)                 | **Pipeline Template**        | Workflow names only the Effective Agents patterns (`com.ai.workflow`)         |
 | client id (inside service / domain)          | **Owner Key**                | Client id names only the browser identity cookie                              |
 | stats / statistics (UI)                      | **KPI** / **Metric**         | Prefer BI Preferred Terms on Metrics pages                                    |

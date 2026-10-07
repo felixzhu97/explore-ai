@@ -28,6 +28,8 @@ note as N_LAYERS
   controller → service → domain ← infra
   domain = model (entities, aggregates, value objects, events)
   + repository (persistence and gateway ports) only.
+  JPA repositories extend Spring Data Repository<T, ID>;
+  owner isolation is an explicit OwnerKey query argument.
   LLM tools and workflows are application ports in service.
   Rule violations raise DomainException(kind, code).
   Aggregates encapsulate invariants; application orchestrates use cases.
@@ -38,70 +40,58 @@ end note
 
 ' ── Domain Kernel ──────────────────────────────────────────
 package "Domain Kernel" as pkg_base {
-  interface EntityId <<ValueObject>> {
-    +value()
+  class AbstractEmbeddable <<Abstract>> {
+    implements Serializable
   }
-  class AbstractUuidId <<ValueObject>> {
+  class TypedId <<ValueObject>> {
+    @Embeddable Lombok class, e.g. ScheduleId
     +value: UUID
     --
-    +value(): String
-    +asUuid(): UUID
     +{static} generate()
-    +{static} of(uuid)
+    +{static} of(text)
   }
-  class AbstractEntity <<Abstract>> {
+  class AbstractImmutable <<Abstract>> {
+    implements Persistable, Serializable
     +id: IdT
     +createdAt: Instant @CreationTimestamp
+    --
+    +isNew(): Persistable
+  }
+  class AbstractEntity <<Abstract>> {
     +updatedAt: Instant @UpdateTimestamp
     +version: Long
-    --
-    +touchUpdatedAt()
-  }
-  class AbstractImmutableEntity <<Abstract>> {
-    +id: IdT
-    +createdAt: Instant
   }
 }
 
-EntityId <|.. AbstractUuidId
-AbstractUuidId --> AbstractEntity : embedded id
-AbstractUuidId --> AbstractImmutableEntity : embedded id
+AbstractEmbeddable <|-- TypedId
+AbstractImmutable <|-- AbstractEntity
+TypedId --> AbstractImmutable : embedded id
 
-' ── Common (owner-keyed bases) ─────────────────────────────
+' ── Common (owner-aware bases) ─────────────────────────────
 package "Common" as pkg_common_kernel {
-  class AbstractOwnerKeyedEntity <<Abstract>> {
-    @Filter(ownerPartition)
+  class AbstractOwnerAwareImmutable <<Abstract>> {
     +ownerKey: OwnerKey NOT NULL
     --
-    +belongsTo(ownerKey)
     +getOwnerKeyValue()
-    +transferTo(accountOwnerKey)
   }
-  class AbstractNamedOwnerEntity <<Abstract>> {
-    +name: String
+  class AbstractOwnerAwareEntity <<Abstract>> {
+    +ownerKey: OwnerKey NOT NULL
     --
-    +rename(name)
+    +getOwnerKeyValue()
   }
   class AbstractEnableableNamedOwnerEntity <<Abstract>> {
+    +name: String
     +enabled: boolean
     --
-    +enable()
+    +rename(name)
     +disable()
-    +changeEnabled(enabled)
   }
   class AbstractEnableableDescribedOwnerEntity <<Abstract>> {
     +description: String
     --
     +updateDescription(text)
-  }
-  class AbstractTimedRunEntity <<Abstract>> {
-    +startedAt: Instant (createdAt → started_at)
-    +finishedAt: Instant
-    --
-    +markFinished(at)
-  }
-  class AbstractAppendOnlyEvent <<Abstract>> {
-    +occurredAt: Instant
+    +enable()
+    +changeEnabled(enabled)
   }
   class OwnerKey <<ValueObject>> {
     +value: String
@@ -113,21 +103,22 @@ package "Common" as pkg_common_kernel {
     +requireMergeableInto(target)
   }
   interface OwnerScopedRepository<E, I> <<Repository>> {
+    @NoRepositoryBean extends Repository<E, I>
+    --
     +save(entity)
     +findByIdAndOwnerKey(id, ownerKey)
-    +findAllByOwnerKey(ownerKey)
+    +findAllByOwnerKeyOrderByNameAsc(ownerKey)
     +deleteByIdAndOwnerKey(id, ownerKey)
     +existsByOwnerKeyAndNameIgnoringId(ownerKey, name, excludeId)
   }
 }
 
-AbstractEntity <|-- AbstractOwnerKeyedEntity
-AbstractOwnerKeyedEntity <|-- AbstractNamedOwnerEntity
-AbstractNamedOwnerEntity <|-- AbstractEnableableNamedOwnerEntity
+AbstractImmutable <|-- AbstractOwnerAwareImmutable
+AbstractEntity <|-- AbstractOwnerAwareEntity
+AbstractOwnerAwareEntity <|-- AbstractEnableableNamedOwnerEntity
 AbstractEnableableNamedOwnerEntity <|-- AbstractEnableableDescribedOwnerEntity
-AbstractImmutableEntity <|-- AbstractAppendOnlyEvent
-AbstractImmutableEntity <|-- AbstractTimedRunEntity
-AbstractOwnerKeyedEntity --> OwnerKey
+AbstractOwnerAwareEntity --> OwnerKey
+AbstractOwnerAwareImmutable --> OwnerKey
 
 ' ── chat ───────────────────────────────────────────────────
 package "Chat" as pkg_chat {
@@ -135,11 +126,11 @@ package "Chat" as pkg_chat {
     +id: ChatSessionId
     +ownerKey: OwnerKey
     +title: SessionTitle
+    +lastActivityAt: Instant
     --
     +{static} create(title, ownerKey)
     +{static} startDefault(ownerKey)
     +{static} startWithId(id, ownerKey)
-    +{static} of(id, title, createdAt, ownerKey)
     +rename(newTitle)
     +needsGeneratedTitle()
     +applyGeneratedTitle(title)
@@ -164,12 +155,9 @@ package "Chat" as pkg_chat {
     +text: String
     +messageType: ChatMessageType
     --
-    +{static} createUserMessage(text)
-    +{static} createAssistantMessage(text)
     +{static} restore(id, text, type, timestamp)
     +isFromUser()
     +isFromAssistant()
-    +withText(newText)
   }
   enum ChatMessageType <<Enum>> {
     USER
@@ -187,6 +175,7 @@ package "Chat" as pkg_chat {
   interface ChatSessionRepository <<Repository>> {
     +save(session)
     +findById(id)
+    +findByIdAndOwnerKey(id, ownerKey)
   }
   interface ChatWebSourcesRepository <<Repository>> {
     +findByConversationId(conversationId)
@@ -241,7 +230,7 @@ package "RAG" as pkg_rag {
   }
   interface DocumentRepository <<Repository>> {
     +save(document)
-    +findById(id)
+    +findByIdAndOwnerKey(id, ownerKey)
   }
 }
 
@@ -286,7 +275,7 @@ package "Pipeline" as pkg_pipeline {
   interface PipelineTemplateRepository <<Repository>> {
   }
   interface SavedAgentRepository <<Repository>> {
-    +findEnabledByOwnerKey(ownerKey)
+    +findAllByOwnerKeyAndEnabledTrueOrderByNameAsc(ownerKey)
   }
   interface AgentRegistry <<Repository>> {
     +listBuiltins(language)
@@ -341,12 +330,14 @@ package "Automation" as pkg_automation {
     +nextRunAfter(after): Instant
   }
   class AutomationRun <<Entity>> {
-    @DynamicUpdate @Filter(ownerPartition)
+    @DynamicUpdate
     +id: RunId
     +ownerKey: OwnerKey
     +status: RunStatus
+    +startedAt: Instant
+    +finishedAt: Instant
     --
-    +{static} start(scheduleId, ownerKey)
+    +{static} start(scheduleId, ownerKey, startedAt)
     +succeed(excerpt, emailStatus)
     +failBeforeEmail(error)
     +skipForQuota()
@@ -523,25 +514,27 @@ package "Tool Calling" as pkg_tools {
 
 ' ── cross-cutting (kernel note) ─────────────────────────────
 note as KERNEL_NOTE
-  OwnerKey and owner-keyed aggregate bases live in
+  OwnerKey and owner-aware entity bases live in
   the **Common** package above.
   Value objects and attribute converters (OwnerKey, enums, JSON lists)
   live in domain.model next to the entities that use them.
-  Typed ids map to native UUID columns.
-  The ownerPartition filter is defined in infra (OwnerPartitionScope),
-  which enables it per call; background jobs stay unfiltered.
+  Typed ids are @Embeddable Lombok classes on AbstractEmbeddable,
+  mapped to native UUID columns.
+  Owner-scoped repository methods take the OwnerKey explicitly
+  (findByIdAndOwnerKey, deleteByIdAndOwnerKey); services own
+  the @Transactional boundary.
   Default JPA snake_case naming; no @Table/@Column(name=) in domain.
 end note
 
-AbstractOwnerKeyedEntity <|-- ChatSession : metadata only
-AbstractOwnerKeyedEntity <|-- RagDocument
+AbstractOwnerAwareEntity <|-- ChatSession : metadata only
+AbstractOwnerAwareEntity <|-- RagDocument
 AbstractEnableableDescribedOwnerEntity <|-- Skill
 AbstractEnableableDescribedOwnerEntity <|-- PipelineTemplate
 AbstractEnableableDescribedOwnerEntity <|-- SavedAgent
 AbstractEnableableNamedOwnerEntity <|-- AutomationSchedule
-AbstractTimedRunEntity <|-- AutomationRun
+AbstractOwnerAwareImmutable <|-- AutomationRun
 AbstractEntity <|-- AccountUser
-AbstractAppendOnlyEvent <|-- AiInvocationEvent
+AbstractOwnerAwareImmutable <|-- AiInvocationEvent
 
 OwnerScopedRepository <|-- SkillRepository
 OwnerScopedRepository <|-- PipelineTemplateRepository
