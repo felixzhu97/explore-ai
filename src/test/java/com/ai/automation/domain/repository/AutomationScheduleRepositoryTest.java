@@ -21,11 +21,10 @@ class AutomationScheduleRepositoryTest extends AbstractDataJpaTest {
   @Autowired private AutomationScheduleRepository repository;
 
   @Test
-  @DisplayName("should let only one caller claim the next run and bump the version")
-  void shouldLetOnlyOneCallerClaimTheNextRunAndBumpTheVersion() {
+  @DisplayName("should let only one caller claim the next run")
+  void shouldLetOnlyOneCallerClaimTheNextRun() {
     AutomationSchedule schedule = save(OWNER, "Claimed", "0 0 9 * * *", JAN_1);
     flushAndClear();
-    final Long versionBefore = schedule.getVersion();
     Instant nextRun = schedule.getNextRunAt();
     Instant provisional = nextRun.plusSeconds(86_400);
 
@@ -36,8 +35,25 @@ class AutomationScheduleRepositoryTest extends AbstractDataJpaTest {
     AutomationSchedule reloaded = repository.findByIdAndOwnerKey(schedule.getId(), OWNER).get();
     assertThat(first).isTrue();
     assertThat(second).isFalse();
-    assertThat(reloaded.getVersion()).isEqualTo(versionBefore + 1);
     assertThat(reloaded.getNextRunAt()).isEqualTo(provisional);
+  }
+
+  @Test
+  @DisplayName("should save the finished run of a schedule claimed in the same transaction")
+  void shouldSaveTheFinishedRunOfAScheduleClaimedInTheSameTransaction() {
+    save(OWNER, "Daily", "0 0 9 * * *", JAN_1);
+    flushAndClear();
+    final Instant now = Instant.parse("2026-01-02T00:00:00Z");
+    AutomationSchedule due = repository.findDue(now, Limit.of(1)).getFirst();
+
+    assertThat(repository.claim(due.getId(), due.getNextRunAt(), due.provisionalNextRunAt(now)))
+        .isTrue();
+    due.recordRunFinished(now);
+    repository.save(due);
+    flushAndClear();
+
+    assertThat(repository.findByIdAndOwnerKey(due.getId(), OWNER).get().getLastRunAt())
+        .isEqualTo(now);
   }
 
   @Test

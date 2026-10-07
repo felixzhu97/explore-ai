@@ -40,12 +40,15 @@ public interface AutomationScheduleRepository extends Repository<AutomationSched
   @Transactional
   void deleteByIdAndOwnerKey(ScheduleId id, OwnerKey ownerKey);
 
-  /** Moves the next run time only if it still matches, so one worker claims the run. */
+  /**
+   * Moves the next run time only if it still matches, so one worker claims the run. The version
+   * stays put because the claimer saves the loaded schedule again when the run finishes.
+   */
   @Transactional
   @Modifying
   @Query(
       """
-      UPDATE VERSIONED AutomationSchedule s
+      UPDATE AutomationSchedule s
       SET s.nextRunAt = ?3, s.updatedAt = ?4
       WHERE s.id = ?1 AND s.enabled = true AND s.nextRunAt = ?2
       """)
