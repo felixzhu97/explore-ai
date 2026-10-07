@@ -1,6 +1,5 @@
 package com.ai.tools.infra.tools;
 
-import com.ai.common.domain.tool.WeatherTool;
 import com.ai.common.exception.DomainException;
 import com.ai.tools.domain.model.WeatherForecast;
 import com.ai.tools.domain.model.WeatherQuery;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Component;
 /** Spring AI tool callbacks exposing current weather and multi-day forecasts to the model. */
 @Component
 @RequiredArgsConstructor
-public class WeatherTools implements WeatherTool {
+public class WeatherTools {
 
   private final WeatherReport weatherReport;
 

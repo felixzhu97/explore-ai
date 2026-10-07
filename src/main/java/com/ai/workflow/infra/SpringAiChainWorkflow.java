@@ -3,7 +3,7 @@ package com.ai.workflow.infra;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.workflow.domain.model.ChainResult;
-import com.ai.workflow.domain.service.ChainWorkflow;
+import com.ai.workflow.service.ChainWorkflow;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

@@ -8,10 +8,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.common.domain.tool.DocumentSearchTool;
-import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.service.llm.ChatClientProvider;
+import com.ai.common.service.llm.DocumentSearchTool;
 import com.ai.common.service.llm.TextChatOptions;
+import com.ai.common.service.llm.WebSearchTool;
 import com.ai.metrics.domain.model.AiDomain;
 import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;

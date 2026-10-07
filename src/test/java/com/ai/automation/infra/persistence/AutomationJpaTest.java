@@ -58,8 +58,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
             WORKFLOW_ID,
             "user@example.com",
             "Send daily summary",
-            Instant.now(),
-            (expression, timezone, after) -> nextRun);
+            nextRun.minusSeconds(3600));
     scheduleRepository.saveAndFlush(schedule);
     final Long versionBefore = schedule.getVersion();
     em.clear();
@@ -107,8 +106,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
             WORKFLOW_ID,
             "user@example.com",
             "Send daily summary",
-            Instant.now(),
-            (expression, timezone, after) -> nextRun);
+            Instant.now());
 
     scheduleRepository.saveAndFlush(schedule);
     em.clear();
@@ -168,8 +166,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
             WORKFLOW_ID,
             "first@example.com",
             "First brief",
-            Instant.now(),
-            (expression, timezone, after) -> nextRun);
+            Instant.now());
     AutomationSchedule second =
         AutomationSchedule.create(
             OWNER_KEY,
@@ -179,8 +176,7 @@ class AutomationJpaTest extends AbstractDataJpaTest {
             WORKFLOW_ID,
             "second@example.com",
             "Second brief",
-            Instant.now(),
-            (expression, timezone, after) -> nextRun.plusSeconds(60));
+            Instant.now());
     scheduleRepository.saveAndFlush(first);
     scheduleRepository.saveAndFlush(second);
     em.clear();

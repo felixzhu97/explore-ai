@@ -8,7 +8,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.chat.domain.service.LanguageDetectionService;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
@@ -64,7 +63,6 @@ class RagChatContractRegressionTest {
   @Mock private ChatClient.ChatClientRequestSpec requestSpec;
   @Mock private ChatClient.CallResponseSpec callResponseSpec;
   @Mock private ChatClient.StreamResponseSpec streamResponseSpec;
-  @Mock private LanguageDetectionService languageDetectionService;
   @Mock private VectorStore vectorStore;
   @Mock private RagRetrievalSettings retrievalSettings;
   @Mock private AiInvocationRecorder invocationRecorder;
@@ -76,7 +74,6 @@ class RagChatContractRegressionTest {
     ragChatService =
         new RagChatService(
             chatClientProvider,
-            languageDetectionService,
             vectorStore,
             retrievalSettings,
             invocationRecorder,
@@ -88,7 +85,6 @@ class RagChatContractRegressionTest {
     when(requestSpec.advisors(any(Consumer.class))).thenReturn(requestSpec);
     when(requestSpec.system(anyString())).thenReturn(requestSpec);
     when(requestSpec.user(anyString())).thenReturn(requestSpec);
-    when(languageDetectionService.detect(anyString())).thenReturn("en");
   }
 
   @Nested

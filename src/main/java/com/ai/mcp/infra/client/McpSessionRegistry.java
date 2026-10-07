@@ -1,4 +1,4 @@
-package com.ai.mcp.domain.service;
+package com.ai.mcp.infra.client;
 
 import com.ai.mcp.domain.model.McpSession;
 import java.util.List;

@@ -2,7 +2,6 @@ package com.ai.chat.infra.prompt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.chat.domain.service.LanguageDetectionService;
 import com.ai.common.infra.prompt.PromptTemplates;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class LocalizedRagPromptBuilderTest {
 
   private final LocalizedRagPromptBuilder builder =
-      new LocalizedRagPromptBuilder(new LanguageDetectionService(), new PromptTemplates());
+      new LocalizedRagPromptBuilder(new PromptTemplates());
 
   @Nested
   @DisplayName("build()")

@@ -1,4 +1,4 @@
-package com.ai.common.domain.tool;
+package com.ai.common.service.llm;
 
 import java.util.List;
 

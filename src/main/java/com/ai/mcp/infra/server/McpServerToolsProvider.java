@@ -1,7 +1,7 @@
 package com.ai.mcp.infra.server;
 
 import com.ai.chat.service.ChatService;
-import com.ai.common.domain.tool.DocumentSearchTool;
+import com.ai.common.service.llm.DocumentSearchTool;
 import com.ai.rag.infra.config.RagProperties;
 import com.ai.tools.infra.tools.WeatherTools;
 import java.util.List;

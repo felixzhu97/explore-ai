@@ -3,11 +3,13 @@ package com.ai.common.infra.llm;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import com.ai.common.domain.tool.DateTimeTool;
-import com.ai.common.domain.tool.DocumentSearchTool;
-import com.ai.common.domain.tool.WeatherTool;
-import com.ai.common.domain.tool.WebSearchTool;
 import com.ai.common.infra.prompt.PromptTemplates;
+import com.ai.common.service.llm.DocumentSearchTool;
+import com.ai.common.service.llm.WebSearchTool;
+import com.ai.tools.domain.model.WeatherReport;
+import com.ai.tools.infra.tools.DateTimeTools;
+import com.ai.tools.infra.tools.WeatherTools;
+import java.time.Clock;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,19 +49,12 @@ class ChatClientFactoryToolSearchTest {
         mock(ChatModelResolver.class),
         mock(ChatMemory.class),
         new PromptTemplates(),
-        new StubWeatherTool(),
+        new WeatherTools(new WeatherReport()),
         new StubDocumentSearchTool(),
         new StubWebSearchTool(),
-        new StubDateTimeTool(),
+        new DateTimeTools(Clock.systemUTC()),
         mock(ObjectProvider.class),
         toolSearchEnabled);
-  }
-
-  static class StubWeatherTool implements WeatherTool {
-    @Tool(description = "weather")
-    public String getWeather(String city) {
-      return city;
-    }
   }
 
   static class StubDocumentSearchTool implements DocumentSearchTool {
@@ -81,13 +76,6 @@ class ChatClientFactoryToolSearchTest {
     @Tool(description = "search web")
     public String searchWeb(String query) {
       return query;
-    }
-  }
-
-  static class StubDateTimeTool implements DateTimeTool {
-    @Tool(description = "datetime")
-    public String getCurrentDateTime() {
-      return "now";
     }
   }
 }

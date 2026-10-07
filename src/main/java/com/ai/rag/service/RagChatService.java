@@ -1,6 +1,6 @@
 package com.ai.rag.service;
 
-import com.ai.chat.domain.service.LanguageDetectionService;
+import com.ai.chat.domain.model.DetectedLanguage;
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
@@ -43,7 +43,6 @@ import reactor.core.publisher.Flux;
 public class RagChatService {
 
   private final ChatClientProvider chatClientProvider;
-  private final LanguageDetectionService languageDetectionService;
   private final VectorStore vectorStore;
   private final RagRetrievalSettings retrievalSettings;
   private final AiInvocationRecorder invocationRecorder;
@@ -118,7 +117,7 @@ public class RagChatService {
       TextChatOptions options) {
     Filter.Expression filter = buildRetrievalFilter(ownerKey, documentIds);
 
-    String languageCode = languageDetectionService.detect(question);
+    String languageCode = DetectedLanguage.of(question).code();
     String languageHint =
         "Respond in the same language as the user question (detected: " + languageCode + ").";
 

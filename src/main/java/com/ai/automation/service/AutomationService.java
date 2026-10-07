@@ -7,7 +7,6 @@ import com.ai.automation.domain.model.ScheduleKind;
 import com.ai.automation.domain.model.ScheduleTiming;
 import com.ai.automation.domain.repository.AutomationRunRepository;
 import com.ai.automation.domain.repository.AutomationScheduleRepository;
-import com.ai.automation.domain.service.CronSchedule;
 import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
@@ -29,7 +28,6 @@ public class AutomationService {
   private final AutomationScheduleRepository scheduleRepository;
   private final AutomationRunRepository runRepository;
   private final PipelineTemplateRepository pipelineTemplateRepository;
-  private final CronSchedule cronSchedule;
   private final AutomationProperties properties;
 
   /** Lists the owner's schedules. */
@@ -75,8 +73,7 @@ public class AutomationService {
                 pipelineTemplateId,
                 recipientEmail,
                 brief,
-                now,
-                cronSchedule);
+                now);
     return scheduleRepository.save(schedule);
   }
 
@@ -102,8 +99,7 @@ public class AutomationService {
         pipelineTemplateId,
         recipientEmail,
         brief,
-        Instant.now(),
-        cronSchedule);
+        Instant.now());
     return scheduleRepository.save(schedule);
   }
 
@@ -112,7 +108,7 @@ public class AutomationService {
   public AutomationSchedule setEnabled(String ownerKey, String scheduleId, boolean enabled) {
     AutomationSchedule schedule = requireOwned(ownerKey, scheduleId);
     if (enabled) {
-      schedule.turnOn(Instant.now(), cronSchedule);
+      schedule.turnOn(Instant.now());
     } else {
       schedule.disable();
     }

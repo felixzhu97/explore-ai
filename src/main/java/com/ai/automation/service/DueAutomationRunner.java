@@ -7,7 +7,6 @@ import com.ai.automation.domain.repository.AutomationRunRepository;
 import com.ai.automation.domain.repository.AutomationScheduleRepository;
 import com.ai.automation.domain.repository.EmailGateway;
 import com.ai.automation.domain.repository.PipelineGateway;
-import com.ai.automation.domain.service.CronSchedule;
 import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.billing.service.DailyUsageQuotaService;
 import java.time.Instant;
@@ -26,7 +25,6 @@ public class DueAutomationRunner {
   private final PipelineGateway pipelineGateway;
   private final EmailGateway emailGateway;
   private final AutomationMailFormatter mailFormatter;
-  private final CronSchedule cronSchedule;
   private final DailyUsageQuotaService dailyUsageQuotaService;
   private final AutomationProperties properties;
 
@@ -37,7 +35,7 @@ public class DueAutomationRunner {
     List<AutomationSchedule> due = scheduleRepository.findDue(now, properties.getScanBatchSize());
     int executed = 0;
     for (AutomationSchedule schedule : due) {
-      Instant provisional = schedule.provisionalNextRunAt(now, cronSchedule);
+      Instant provisional = schedule.provisionalNextRunAt(now);
       if (!scheduleRepository.claim(schedule.getId(), schedule.getNextRunAt(), provisional)) {
         continue;
       }
@@ -65,7 +63,7 @@ public class DueAutomationRunner {
       }
     }
     runRepository.save(run);
-    schedule.recordRunFinished(Instant.now(), cronSchedule);
+    schedule.recordRunFinished(Instant.now());
     scheduleRepository.save(schedule);
   }
 

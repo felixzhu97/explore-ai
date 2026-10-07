@@ -1,6 +1,5 @@
 package com.ai.tools.infra.tools;
 
-import com.ai.common.domain.tool.DateTimeTool;
 import java.time.Clock;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-public class DateTimeTools implements DateTimeTool {
+public class DateTimeTools {
 
   private final Clock clock;
 
