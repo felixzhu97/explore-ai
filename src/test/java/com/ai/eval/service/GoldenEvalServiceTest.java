@@ -65,10 +65,10 @@ class GoldenEvalServiceTest {
 
     GoldenSuiteReport report = useCase.run(List.of(GoldenEvalCategory.CHAT), List.of());
 
-    assertThat(report.total()).isEqualTo(1);
-    assertThat(report.passed()).isEqualTo(1);
-    assertThat(report.passRate()).isEqualTo(1.0);
-    assertThat(report.cases().getFirst().passed()).isTrue();
+    assertThat(report.getTotal()).isEqualTo(1);
+    assertThat(report.getPassed()).isEqualTo(1);
+    assertThat(report.getPassRate()).isEqualTo(1.0);
+    assertThat(report.getCases().getFirst().isPassed()).isTrue();
     verify(fixtureSeeder, never()).ensureFixtures();
   }
 
@@ -103,7 +103,7 @@ class GoldenEvalServiceTest {
 
     GoldenSuiteReport report = useCase.run(List.of(GoldenEvalCategory.RAG), null);
 
-    assertThat(report.passed()).isEqualTo(1);
+    assertThat(report.getPassed()).isEqualTo(1);
     verify(ragChatService)
         .chat("What modules?", List.of("doc-1"), 5, null, GoldenRagFixtureSeeder.OWNER_KEY);
   }
@@ -127,9 +127,9 @@ class GoldenEvalServiceTest {
 
     GoldenSuiteReport report = useCase.run(List.of(GoldenEvalCategory.CHAT), List.of("chat-err"));
 
-    assertThat(report.failed()).isEqualTo(1);
-    assertThat(report.cases().getFirst().passed()).isFalse();
-    assertThat(report.cases().getFirst().generationError()).contains("provider down");
+    assertThat(report.getFailed()).isEqualTo(1);
+    assertThat(report.getCases().getFirst().isPassed()).isFalse();
+    assertThat(report.getCases().getFirst().getGenerationError()).contains("provider down");
     verify(officialEvaluators, never()).evaluate(anyString(), anyString(), anyList());
   }
 }

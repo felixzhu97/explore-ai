@@ -9,7 +9,7 @@ public class ContactEmailAttributeConverter implements AttributeConverter<Contac
 
   @Override
   public String convertToDatabaseColumn(ContactEmail attribute) {
-    return attribute == null ? null : attribute.value();
+    return attribute == null ? null : attribute.getValue();
   }
 
   @Override

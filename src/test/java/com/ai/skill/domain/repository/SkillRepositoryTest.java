@@ -101,6 +101,6 @@ class SkillRepositoryTest extends AbstractDataJpaTest {
 
   private Skill save(OwnerKey owner, String name, List<String> allowedTools) {
     return repository.save(
-        Skill.createSkill(owner.value(), name, null, "Instructions", allowedTools));
+        Skill.createSkill(owner.getValue(), name, null, "Instructions", allowedTools));
   }
 }

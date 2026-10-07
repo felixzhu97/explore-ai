@@ -11,7 +11,8 @@ public record WebSourceResponse(String title, String url, String snippet, String
 
   /** Maps a web source to a response. */
   public static WebSourceResponse from(WebSource source) {
-    String publishedAt = source.publishedAt().isBlank() ? null : source.publishedAt();
-    return new WebSourceResponse(source.title(), source.url(), source.snippet(), publishedAt);
+    String publishedAt = source.getPublishedAt().isBlank() ? null : source.getPublishedAt();
+    return new WebSourceResponse(
+        source.getTitle(), source.getUrl(), source.getSnippet(), publishedAt);
   }
 }

@@ -38,9 +38,9 @@ class PdfAndTextDocumentReaderTest {
 
     var document = reader.readDocument(content, "notes.txt");
 
-    assertThat(document.content()).isEqualTo("plain text content");
-    assertThat(document.metadata()).containsEntry("fileName", "notes.txt");
-    assertThat(document.source()).isEqualTo("notes.txt");
+    assertThat(document.getContent()).isEqualTo("plain text content");
+    assertThat(document.getMetadata()).containsEntry("fileName", "notes.txt");
+    assertThat(document.getSource()).isEqualTo("notes.txt");
     verify(pdfTextExtractor, never()).extractText(content);
   }
 
@@ -53,9 +53,9 @@ class PdfAndTextDocumentReaderTest {
 
     var document = reader.readDocument(content, "Manual.PDF");
 
-    assertThat(document.content()).isEqualTo("extracted manual text");
-    assertThat(document.metadata()).containsEntry("fileName", "Manual.PDF");
-    assertThat(document.source()).isEqualTo("Manual.PDF");
+    assertThat(document.getContent()).isEqualTo("extracted manual text");
+    assertThat(document.getMetadata()).containsEntry("fileName", "Manual.PDF");
+    assertThat(document.getSource()).isEqualTo("Manual.PDF");
   }
 
   @Test

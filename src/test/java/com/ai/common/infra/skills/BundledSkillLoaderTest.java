@@ -22,7 +22,7 @@ class BundledSkillLoaderTest {
   void shouldLoadConfiguredSkillWhenEnabled() {
     List<BundledSkill> skills = loader(true, List.of("brief-style")).loadEnabledSkills();
     assertThat(skills).hasSize(1);
-    assertThat(skills.getFirst().name()).isEqualTo("brief-style");
+    assertThat(skills.getFirst().getName()).isEqualTo("brief-style");
   }
 
   @Test

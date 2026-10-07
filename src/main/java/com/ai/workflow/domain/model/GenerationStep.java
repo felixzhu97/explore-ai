@@ -1,4 +1,10 @@
 package com.ai.workflow.domain.model;
 
+import lombok.Value;
+
 /** One generator iteration in the evaluator-optimizer loop. */
-public record GenerationStep(String thoughts, String response) {}
+@Value
+public class GenerationStep {
+  String thoughts;
+  String response;
+}

@@ -1,12 +1,17 @@
 package com.ai.metrics.domain.model;
 
+import lombok.Value;
+
 /** Elapsed milliseconds of an invocation, never negative. */
-public record Latency(long millis) {
+@Value
+public class Latency {
+  long millis;
 
   private static final long NANOS_PER_MILLI = 1_000_000L;
 
-  public Latency {
+  public Latency(long millis) {
     millis = Math.max(0L, millis);
+    this.millis = millis;
   }
 
   /** Wraps a measured duration in milliseconds. */

@@ -37,8 +37,8 @@ class VoiceCatalogTest {
 
     mutableVoices.add("echo");
 
-    assertThat(catalog.voices()).containsExactly("alloy");
-    assertThatThrownBy(() -> catalog.voices().add("nova"))
+    assertThat(catalog.getVoices()).containsExactly("alloy");
+    assertThatThrownBy(() -> catalog.getVoices().add("nova"))
         .isInstanceOf(UnsupportedOperationException.class);
   }
 
@@ -49,7 +49,7 @@ class VoiceCatalogTest {
 
     List<VoiceInfo> infos = catalog.listVoices();
 
-    assertThat(infos.get(1).id()).isEqualTo("unknown");
-    assertThat(infos.get(1).name()).isEqualTo("Unknown");
+    assertThat(infos.get(1).getId()).isEqualTo("unknown");
+    assertThat(infos.get(1).getName()).isEqualTo("Unknown");
   }
 }

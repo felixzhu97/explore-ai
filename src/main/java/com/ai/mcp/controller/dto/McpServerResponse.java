@@ -7,6 +7,7 @@ public record McpServerResponse(String name, int toolCount, McpSessionStatus sta
 
   /** Maps a server connection to a response. */
   public static McpServerResponse from(McpServerConnection connection) {
-    return new McpServerResponse(connection.name(), connection.toolCount(), connection.status());
+    return new McpServerResponse(
+        connection.getName(), connection.getToolCount(), connection.getStatus());
   }
 }

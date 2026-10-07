@@ -76,7 +76,7 @@ public class VisionAnalysisService {
     long startedAt = System.nanoTime();
     try {
       var result = captioner.captionImage(image);
-      long processingTimeMs = Latency.measureSince(startedAt).millis();
+      long processingTimeMs = Latency.measureSince(startedAt).getMillis();
       captionTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
           AiCapability.VISION,
@@ -86,7 +86,7 @@ public class VisionAnalysisService {
           null,
           null,
           null);
-      return new CaptionResponse(result.text(), processingTimeMs);
+      return new CaptionResponse(result.getText(), processingTimeMs);
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
           AiCapability.VISION,
@@ -108,7 +108,7 @@ public class VisionAnalysisService {
     try {
       List<DetectionResponse> detections =
           detector.detectObjects(image).stream().map(this::toDto).toList();
-      long processingTimeMs = Latency.measureSince(startedAt).millis();
+      long processingTimeMs = Latency.measureSince(startedAt).getMillis();
       detectTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
           AiCapability.VISION,
@@ -139,7 +139,7 @@ public class VisionAnalysisService {
     long startedAt = System.nanoTime();
     try {
       var result = ocrEngine.extractText(image);
-      long processingTimeMs = Latency.measureSince(startedAt).millis();
+      long processingTimeMs = Latency.measureSince(startedAt).getMillis();
       ocrTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
           AiCapability.VISION,
@@ -149,7 +149,7 @@ public class VisionAnalysisService {
           null,
           null,
           null);
-      return new OcrResponse(result.text(), processingTimeMs);
+      return new OcrResponse(result.getText(), processingTimeMs);
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
           AiCapability.VISION,
@@ -166,9 +166,10 @@ public class VisionAnalysisService {
 
   private DetectionResponse toDto(Detection detection) {
     return new DetectionResponse(
-        detection.className(),
-        detection.confidence(),
-        List.of(detection.x(), detection.y(), detection.width(), detection.height()));
+        detection.getClassName(),
+        detection.getConfidence(),
+        List.of(
+            detection.getLeft(), detection.getTop(), detection.getWidth(), detection.getHeight()));
   }
 
   private BufferedImage toImage(MultipartFile file) throws IOException {

@@ -34,7 +34,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
   public static AgentRegistry fixed(List<AgentDefinition> definitions) {
     Map<String, AgentDefinition> map = new LinkedHashMap<>();
     for (AgentDefinition definition : definitions) {
-      map.put(definition.getType().value(), definition);
+      map.put(definition.getType().getValue(), definition);
     }
     Map<String, AgentDefinition> fixed = Map.copyOf(map);
     return new AgentRegistry() {
@@ -62,7 +62,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
       @Override
       public Optional<AgentDefinition> findByType(
           AgentType type, String ownerKey, String language) {
-        return Optional.ofNullable(fixed.get(type.value()));
+        return Optional.ofNullable(fixed.get(type.getValue()));
       }
 
       @Override
@@ -71,7 +71,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
             .orElseThrow(
                 () ->
                     DomainException.notFound(
-                        "AGENT_NOT_FOUND", "Unknown agent type: " + type.value()));
+                        "AGENT_NOT_FOUND", "Unknown agent type: " + type.getValue()));
       }
     };
   }
@@ -85,7 +85,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
   public List<AgentDefinition> listAll(String ownerKey, String language) {
     Map<String, AgentDefinition> byType = new LinkedHashMap<>();
     for (AgentDefinition builtin : listBuiltins(language)) {
-      byType.put(builtin.getType().value(), builtin);
+      byType.put(builtin.getType().getValue(), builtin);
     }
     for (CustomAgent saved : library(ownerKey)) {
       byType.put(saved.getTypeKey(), saved.buildAgentDefinition());
@@ -112,7 +112,8 @@ public class CatalogAgentRegistry implements AgentRegistry {
         .map(CustomAgent::buildAgentDefinition)
         .or(
             () ->
-                AgentTemplateCatalog.findByTypeKey(type.value(), language).map(this::toDefinition));
+                AgentTemplateCatalog.findByTypeKey(type.getValue(), language)
+                    .map(this::toDefinition));
   }
 
   @Override
@@ -120,7 +121,8 @@ public class CatalogAgentRegistry implements AgentRegistry {
     return findByType(type, ownerKey, language)
         .orElseThrow(
             () ->
-                DomainException.notFound("AGENT_NOT_FOUND", "Unknown agent type: " + type.value()));
+                DomainException.notFound(
+                    "AGENT_NOT_FOUND", "Unknown agent type: " + type.getValue()));
   }
 
   private List<CustomAgent> library(String ownerKey) {

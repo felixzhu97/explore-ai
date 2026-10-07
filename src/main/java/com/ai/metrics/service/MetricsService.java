@@ -51,7 +51,7 @@ public class MetricsService {
 
     final List<NamedCount> byCapability =
         queryRepository.countByCapability(window.from(), window.to()).stream()
-            .map(nc -> new NamedCount(nc.name(), nc.count()))
+            .map(nc -> new NamedCount(nc.getName(), nc.getCount()))
             .toList();
 
     OverviewCapabilities capabilities =
@@ -59,14 +59,14 @@ public class MetricsService {
 
     return new MetricsOverview(
         window.range(),
-        stats.requests(),
-        stats.errors(),
+        stats.getRequests(),
+        stats.getErrors(),
         stats.calculateSuccessRate(),
         stats.calculateErrorRate(),
-        latency.p50Ms(),
-        latency.p95Ms(),
-        tokens.promptTokens(),
-        tokens.completionTokens(),
+        latency.getP50Ms(),
+        latency.getP95Ms(),
+        tokens.getPromptTokens(),
+        tokens.getCompletionTokens(),
         byCapability,
         capabilities);
   }
@@ -94,27 +94,27 @@ public class MetricsService {
               toPoints(queryRepository.countDailyDocumentsUploaded(window.from(), window.to()));
           case "documents_by_status" -> {
             var rag = queryRepository.getRagInventory();
-            yield rag.documentsByStatus().entrySet().stream()
+            yield rag.getDocumentsByStatus().entrySet().stream()
                 .map(e -> new SeriesPoint(e.getKey(), e.getValue()))
                 .toList();
           }
           case "calls_by_model" ->
               queryRepository.countByModel(capability, window.from(), window.to()).stream()
-                  .map(nc -> new SeriesPoint(nc.name(), nc.count()))
+                  .map(nc -> new SeriesPoint(nc.getName(), nc.getCount()))
                   .toList();
           case "calls_by_agent" ->
               queryRepository.countByAgentType(window.from(), window.to()).stream()
-                  .map(nc -> new SeriesPoint(nc.name(), nc.count()))
+                  .map(nc -> new SeriesPoint(nc.getName(), nc.getCount()))
                   .toList();
           case "tool_top" ->
               queryRepository.listTopTools(capability, window.from(), window.to(), 10).stream()
-                  .map(nc -> new SeriesPoint(nc.name(), nc.count()))
+                  .map(nc -> new SeriesPoint(nc.getName(), nc.getCount()))
                   .toList();
           case "tokens" -> {
             var tokens = queryRepository.sumTokens(capability, window.from(), window.to());
             yield List.of(
-                new SeriesPoint("prompt", tokens.promptTokens()),
-                new SeriesPoint("completion", tokens.completionTokens()));
+                new SeriesPoint("prompt", tokens.getPromptTokens()),
+                new SeriesPoint("completion", tokens.getCompletionTokens()));
           }
           default -> throw new IllegalArgumentException("Unknown series name: " + name);
         };
@@ -160,7 +160,7 @@ public class MetricsService {
                 safePage,
                 safeSize));
 
-    return new DrilldownPage(result.items(), result.total(), safePage, safeSize);
+    return new DrilldownPage(result.getItems(), result.getTotal(), safePage, safeSize);
   }
 
   /**
@@ -186,29 +186,29 @@ public class MetricsService {
           case TOOLS ->
               new CapabilityInventory.Tools(
                   queryRepository.listTopTools(filter, window.from(), window.to(), 10).stream()
-                      .map(nc -> new NamedCount(nc.name(), nc.count()))
+                      .map(nc -> new NamedCount(nc.getName(), nc.getCount()))
                       .toList());
           case VISION, WORKFLOW ->
-              new CapabilityInventory.Requests(stats.requests(), stats.errors());
+              new CapabilityInventory.Requests(stats.getRequests(), stats.getErrors());
         };
 
     return new MetricsCapabilitySnapshot(
         capability.getValue(),
         window.range(),
-        stats.requests(),
-        stats.errors(),
+        stats.getRequests(),
+        stats.getErrors(),
         stats.calculateErrorRate(),
-        latency.p50Ms(),
-        latency.p95Ms(),
-        tokens.promptTokens(),
-        tokens.completionTokens(),
+        latency.getP50Ms(),
+        latency.getP95Ms(),
+        tokens.getPromptTokens(),
+        tokens.getCompletionTokens(),
         inventory,
         getSeries("requests", capability.getValue(), window.range()).points(),
         getSeries("calls_by_model", capability.getValue(), window.range()).points());
   }
 
   private List<SeriesPoint> toPoints(List<MetricsQueryRepository.TimePoint> points) {
-    return points.stream().map(p -> new SeriesPoint(p.day(), p.value())).toList();
+    return points.stream().map(p -> new SeriesPoint(p.getDay(), p.getValue())).toList();
   }
 
   private Optional<Instant> parseInstant(String raw) {
@@ -226,7 +226,7 @@ public class MetricsService {
     static RangeWindow endingNow(String range) {
       MetricsWindow window = MetricsWindow.parseWindow(range);
       Instant now = Instant.now();
-      return new RangeWindow(window.range(), window.from(now), now);
+      return new RangeWindow(window.getRange(), window.from(now), now);
     }
   }
 }

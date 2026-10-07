@@ -79,8 +79,8 @@ class JdbcMetricsQueryRepositoryTest {
     LatencyStats stats =
         repository.calculateLatencyPercentiles(Optional.of(AiCapability.RAG), from, to);
 
-    assertThat(stats.p50Ms()).isNull();
-    assertThat(stats.p95Ms()).isNull();
+    assertThat(stats.getP50Ms()).isNull();
+    assertThat(stats.getP95Ms()).isNull();
   }
 
   @Test
@@ -102,8 +102,8 @@ class JdbcMetricsQueryRepositoryTest {
 
     LatencyStats stats = repository.calculateLatencyPercentiles(Optional.empty(), from, to);
 
-    assertThat(stats.p50Ms()).isEqualTo(30.0);
-    assertThat(stats.p95Ms()).isEqualTo(88.0);
+    assertThat(stats.getP50Ms()).isEqualTo(30.0);
+    assertThat(stats.getP95Ms()).isEqualTo(88.0);
   }
 
   @Test
@@ -126,8 +126,8 @@ class JdbcMetricsQueryRepositoryTest {
     MetricsQueryRepository.TokenTotals totals =
         repository.sumTokens(Optional.of(AiCapability.CHAT), from, to);
 
-    assertThat(totals.promptTokens()).isEqualTo(120L);
-    assertThat(totals.completionTokens()).isEqualTo(45L);
+    assertThat(totals.getPromptTokens()).isEqualTo(120L);
+    assertThat(totals.getCompletionTokens()).isEqualTo(45L);
   }
 
   @Test
@@ -147,8 +147,8 @@ class JdbcMetricsQueryRepositoryTest {
 
     MetricsQueryRepository.TokenTotals totals = repository.sumTokens(Optional.empty(), from, to);
 
-    assertThat(totals.promptTokens()).isZero();
-    assertThat(totals.completionTokens()).isZero();
+    assertThat(totals.getPromptTokens()).isZero();
+    assertThat(totals.getCompletionTokens()).isZero();
   }
 
   @Test
@@ -166,7 +166,7 @@ class JdbcMetricsQueryRepositoryTest {
             });
 
     assertThat(repository.countByCapability(from, to))
-        .extracting(MetricsQueryRepository.NamedCount::name)
+        .extracting(MetricsQueryRepository.NamedCount::getName)
         .containsExactly("chat");
     assertThat(repository.countByModel(Optional.of(AiCapability.CHAT), from, to)).hasSize(1);
     assertThat(repository.countByAgentType(from, to)).hasSize(1);
@@ -225,10 +225,10 @@ class JdbcMetricsQueryRepositoryTest {
         repository.calculateDailyLatencyP95(Optional.of(AiCapability.AGENTS), from, to);
 
     assertThat(points).hasSize(2);
-    assertThat(points.get(0).day()).isEqualTo("2026-07-01");
-    assertThat(points.get(0).value()).isEqualTo(86L);
-    assertThat(points.get(1).day()).isEqualTo("2026-07-02");
-    assertThat(points.get(1).value()).isEqualTo(50L);
+    assertThat(points.get(0).getDay()).isEqualTo("2026-07-01");
+    assertThat(points.get(0).getValue()).isEqualTo(86L);
+    assertThat(points.get(1).getDay()).isEqualTo("2026-07-02");
+    assertThat(points.get(1).getValue()).isEqualTo(50L);
   }
 
   @Test
@@ -249,10 +249,10 @@ class JdbcMetricsQueryRepositoryTest {
 
     MetricsQueryRepository.ChatInventory inventory = repository.getChatInventory(from);
 
-    assertThat(inventory.sessionCount()).isZero();
-    assertThat(inventory.activeSessionCount()).isEqualTo(2L);
-    assertThat(inventory.messageCount()).isEqualTo(10L);
-    assertThat(inventory.webSourceReplyCount()).isEqualTo(1L);
+    assertThat(inventory.getSessionCount()).isZero();
+    assertThat(inventory.getActiveSessionCount()).isEqualTo(2L);
+    assertThat(inventory.getMessageCount()).isEqualTo(10L);
+    assertThat(inventory.getWebSourceReplyCount()).isEqualTo(1L);
   }
 
   @Test
@@ -281,9 +281,9 @@ class JdbcMetricsQueryRepositoryTest {
 
     MetricsQueryRepository.RagInventory inventory = repository.getRagInventory();
 
-    assertThat(inventory.documentCount()).isEqualTo(4L);
-    assertThat(inventory.chunkCount()).isEqualTo(12L);
-    assertThat(inventory.totalFileBytes()).isEqualTo(2048L);
-    assertThat(inventory.documentsByStatus()).containsEntry("READY", 3L);
+    assertThat(inventory.getDocumentCount()).isEqualTo(4L);
+    assertThat(inventory.getChunkCount()).isEqualTo(12L);
+    assertThat(inventory.getTotalFileBytes()).isEqualTo(2048L);
+    assertThat(inventory.getDocumentsByStatus()).containsEntry("READY", 3L);
   }
 }

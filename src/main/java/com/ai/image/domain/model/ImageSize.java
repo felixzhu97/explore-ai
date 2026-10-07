@@ -1,8 +1,14 @@
 package com.ai.image.domain.model;
 
 import com.ai.common.exception.DomainException;
+import lombok.Value;
 
-public record ImageSize(int width, int height) {
+/** Width and height of a generated image, in pixels. */
+@Value
+public class ImageSize {
+  int width;
+  int height;
+
   /** Creates a size, rejecting non-positive or catalog-unsupported dimensions. */
   public static ImageSize createSize(int width, int height) {
     if (width <= 0 || height <= 0) {

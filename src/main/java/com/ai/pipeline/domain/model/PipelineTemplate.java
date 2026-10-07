@@ -171,7 +171,7 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
       if (agentType.isSupervisor()) {
         throw new IllegalArgumentException("Pipeline templates can only contain worker agents");
       }
-      normalized.add(agentType.value());
+      normalized.add(agentType.getValue());
     }
     if (normalized.isEmpty()) {
       throw new IllegalArgumentException("Agent types cannot be empty");

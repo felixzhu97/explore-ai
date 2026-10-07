@@ -1,8 +1,12 @@
 package com.ai.textanalysis.domain.model;
 
 import com.ai.common.exception.DomainException;
+import lombok.Value;
 
-public record AnalysisText(String value) {
+/** Text to analyse, non-blank and capped in length. */
+@Value
+public class AnalysisText {
+  String value;
 
   private static final int MAX_LENGTH = 50_000;
 
@@ -22,7 +26,7 @@ public record AnalysisText(String value) {
             Be concise and accurate in your analysis.
             """;
 
-  public AnalysisText {
+  public AnalysisText(String value) {
     if (value == null || value.isBlank()) {
       throw DomainException.invalid("INVALID_ANALYSIS_TEXT", "Analysis text must not be blank");
     }
@@ -31,6 +35,7 @@ public record AnalysisText(String value) {
       throw DomainException.invalid(
           "INVALID_ANALYSIS_TEXT", "Analysis text exceeds maximum length of " + MAX_LENGTH);
     }
+    this.value = value;
   }
 
   /** Wraps the text to analyze. */

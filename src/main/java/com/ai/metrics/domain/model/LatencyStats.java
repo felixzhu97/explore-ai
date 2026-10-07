@@ -1,9 +1,13 @@
 package com.ai.metrics.domain.model;
 
 import java.util.List;
+import lombok.Value;
 
 /** p50 and p95 latency in milliseconds; both null when nothing was measured. */
-public record LatencyStats(Double p50Ms, Double p95Ms) {
+@Value
+public class LatencyStats {
+  Double p50Ms;
+  Double p95Ms;
 
   public static final LatencyStats EMPTY = new LatencyStats(null, null);
 

@@ -24,19 +24,23 @@ public class WeatherSimulator {
 
   /** Returns current weather for a known city, or randomly generated readings for others. */
   public ToolResult lookupCurrentWeather(WeatherQuery query) {
-    WeatherInfo known = WEATHER_DATA.get(query.normalizedCity());
+    WeatherInfo known = WEATHER_DATA.get(query.getNormalizedCity());
     if (known != null) {
       return ToolResult.createSuccessResult(known.formatCurrentWeather());
     }
-    return ToolResult.createSuccessResult(buildRandomCurrent(query.city()));
+    return ToolResult.createSuccessResult(buildRandomCurrent(query.getCity()));
   }
 
   /** Builds a day-by-day forecast with randomly chosen conditions and temperature ranges. */
   public ToolResult generateForecast(WeatherForecast forecast) {
     StringBuilder builder = new StringBuilder();
-    builder.append(forecast.query().city()).append("未来").append(forecast.days()).append("天天气预报：\n");
+    builder
+        .append(forecast.getQuery().getCity())
+        .append("未来")
+        .append(forecast.getDays())
+        .append("天天气预报：\n");
 
-    for (int day = 1; day <= forecast.days(); day++) {
+    for (int day = 1; day <= forecast.getDays(); day++) {
       String condition = CONDITIONS[ThreadLocalRandom.current().nextInt(CONDITIONS.length)];
       int tempLow = TEMPS[ThreadLocalRandom.current().nextInt(TEMPS.length)];
       int tempHigh = tempLow + 3 + ThreadLocalRandom.current().nextInt(5);

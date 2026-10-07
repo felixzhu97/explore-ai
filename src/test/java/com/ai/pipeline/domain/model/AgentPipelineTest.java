@@ -22,7 +22,7 @@ class AgentPipelineTest {
     assertEquals(
         List.of(AgentType.createType("k8s")),
         pipeline.resolveExecutionOrder().stream()
-            .map(AgentPipeline.PipelineNode::agentType)
+            .map(AgentPipeline.PipelineNode::getAgentType)
             .toList());
   }
 
@@ -38,7 +38,7 @@ class AgentPipelineTest {
     assertEquals(
         List.of(AgentType.createType("k8s"), AgentType.createType("aiops")),
         pipeline.resolveExecutionOrder().stream()
-            .map(AgentPipeline.PipelineNode::agentType)
+            .map(AgentPipeline.PipelineNode::getAgentType)
             .toList());
   }
 
@@ -101,9 +101,9 @@ class AgentPipelineTest {
             "Custom prompt",
             List.of("web_search"));
 
-    assertEquals("Custom Research", node.name());
-    assertEquals("Custom prompt", node.systemPrompt());
-    assertEquals(List.of("web_search"), node.toolKeys());
+    assertEquals("Custom Research", node.getName());
+    assertEquals("Custom prompt", node.getSystemPrompt());
+    assertEquals(List.of("web_search"), node.getToolKeys());
     assertEquals("Custom prompt", node.buildDefinition().getSystemPrompt());
   }
 

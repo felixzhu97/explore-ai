@@ -85,7 +85,7 @@ class JdbcChatWebSourcesRepositoryTest {
     Map<String, List<WebSource>> loaded = repository.findByConversationId("conv-1");
 
     assertThat(loaded).containsKey(hash);
-    assertThat(loaded.get(hash).getFirst().url()).isEqualTo("https://a.com");
+    assertThat(loaded.get(hash).getFirst().getUrl()).isEqualTo("https://a.com");
   }
 
   @Test

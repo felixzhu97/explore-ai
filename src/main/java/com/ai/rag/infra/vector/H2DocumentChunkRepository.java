@@ -59,7 +59,7 @@ public class H2DocumentChunkRepository
         embeddingString,
         metadataJson,
         chunk.getCreatedAt().toString(),
-        chunk.getOwnerKey().value());
+        chunk.getOwnerKey().getValue());
   }
 
   @Override

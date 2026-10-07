@@ -17,13 +17,15 @@ public class ChunkingDocumentTransformer implements DocumentTransformer {
 
   @Override
   public List<ExtractedDocument> splitDocument(ExtractedDocument document) {
-    if (document.content() == null || document.content().isBlank()) {
+    if (document.getContent() == null || document.getContent().isBlank()) {
       return List.of();
     }
-    Document springDocument = new Document(document.content(), document.metadata());
+    Document springDocument = new Document(document.getContent(), document.getMetadata());
     return textSplitter.apply(List.of(springDocument)).stream()
         .map(
-            chunk -> new ExtractedDocument(chunk.getText(), document.metadata(), document.source()))
+            chunk ->
+                new ExtractedDocument(
+                    chunk.getText(), document.getMetadata(), document.getSource()))
         .toList();
   }
 }

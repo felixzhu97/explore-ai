@@ -9,9 +9,9 @@ public record ChatInventoryResponse(
   /** Maps the chat inventory read from the metrics store. */
   public static ChatInventoryResponse from(ChatInventory inventory) {
     return new ChatInventoryResponse(
-        inventory.sessionCount(),
-        inventory.activeSessionCount(),
-        inventory.messageCount(),
-        inventory.webSourceReplyCount());
+        inventory.getSessionCount(),
+        inventory.getActiveSessionCount(),
+        inventory.getMessageCount(),
+        inventory.getWebSourceReplyCount());
   }
 }

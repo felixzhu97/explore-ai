@@ -52,10 +52,10 @@ class ChatQualityEvaluatorTest {
         evaluator.evaluate(
             "What is the capital of France?", "Paris is the capital of France.", List.of());
 
-    assertThat(result.factualityAvailable()).isFalse();
-    assertThat(result.factualityScore()).isNull();
-    assertThat(result.relevancyPassed()).isTrue();
-    assertThat(result.factualityPassed()).isNull();
+    assertThat(result.isFactualityAvailable()).isFalse();
+    assertThat(result.getFactualityScore()).isNull();
+    assertThat(result.isRelevancyPassed()).isTrue();
+    assertThat(result.getFactualityPassed()).isNull();
   }
 
   @Test
@@ -73,10 +73,10 @@ class ChatQualityEvaluatorTest {
             "Paris is the capital of France.",
             List.of("France is a country in Europe. Its capital is Paris."));
 
-    assertThat(result.factualityAvailable()).isTrue();
-    assertThat(result.factualityScore()).isEqualTo(1.0);
-    assertThat(result.factualityPassed()).isTrue();
-    assertThat(result.evaluatorFeedback()).isNotEmpty();
+    assertThat(result.isFactualityAvailable()).isTrue();
+    assertThat(result.getFactualityScore()).isEqualTo(1.0);
+    assertThat(result.getFactualityPassed()).isTrue();
+    assertThat(result.getEvaluatorFeedback()).isNotEmpty();
   }
 
   @Test
@@ -89,9 +89,9 @@ class ChatQualityEvaluatorTest {
 
     ChatEvaluationResult result = evaluator.evaluate("Hello", "Hi there", List.of());
 
-    assertThat(result.coherenceScore()).isZero();
-    assertThat(result.helpfulnessScore()).isZero();
-    assertThat(result.suggestions()).contains("Evaluation failed to process");
+    assertThat(result.getCoherenceScore()).isZero();
+    assertThat(result.getHelpfulnessScore()).isZero();
+    assertThat(result.getSuggestions()).contains("Evaluation failed to process");
   }
 
   @Test
@@ -104,8 +104,8 @@ class ChatQualityEvaluatorTest {
 
     ChatEvaluationResult result = evaluator.evaluate("Hello", "Harmful reply", List.of());
 
-    assertThat(result.hasSafetyIssues()).isTrue();
-    assertThat(result.safetyFlags()).containsExactly("Safety issue detected");
+    assertThat(result.isHasSafetyIssues()).isTrue();
+    assertThat(result.getSafetyFlags()).containsExactly("Safety issue detected");
   }
 
   @Test
@@ -118,7 +118,7 @@ class ChatQualityEvaluatorTest {
     ChatEvaluationResult result =
         evaluator.evaluate("Question", "Answer", List.of("Reference context"));
 
-    assertThat(result.overallScore()).isEqualTo(0.9);
+    assertThat(result.getOverallScore()).isEqualTo(0.9);
   }
 
   @Test
@@ -132,8 +132,8 @@ class ChatQualityEvaluatorTest {
 
     ChatEvaluationResult result = evaluator.evaluate("Q", "unrelated", List.of());
 
-    assertThat(result.relevancyPassed()).isFalse();
-    assertThat(result.suggestions())
+    assertThat(result.isRelevancyPassed()).isFalse();
+    assertThat(result.getSuggestions())
         .contains("Response does not fully address the user's question");
   }
 

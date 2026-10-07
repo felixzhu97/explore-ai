@@ -39,7 +39,7 @@ class AccountTest {
     assertThat(account.getLinkedClientId()).isEqualTo(CLIENT);
     assertThat(account.getEmail()).isEqualTo(new ContactEmail("c@d.com"));
     assertThat(account.getDisplayName()).isEqualTo("octocat");
-    assertThat(account.findGuestOwnerKey()).contains(OwnerKey.createClientKey(CLIENT.value()));
+    assertThat(account.findGuestOwnerKey()).contains(OwnerKey.createClientKey(CLIENT.getValue()));
   }
 
   @Test

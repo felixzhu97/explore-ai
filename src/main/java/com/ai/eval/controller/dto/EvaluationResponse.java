@@ -20,18 +20,18 @@ public record EvaluationResponse(
   /** Maps a domain evaluation result to the response, rounding scores to two decimals. */
   public static EvaluationResponse from(ChatEvaluationResult result) {
     return new EvaluationResponse(
-        round(result.coherenceScore()),
-        round(result.relevanceScore()),
-        round(result.helpfulnessScore()),
-        result.factualityAvailable() ? round(result.factualityScore()) : null,
-        result.factualityAvailable(),
-        round(result.overallScore()),
-        result.hasSafetyIssues(),
-        result.safetyFlags(),
-        result.suggestions(),
-        result.relevancyPassed(),
-        result.factualityPassed(),
-        result.evaluatorFeedback());
+        round(result.getCoherenceScore()),
+        round(result.getRelevanceScore()),
+        round(result.getHelpfulnessScore()),
+        result.isFactualityAvailable() ? round(result.getFactualityScore()) : null,
+        result.isFactualityAvailable(),
+        round(result.getOverallScore()),
+        result.isHasSafetyIssues(),
+        result.getSafetyFlags(),
+        result.getSuggestions(),
+        result.isRelevancyPassed(),
+        result.getFactualityPassed(),
+        result.getEvaluatorFeedback());
   }
 
   private static double round(double score) {

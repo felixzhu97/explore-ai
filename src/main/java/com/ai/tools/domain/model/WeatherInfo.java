@@ -1,6 +1,15 @@
 package com.ai.tools.domain.model;
 
-public record WeatherInfo(String cityName, int temperature, String condition, int humidity) {
+import lombok.Value;
+
+/** Current weather of a city. */
+@Value
+public class WeatherInfo {
+  String cityName;
+  int temperature;
+  String condition;
+  int humidity;
+
   /** Formats today's weather as text. */
   public String formatCurrentWeather() {
     return String.format(

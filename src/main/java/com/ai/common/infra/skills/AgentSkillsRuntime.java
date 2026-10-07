@@ -48,7 +48,7 @@ public class AgentSkillsRuntime {
     }
     String catalog =
         skills.stream()
-            .map(skill -> "- " + skill.name() + ": " + skill.description())
+            .map(skill -> "- " + skill.getName() + ": " + skill.getDescription())
             .collect(Collectors.joining("\n"));
     return basePrompt
         + "\n\n## Agent Skills\n"
@@ -66,7 +66,7 @@ public class AgentSkillsRuntime {
     for (BundledSkill skill : skills) {
       try {
         builder.addSkillsResource(
-            resourceLoader.getResource(toSpringResourceLocation(skill.resourceLocation())));
+            resourceLoader.getResource(toSpringResourceLocation(skill.getResourceLocation())));
       } catch (Exception expected) {
       }
     }

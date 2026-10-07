@@ -14,14 +14,14 @@ class RoutingPlanTest {
   @Test
   void shouldCreateSingleWorkerPlan() {
     RoutingPlan plan = RoutingPlan.createSingleAgentPlan(AgentType.createType("k8s"), "pods");
-    assertEquals("k8s", plan.primaryAgent().value());
-    assertTrue(plan.subtasks().isEmpty());
+    assertEquals("k8s", plan.getPrimaryAgent().getValue());
+    assertTrue(plan.getSubtasks().isEmpty());
   }
 
   @Test
   void shouldCopyNullSubtasksAsEmpty() {
     RoutingPlan plan = new RoutingPlan(AgentType.createType("aiops"), "reason", null);
-    assertTrue(plan.subtasks().isEmpty());
+    assertTrue(plan.getSubtasks().isEmpty());
   }
 
   @Test
@@ -45,6 +45,6 @@ class RoutingPlanTest {
             AgentType.createType("k8s"),
             "multi",
             List.of(new RoutingPlan.Subtask(AgentType.createType("aiops"), "check")));
-    assertEquals(1, plan.subtasks().size());
+    assertEquals(1, plan.getSubtasks().size());
   }
 }

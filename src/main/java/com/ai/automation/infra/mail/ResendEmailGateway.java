@@ -54,11 +54,11 @@ public class ResendEmailGateway implements EmailGateway {
   public void sendEmail(EmailMessage message) {
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("from", mailProperties.getFrom());
-    body.put("to", List.of(message.to()));
-    body.put("subject", message.subject());
-    body.put("text", message.textBody());
+    body.put("to", List.of(message.getTo()));
+    body.put("subject", message.getSubject());
+    body.put("text", message.getTextBody());
     if (message.hasHtmlBody()) {
-      body.put("html", message.htmlBody());
+      body.put("html", message.getHtmlBody());
     }
 
     try {

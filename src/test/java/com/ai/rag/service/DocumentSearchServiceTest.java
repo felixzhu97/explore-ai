@@ -105,7 +105,9 @@ class DocumentSearchServiceTest {
 
     DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
 
-    assertThat(result.sources()).extracting(SourceCitation::score).containsExactly(0.9, 0.5, 0.2);
+    assertThat(result.sources())
+        .extracting(SourceCitation::getScore)
+        .containsExactly(0.9, 0.5, 0.2);
     assertThat(result.context()).isEqualTo("high\n\nmedium\n\nlow");
   }
 
@@ -118,7 +120,7 @@ class DocumentSearchServiceTest {
 
     DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
 
-    assertThat(result.sources()).extracting(SourceCitation::content).containsExactly("kept");
+    assertThat(result.sources()).extracting(SourceCitation::getContent).containsExactly("kept");
     assertThat(result.context()).isEqualTo("kept");
   }
 
@@ -144,7 +146,7 @@ class DocumentSearchServiceTest {
 
     DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
 
-    assertThat(result.sources().get(0).content()).hasSize(503).endsWith("...");
+    assertThat(result.sources().get(0).getContent()).hasSize(503).endsWith("...");
     assertThat(result.context()).isEqualTo(longContent);
   }
 
@@ -157,7 +159,7 @@ class DocumentSearchServiceTest {
 
     DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
 
-    assertThat(result.sources().get(0).metadata())
+    assertThat(result.sources().get(0).getMetadata())
         .containsEntry("title", "Test Doc")
         .containsEntry("fileName", "test.txt");
   }

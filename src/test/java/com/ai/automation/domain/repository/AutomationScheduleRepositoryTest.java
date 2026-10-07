@@ -91,6 +91,6 @@ class AutomationScheduleRepositoryTest extends AbstractDataJpaTest {
   private AutomationSchedule save(OwnerKey owner, String name, String cron, Instant now) {
     return repository.save(
         AutomationSchedule.createSchedule(
-            owner.value(), name, cron, "UTC", WORKFLOW_ID, "user@example.com", "Brief", now));
+            owner.getValue(), name, cron, "UTC", WORKFLOW_ID, "user@example.com", "Brief", now));
   }
 }

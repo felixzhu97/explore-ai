@@ -89,7 +89,7 @@ class PipelineOrchestrationServiceTest {
 
     assert invoker.lastAgentType.equals("aiops");
     assert recorded.size() == 1;
-    assert recorded.getFirst().getOwnerKey().value().equals(OWNER);
+    assert recorded.getFirst().getOwnerKey().getValue().equals(OWNER);
   }
 
   @Test
@@ -327,25 +327,25 @@ class PipelineOrchestrationServiceTest {
 
     @Override
     public Flux<String> invokeStream(AgentDefinition agent, String task) {
-      lastAgentType = agent.getType().value();
+      lastAgentType = agent.getType().getValue();
       lastAgentName = agent.getName();
       lastSystemPrompt = agent.getSystemPrompt();
       lastToolKeys = agent.getToolKeys();
       lastTask = task;
       invokeCount.incrementAndGet();
-      streamOrder.add(agent.getType().value());
+      streamOrder.add(agent.getType().getValue());
       return Flux.just("worker-reply");
     }
 
     @Override
     public String invoke(AgentDefinition agent, String task) {
-      lastAgentType = agent.getType().value();
+      lastAgentType = agent.getType().getValue();
       lastAgentName = agent.getName();
       lastSystemPrompt = agent.getSystemPrompt();
       lastToolKeys = agent.getToolKeys();
       lastTask = task;
       invokeCount.incrementAndGet();
-      return "worker-reply for " + agent.getType().value();
+      return "worker-reply for " + agent.getType().getValue();
     }
   }
 
@@ -354,8 +354,8 @@ class PipelineOrchestrationServiceTest {
 
     @Override
     public Flux<String> invokeStream(AgentDefinition agent, String task) {
-      streamOrder.add(agent.getType().value());
-      return Flux.just("worker-reply-" + agent.getType().value())
+      streamOrder.add(agent.getType().getValue());
+      return Flux.just("worker-reply-" + agent.getType().getValue())
           .delayElements(java.time.Duration.ofMillis(120));
     }
 

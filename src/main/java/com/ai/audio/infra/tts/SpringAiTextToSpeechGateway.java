@@ -25,15 +25,15 @@ public class SpringAiTextToSpeechGateway implements TextToSpeechGateway {
   public SynthesizedAudio synthesizeSpeech(
       SpeechText text, VoiceSelection voiceSelection, Double speed) {
     OpenAiAudioSpeechOptions.Builder optionsBuilder =
-        OpenAiAudioSpeechOptions.builder().voice(voiceSelection.voice());
-    if (StringUtils.hasText(voiceSelection.model())) {
-      optionsBuilder.model(voiceSelection.model());
+        OpenAiAudioSpeechOptions.builder().voice(voiceSelection.getVoice());
+    if (StringUtils.hasText(voiceSelection.getModel())) {
+      optionsBuilder.model(voiceSelection.getModel());
     }
     if (speed != null) {
       optionsBuilder.speed(speed);
     }
 
-    TextToSpeechPrompt prompt = new TextToSpeechPrompt(text.value(), optionsBuilder.build());
+    TextToSpeechPrompt prompt = new TextToSpeechPrompt(text.getValue(), optionsBuilder.build());
     TextToSpeechResponse response = textToSpeechModel.call(prompt);
 
     if (response != null && response.getResults() != null && !response.getResults().isEmpty()) {

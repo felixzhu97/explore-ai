@@ -141,7 +141,10 @@ public class AccountService {
 
   private AccountMeResponse authenticated(String clientId, OAuthSignIn signIn) {
     return authenticated(
-        clientId, signIn.identity().subject(), signIn.email(), signIn.displayLabel().orElse(null));
+        clientId,
+        signIn.identity().getSubject(),
+        signIn.email(),
+        signIn.displayLabel().orElse(null));
   }
 
   private AccountMeResponse authenticated(
@@ -150,7 +153,7 @@ public class AccountService {
         AccountMode.AUTHENTICATED,
         clientId,
         userId,
-        email == null ? null : email.value(),
+        email == null ? null : email.getValue(),
         displayName,
         AccountPlan.from(billingPlanService.currentPlan()),
         isLoginAvailable(),

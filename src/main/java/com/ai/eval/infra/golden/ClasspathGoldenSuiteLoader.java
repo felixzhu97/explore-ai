@@ -47,7 +47,7 @@ public class ClasspathGoldenSuiteLoader implements GoldenSuiteRepository {
     if (categories == null || categories.isEmpty()) {
       return loadAll();
     }
-    return loadAll().stream().filter(c -> categories.contains(c.category())).toList();
+    return loadAll().stream().filter(c -> categories.contains(c.getCategory())).toList();
   }
 
   /** Reads the golden cases from a JSONL resource. */

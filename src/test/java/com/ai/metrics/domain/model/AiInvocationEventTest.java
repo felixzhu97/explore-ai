@@ -50,7 +50,7 @@ class AiInvocationEventTest {
     assertThat(event.getOutcome()).isEqualTo(InvocationOutcome.ERROR);
     assertThat(event.getErrorCode()).isEqualTo("Timeout");
     assertThat(event.getErrorMessage()).startsWith("line one line two").hasSize(512);
-    assertThat(event.error()).map(ErrorSummary::code).contains("Timeout");
+    assertThat(event.error()).map(ErrorSummary::getCode).contains("Timeout");
   }
 
   @Test

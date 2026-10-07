@@ -1,6 +1,7 @@
 package com.ai.metrics.domain.model;
 
 import java.util.regex.Pattern;
+import lombok.Value;
 
 /**
  * Error code plus a normalized, length-capped message of a failed invocation.
@@ -8,7 +9,10 @@ import java.util.regex.Pattern;
  * @param code exception type or error code, at most {@value #MAX_CODE_LENGTH} characters
  * @param message single-line message, at most {@value #MAX_MESSAGE_LENGTH} characters, or null
  */
-public record ErrorSummary(String code, String message) {
+@Value
+public class ErrorSummary {
+  String code;
+  String message;
 
   public static final int MAX_CODE_LENGTH = 64;
   public static final int MAX_MESSAGE_LENGTH = 512;
@@ -17,12 +21,14 @@ public record ErrorSummary(String code, String message) {
 
   private static final Pattern CONTROL_AND_SPACE = Pattern.compile("[\\p{Cntrl}\\s]+");
 
-  public ErrorSummary {
+  public ErrorSummary(String code, String message) {
     code = truncateText(stripWhitespace(code), MAX_CODE_LENGTH);
     if (code == null) {
       code = UNKNOWN_CODE;
     }
     message = truncateText(stripWhitespace(message), MAX_MESSAGE_LENGTH);
+    this.code = code;
+    this.message = message;
   }
 
   /** Summarizes an exception by its type and message. */

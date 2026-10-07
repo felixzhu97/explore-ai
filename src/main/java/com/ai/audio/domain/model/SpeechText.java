@@ -1,12 +1,16 @@
 package com.ai.audio.domain.model;
 
 import com.ai.common.exception.DomainException;
+import lombok.Value;
 
-public record SpeechText(String value) {
+/** Text to be spoken, non-blank and capped in length. */
+@Value
+public class SpeechText {
+  String value;
 
   private static final int MAX_LENGTH = 10_000;
 
-  public SpeechText {
+  public SpeechText(String value) {
     if (value == null || value.isBlank()) {
       throw DomainException.invalid("INVALID_SPEECH_TEXT", "Speech text must not be blank");
     }
@@ -15,6 +19,7 @@ public record SpeechText(String value) {
       throw DomainException.invalid(
           "INVALID_SPEECH_TEXT", "Speech text exceeds maximum length of " + MAX_LENGTH);
     }
+    this.value = value;
   }
 
   /** Creates validated speech text. */

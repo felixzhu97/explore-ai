@@ -20,8 +20,8 @@ class YoloNonMaxSuppressionTest {
     var kept = YoloNonMaxSuppression.apply(candidates, 0.45f);
 
     assertThat(kept).hasSize(2);
-    assertThat(kept.getFirst().className()).isEqualTo("person");
-    assertThat(kept.get(1).className()).isEqualTo("car");
+    assertThat(kept.getFirst().getClassName()).isEqualTo("person");
+    assertThat(kept.get(1).getClassName()).isEqualTo("car");
   }
 
   @Test

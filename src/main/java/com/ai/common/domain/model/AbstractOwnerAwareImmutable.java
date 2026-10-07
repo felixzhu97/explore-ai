@@ -26,6 +26,6 @@ public abstract class AbstractOwnerAwareImmutable<IdT extends AbstractEmbeddable
 
   /** Returns the persisted owner_key value (c:… or u:…). */
   public String getOwnerKeyValue() {
-    return ownerKey.value();
+    return ownerKey.getValue();
   }
 }

@@ -1,4 +1,10 @@
 package com.ai.workflow.domain.model;
 
+import lombok.Value;
+
 /** Subtask planned by the orchestrator for a worker LLM. */
-public record WorkerTask(String type, String description) {}
+@Value
+public class WorkerTask {
+  String type;
+  String description;
+}

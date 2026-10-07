@@ -13,7 +13,7 @@ class OwnerKeyTest {
   void shouldBuildClientKeyWhenForClient() {
     OwnerKey key = OwnerKey.createClientKey("  abc-123  ");
 
-    assertThat(key.value()).isEqualTo("c:abc-123");
+    assertThat(key.getValue()).isEqualTo("c:abc-123");
     assertThat(key.isClient()).isTrue();
     assertThat(key.isAccount()).isFalse();
   }
@@ -22,15 +22,15 @@ class OwnerKeyTest {
   void shouldBuildAccountKeyWhenForAccount() {
     OwnerKey key = OwnerKey.createAccountKey("user-9");
 
-    assertThat(key.value()).isEqualTo("u:user-9");
+    assertThat(key.getValue()).isEqualTo("u:user-9");
     assertThat(key.isAccount()).isTrue();
     assertThat(key.isClient()).isFalse();
   }
 
   @Test
   void shouldParseRawValueWhenPrefixed() {
-    assertThat(OwnerKey.parseKey("c:guest").value()).isEqualTo("c:guest");
-    assertThat(OwnerKey.parseKey("u:acct").value()).isEqualTo("u:acct");
+    assertThat(OwnerKey.parseKey("c:guest").getValue()).isEqualTo("c:guest");
+    assertThat(OwnerKey.parseKey("u:acct").getValue()).isEqualTo("u:acct");
   }
 
   @Test

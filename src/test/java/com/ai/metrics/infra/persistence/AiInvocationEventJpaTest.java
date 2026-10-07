@@ -45,7 +45,7 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
     assertThat(reloaded).isNotNull();
     assertThat(reloaded.getOperation()).isEqualTo("completion");
     assertThat(reloaded.getLatencyMs()).isEqualTo(250);
-    assertThat(reloaded.getOwnerKey().value()).isEqualTo(OWNER_KEY);
+    assertThat(reloaded.getOwnerKey().getValue()).isEqualTo(OWNER_KEY);
     assertThat(rawColumn(event, "owner_key")).isEqualTo(OWNER_KEY);
   }
 
@@ -133,7 +133,7 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
                 0,
                 10));
 
-    assertThat(page.items())
+    assertThat(page.getItems())
         .singleElement()
         .extracting(AiInvocationEvent::getOccurredAt)
         .isEqualTo(occurredAt);
@@ -149,9 +149,9 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
 
     PageResult page = repository.findDrilldown(query(-2, 500));
 
-    assertThat(page.total()).isEqualTo(101);
-    assertThat(page.items()).hasSize(100);
-    assertThat(page.items().getFirst().getSessionId()).isEqualTo("s100");
+    assertThat(page.getTotal()).isEqualTo(101);
+    assertThat(page.getItems()).hasSize(100);
+    assertThat(page.getItems().getFirst().getSessionId()).isEqualTo("s100");
   }
 
   @Test
@@ -165,7 +165,7 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
     assertThat(repository.deleteBySessionIds(List.of("erased", " "))).isEqualTo(1);
     assertThat(repository.deleteOlderThan(Instant.parse("2026-01-01T00:00:00Z"))).isEqualTo(1);
 
-    assertThat(repository.findDrilldown(query(0, 10)).items())
+    assertThat(repository.findDrilldown(query(0, 10)).getItems())
         .extracting(AiInvocationEvent::getSessionId)
         .containsExactly("kept");
   }

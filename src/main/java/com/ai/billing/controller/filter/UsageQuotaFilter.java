@@ -75,10 +75,10 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
             : null;
     QuotaDecision decision =
         dailyUsageQuotaService.tryConsume(owner, ClientIdentity.resolveLimitAddress(request));
-    response.setHeader("X-Quota-Limit", String.valueOf(decision.limit()));
-    response.setHeader("X-Quota-Remaining", String.valueOf(decision.remaining()));
-    response.setHeader("X-Quota-Plan", decision.plan().getValue());
-    if (!decision.allowed()) {
+    response.setHeader("X-Quota-Limit", String.valueOf(decision.getLimit()));
+    response.setHeader("X-Quota-Remaining", String.valueOf(decision.getRemaining()));
+    response.setHeader("X-Quota-Plan", decision.getPlan().getValue());
+    if (!decision.isAllowed()) {
       response.setStatus(429);
       response.setContentType(MediaType.APPLICATION_JSON_VALUE);
       response

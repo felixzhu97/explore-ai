@@ -15,7 +15,7 @@ class AnalysisTextTest {
   void shouldCreateFromValidText() {
     AnalysisText text = AnalysisText.createText("  Hello world  ");
 
-    assertThat(text.value()).isEqualTo("Hello world");
+    assertThat(text.getValue()).isEqualTo("Hello world");
   }
 
   @Test

@@ -59,7 +59,7 @@ class QuotaValueObjectsTest {
 
     assertThat(usage.calculateRemaining(3, TODAY)).isEqualTo(1);
     assertThat(usage.release(TODAY).calculateRemaining(3, TODAY)).isEqualTo(2);
-    assertThat(DailyUsage.createEmptyUsage(TODAY).release(TODAY).count()).isZero();
+    assertThat(DailyUsage.createEmptyUsage(TODAY).release(TODAY).getCount()).isZero();
   }
 
   @Test
@@ -75,7 +75,7 @@ class QuotaValueObjectsTest {
   @Test
   @DisplayName("should have nothing remaining when a decision refuses the request")
   void shouldHaveNothingRemainingWhenADecisionRefusesTheRequest() {
-    assertThat(QuotaDecision.createRefusal(Plan.FREE, 50).remaining()).isZero();
+    assertThat(QuotaDecision.createRefusal(Plan.FREE, 50).getRemaining()).isZero();
     assertThatThrownBy(() -> new QuotaDecision(false, Plan.FREE, 50, 3))
         .isInstanceOf(IllegalArgumentException.class);
   }

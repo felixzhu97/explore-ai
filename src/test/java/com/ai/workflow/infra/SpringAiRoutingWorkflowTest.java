@@ -51,8 +51,8 @@ class SpringAiRoutingWorkflowTest {
                 "billing", "You are a billing specialist.",
                 "tech", "You are a tech specialist."));
 
-    assertThat(result.selection()).isEqualTo("billing");
-    assertThat(result.reasoning()).isEqualTo("billing keywords");
-    assertThat(result.output()).isEqualTo("Invoice help answer");
+    assertThat(result.getSelection()).isEqualTo("billing");
+    assertThat(result.getReasoning()).isEqualTo("billing keywords");
+    assertThat(result.getOutput()).isEqualTo("Invoice help answer");
   }
 }

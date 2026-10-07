@@ -15,7 +15,7 @@ class WeatherQueryTest {
   void shouldNormalizeCityName() {
     WeatherQuery query = WeatherQuery.createQuery(" Beijing ");
 
-    assertThat(query.normalizedCity()).isEqualTo("beijing");
+    assertThat(query.getNormalizedCity()).isEqualTo("beijing");
   }
 
   @Test

@@ -34,8 +34,8 @@ class ImageCatalogTest {
 
     mutableModels.add("dall-e-2");
 
-    assertThat(catalog.models()).containsExactly("dall-e-3");
-    assertThatThrownBy(() -> catalog.models().add("dall-e-2"))
+    assertThat(catalog.getModels()).containsExactly("dall-e-3");
+    assertThatThrownBy(() -> catalog.getModels().add("dall-e-2"))
         .isInstanceOf(UnsupportedOperationException.class);
   }
 }

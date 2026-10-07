@@ -1,8 +1,16 @@
 package com.ai.image.domain.model;
 
 import com.ai.common.exception.DomainException;
+import lombok.Value;
 
-public record ImageOptions(String model, String quality, ImageSize size, int count) {
+/** Model, quality, size and count for one image request. */
+@Value
+public class ImageOptions {
+  String model;
+  String quality;
+  ImageSize size;
+  int count;
+
   /** Creates options with catalog defaults, validating model, quality, size, and count (1-4). */
   public static ImageOptions createOptions(
       String model, String quality, int width, int height, int count) {

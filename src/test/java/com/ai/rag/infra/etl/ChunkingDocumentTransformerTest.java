@@ -41,9 +41,9 @@ class ChunkingDocumentTransformerTest {
     assertThat(chunks)
         .allSatisfy(
             chunk -> {
-              assertThat(chunk.metadata()).isEqualTo(metadata);
-              assertThat(chunk.source()).isEqualTo("guide.txt");
-              assertThat(chunk.content()).isNotBlank();
+              assertThat(chunk.getMetadata()).isEqualTo(metadata);
+              assertThat(chunk.getSource()).isEqualTo("guide.txt");
+              assertThat(chunk.getContent()).isNotBlank();
             });
   }
 
@@ -67,6 +67,6 @@ class ChunkingDocumentTransformerTest {
     List<ExtractedDocument> chunks = transformer.splitDocument(document);
 
     assertThat(chunks).hasSize(1);
-    assertThat(chunks.getFirst().content()).isEqualTo("Short note.");
+    assertThat(chunks.getFirst().getContent()).isEqualTo("Short note.");
   }
 }

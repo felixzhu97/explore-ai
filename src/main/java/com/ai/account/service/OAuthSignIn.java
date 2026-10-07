@@ -45,7 +45,7 @@ public record OAuthSignIn(ExternalIdentity identity, ContactEmail email, String 
     if (displayName != null) {
       return Optional.of(displayName);
     }
-    return Optional.ofNullable(email).map(ContactEmail::value);
+    return Optional.ofNullable(email).map(ContactEmail::getValue);
   }
 
   private static Optional<OAuthSignIn> of(

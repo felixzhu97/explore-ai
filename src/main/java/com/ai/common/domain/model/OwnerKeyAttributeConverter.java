@@ -9,7 +9,7 @@ public class OwnerKeyAttributeConverter implements AttributeConverter<OwnerKey, 
 
   @Override
   public String convertToDatabaseColumn(OwnerKey attribute) {
-    return attribute == null ? null : attribute.value();
+    return attribute == null ? null : attribute.getValue();
   }
 
   @Override

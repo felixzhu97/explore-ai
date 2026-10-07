@@ -1,3 +1,9 @@
 package com.ai.vision.domain.model;
 
-public record OcrResult(String text) {}
+import lombok.Value;
+
+/** Text recognized in an image. */
+@Value
+public class OcrResult {
+  String text;
+}

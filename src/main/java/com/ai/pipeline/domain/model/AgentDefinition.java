@@ -61,6 +61,6 @@ public final class AgentDefinition {
 
   /** Tells whether the agent uses the deep runtime. */
   public boolean isDeep() {
-    return RUNTIME_DEEP.equals(runtime) || "deep".equals(type.value());
+    return RUNTIME_DEEP.equals(runtime) || "deep".equals(type.getValue());
   }
 }

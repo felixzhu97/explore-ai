@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import lombok.Value;
 
 /** Repository that stores, purges, and pages through AI invocation events. */
 public interface AiInvocationEventRepository {
@@ -26,17 +27,25 @@ public interface AiInvocationEventRepository {
     return 0;
   }
 
-  record DrilldownQuery(
-      Optional<AiCapability> capability,
-      Optional<Instant> from,
-      Optional<Instant> to,
-      Optional<String> day,
-      Optional<InvocationOutcome> outcome,
-      Optional<String> model,
-      Optional<String> agentType,
-      Optional<String> toolName,
-      int page,
-      int size) {}
+  /** Filters and page of a drill-down over invocation events. */
+  @Value
+  class DrilldownQuery {
+    Optional<AiCapability> capability;
+    Optional<Instant> from;
+    Optional<Instant> to;
+    Optional<String> day;
+    Optional<InvocationOutcome> outcome;
+    Optional<String> model;
+    Optional<String> agentType;
+    Optional<String> toolName;
+    int page;
+    int size;
+  }
 
-  record PageResult(List<AiInvocationEvent> items, long total) {}
+  /** One page of events with the total count across pages. */
+  @Value
+  class PageResult {
+    List<AiInvocationEvent> items;
+    long total;
+  }
 }

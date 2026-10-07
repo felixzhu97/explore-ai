@@ -69,8 +69,8 @@ class SpringAiSupervisorRouterTest {
 
     RoutingPlan plan = router.plan("find market data", List.of(researcher));
 
-    assertThat(plan.primaryAgent()).isEqualTo(AgentType.createType("researcher"));
-    assertThat(plan.reason()).isEqualTo("needs lookup");
+    assertThat(plan.getPrimaryAgent()).isEqualTo(AgentType.createType("researcher"));
+    assertThat(plan.getReason()).isEqualTo("needs lookup");
   }
 
   @Test
@@ -98,8 +98,8 @@ class SpringAiSupervisorRouterTest {
 
     RoutingPlan plan = router.plan("summarize", List.of(writer));
 
-    assertThat(plan.primaryAgent()).isEqualTo(AgentType.createType("writer"));
-    assertThat(plan.subtasks()).hasSize(1);
+    assertThat(plan.getPrimaryAgent()).isEqualTo(AgentType.createType("writer"));
+    assertThat(plan.getSubtasks()).hasSize(1);
   }
 
   @Test
@@ -117,7 +117,7 @@ class SpringAiSupervisorRouterTest {
 
     RoutingPlan plan = router.plan("summarize", List.of(writer));
 
-    assertThat(plan.primaryAgent()).isEqualTo(AgentType.createType("writer"));
-    assertThat(plan.reason()).contains("fallback");
+    assertThat(plan.getPrimaryAgent()).isEqualTo(AgentType.createType("writer"));
+    assertThat(plan.getReason()).contains("fallback");
   }
 }

@@ -178,9 +178,9 @@ class AutomationScheduleTest {
     void shouldAddressTheResultEmailToTheRecipientWithTheScheduleName() {
       EmailMessage email = cronSchedule().composeResultEmail("text", "<p>html</p>");
 
-      assertThat(email.to()).isEqualTo("user@example.com");
-      assertThat(email.subject()).isEqualTo("[ExploreAI] Daily research");
-      assertThat(email.htmlBody()).isEqualTo("<p>html</p>");
+      assertThat(email.getTo()).isEqualTo("user@example.com");
+      assertThat(email.getSubject()).isEqualTo("[ExploreAI] Daily research");
+      assertThat(email.getHtmlBody()).isEqualTo("<p>html</p>");
     }
   }
 

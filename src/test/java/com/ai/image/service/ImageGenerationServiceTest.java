@@ -73,7 +73,7 @@ class ImageGenerationServiceTest {
 
     ArgumentCaptor<ImageOptions> optionsCaptor = ArgumentCaptor.forClass(ImageOptions.class);
     verify(imageGenerationGateway).generateImage(any(ImagePrompt.class), optionsCaptor.capture());
-    assertThat(optionsCaptor.getValue().model()).isEqualTo("x/z-image-turbo");
+    assertThat(optionsCaptor.getValue().getModel()).isEqualTo("x/z-image-turbo");
   }
 
   @Test
@@ -87,6 +87,6 @@ class ImageGenerationServiceTest {
 
     ArgumentCaptor<ImageOptions> optionsCaptor = ArgumentCaptor.forClass(ImageOptions.class);
     verify(imageGenerationGateway).generateImage(any(ImagePrompt.class), optionsCaptor.capture());
-    assertThat(optionsCaptor.getValue().model()).isEqualTo("dall-e-3");
+    assertThat(optionsCaptor.getValue().getModel()).isEqualTo("dall-e-3");
   }
 }

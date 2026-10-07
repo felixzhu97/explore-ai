@@ -45,13 +45,13 @@ public class BundledSkillLoader {
         parseSkill(resource)
             .ifPresent(
                 skill -> {
-                  if (!allowedIds.contains(skill.name())) {
+                  if (!allowedIds.contains(skill.getName())) {
                     return;
                   }
-                  if (loaded.containsKey(skill.name())) {
+                  if (loaded.containsKey(skill.getName())) {
                     return;
                   }
-                  loaded.put(skill.name(), skill);
+                  loaded.put(skill.getName(), skill);
                 });
       } catch (Exception expected) {
       }

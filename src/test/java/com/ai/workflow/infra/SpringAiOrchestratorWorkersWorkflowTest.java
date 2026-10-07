@@ -62,9 +62,9 @@ class SpringAiOrchestratorWorkersWorkflowTest {
 
     OrchestratorWorkersResult result = workflow.process("Write a product blurb");
 
-    assertThat(result.analysis()).isEqualTo("two styles");
-    assertThat(result.tasks()).hasSize(2);
-    assertThat(result.workerResponses()).containsExactlyInAnyOrder("worker-1", "worker-2");
-    assertThat(result.synthesis()).isEqualTo("synthesized answer");
+    assertThat(result.getAnalysis()).isEqualTo("two styles");
+    assertThat(result.getTasks()).hasSize(2);
+    assertThat(result.getWorkerResponses()).containsExactlyInAnyOrder("worker-1", "worker-2");
+    assertThat(result.getSynthesis()).isEqualTo("synthesized answer");
   }
 }

@@ -42,7 +42,7 @@ class CapturedWebSourcesTest {
     List<WebSource> parsed = CapturedWebSources.parseItems(items);
 
     assertThat(parsed).hasSize(1);
-    assertThat(parsed.getFirst().url()).isEqualTo("https://u.example");
-    assertThat(parsed.getFirst().publishedAt()).isEqualTo("Jul 19, 2026");
+    assertThat(parsed.getFirst().getUrl()).isEqualTo("https://u.example");
+    assertThat(parsed.getFirst().getPublishedAt()).isEqualTo("Jul 19, 2026");
   }
 }

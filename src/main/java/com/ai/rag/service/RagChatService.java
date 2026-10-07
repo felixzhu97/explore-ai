@@ -117,7 +117,7 @@ public class RagChatService {
       TextChatOptions options) {
     Filter.Expression filter = buildRetrievalFilter(ownerKey, documentIds);
 
-    String languageCode = DetectedLanguage.createLanguage(question).code();
+    String languageCode = DetectedLanguage.createLanguage(question).getCode();
     String languageHint =
         "Respond in the same language as the user question (detected: " + languageCode + ").";
 

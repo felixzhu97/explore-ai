@@ -15,7 +15,7 @@ public record AgentInfoResponse(
   /** Builds a response from an agent definition, flagging whether it is the supervisor. */
   public static AgentInfoResponse from(AgentDefinition definition) {
     return new AgentInfoResponse(
-        definition.getType().value(),
+        definition.getType().getValue(),
         definition.getName(),
         definition.getDescription(),
         definition.isHealthy(),

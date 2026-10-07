@@ -29,13 +29,15 @@ public class JdbcOwnerPartitionRepository implements OwnerPartitionRepository {
   public void reassignOwner(OwnerKey from, OwnerKey to) {
     for (String table : OWNER_TABLES) {
       jdbcTemplate.update(
-          "UPDATE " + table + " SET owner_key = ? WHERE owner_key = ?", to.value(), from.value());
+          "UPDATE " + table + " SET owner_key = ? WHERE owner_key = ?",
+          to.getValue(),
+          from.getValue());
     }
   }
 
   @Override
   public void deleteAllForOwner(OwnerKey owner) {
-    String key = owner.value();
+    String key = owner.getValue();
     // Child / dependent tables first where FK-like ordering matters
     jdbcTemplate.update("DELETE FROM automation_run WHERE owner_key = ?", key);
     jdbcTemplate.update("DELETE FROM automation_schedule WHERE owner_key = ?", key);
