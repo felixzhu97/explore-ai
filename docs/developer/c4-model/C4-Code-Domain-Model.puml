@@ -21,13 +21,15 @@ legend right
   | <<ValueObject>> | 值对象 |
   | <<Enum>> | 枚举 |
   | <<DomainEvent>> | 领域事件 |
-  | <<DomainService>> | 领域服务 |
-  | <<Repository>> | 仓储端口 |
-  | <<FilterDef>> | Hibernate 过滤器定义 |
+  | <<Repository>> | 仓储 / 网关端口 |
 endlegend
 
 note as N_LAYERS
   controller → service → domain ← infra
+  domain = model (entities, aggregates, value objects, events)
+  + repository (persistence and gateway ports) only.
+  LLM tools and workflows are application ports in service.
+  Rule violations raise DomainException(kind, code).
   Aggregates encapsulate invariants; application orchestrates use cases.
   ChatMessage bodies persist via Spring AI ChatMemory bridge.
   Kernel: Domain Kernel + Common packages below.
@@ -98,10 +100,6 @@ package "Common" as pkg_common_kernel {
     --
     +markFinished(at)
   }
-  class OwnerPartition <<FilterDef>> {
-    ownerPartition: owner_key = :ownerKey
-    applyToLoadByKey = true
-  }
   class AbstractAppendOnlyEvent <<Abstract>> {
     +occurredAt: Instant
   }
@@ -113,10 +111,6 @@ package "Common" as pkg_common_kernel {
     +isClient()
     +isAccount()
     +requireMergeableInto(target)
-  }
-  class DomainStrings <<DomainService>> {
-    +{static} normalizeName(raw)
-    +{static} copyNameCandidates(base, maxLength)
   }
   interface OwnerScopedRepository<E, I> <<Repository>> {
     +save(entity)
@@ -134,7 +128,6 @@ AbstractEnableableNamedOwnerEntity <|-- AbstractEnableableDescribedOwnerEntity
 AbstractImmutableEntity <|-- AbstractAppendOnlyEvent
 AbstractImmutableEntity <|-- AbstractTimedRunEntity
 AbstractOwnerKeyedEntity --> OwnerKey
-AbstractOwnerKeyedEntity ..> OwnerPartition : filtered by
 
 ' ── chat ───────────────────────────────────────────────────
 package "Chat" as pkg_chat {
@@ -185,6 +178,11 @@ package "Chat" as pkg_chat {
   class WebSource <<ValueObject>> {
     +url: String
     +title: String
+  }
+  class DetectedLanguage <<ValueObject>> {
+    +code: String
+    --
+    +{static} of(text)
   }
   interface ChatSessionRepository <<Repository>> {
     +save(session)
@@ -285,9 +283,6 @@ package "Pipeline" as pkg_pipeline {
     +hasType(agentType)
     +toAgentDefinition()
   }
-  class AgentCatalog <<DomainService>> {
-    +{static} merge(builtins, library)
-  }
   interface PipelineTemplateRepository <<Repository>> {
   }
   interface SavedAgentRepository <<Repository>> {
@@ -327,12 +322,12 @@ package "Automation" as pkg_automation {
     +{static} create(...)
     +{static} createOnce(...)
     +update(...)
-    +turnOn(now, cronSchedule)
+    +turnOn(now)
     +disable()
     +hasPendingRun(now)
     +pendingRunAt(): Optional
-    +provisionalNextRunAt(now, cronSchedule)
-    +recordRunFinished(finishedAt, cronSchedule)
+    +provisionalNextRunAt(now)
+    +recordRunFinished(finishedAt)
     +resultEmail(textBody, htmlBody)
     +isOnce()
   }
@@ -343,9 +338,7 @@ package "Automation" as pkg_automation {
     --
     +{static} cron(expression, timezone)
     +{static} once(timezone)
-  }
-  interface CronSchedule <<DomainService>> {
-    +nextRunAfter(expression, timezone, after)
+    +nextRunAfter(after): Instant
   }
   class AutomationRun <<Entity>> {
     @DynamicUpdate @Filter(ownerPartition)
@@ -366,8 +359,7 @@ package "Automation" as pkg_automation {
 }
 
 AutomationSchedule "1" o-- "0..*" AutomationRun
-AutomationSchedule --> ScheduleTiming
-AutomationSchedule ..> CronSchedule : next run from
+AutomationSchedule --> ScheduleTiming : next run from
 
 ' ── account ────────────────────────────────────────────────
 package "Account" as pkg_account {
@@ -466,11 +458,6 @@ package "MCP" as pkg_mcp {
     +close()
     +isActive()
   }
-  class McpSessionRegistry <<DomainService>> {
-    +registerSession(serverName, toolCount)
-    +closeSession(sessionId)
-    +activeSessions()
-  }
 }
 
 ' ── metrics ────────────────────────────────────────────────
@@ -538,10 +525,11 @@ package "Tool Calling" as pkg_tools {
 note as KERNEL_NOTE
   OwnerKey and owner-keyed aggregate bases live in
   the **Common** package above.
-  Attribute converters (OwnerKey, enums, JSON lists) live in domain.vo.
+  Value objects and attribute converters (OwnerKey, enums, JSON lists)
+  live in domain.model next to the entities that use them.
   Typed ids map to native UUID columns.
-  Owner-scoped repositories run inside OwnerPartitionScope (infra),
-  which enables the ownerPartition filter; background jobs stay unfiltered.
+  The ownerPartition filter is defined in infra (OwnerPartitionScope),
+  which enables it per call; background jobs stay unfiltered.
   Default JPA snake_case naming; no @Table/@Column(name=) in domain.
 end note
 
@@ -568,9 +556,7 @@ AiInvocationEvent --> Latency
 AiInvocationEvent --> ErrorSummary
 AiInvocationEvent --> TokenUsage
 PipelineTemplate ..> AgentPipeline : builds linear
-AgentCatalog ..> SavedAgent : overrides builtin
-AgentCatalog ..> AgentDefinition
-AutomationRun ..> OwnerPartition : filtered by
+SavedAgent ..> AgentDefinition : overrides builtin
 
 N_LAYERS .. pkg_chat
 N_LAYERS .. pkg_base
