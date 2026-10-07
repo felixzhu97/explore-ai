@@ -3,7 +3,6 @@ package com.ai.metrics.infra.health;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +36,6 @@ class DomainHealthGatewayTest {
 
   @BeforeEach
   void setUp() {
-    lenient().when(mcpHealthProbeProvider.getIfAvailable()).thenReturn(mcpHealthProbe);
     gateway = new DomainHealthGateway(pipelineService, mcpHealthProbeProvider);
   }
 
@@ -78,6 +76,7 @@ class DomainHealthGatewayTest {
   @Test
   @DisplayName("should report mcp health with tool and server counts")
   void shouldReportMcpHealthWithToolAndServerCounts() {
+    when(mcpHealthProbeProvider.getIfAvailable()).thenReturn(mcpHealthProbe);
     when(mcpHealthProbe.countRegisteredTools()).thenReturn(5);
     when(mcpHealthProbe.countConnectedServers()).thenReturn(2);
 
@@ -88,7 +87,6 @@ class DomainHealthGatewayTest {
   @DisplayName("should report mcp disabled when mcp service bean is absent")
   void shouldReportMcpDisabledWhenServiceBeanIsAbsent() {
     when(mcpHealthProbeProvider.getIfAvailable()).thenReturn(null);
-    gateway = new DomainHealthGateway(pipelineService, mcpHealthProbeProvider);
 
     assertThat(gateway.checkMcpHealth()).isEqualTo(new McpHealth(ModuleStatus.DISABLED, 0, 0));
   }

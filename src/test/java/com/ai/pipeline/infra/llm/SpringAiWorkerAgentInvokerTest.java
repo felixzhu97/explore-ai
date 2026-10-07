@@ -1,8 +1,6 @@
 package com.ai.pipeline.infra.llm;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,9 +14,12 @@ import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentType;
 import com.ai.tools.infra.tools.DateTimeTools;
 import com.ai.tools.infra.tools.WeatherTools;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.client.ChatClient;
@@ -35,108 +36,89 @@ class SpringAiWorkerAgentInvokerTest {
   @Mock private DateTimeTools dateTimeTool;
   @Mock private AgentSkillsRuntime agentSkillsRuntime;
   @Mock private ChatClient chatClient;
-  @Mock private ChatClient.ChatClientRequestSpec requestSpec;
+
+  @Mock(answer = Answers.RETURNS_SELF)
+  private ChatClient.ChatClientRequestSpec requestSpec;
+
   @Mock private ChatClient.CallResponseSpec callResponseSpec;
 
-  @Test
-  void shouldBindWeatherToolWhenWeatherAgentInvoked() {
-    SpringAiWorkerAgentInvoker invoker = newInvoker();
-    stubCallChain();
+  private SpringAiWorkerAgentInvoker invoker;
 
-    invoker.invoke(agent("weather"), "Beijing weather");
-
-    verify(requestSpec).tools(eq(weatherTool));
+  @BeforeEach
+  void setUp() {
+    invoker =
+        new SpringAiWorkerAgentInvoker(
+            chatClientProvider,
+            documentSearchTool,
+            webSearchTool,
+            weatherTool,
+            dateTimeTool,
+            agentSkillsRuntime);
   }
 
   @Test
-  void shouldBindWebSearchAndDatetimeToolsWhenResearchAgentInvoked() {
-    SpringAiWorkerAgentInvoker invoker = newInvoker();
-    stubCallChain();
+  @DisplayName("should bind the weather tool when the weather agent runs")
+  void shouldBindTheWeatherToolWhenTheWeatherAgentRuns() {
+    givenModelReplies("ok");
 
-    invoker.invoke(agent("research"), "latest Spring AI release");
+    invoker.invoke(agent("weather", "weather"), "Beijing weather");
 
-    verify(requestSpec).tools(eq(webSearchTool), eq(dateTimeTool));
+    verify(requestSpec).tools(weatherTool);
   }
 
   @Test
-  void shouldBindDocumentSearchToolWhenVectordbAgentInvoked() {
-    SpringAiWorkerAgentInvoker invoker = newInvoker();
-    stubCallChain();
+  @DisplayName("should bind web search and datetime tools when the research agent runs")
+  void shouldBindWebSearchAndDatetimeToolsWhenTheResearchAgentRuns() {
+    givenModelReplies("ok");
 
-    invoker.invoke(agent("vectordb"), "find onboarding docs");
+    invoker.invoke(agent("research", "web", "datetime"), "latest Spring AI release");
 
-    verify(requestSpec).tools(eq(documentSearchTool));
+    verify(requestSpec).tools(webSearchTool, dateTimeTool);
   }
 
   @Test
-  void shouldSkipToolsWhenAnalystAgentInvoked() {
-    SpringAiWorkerAgentInvoker invoker = newInvoker();
-    stubCallChainWithoutTools();
+  @DisplayName("should bind the document search tool when the vectordb agent runs")
+  void shouldBindTheDocumentSearchToolWhenTheVectordbAgentRuns() {
+    givenModelReplies("ok");
+
+    invoker.invoke(agent("vectordb", "document"), "find onboarding docs");
+
+    verify(requestSpec).tools(documentSearchTool);
+  }
+
+  @Test
+  @DisplayName("should bind no tools when the agent declares none")
+  void shouldBindNoToolsWhenTheAgentDeclaresNone() {
+    givenModelReplies("ok");
 
     invoker.invoke(agent("analyst"), "summarize findings");
 
-    verify(requestSpec, never()).tools(any());
-    verify(requestSpec).call();
+    verify(requestSpec, never()).tools(any(Object[].class));
   }
 
   @Test
-  void shouldUseBlockingCallWhenStreamingToolAgent() {
-    SpringAiWorkerAgentInvoker invoker = newInvoker();
-    stubCallChain();
-    when(callResponseSpec.content())
-        .thenReturn("brief <｜DSML｜tool_calls>leak</｜DSML｜tool_calls> done");
+  @DisplayName("should stream a blocking reply without leaked tool markup for tool agents")
+  void shouldStreamABlockingReplyWithoutLeakedToolMarkupForToolAgents() {
+    givenModelReplies("brief <｜DSML｜tool_calls>leak</｜DSML｜tool_calls> done");
 
-    StepVerifier.create(invoker.invokeStream(agent("research"), "search topic"))
+    StepVerifier.create(invoker.invokeStream(agent("research", "web", "datetime"), "search topic"))
         .expectNext("brief  done")
         .verifyComplete();
 
-    verify(requestSpec).call();
     verify(requestSpec, never()).stream();
   }
 
-  private SpringAiWorkerAgentInvoker newInvoker() {
-    lenient()
-        .when(agentSkillsRuntime.augmentSystemPrompt(any(String.class)))
-        .thenAnswer(invocation -> invocation.getArgument(0));
-    return new SpringAiWorkerAgentInvoker(
-        chatClientProvider,
-        documentSearchTool,
-        webSearchTool,
-        weatherTool,
-        dateTimeTool,
-        agentSkillsRuntime);
-  }
-
-  private static AgentDefinition agent(String type) {
-    java.util.List<String> tools =
-        switch (type) {
-          case "weather" -> java.util.List.of("weather");
-          case "research" -> java.util.List.of("web", "datetime");
-          case "vectordb" -> java.util.List.of("document");
-          default -> java.util.List.of();
-        };
-    return AgentDefinition.create(AgentType.of(type), type, type, "system", tools, "single");
-  }
-
-  private void stubCallChain() {
+  private void givenModelReplies(String content) {
+    when(agentSkillsRuntime.augmentSystemPrompt("system")).thenReturn("system");
     when(chatClientProvider.create(any(), any(ChatClientProfile.class), any()))
         .thenReturn(chatClient);
     when(chatClient.prompt()).thenReturn(requestSpec);
-    when(requestSpec.system(any(String.class))).thenReturn(requestSpec);
-    when(requestSpec.user(any(String.class))).thenReturn(requestSpec);
-    lenient().when(requestSpec.tools(any())).thenReturn(requestSpec);
-    lenient().when(requestSpec.tools(any(), any())).thenReturn(requestSpec);
     when(requestSpec.call()).thenReturn(callResponseSpec);
-    when(callResponseSpec.content()).thenReturn("ok");
+    when(callResponseSpec.content()).thenReturn(content);
   }
 
-  private void stubCallChainWithoutTools() {
-    when(chatClientProvider.create(any(), any(ChatClientProfile.class), any()))
-        .thenReturn(chatClient);
-    when(chatClient.prompt()).thenReturn(requestSpec);
-    when(requestSpec.system(any(String.class))).thenReturn(requestSpec);
-    when(requestSpec.user(any(String.class))).thenReturn(requestSpec);
-    when(requestSpec.call()).thenReturn(callResponseSpec);
-    when(callResponseSpec.content()).thenReturn("ok");
+  private static AgentDefinition agent(String type, String... tools) {
+    return AgentDefinition.create(
+        AgentType.of(type), type, type, "system", List.of(tools), "single");
   }
 }

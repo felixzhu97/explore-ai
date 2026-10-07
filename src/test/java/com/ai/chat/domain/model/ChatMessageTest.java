@@ -52,102 +52,81 @@ class ChatMessageTest {
     }
   }
 
-  @Nested
-  @DisplayName("createAssistantMessage()")
-  class CreateAssistantMessage {
+  @Test
+  @DisplayName("should create assistant message with correct role")
+  void shouldCreateAssistantMessageWithCorrectRole() {
+    ChatMessage message = ChatMessage.createAssistantMessage("Hi!");
 
-    @Test
-    @DisplayName("should create assistant message with correct role")
-    void shouldCreateAssistantMessageWithCorrectRole() {
-      ChatMessage message = ChatMessage.createAssistantMessage("Hi!");
-
-      assertThat(message.isFromAssistant()).isTrue();
-      assertThat(message.isFromUser()).isFalse();
-      assertThat(message.getText()).isEqualTo("Hi!");
-    }
+    assertThat(message.isFromAssistant()).isTrue();
+    assertThat(message.isFromUser()).isFalse();
+    assertThat(message.getText()).isEqualTo("Hi!");
   }
 
-  @Nested
-  @DisplayName("restore()")
-  class Restore {
+  @Test
+  @DisplayName("should keep every stored field when a message is restored")
+  void shouldKeepEveryStoredFieldWhenAMessageIsRestored() {
+    MessageId id = MessageId.generate();
+    Instant timestamp = Instant.now();
 
-    @Test
-    @DisplayName("should keep every stored field when a message is restored")
-    void shouldKeepEveryStoredFieldWhenAMessageIsRestored() {
-      MessageId id = MessageId.generate();
-      Instant timestamp = Instant.now();
+    ChatMessage message = ChatMessage.restore(id, "Test", ChatMessageType.ASSISTANT, timestamp);
 
-      ChatMessage message = ChatMessage.restore(id, "Test", ChatMessageType.ASSISTANT, timestamp);
+    assertThat(message.getId()).isEqualTo(id);
+    assertThat(message.getText()).isEqualTo("Test");
+    assertThat(message.getMessageType()).isEqualTo(ChatMessageType.ASSISTANT);
+    assertThat(message.isFromAssistant()).isTrue();
+    assertThat(message.getTimestamp()).isEqualTo(timestamp);
+  }
 
-      assertThat(message.getId()).isEqualTo(id);
-      assertThat(message.getText()).isEqualTo("Test");
-      assertThat(message.getMessageType()).isEqualTo(ChatMessageType.ASSISTANT);
-      assertThat(message.isFromAssistant()).isTrue();
-      assertThat(message.getTimestamp()).isEqualTo(timestamp);
-    }
-
-    @Test
-    @DisplayName("should reject a message when its type is missing")
-    void shouldRejectAMessageWhenItsTypeIsMissing() {
-      assertThatThrownBy(
-              () -> ChatMessage.restore(MessageId.generate(), "Text", null, Instant.now()))
-          .isInstanceOf(NullPointerException.class);
-    }
+  @Test
+  @DisplayName("should reject a message when its type is missing")
+  void shouldRejectAMessageWhenItsTypeIsMissing() {
+    assertThatThrownBy(() -> ChatMessage.restore(MessageId.generate(), "Text", null, Instant.now()))
+        .isInstanceOf(NullPointerException.class);
   }
 
   @Nested
   @DisplayName("withText()")
   class WithText {}
 
-  @Nested
-  @DisplayName("equals() and hashCode()")
-  class Identity {
+  @Test
+  @DisplayName("should be equal when id is same")
+  void shouldBeEqualWhenIdIsSame() {
+    MessageId id = MessageId.of("11111111-1111-1111-1111-111111111111");
+    Instant now = Instant.now();
+    ChatMessage msg1 = ChatMessage.restore(id, "Text 1", ChatMessageType.USER, now);
+    ChatMessage msg2 = ChatMessage.restore(id, "Text 2", ChatMessageType.ASSISTANT, now);
 
-    @Test
-    @DisplayName("should be equal when id is same")
-    void shouldBeEqualWhenIdIsSame() {
-      MessageId id = MessageId.of("11111111-1111-1111-1111-111111111111");
-      Instant now = Instant.now();
-      ChatMessage msg1 = ChatMessage.restore(id, "Text 1", ChatMessageType.USER, now);
-      ChatMessage msg2 = ChatMessage.restore(id, "Text 2", ChatMessageType.ASSISTANT, now);
-
-      assertThat(msg1).isEqualTo(msg2);
-      assertThat(msg1.hashCode()).isEqualTo(msg2.hashCode());
-    }
-
-    @Test
-    @DisplayName("should not be equal when id is different")
-    void shouldNotBeEqualWhenIdIsDifferent() {
-      Instant now = Instant.now();
-      ChatMessage msg1 =
-          ChatMessage.restore(
-              MessageId.of("11111111-1111-1111-1111-111111111111"),
-              "Text",
-              ChatMessageType.USER,
-              now);
-      ChatMessage msg2 =
-          ChatMessage.restore(
-              MessageId.of("22222222-2222-2222-2222-222222222222"),
-              "Text",
-              ChatMessageType.USER,
-              now);
-
-      assertThat(msg1).isNotEqualTo(msg2);
-    }
+    assertThat(msg1).isEqualTo(msg2);
+    assertThat(msg1.hashCode()).isEqualTo(msg2.hashCode());
   }
 
-  @Nested
-  @DisplayName("toString()")
-  class ToString {
+  @Test
+  @DisplayName("should not be equal when id is different")
+  void shouldNotBeEqualWhenIdIsDifferent() {
+    Instant now = Instant.now();
+    ChatMessage msg1 =
+        ChatMessage.restore(
+            MessageId.of("11111111-1111-1111-1111-111111111111"),
+            "Text",
+            ChatMessageType.USER,
+            now);
+    ChatMessage msg2 =
+        ChatMessage.restore(
+            MessageId.of("22222222-2222-2222-2222-222222222222"),
+            "Text",
+            ChatMessageType.USER,
+            now);
 
-    @Test
-    @DisplayName("should contain id, type and timestamp")
-    void shouldContainIdTypeAndTimestamp() {
-      ChatMessage message = ChatMessage.createUserMessage("Test");
+    assertThat(msg1).isNotEqualTo(msg2);
+  }
 
-      String str = message.toString();
+  @Test
+  @DisplayName("should contain id, type and timestamp")
+  void shouldContainIdTypeAndTimestamp() {
+    ChatMessage message = ChatMessage.createUserMessage("Test");
 
-      assertThat(str).contains("type=USER");
-    }
+    String str = message.toString();
+
+    assertThat(str).contains("type=USER");
   }
 }

@@ -159,38 +159,33 @@ class H2DocumentChunkRepositoryTest {
     }
   }
 
-  @Nested
-  @DisplayName("SaveChunk")
-  class SaveChunk {
+  @Test
+  @DisplayName("should save chunk with embedding via MERGE")
+  void shouldSaveChunk() {
+    DocumentChunk chunk =
+        DocumentChunk.create(
+                ChunkId.generate(), DocumentId.generate(), OWNER_KEY, "content", 0, Map.of())
+            .withEmbedding(new float[] {0.1f, 0.2f});
+    when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
+    chunkRepository.saveChunk(chunk);
+    verify(jdbcTemplate).update(contains("MERGE INTO"), any(Object[].class));
+  }
 
-    @Test
-    @DisplayName("should save chunk with embedding via MERGE")
-    void shouldSaveChunk() {
-      DocumentChunk chunk =
-          DocumentChunk.create(
-                  ChunkId.generate(), DocumentId.generate(), OWNER_KEY, "content", 0, Map.of())
-              .withEmbedding(new float[] {0.1f, 0.2f});
-      when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
-      chunkRepository.saveChunk(chunk);
-      verify(jdbcTemplate).update(contains("MERGE INTO"), any(Object[].class));
-    }
-
-    @Test
-    @DisplayName("should serialize metadata when present")
-    void shouldSerializeMetadataWhenPresent() {
-      DocumentChunk chunk =
-          DocumentChunk.create(
-                  ChunkId.generate(),
-                  DocumentId.generate(),
-                  OWNER_KEY,
-                  "content",
-                  0,
-                  Map.of("key", "value"))
-              .withEmbedding(new float[] {0.1f});
-      when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
-      chunkRepository.saveChunk(chunk);
-      verify(jdbcTemplate).update(contains("MERGE INTO"), any(Object[].class));
-    }
+  @Test
+  @DisplayName("should serialize metadata when present")
+  void shouldSerializeMetadataWhenPresent() {
+    DocumentChunk chunk =
+        DocumentChunk.create(
+                ChunkId.generate(),
+                DocumentId.generate(),
+                OWNER_KEY,
+                "content",
+                0,
+                Map.of("key", "value"))
+            .withEmbedding(new float[] {0.1f});
+    when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
+    chunkRepository.saveChunk(chunk);
+    verify(jdbcTemplate).update(contains("MERGE INTO"), any(Object[].class));
   }
 
   @Nested
@@ -286,33 +281,23 @@ class H2DocumentChunkRepositoryTest {
     }
   }
 
-  @Nested
-  @DisplayName("findChunksByDocumentId")
-  class FindChunksByDocumentId {
-
-    @Test
-    @DisplayName("should find chunks by document ID")
-    void shouldFindChunksByDocumentId() {
-      DocumentId docId = DocumentId.generate();
-      when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(UUID.class)))
-          .thenReturn(List.of());
-      chunkRepository.findChunksByDocumentId(docId);
-      verify(jdbcTemplate)
-          .query(contains("WHERE document_id = ?"), any(RowMapper.class), eq(docId.getValue()));
-    }
+  @Test
+  @DisplayName("should find chunks by document ID")
+  void shouldFindChunksByDocumentId() {
+    DocumentId docId = DocumentId.generate();
+    when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(UUID.class)))
+        .thenReturn(List.of());
+    chunkRepository.findChunksByDocumentId(docId);
+    verify(jdbcTemplate)
+        .query(contains("WHERE document_id = ?"), any(RowMapper.class), eq(docId.getValue()));
   }
 
-  @Nested
-  @DisplayName("deleteChunksByDocumentId")
-  class DeleteChunksByDocumentId {
-
-    @Test
-    @DisplayName("should delete chunks by document ID")
-    void shouldDeleteChunksByDocumentId() {
-      DocumentId docId = DocumentId.generate();
-      when(jdbcTemplate.update(anyString(), any(UUID.class))).thenReturn(1);
-      chunkRepository.deleteChunksByDocumentId(docId);
-      verify(jdbcTemplate).update(contains("DELETE FROM"), eq(docId.getValue()));
-    }
+  @Test
+  @DisplayName("should delete chunks by document ID")
+  void shouldDeleteChunksByDocumentId() {
+    DocumentId docId = DocumentId.generate();
+    when(jdbcTemplate.update(anyString(), any(UUID.class))).thenReturn(1);
+    chunkRepository.deleteChunksByDocumentId(docId);
+    verify(jdbcTemplate).update(contains("DELETE FROM"), eq(docId.getValue()));
   }
 }

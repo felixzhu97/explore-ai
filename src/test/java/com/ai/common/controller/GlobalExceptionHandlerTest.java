@@ -46,21 +46,16 @@ class GlobalExceptionHandlerTest {
     handler = new GlobalExceptionHandler();
   }
 
-  @Nested
-  @DisplayName("NoResourceFoundException")
-  class HandleNoResourceFound {
+  @Test
+  @DisplayName("should return 404 with NOT_FOUND error code when no endpoint matches")
+  void shouldReturn404WithNotFoundErrorCodeWhenNoEndpointMatches() {
+    NoResourceFoundException exception =
+        new NoResourceFoundException(HttpMethod.GET, "/api/text/providers", "api/text/providers");
 
-    @Test
-    @DisplayName("should return 404 with NOT_FOUND error code when no endpoint matches")
-    void shouldReturn404WithNotFoundErrorCodeWhenNoEndpointMatches() {
-      NoResourceFoundException exception =
-          new NoResourceFoundException(HttpMethod.GET, "/api/text/providers", "api/text/providers");
+    ResponseEntity<ErrorResponse> response = handler.handleNoResourceFound(exception);
 
-      ResponseEntity<ErrorResponse> response = handler.handleNoResourceFound(exception);
-
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-      assertThat(response.getBody().errorCode()).isEqualTo("NOT_FOUND");
-    }
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    assertThat(response.getBody().errorCode()).isEqualTo("NOT_FOUND");
   }
 
   @Nested
@@ -178,62 +173,52 @@ class GlobalExceptionHandlerTest {
     }
   }
 
-  @Nested
-  @DisplayName("IllegalArgumentException")
-  class HandleIllegalArgument {
+  @Test
+  @DisplayName("should return 400 with BAD_REQUEST error code")
+  void shouldReturn400WithBadRequestErrorCode() {
+    IllegalArgumentException exception = new IllegalArgumentException("Invalid parameter value");
 
-    @Test
-    @DisplayName("should return 400 with BAD_REQUEST error code")
-    void shouldReturn400WithBadRequestErrorCode() {
-      IllegalArgumentException exception = new IllegalArgumentException("Invalid parameter value");
+    ResponseEntity<ErrorResponse> response = handler.handleIllegalArgument(exception);
 
-      ResponseEntity<ErrorResponse> response = handler.handleIllegalArgument(exception);
-
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-      assertThat(response.getBody()).isNotNull();
-      assertThat(response.getBody().errorCode()).isEqualTo("BAD_REQUEST");
-      assertThat(response.getBody().message()).contains("Invalid parameter value");
-    }
-
-    @Test
-    @DisplayName("should handle empty message")
-    void shouldHandleEmptyMessage() {
-      IllegalArgumentException exception = new IllegalArgumentException("");
-
-      ResponseEntity<ErrorResponse> response = handler.handleIllegalArgument(exception);
-
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-      assertThat(response.getBody().errorCode()).isEqualTo("BAD_REQUEST");
-    }
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().errorCode()).isEqualTo("BAD_REQUEST");
+    assertThat(response.getBody().message()).contains("Invalid parameter value");
   }
 
-  @Nested
-  @DisplayName("MaxUploadSizeExceededException")
-  class HandleMaxUploadSizeExceeded {
+  @Test
+  @DisplayName("should handle empty message")
+  void shouldHandleEmptyMessage() {
+    IllegalArgumentException exception = new IllegalArgumentException("");
 
-    @Test
-    @DisplayName("should return 413 with FILE_TOO_LARGE error code")
-    void shouldReturn413WithFileTooLargeErrorCode() {
-      MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(52428800L);
+    ResponseEntity<ErrorResponse> response = handler.handleIllegalArgument(exception);
 
-      ResponseEntity<ErrorResponse> response = handler.handleMaxUploadSizeExceeded(exception);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    assertThat(response.getBody().errorCode()).isEqualTo("BAD_REQUEST");
+  }
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
-      assertThat(response.getBody()).isNotNull();
-      assertThat(response.getBody().errorCode()).isEqualTo("FILE_TOO_LARGE");
-      assertThat(response.getBody().message()).contains("50MB");
-    }
+  @Test
+  @DisplayName("should return 413 with FILE_TOO_LARGE error code")
+  void shouldReturn413WithFileTooLargeErrorCode() {
+    MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(52428800L);
 
-    @Test
-    @DisplayName("should handle exception with different max size")
-    void shouldHandleExceptionWithDifferentMaxSize() {
-      MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(1024L);
+    ResponseEntity<ErrorResponse> response = handler.handleMaxUploadSizeExceeded(exception);
 
-      ResponseEntity<ErrorResponse> response = handler.handleMaxUploadSizeExceeded(exception);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().errorCode()).isEqualTo("FILE_TOO_LARGE");
+    assertThat(response.getBody().message()).contains("50MB");
+  }
 
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
-      assertThat(response.getBody().errorCode()).isEqualTo("FILE_TOO_LARGE");
-    }
+  @Test
+  @DisplayName("should handle exception with different max size")
+  void shouldHandleExceptionWithDifferentMaxSize() {
+    MaxUploadSizeExceededException exception = new MaxUploadSizeExceededException(1024L);
+
+    ResponseEntity<ErrorResponse> response = handler.handleMaxUploadSizeExceeded(exception);
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
+    assertThat(response.getBody().errorCode()).isEqualTo("FILE_TOO_LARGE");
   }
 
   @Nested

@@ -12,126 +12,95 @@ import org.junit.jupiter.api.Test;
 @DisplayName("ChatSession")
 class ChatSessionTest {
 
-  @Nested
-  @DisplayName("create()")
-  class Create {
+  @Test
+  @DisplayName("should create session with title")
+  void shouldCreateSessionWithTitle() {
+    ChatSession session = ChatSession.create("My Chat", "c:client-a");
 
-    @Test
-    @DisplayName("should create session with title")
-    void shouldCreateSessionWithTitle() {
-      ChatSession session = ChatSession.create("My Chat", "c:client-a");
-
-      assertThat(session.getTitle()).isEqualTo("My Chat");
-      assertThat(session.getId()).isNotNull();
-      assertThat(session.getCreatedAt()).isNotNull();
-      assertThat(session.isEmpty()).isTrue();
-    }
+    assertThat(session.getTitle()).isEqualTo("My Chat");
+    assertThat(session.getId()).isNotNull();
+    assertThat(session.getCreatedAt()).isNotNull();
+    assertThat(session.isEmpty()).isTrue();
   }
 
-  @Nested
-  @DisplayName("addUserMessage()")
-  class AddUserMessage {
+  @Test
+  @DisplayName("should add user message")
+  void shouldAddUserMessage() {
+    ChatSession session = ChatSession.create("Test", "c:client-a");
 
-    @Test
-    @DisplayName("should add user message")
-    void shouldAddUserMessage() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
+    ChatMessage message = session.addUserMessage("Hello");
 
-      ChatMessage message = session.addUserMessage("Hello");
-
-      assertThat(message.isFromUser()).isTrue();
-      assertThat(message.getText()).isEqualTo("Hello");
-      assertThat(session.getMessages()).hasSize(1);
-    }
-
-    @Test
-    @DisplayName("should update lastActivityAt")
-    void shouldUpdateLastActivityAt() throws InterruptedException {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-      Instant beforeAdd = session.getLastActivityAt();
-
-      Thread.sleep(10);
-      session.addUserMessage("Hello");
-
-      assertThat(session.getLastActivityAt()).isAfter(beforeAdd);
-    }
+    assertThat(message.isFromUser()).isTrue();
+    assertThat(message.getText()).isEqualTo("Hello");
+    assertThat(session.getMessages()).hasSize(1);
   }
 
-  @Nested
-  @DisplayName("addAssistantMessage()")
-  class AddAssistantMessage {
+  @Test
+  @DisplayName("should move last activity forward when a user message is added")
+  void shouldMoveLastActivityForwardWhenAUserMessageIsAdded() {
+    Instant createdAt = Instant.parse("2026-01-01T00:00:00Z");
+    ChatSession session = ChatSession.of(ChatSessionId.generate(), "Test", createdAt, "c:client-a");
 
-    @Test
-    @DisplayName("should add assistant message")
-    void shouldAddAssistantMessage() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
+    session.addUserMessage("Hello");
 
-      ChatMessage message = session.addAssistantMessage("Hello");
-
-      assertThat(message.isFromAssistant()).isTrue();
-      assertThat(message.getText()).isEqualTo("Hello");
-      assertThat(session.getMessages()).hasSize(1);
-    }
+    assertThat(session.getLastActivityAt()).isAfter(createdAt);
   }
 
-  @Nested
-  @DisplayName("firstUserMessage()")
-  class FirstUserMessage {
+  @Test
+  @DisplayName("should add assistant message")
+  void shouldAddAssistantMessage() {
+    ChatSession session = ChatSession.create("Test", "c:client-a");
 
-    @Test
-    @DisplayName("should return the message that opened the conversation")
-    void shouldReturnTheMessageThatOpenedTheConversation() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-      session.addUserMessage("First");
-      session.addAssistantMessage("Response");
-      session.addUserMessage("Second");
+    ChatMessage message = session.addAssistantMessage("Hello");
 
-      assertThat(session.firstUserMessage()).map(ChatMessage::getText).contains("First");
-    }
-
-    @Test
-    @DisplayName("should be empty when the user has not written yet")
-    void shouldBeEmptyWhenTheUserHasNotWrittenYet() {
-      assertThat(ChatSession.create("Test", "c:client-a").firstUserMessage()).isEmpty();
-    }
+    assertThat(message.isFromAssistant()).isTrue();
+    assertThat(message.getText()).isEqualTo("Hello");
+    assertThat(session.getMessages()).hasSize(1);
   }
 
-  @Nested
-  @DisplayName("lastAssistantMessage()")
-  class LastAssistantMessage {
+  @Test
+  @DisplayName("should return the message that opened the conversation")
+  void shouldReturnTheMessageThatOpenedTheConversation() {
+    ChatSession session = ChatSession.create("Test", "c:client-a");
+    session.addUserMessage("First");
+    session.addAssistantMessage("Response");
+    session.addUserMessage("Second");
 
-    @Test
-    @DisplayName("should return the newest assistant reply")
-    void shouldReturnTheNewestAssistantReply() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-      session.addUserMessage("Question");
-      session.addAssistantMessage("First Response");
-      session.addAssistantMessage("Second Response");
-
-      assertThat(session.lastAssistantMessage())
-          .map(ChatMessage::getText)
-          .contains("Second Response");
-    }
-
-    @Test
-    @DisplayName("should be empty when the assistant has not replied yet")
-    void shouldBeEmptyWhenTheAssistantHasNotRepliedYet() {
-      assertThat(ChatSession.create("Test", "c:client-a").lastAssistantMessage()).isEmpty();
-    }
+    assertThat(session.firstUserMessage()).map(ChatMessage::getText).contains("First");
   }
 
-  @Nested
-  @DisplayName("isEmpty()")
-  class IsEmpty {
+  @Test
+  @DisplayName("should be empty when the user has not written yet")
+  void shouldBeEmptyWhenTheUserHasNotWrittenYet() {
+    assertThat(ChatSession.create("Test", "c:client-a").firstUserMessage()).isEmpty();
+  }
 
-    @Test
-    @DisplayName("should return false for session with messages")
-    void shouldReturnFalseForSessionWithMessages() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-      session.addUserMessage("Hello");
+  @Test
+  @DisplayName("should return the newest assistant reply")
+  void shouldReturnTheNewestAssistantReply() {
+    ChatSession session = ChatSession.create("Test", "c:client-a");
+    session.addUserMessage("Question");
+    session.addAssistantMessage("First Response");
+    session.addAssistantMessage("Second Response");
 
-      assertThat(session.isEmpty()).isFalse();
-    }
+    assertThat(session.lastAssistantMessage())
+        .map(ChatMessage::getText)
+        .contains("Second Response");
+  }
+
+  @Test
+  @DisplayName("should be empty when the assistant has not replied yet")
+  void shouldBeEmptyWhenTheAssistantHasNotRepliedYet() {
+    assertThat(ChatSession.create("Test", "c:client-a").lastAssistantMessage()).isEmpty();
+  }
+
+  @Test
+  @DisplayName("should return false for session with messages")
+  void shouldReturnFalseForSessionWithMessages() {
+    ChatSession session = ChatSession.create("Test", "c:client-a");
+    session.addUserMessage("Hello");
+
+    assertThat(session.isEmpty()).isFalse();
   }
 
   @Nested
@@ -179,79 +148,64 @@ class ChatSessionTest {
     }
   }
 
-  @Nested
-  @DisplayName("getMessages()")
-  class GetMessages {
+  @Test
+  @DisplayName("should return unmodifiable list")
+  void shouldReturnUnmodifiableList() {
+    ChatSession session = ChatSession.create("Test", "c:client-a");
+    session.addUserMessage("Hello");
 
-    @Test
-    @DisplayName("should return unmodifiable list")
-    void shouldReturnUnmodifiableList() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-      session.addUserMessage("Hello");
-
-      assertThatThrownBy(() -> session.getMessages().add(ChatMessage.createUserMessage("New")))
-          .isInstanceOf(UnsupportedOperationException.class);
-    }
+    assertThatThrownBy(() -> session.getMessages().add(ChatMessage.createUserMessage("New")))
+        .isInstanceOf(UnsupportedOperationException.class);
   }
 
-  @Nested
-  @DisplayName("equals() and hashCode()")
-  class Identity {
+  @Test
+  @DisplayName("should be equal when id is same")
+  void shouldBeEqualWhenIdIsSame() {
+    var id = com.ai.chat.domain.model.ChatSessionId.of("11111111-1111-1111-1111-111111111111");
+    ChatSession session1 = ChatSession.of(id, "Title 1", Instant.now(), "c:client-a");
+    ChatSession session2 = ChatSession.of(id, "Title 2", Instant.now(), "c:client-a");
 
-    @Test
-    @DisplayName("should be equal when id is same")
-    void shouldBeEqualWhenIdIsSame() {
-      var id = com.ai.chat.domain.model.ChatSessionId.of("11111111-1111-1111-1111-111111111111");
-      ChatSession session1 = ChatSession.of(id, "Title 1", Instant.now(), "c:client-a");
-      ChatSession session2 = ChatSession.of(id, "Title 2", Instant.now(), "c:client-a");
-
-      assertThat(session1).isEqualTo(session2);
-      assertThat(session1.hashCode()).isEqualTo(session2.hashCode());
-    }
-
-    @Test
-    @DisplayName("should not be equal when id is different")
-    void shouldNotBeEqualWhenIdIsDifferent() {
-      ChatSession session1 =
-          ChatSession.of(
-              com.ai.chat.domain.model.ChatSessionId.of("11111111-1111-1111-1111-111111111111"),
-              "Title",
-              Instant.now(),
-              "c:client-a");
-      ChatSession session2 =
-          ChatSession.of(
-              com.ai.chat.domain.model.ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
-              "Title",
-              Instant.now(),
-              "c:client-a");
-
-      assertThat(session1).isNotEqualTo(session2);
-    }
+    assertThat(session1).isEqualTo(session2);
+    assertThat(session1.hashCode()).isEqualTo(session2.hashCode());
   }
 
-  @Nested
-  @DisplayName("rename()")
-  class Rename {
+  @Test
+  @DisplayName("should not be equal when id is different")
+  void shouldNotBeEqualWhenIdIsDifferent() {
+    ChatSession session1 =
+        ChatSession.of(
+            com.ai.chat.domain.model.ChatSessionId.of("11111111-1111-1111-1111-111111111111"),
+            "Title",
+            Instant.now(),
+            "c:client-a");
+    ChatSession session2 =
+        ChatSession.of(
+            com.ai.chat.domain.model.ChatSessionId.of("22222222-2222-2222-2222-222222222222"),
+            "Title",
+            Instant.now(),
+            "c:client-a");
 
-    @Test
-    @DisplayName("should rename session with valid title")
-    void shouldRenameSessionWithValidTitle() {
-      ChatSession session = ChatSession.create("New Chat", "c:client-a");
+    assertThat(session1).isNotEqualTo(session2);
+  }
 
-      session.rename("Kubernetes Guide");
+  @Test
+  @DisplayName("should rename session with valid title")
+  void shouldRenameSessionWithValidTitle() {
+    ChatSession session = ChatSession.create("New Chat", "c:client-a");
 
-      assertThat(session.getTitle()).isEqualTo("Kubernetes Guide");
-    }
+    session.rename("Kubernetes Guide");
 
-    @Test
-    @DisplayName("should ignore blank rename")
-    void shouldIgnoreBlankRename() {
-      ChatSession session = ChatSession.create("New Chat", "c:client-a");
+    assertThat(session.getTitle()).isEqualTo("Kubernetes Guide");
+  }
 
-      session.rename("   ");
+  @Test
+  @DisplayName("should ignore blank rename")
+  void shouldIgnoreBlankRename() {
+    ChatSession session = ChatSession.create("New Chat", "c:client-a");
 
-      assertThat(session.getTitle()).isEqualTo("New Chat");
-    }
+    session.rename("   ");
+
+    assertThat(session.getTitle()).isEqualTo("New Chat");
   }
 
   @Nested

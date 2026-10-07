@@ -33,20 +33,15 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
 
   @MockitoBean private ChatService chatService;
 
-  @Nested
-  @DisplayName("GET /api/chat/health")
-  class HealthEndpoint {
-
-    @Test
-    @DisplayName("should return UP status")
-    void shouldReturnUpStatus() {
-      assertThat(mvc.get().uri("/api/chat/health"))
-          .hasStatusOk()
-          .bodyJson()
-          .extractingPath("$.status")
-          .asString()
-          .isEqualTo("UP");
-    }
+  @Test
+  @DisplayName("should return UP status")
+  void shouldReturnUpStatus() {
+    assertThat(mvc.get().uri("/api/chat/health"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.status")
+        .asString()
+        .isEqualTo("UP");
   }
 
   @Nested
@@ -172,67 +167,57 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     }
   }
 
-  @Nested
-  @DisplayName("GET /api/chat/sessions")
-  class GetAllSessions {
+  @Test
+  @DisplayName("should return client sessions")
+  void shouldReturnClientSessions() {
+    List<ChatSession> sessions =
+        List.of(
+            createTestSession("22222222-2222-2222-2222-222222222222", "Chat 1"),
+            createTestSession("44444444-4444-4444-4444-444444444444", "Chat 2"));
+    when(chatService.listSessions(ownerKey())).thenReturn(sessions);
 
-    @Test
-    @DisplayName("should return client sessions")
-    void shouldReturnClientSessions() {
-      List<ChatSession> sessions =
-          List.of(
-              createTestSession("22222222-2222-2222-2222-222222222222", "Chat 1"),
-              createTestSession("44444444-4444-4444-4444-444444444444", "Chat 2"));
-      when(chatService.listSessions(ownerKey())).thenReturn(sessions);
-
-      assertThat(mvc.get().uri("/api/chat/sessions"))
-          .hasStatusOk()
-          .bodyJson()
-          .extractingPath("$")
-          .asArray()
-          .hasSize(2);
-    }
-
-    @Test
-    @DisplayName("should return empty list when no sessions")
-    void shouldReturnEmptyListWhenNoSessions() {
-      when(chatService.listSessions(ownerKey())).thenReturn(List.of());
-
-      assertThat(mvc.get().uri("/api/chat/sessions"))
-          .hasStatusOk()
-          .bodyJson()
-          .extractingPath("$")
-          .asArray()
-          .isEmpty();
-    }
+    assertThat(mvc.get().uri("/api/chat/sessions"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$")
+        .asArray()
+        .hasSize(2);
   }
 
-  @Nested
-  @DisplayName("GET /api/chat/sessions/{sessionId}")
-  class GetSession {
+  @Test
+  @DisplayName("should return empty list when no sessions")
+  void shouldReturnEmptyListWhenNoSessions() {
+    when(chatService.listSessions(ownerKey())).thenReturn(List.of());
 
-    @Test
-    @DisplayName("should return session when found")
-    void shouldReturnSessionWhenFound() {
-      ChatSession session = createTestSession("22222222-2222-2222-2222-222222222222", "My Chat");
-      when(chatService.getSession("22222222-2222-2222-2222-222222222222", ownerKey()))
-          .thenReturn(Optional.of(session));
+    assertThat(mvc.get().uri("/api/chat/sessions"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$")
+        .asArray()
+        .isEmpty();
+  }
 
-      assertThat(mvc.get().uri("/api/chat/sessions/22222222-2222-2222-2222-222222222222"))
-          .hasStatusOk()
-          .bodyJson()
-          .extractingPath("$.title")
-          .asString()
-          .isEqualTo("My Chat");
-    }
+  @Test
+  @DisplayName("should return session when found")
+  void shouldReturnSessionWhenFound() {
+    ChatSession session = createTestSession("22222222-2222-2222-2222-222222222222", "My Chat");
+    when(chatService.getSession("22222222-2222-2222-2222-222222222222", ownerKey()))
+        .thenReturn(Optional.of(session));
 
-    @Test
-    @DisplayName("should return 404 when session not found")
-    void shouldReturn404WhenSessionNotFound() {
-      when(chatService.getSession("missing", ownerKey())).thenReturn(Optional.empty());
+    assertThat(mvc.get().uri("/api/chat/sessions/22222222-2222-2222-2222-222222222222"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.title")
+        .asString()
+        .isEqualTo("My Chat");
+  }
 
-      assertThat(mvc.get().uri("/api/chat/sessions/missing")).hasStatus(HttpStatus.NOT_FOUND);
-    }
+  @Test
+  @DisplayName("should return 404 when session not found")
+  void shouldReturn404WhenSessionNotFound() {
+    when(chatService.getSession("missing", ownerKey())).thenReturn(Optional.empty());
+
+    assertThat(mvc.get().uri("/api/chat/sessions/missing")).hasStatus(HttpStatus.NOT_FOUND);
   }
 
   @Nested
@@ -309,19 +294,14 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     }
   }
 
-  @Nested
-  @DisplayName("DELETE /api/chat/sessions/{sessionId}")
-  class DeleteSession {
+  @Test
+  @DisplayName("should delete session and return 204")
+  void shouldDeleteSessionAndReturn204() {
+    doNothing().when(chatService).deleteSession("session-to-delete", ownerKey());
 
-    @Test
-    @DisplayName("should delete session and return 204")
-    void shouldDeleteSessionAndReturn204() {
-      doNothing().when(chatService).deleteSession("session-to-delete", ownerKey());
-
-      assertThat(mvc.delete().uri("/api/chat/sessions/session-to-delete"))
-          .hasStatus(HttpStatus.NO_CONTENT);
-      verify(chatService).deleteSession("session-to-delete", ownerKey());
-    }
+    assertThat(mvc.delete().uri("/api/chat/sessions/session-to-delete"))
+        .hasStatus(HttpStatus.NO_CONTENT);
+    verify(chatService).deleteSession("session-to-delete", ownerKey());
   }
 
   private static ChatSession createTestSession(String id, String title) {

@@ -25,32 +25,27 @@ class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
 
   @MockitoBean private ToolService toolService;
 
-  @Nested
-  @DisplayName("GET /api/tools/weather")
-  class GetWeather {
+  @Test
+  @DisplayName("should return weather for valid city")
+  void shouldReturnWeatherForValidCity() {
+    String city = "Beijing";
+    String weather = "Sunny, 25°C";
+    when(toolService.lookupWeather(city)).thenReturn(weather);
 
-    @Test
-    @DisplayName("should return weather for valid city")
-    void shouldReturnWeatherForValidCity() {
-      String city = "Beijing";
-      String weather = "Sunny, 25°C";
-      when(toolService.lookupWeather(city)).thenReturn(weather);
+    assertThat(mvc.get().uri("/api/tools/weather").param("city", city))
+        .hasStatusOk()
+        .hasBodyTextEqualTo(weather);
+    verify(toolService).lookupWeather(city);
+  }
 
-      assertThat(mvc.get().uri("/api/tools/weather").param("city", city))
-          .hasStatusOk()
-          .hasBodyTextEqualTo(weather);
-      verify(toolService).lookupWeather(city);
-    }
-
-    @Test
-    @DisplayName("should return 400 for blank city")
-    void shouldReturn400ForBlankCity() {
-      assertThat(mvc.get().uri("/api/tools/weather").param("city", "   "))
-          .hasStatus(HttpStatus.BAD_REQUEST)
-          .bodyText()
-          .asString()
-          .contains("VALIDATION_ERROR");
-    }
+  @Test
+  @DisplayName("should return 400 for blank city")
+  void shouldReturn400ForBlankCity() {
+    assertThat(mvc.get().uri("/api/tools/weather").param("city", "   "))
+        .hasStatus(HttpStatus.BAD_REQUEST)
+        .bodyText()
+        .asString()
+        .contains("VALIDATION_ERROR");
   }
 
   @Nested
@@ -132,18 +127,13 @@ class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
     }
   }
 
-  @Nested
-  @DisplayName("GET /api/tools/documents")
-  class ListDocuments {
+  @Test
+  @DisplayName("should list all documents")
+  void shouldListAllDocuments() {
+    String documents = "[{\"title\": \"Doc1\"}, {\"title\": \"Doc2\"}]";
+    when(toolService.listDocuments()).thenReturn(documents);
 
-    @Test
-    @DisplayName("should list all documents")
-    void shouldListAllDocuments() {
-      String documents = "[{\"title\": \"Doc1\"}, {\"title\": \"Doc2\"}]";
-      when(toolService.listDocuments()).thenReturn(documents);
-
-      assertThat(mvc.get().uri("/api/tools/documents")).hasStatusOk().hasBodyTextEqualTo(documents);
-    }
+    assertThat(mvc.get().uri("/api/tools/documents")).hasStatusOk().hasBodyTextEqualTo(documents);
   }
 
   @Nested

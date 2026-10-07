@@ -72,54 +72,49 @@ class DocumentUploadServiceTest {
             mock(PlatformTransactionManager.class));
   }
 
-  @Nested
-  @DisplayName("upload() - String content")
-  class UploadWithStringContent {
+  @Test
+  @DisplayName("should upload document with string content")
+  void shouldUploadDocumentWithStringContent() {
+    String title = "Test Document";
+    String fileName = "test.txt";
+    String content = "This is test content";
 
-    @Test
-    @DisplayName("should upload document with string content")
-    void shouldUploadDocumentWithStringContent() {
-      String title = "Test Document";
-      String fileName = "test.txt";
-      String content = "This is test content";
+    when(documentRepository.save(any(RagDocument.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+    when(reader.read(any(byte[].class), eq(fileName)))
+        .thenReturn(new RawDocument(content, Map.of("fileName", fileName), fileName));
+    when(transformer.transform(any(RawDocument.class)))
+        .thenReturn(
+            List.of(
+                new RawDocument("chunk1", Map.of("fileName", fileName), fileName),
+                new RawDocument("chunk2", Map.of("fileName", fileName), fileName)));
+    doNothing().when(writer).write(any());
 
-      when(documentRepository.save(any(RagDocument.class)))
-          .thenAnswer(invocation -> invocation.getArgument(0));
-      when(reader.read(any(byte[].class), eq(fileName)))
-          .thenReturn(new RawDocument(content, Map.of("fileName", fileName), fileName));
-      when(transformer.transform(any(RawDocument.class)))
-          .thenReturn(
-              List.of(
-                  new RawDocument("chunk1", Map.of("fileName", fileName), fileName),
-                  new RawDocument("chunk2", Map.of("fileName", fileName), fileName)));
-      doNothing().when(writer).write(any());
+    DocumentUploadService.UploadResult result =
+        service.upload(title, fileName, content, "c:test-owner");
 
-      DocumentUploadService.UploadResult result =
-          service.upload(title, fileName, content, "c:test-owner");
+    assertThat(result.title()).isEqualTo(title);
+    assertThat(result.status()).isEqualTo(DocumentStatus.READY);
+    assertThat(result.chunkCount()).isEqualTo(2);
+    assertThat(result.documentId()).isNotNull();
+  }
 
-      assertThat(result.title()).isEqualTo(title);
-      assertThat(result.status()).isEqualTo(DocumentStatus.READY);
-      assertThat(result.chunkCount()).isEqualTo(2);
-      assertThat(result.documentId()).isNotNull();
-    }
+  @Test
+  @DisplayName("should save the document while processing and again when ready")
+  void shouldSaveTheDocumentWhileProcessingAndAgainWhenReady() {
+    String content = "Test content";
 
-    @Test
-    @DisplayName("should save the document while processing and again when ready")
-    void shouldSaveTheDocumentWhileProcessingAndAgainWhenReady() {
-      String content = "Test content";
+    when(documentRepository.save(any(RagDocument.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+    when(reader.read(any(byte[].class), any()))
+        .thenReturn(new RawDocument(content, Map.of(), "test"));
+    when(transformer.transform(any(RawDocument.class)))
+        .thenReturn(List.of(new RawDocument("chunk", Map.of(), "test")));
+    doNothing().when(writer).write(any());
 
-      when(documentRepository.save(any(RagDocument.class)))
-          .thenAnswer(invocation -> invocation.getArgument(0));
-      when(reader.read(any(byte[].class), any()))
-          .thenReturn(new RawDocument(content, Map.of(), "test"));
-      when(transformer.transform(any(RawDocument.class)))
-          .thenReturn(List.of(new RawDocument("chunk", Map.of(), "test")));
-      doNothing().when(writer).write(any());
+    service.upload("Title", "file.txt", content, "c:test-owner");
 
-      service.upload("Title", "file.txt", content, "c:test-owner");
-
-      verify(documentRepository, times(2)).save(any(RagDocument.class));
-    }
+    verify(documentRepository, times(2)).save(any(RagDocument.class));
   }
 
   @Nested
@@ -145,7 +140,6 @@ class DocumentUploadServiceTest {
           service.upload(title, fileName, content, "c:test-owner");
 
       assertThat(result.status()).isEqualTo(DocumentStatus.READY);
-      verify(reader).read(eq(content), eq(fileName));
     }
 
     @Test

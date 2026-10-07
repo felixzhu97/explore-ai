@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
@@ -33,111 +32,95 @@ class ToolCallLoopGuardAdvisorTest {
   private static final ToolCallLoopGuardAdvisor ADVISOR =
       ToolCallLoopGuardAdvisor.builder().build();
 
-  @Nested
-  @DisplayName("should disable tools before model call")
-  class DisableToolsBeforeCall {
+  @Test
+  void shouldDisableToolsWhenSearchWebAlreadyRan() {
+    ChatClientRequest request =
+        requestWithHistory(
+            List.of(
+                new UserMessage("chart please"), toolResponse("call-1", "searchWeb", "results")));
 
-    @Test
-    void shouldDisableToolsWhenSearchWebAlreadyRan() {
-      ChatClientRequest request =
-          requestWithHistory(
-              List.of(
-                  new UserMessage("chart please"), toolResponse("call-1", "searchWeb", "results")));
+    ChatClientRequest adjusted = invokeBeforeCall(request);
 
-      ChatClientRequest adjusted = invokeBeforeCall(request);
-
-      OpenAiChatOptions options = (OpenAiChatOptions) adjusted.prompt().getOptions();
-      assertThat(options.getToolChoice()).isEqualTo("none");
-      assertThat(options.getToolCallbacks()).isNullOrEmpty();
-    }
-
-    @Test
-    void shouldKeepToolsEnabledWhenOnlyGetCurrentDateTime() {
-      ChatClientRequest request =
-          requestWithHistory(
-              List.of(
-                  new UserMessage("today?"),
-                  toolResponse("call-1", "getCurrentDateTime", "2026-07-26")));
-
-      ChatClientRequest adjusted = invokeBeforeCall(request);
-
-      OpenAiChatOptions options = (OpenAiChatOptions) adjusted.prompt().getOptions();
-      assertThat(options.getToolChoice()).isEqualTo("auto");
-    }
+    OpenAiChatOptions options = (OpenAiChatOptions) adjusted.prompt().getOptions();
+    assertThat(options.getToolChoice()).isEqualTo("none");
+    assertThat(options.getToolCallbacks()).isNullOrEmpty();
   }
 
-  @Nested
-  @DisplayName("should enrich tool history via LoopGuardToolCallingManager")
-  class StageRemindersViaManager {
+  @Test
+  void shouldKeepToolsEnabledWhenOnlyGetCurrentDateTime() {
+    ChatClientRequest request =
+        requestWithHistory(
+            List.of(
+                new UserMessage("today?"),
+                toolResponse("call-1", "getCurrentDateTime", "2026-07-26")));
 
-    @Test
-    void shouldAppendFinalReminderWhenTerminalToolExecuted() {
-      ToolExecutionResult raw =
-          DefaultToolExecutionResult.builder()
-              .conversationHistory(
-                  List.of(new UserMessage("chart"), toolResponse("call-1", "searchWeb", "hits")))
-              .build();
-      ToolCallingManager stub = stubManagerReturning(raw);
+    ChatClientRequest adjusted = invokeBeforeCall(request);
 
-      LoopGuardToolCallingManager manager = new LoopGuardToolCallingManager(stub);
-      ToolExecutionResult enriched =
-          manager.executeToolCalls(mock(Prompt.class), mock(ChatResponse.class));
-
-      assertThat(enriched.conversationHistory()).hasSize(3);
-      assertThat(enriched.conversationHistory().get(2)).isInstanceOf(SystemMessage.class);
-      assertThat(enriched.conversationHistory().get(2).getText())
-          .contains("Do not call any tools again");
-    }
-
-    @Test
-    void shouldAppendBridgeReminderWhenOnlyDateTimeExecuted() {
-      ToolExecutionResult raw =
-          DefaultToolExecutionResult.builder()
-              .conversationHistory(List.of(toolResponse("call-1", "getCurrentDateTime", "now")))
-              .build();
-      ToolCallingManager stub = stubManagerReturning(raw);
-
-      LoopGuardToolCallingManager manager = new LoopGuardToolCallingManager(stub);
-      ToolExecutionResult enriched =
-          manager.executeToolCalls(mock(Prompt.class), mock(ChatResponse.class));
-
-      assertThat(enriched.conversationHistory()).hasSize(2);
-      assertThat(enriched.conversationHistory().get(1).getText())
-          .contains("searchWeb exactly once");
-    }
+    OpenAiChatOptions options = (OpenAiChatOptions) adjusted.prompt().getOptions();
+    assertThat(options.getToolChoice()).isEqualTo("auto");
   }
 
-  @Nested
-  @DisplayName("should preserve AnswerAfterTools advisor chain behavior")
-  class AdvisorChainParity {
+  @Test
+  void shouldAppendFinalReminderWhenTerminalToolExecuted() {
+    ToolExecutionResult raw =
+        DefaultToolExecutionResult.builder()
+            .conversationHistory(
+                List.of(new UserMessage("chart"), toolResponse("call-1", "searchWeb", "hits")))
+            .build();
+    ToolCallingManager stub = stubManagerReturning(raw);
 
-    @Test
-    void shouldPassDisabledRequestToChainWhenTerminalToolPresent() {
-      AtomicReference<ChatClientRequest> captured = new AtomicReference<>();
-      CallAdvisorChain chain = mock(CallAdvisorChain.class);
-      when(chain.copy(any())).thenReturn(chain);
-      when(chain.nextCall(any()))
-          .thenAnswer(
-              invocation -> {
-                captured.set(invocation.getArgument(0));
-                return ChatClientResponse.builder()
-                    .chatResponse(
-                        ChatResponse.builder()
-                            .generations(List.of(new Generation(new AssistantMessage("done"))))
-                            .build())
-                    .build();
-              });
+    LoopGuardToolCallingManager manager = new LoopGuardToolCallingManager(stub);
+    ToolExecutionResult enriched =
+        manager.executeToolCalls(mock(Prompt.class), mock(ChatResponse.class));
 
-      ChatClientRequest request =
-          requestWithHistory(
-              List.of(new UserMessage("news"), toolResponse("call-1", "searchWeb", "snippets")));
+    assertThat(enriched.conversationHistory()).hasSize(3);
+    assertThat(enriched.conversationHistory().get(2)).isInstanceOf(SystemMessage.class);
+    assertThat(enriched.conversationHistory().get(2).getText())
+        .contains("Do not call any tools again");
+  }
 
-      ADVISOR.adviseCall(request, chain);
+  @Test
+  void shouldAppendBridgeReminderWhenOnlyDateTimeExecuted() {
+    ToolExecutionResult raw =
+        DefaultToolExecutionResult.builder()
+            .conversationHistory(List.of(toolResponse("call-1", "getCurrentDateTime", "now")))
+            .build();
+    ToolCallingManager stub = stubManagerReturning(raw);
 
-      assertThat(captured.get()).isNotNull();
-      OpenAiChatOptions options = (OpenAiChatOptions) captured.get().prompt().getOptions();
-      assertThat(options.getToolChoice()).isEqualTo("none");
-    }
+    LoopGuardToolCallingManager manager = new LoopGuardToolCallingManager(stub);
+    ToolExecutionResult enriched =
+        manager.executeToolCalls(mock(Prompt.class), mock(ChatResponse.class));
+
+    assertThat(enriched.conversationHistory()).hasSize(2);
+    assertThat(enriched.conversationHistory().get(1).getText()).contains("searchWeb exactly once");
+  }
+
+  @Test
+  void shouldPassDisabledRequestToChainWhenTerminalToolPresent() {
+    AtomicReference<ChatClientRequest> captured = new AtomicReference<>();
+    CallAdvisorChain chain = mock(CallAdvisorChain.class);
+    when(chain.copy(any())).thenReturn(chain);
+    when(chain.nextCall(any()))
+        .thenAnswer(
+            invocation -> {
+              captured.set(invocation.getArgument(0));
+              return ChatClientResponse.builder()
+                  .chatResponse(
+                      ChatResponse.builder()
+                          .generations(List.of(new Generation(new AssistantMessage("done"))))
+                          .build())
+                  .build();
+            });
+
+    ChatClientRequest request =
+        requestWithHistory(
+            List.of(new UserMessage("news"), toolResponse("call-1", "searchWeb", "snippets")));
+
+    ADVISOR.adviseCall(request, chain);
+
+    assertThat(captured.get()).isNotNull();
+    OpenAiChatOptions options = (OpenAiChatOptions) captured.get().prompt().getOptions();
+    assertThat(options.getToolChoice()).isEqualTo("none");
   }
 
   private static ChatClientRequest invokeBeforeCall(ChatClientRequest request) {

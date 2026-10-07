@@ -1,103 +1,64 @@
 package com.ai.common.controller.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockFilterChain;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
-@ExtendWith(MockitoExtension.class)
 @DisplayName("CsrfProtectionFilter")
 class CsrfProtectionFilterTest {
 
-  @Mock private HttpServletRequest request;
+  private static final String API_PATH = "/api/chat/sessions";
 
-  @Mock private HttpServletResponse response;
+  private final CsrfProtectionFilter filter = new CsrfProtectionFilter();
+  private final MockHttpServletResponse response = new MockHttpServletResponse();
+  private final MockFilterChain chain = new MockFilterChain();
 
-  @Mock private FilterChain filterChain;
+  @Test
+  @DisplayName("should pass a post through when the csrf header is present")
+  void shouldPassAPostThroughWhenTheCsrfHeaderIsPresent() throws Exception {
+    MockHttpServletRequest request = new MockHttpServletRequest("POST", API_PATH);
+    request.addHeader(CsrfProtectionFilter.HEADER_NAME, CsrfProtectionFilter.HEADER_VALUE);
 
-  private CsrfProtectionFilter filter;
-  private ByteArrayOutputStream body;
+    filter.doFilter(request, response, chain);
 
-  @BeforeEach
-  void setUp() throws Exception {
-    filter = new CsrfProtectionFilter();
-    body = new ByteArrayOutputStream();
-    lenient()
-        .when(response.getOutputStream())
-        .thenReturn(
-            new jakarta.servlet.ServletOutputStream() {
-              @Override
-              public boolean isReady() {
-                return true;
-              }
-
-              @Override
-              public void setWriteListener(jakarta.servlet.WriteListener writeListener) {}
-
-              @Override
-              public void write(int b) {
-                body.write(b);
-              }
-            });
+    assertThat(chain.getRequest()).isSameAs(request);
+    assertThat(response.getStatus()).isEqualTo(200);
   }
 
   @Test
-  void shouldAllowPostWhenCsrfHeaderPresent() throws Exception {
-    when(request.getRequestURI()).thenReturn("/api/chat/sessions");
-    when(request.getMethod()).thenReturn("POST");
-    when(request.getHeader("Authorization")).thenReturn(null);
-    when(request.getHeader(CsrfProtectionFilter.HEADER_NAME))
-        .thenReturn(CsrfProtectionFilter.HEADER_VALUE);
+  @DisplayName("should reject a post with 403 when the csrf header is missing")
+  void shouldRejectAPostWith403WhenTheCsrfHeaderIsMissing() throws Exception {
+    MockHttpServletRequest request = new MockHttpServletRequest("POST", API_PATH);
 
-    filter.doFilter(request, response, filterChain);
+    filter.doFilter(request, response, chain);
 
-    verify(filterChain).doFilter(request, response);
-    verify(response, never()).setStatus(403);
+    assertThat(chain.getRequest()).isNull();
+    assertThat(response.getStatus()).isEqualTo(403);
+    assertThat(response.getContentAsString()).contains("CSRF_REJECTED");
   }
 
   @Test
-  void shouldRejectPostWhenCsrfHeaderMissing() throws Exception {
-    when(request.getRequestURI()).thenReturn("/api/chat/sessions");
-    when(request.getMethod()).thenReturn("POST");
-    when(request.getHeader("Authorization")).thenReturn(null);
-    when(request.getHeader(CsrfProtectionFilter.HEADER_NAME)).thenReturn(null);
+  @DisplayName("should pass a post through when it carries a bearer token")
+  void shouldPassAPostThroughWhenItCarriesABearerToken() throws Exception {
+    MockHttpServletRequest request = new MockHttpServletRequest("POST", API_PATH);
+    request.addHeader("Authorization", "Bearer iam-access-token");
 
-    filter.doFilter(request, response, filterChain);
+    filter.doFilter(request, response, chain);
 
-    verify(response).setStatus(403);
-    verify(filterChain, never()).doFilter(request, response);
-    assertThat(body.toString()).contains("CSRF_REJECTED");
+    assertThat(chain.getRequest()).isSameAs(request);
   }
 
   @Test
-  void shouldSkipPostWhenBearerAuthorizationPresent() throws Exception {
-    when(request.getMethod()).thenReturn("POST");
-    when(request.getHeader("Authorization")).thenReturn("Bearer iam-access-token");
+  @DisplayName("should pass a get through without the csrf header")
+  void shouldPassAGetThroughWithoutTheCsrfHeader() throws Exception {
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", API_PATH);
 
-    filter.doFilter(request, response, filterChain);
+    filter.doFilter(request, response, chain);
 
-    verify(filterChain).doFilter(request, response);
-    verify(response, never()).setStatus(403);
-  }
-
-  @Test
-  void shouldSkipGetWhenSafeMethod() throws Exception {
-    when(request.getMethod()).thenReturn("GET");
-
-    filter.doFilter(request, response, filterChain);
-
-    verify(filterChain).doFilter(request, response);
+    assertThat(chain.getRequest()).isSameAs(request);
   }
 }

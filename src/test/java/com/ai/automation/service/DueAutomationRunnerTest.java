@@ -2,17 +2,15 @@ package com.ai.automation.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.automation.domain.model.AutomationRun;
 import com.ai.automation.domain.model.AutomationSchedule;
 import com.ai.automation.domain.model.EmailMessage;
 import com.ai.automation.domain.model.RunStatus;
-import com.ai.automation.domain.model.ScheduleId;
 import com.ai.automation.domain.repository.AutomationRunRepository;
 import com.ai.automation.domain.repository.AutomationScheduleRepository;
 import com.ai.automation.domain.repository.EmailGateway;
@@ -30,11 +28,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Limit;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("DueAutomationRunner")
 class DueAutomationRunnerTest {
+
+  private static final String OWNER = "c:client-1";
+  private static final String TEMPLATE_ID = "11111111-1111-1111-1111-111111111111";
+  private static final Instant CREATED_AT = Instant.parse("2026-01-01T00:00:00Z");
 
   @Mock private AutomationScheduleRepository scheduleRepository;
   @Mock private AutomationRunRepository runRepository;
@@ -43,11 +44,11 @@ class DueAutomationRunnerTest {
   @Mock private DailyUsageQuotaService dailyUsageQuotaService;
 
   private final AutomationProperties properties = new AutomationProperties();
-  private DueAutomationRunner useCase;
+  private DueAutomationRunner runner;
 
   @BeforeEach
   void setUp() {
-    useCase =
+    runner =
         new DueAutomationRunner(
             scheduleRepository,
             runRepository,
@@ -59,88 +60,91 @@ class DueAutomationRunnerTest {
   }
 
   @Test
-  void shouldRunWorkflowAndEmailWhenScheduleDue() {
-    Instant past = Instant.now().minusSeconds(60);
+  @DisplayName("should run the template and email the result when a schedule is due")
+  void shouldRunTheTemplateAndEmailTheResultWhenAScheduleIsDue() {
     AutomationSchedule schedule =
         AutomationSchedule.create(
-            "c:client-1",
+            OWNER,
             "Daily",
             "0 0 9 * * *",
             "UTC",
-            "11111111-1111-1111-1111-111111111111",
+            TEMPLATE_ID,
             "user@example.com",
             "Do the work",
-            Instant.now());
-    ReflectionTestUtils.setField(schedule, "nextRunAt", past);
-    when(scheduleRepository.findDue(any(), any(Limit.class))).thenReturn(List.of(schedule));
-    when(scheduleRepository.claim(eq(schedule.getId()), eq(past), any())).thenReturn(true);
-    when(dailyUsageQuotaService.tryConsume(OwnerKey.parse("c:client-1"))).thenReturn(true);
-    when(pipelineGateway.runSavedTemplate(anyString(), anyString(), anyString(), anyString()))
+            CREATED_AT);
+    givenClaimed(schedule);
+    when(dailyUsageQuotaService.tryConsume(OwnerKey.parse(OWNER))).thenReturn(true);
+    when(pipelineGateway.runSavedTemplate(OWNER, TEMPLATE_ID, "Do the work", "en"))
         .thenReturn("workflow result");
 
-    int executed = useCase.executeDue();
+    int executed = runner.executeDue();
 
     assertThat(executed).isEqualTo(1);
-    verify(emailGateway).send(any(EmailMessage.class));
-    ArgumentCaptor<AutomationRun> runCaptor = ArgumentCaptor.forClass(AutomationRun.class);
-    verify(runRepository).save(runCaptor.capture());
-    assertThat(runCaptor.getValue().getStatus()).isEqualTo(RunStatus.SUCCESS);
-    verify(scheduleRepository).save(any(AutomationSchedule.class));
+    ArgumentCaptor<EmailMessage> email = ArgumentCaptor.forClass(EmailMessage.class);
+    verify(emailGateway).send(email.capture());
+    assertThat(email.getValue().to()).isEqualTo("user@example.com");
+    assertThat(savedRun().getStatus()).isEqualTo(RunStatus.SUCCESS);
+    verify(scheduleRepository).save(schedule);
   }
 
   @Test
-  void shouldSkipRunWhenQuotaExceeded() {
-    Instant past = Instant.now().minusSeconds(60);
+  @DisplayName("should record a skipped run when the daily quota is exhausted")
+  void shouldRecordASkippedRunWhenTheDailyQuotaIsExhausted() {
     AutomationSchedule schedule =
         AutomationSchedule.create(
-            "c:client-1",
+            OWNER,
             "Daily",
             "0 0 9 * * *",
             "UTC",
-            "11111111-1111-1111-1111-111111111111",
+            TEMPLATE_ID,
             "user@example.com",
             "Do the work",
-            Instant.now());
-    ReflectionTestUtils.setField(schedule, "nextRunAt", past);
-    when(scheduleRepository.findDue(any(), any(Limit.class))).thenReturn(List.of(schedule));
-    when(scheduleRepository.claim(any(ScheduleId.class), eq(past), any())).thenReturn(true);
-    when(dailyUsageQuotaService.tryConsume(OwnerKey.parse("c:client-1"))).thenReturn(false);
+            CREATED_AT);
+    givenClaimed(schedule);
+    when(dailyUsageQuotaService.tryConsume(OwnerKey.parse(OWNER))).thenReturn(false);
 
-    useCase.executeDue();
+    runner.executeDue();
 
-    verify(pipelineGateway, never())
-        .runSavedTemplate(anyString(), anyString(), anyString(), anyString());
-    ArgumentCaptor<AutomationRun> runCaptor = ArgumentCaptor.forClass(AutomationRun.class);
-    verify(runRepository).save(runCaptor.capture());
-    assertThat(runCaptor.getValue().getStatus()).isEqualTo(RunStatus.SKIPPED);
+    verifyNoInteractions(pipelineGateway, emailGateway);
+    assertThat(savedRun().getStatus()).isEqualTo(RunStatus.SKIPPED);
   }
 
   @Test
-  void shouldDisableOnceScheduleWhenExecuted() {
-    Instant past = Instant.now().minusSeconds(60);
+  @DisplayName("should disable a one-off schedule after it runs")
+  void shouldDisableAOneOffScheduleAfterItRuns() {
     AutomationSchedule schedule =
         AutomationSchedule.createOnce(
-            "c:client-1",
+            OWNER,
             "Once",
             "UTC",
-            "11111111-1111-1111-1111-111111111111",
+            TEMPLATE_ID,
             "user@example.com",
             "Do once",
-            Instant.now().plusSeconds(120),
-            Instant.now());
-    ReflectionTestUtils.setField(schedule, "nextRunAt", past);
-    when(scheduleRepository.findDue(any(), any(Limit.class))).thenReturn(List.of(schedule));
-    when(scheduleRepository.claim(eq(schedule.getId()), eq(past), any())).thenReturn(true);
-    when(dailyUsageQuotaService.tryConsume(OwnerKey.parse("c:client-1"))).thenReturn(true);
-    when(pipelineGateway.runSavedTemplate(anyString(), anyString(), anyString(), anyString()))
+            CREATED_AT.plusSeconds(120),
+            CREATED_AT);
+    givenClaimed(schedule);
+    when(dailyUsageQuotaService.tryConsume(OwnerKey.parse(OWNER))).thenReturn(true);
+    when(pipelineGateway.runSavedTemplate(OWNER, TEMPLATE_ID, "Do once", "en"))
         .thenReturn("once result");
 
-    useCase.executeDue();
+    runner.executeDue();
 
-    ArgumentCaptor<AutomationSchedule> scheduleCaptor =
-        ArgumentCaptor.forClass(AutomationSchedule.class);
-    verify(scheduleRepository).save(scheduleCaptor.capture());
-    assertThat(scheduleCaptor.getValue().isEnabled()).isFalse();
-    assertThat(scheduleCaptor.getValue().pendingRunAt()).isEmpty();
+    verify(scheduleRepository).save(schedule);
+    assertThat(schedule.isEnabled()).isFalse();
+    assertThat(schedule.pendingRunAt()).isEmpty();
+  }
+
+  private void givenClaimed(AutomationSchedule schedule) {
+    when(scheduleRepository.findDue(
+            any(Instant.class), eq(Limit.of(properties.getScanBatchSize()))))
+        .thenReturn(List.of(schedule));
+    when(scheduleRepository.claim(eq(schedule.getId()), eq(schedule.getNextRunAt()), any()))
+        .thenReturn(true);
+  }
+
+  private AutomationRun savedRun() {
+    ArgumentCaptor<AutomationRun> run = ArgumentCaptor.forClass(AutomationRun.class);
+    verify(runRepository).save(run.capture());
+    return run.getValue();
   }
 }

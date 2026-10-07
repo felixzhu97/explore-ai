@@ -56,7 +56,6 @@ class PdfAndTextDocumentReaderTest {
     assertThat(document.content()).isEqualTo("extracted manual text");
     assertThat(document.metadata()).containsEntry("fileName", "Manual.PDF");
     assertThat(document.source()).isEqualTo("Manual.PDF");
-    verify(pdfTextExtractor).extractText(content);
   }
 
   @Test

@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -54,7 +53,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
 
   @BeforeEach
   void setUpVisionProvider() {
-    lenient().when(visionChatServiceProvider.getIfAvailable()).thenReturn(visionChatService);
+    when(visionChatServiceProvider.getIfAvailable()).thenReturn(visionChatService);
   }
 
   @Nested
@@ -113,73 +112,63 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     }
   }
 
-  @Nested
-  @DisplayName("POST /api/rag/documents/upload")
-  class UploadDocument {
+  @Test
+  @DisplayName("should upload text file successfully")
+  void shouldUploadTextFileSuccessfully() {
+    MockMultipartFile file =
+        new MockMultipartFile("file", "test.txt", "text/plain", "Hello World".getBytes());
+    RagDocument doc = createTestDocument("test.txt", DocumentStatus.READY);
+    DocumentUploadService.UploadResult uploadResult =
+        new DocumentUploadService.UploadResult(
+            doc.getId(), "test.txt", DocumentStatus.READY, 0, Instant.EPOCH);
+    when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerKey())))
+        .thenReturn(uploadResult);
 
-    @Test
-    @DisplayName("should upload text file successfully")
-    void shouldUploadTextFileSuccessfully() {
-      MockMultipartFile file =
-          new MockMultipartFile("file", "test.txt", "text/plain", "Hello World".getBytes());
-      RagDocument doc = createTestDocument("test.txt", DocumentStatus.READY);
-      DocumentUploadService.UploadResult uploadResult =
-          new DocumentUploadService.UploadResult(
-              doc.getId(), "test.txt", DocumentStatus.READY, 0, Instant.EPOCH);
-      when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerKey())))
-          .thenReturn(uploadResult);
-
-      assertThat(
-              mvc.post()
-                  .multipart()
-                  .uri("/api/rag/documents/upload")
-                  .file(file)
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
-          .hasStatus(HttpStatus.CREATED);
-      verify(ragApplicationService).uploadDocument(any(), isNull(), eq(ownerKey()));
-    }
-
-    @Test
-    @DisplayName("should use custom title when provided")
-    void shouldUseCustomTitleWhenProvided() {
-      MockMultipartFile file =
-          new MockMultipartFile("file", "original.txt", "text/plain", "Content".getBytes());
-      RagDocument doc = createTestDocument("Custom Title", DocumentStatus.READY);
-      DocumentUploadService.UploadResult uploadResult =
-          new DocumentUploadService.UploadResult(
-              doc.getId(), "Custom Title", DocumentStatus.READY, 0, Instant.EPOCH);
-      when(ragApplicationService.uploadDocument(any(), eq("Custom Title"), eq(ownerKey())))
-          .thenReturn(uploadResult);
-
-      assertThat(
-              mvc.post()
-                  .multipart()
-                  .uri("/api/rag/documents/upload")
-                  .file(file)
-                  .param("title", "Custom Title")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
-          .hasStatus(HttpStatus.CREATED);
-      verify(ragApplicationService).uploadDocument(any(), eq("Custom Title"), eq(ownerKey()));
-    }
+    assertThat(
+            mvc.post()
+                .multipart()
+                .uri("/api/rag/documents/upload")
+                .file(file)
+                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+        .hasStatus(HttpStatus.CREATED);
+    verify(ragApplicationService).uploadDocument(any(), isNull(), eq(ownerKey()));
   }
 
-  @Nested
-  @DisplayName("DELETE /api/rag/documents/{id}")
-  class DeleteDocument {
+  @Test
+  @DisplayName("should use custom title when provided")
+  void shouldUseCustomTitleWhenProvided() {
+    MockMultipartFile file =
+        new MockMultipartFile("file", "original.txt", "text/plain", "Content".getBytes());
+    RagDocument doc = createTestDocument("Custom Title", DocumentStatus.READY);
+    DocumentUploadService.UploadResult uploadResult =
+        new DocumentUploadService.UploadResult(
+            doc.getId(), "Custom Title", DocumentStatus.READY, 0, Instant.EPOCH);
+    when(ragApplicationService.uploadDocument(any(), eq("Custom Title"), eq(ownerKey())))
+        .thenReturn(uploadResult);
 
-    @Test
-    @DisplayName("should delete document and return 204")
-    void shouldDeleteDocumentAndReturn204() {
-      UUID docId = UUID.randomUUID();
-      doNothing().when(ragApplicationService).deleteDocument(docId, ownerKey());
+    assertThat(
+            mvc.post()
+                .multipart()
+                .uri("/api/rag/documents/upload")
+                .file(file)
+                .param("title", "Custom Title")
+                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+        .hasStatus(HttpStatus.CREATED);
+    verify(ragApplicationService).uploadDocument(any(), eq("Custom Title"), eq(ownerKey()));
+  }
 
-      assertThat(
-              mvc.delete()
-                  .uri("/api/rag/documents/" + docId)
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
-          .hasStatus(HttpStatus.NO_CONTENT);
-      verify(ragApplicationService).deleteDocument(docId, ownerKey());
-    }
+  @Test
+  @DisplayName("should delete document and return 204")
+  void shouldDeleteDocumentAndReturn204() {
+    UUID docId = UUID.randomUUID();
+    doNothing().when(ragApplicationService).deleteDocument(docId, ownerKey());
+
+    assertThat(
+            mvc.delete()
+                .uri("/api/rag/documents/" + docId)
+                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+        .hasStatus(HttpStatus.NO_CONTENT);
+    verify(ragApplicationService).deleteDocument(docId, ownerKey());
   }
 
   @Nested

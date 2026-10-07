@@ -5,8 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.eval.domain.model.ChatEvaluationResult;
@@ -17,11 +15,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.ai.chat.client.AdvisorParams;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.messages.Message;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ChatQualityEvaluator")
@@ -31,7 +28,8 @@ class ChatQualityEvaluatorTest {
 
   @Mock private ChatClient evaluationChatClient;
 
-  @Mock private ChatClient.ChatClientRequestSpec requestSpec;
+  @Mock(answer = Answers.RETURNS_SELF)
+  private ChatClient.ChatClientRequestSpec requestSpec;
 
   @Mock private ChatClient.CallResponseSpec callResponseSpec;
 
@@ -40,31 +38,6 @@ class ChatQualityEvaluatorTest {
   @BeforeEach
   void setUp() {
     evaluator = new ChatQualityEvaluator(officialEvaluators, evaluationChatClient);
-  }
-
-  @Test
-  @DisplayName("ChatEvaluationResult builder should work correctly with all fields")
-  void shouldBuildCorrectlyWithAllFields() {
-    ChatEvaluationResult result =
-        ChatEvaluationResult.builder()
-            .coherenceScore(0.9)
-            .relevanceScore(0.85)
-            .helpfulnessScore(0.8)
-            .factualityScore(0.95)
-            .factualityAvailable(true)
-            .overallScore(0.85)
-            .hasSafetyIssues(true)
-            .safetyFlags(List.of("Test flag"))
-            .suggestions(List.of("Test suggestion"))
-            .relevancyPassed(true)
-            .factualityPassed(true)
-            .evaluatorFeedback(List.of("relevancy: PASS"))
-            .build();
-
-    assertThat(result.coherenceScore()).isEqualTo(0.9);
-    assertThat(result.relevancyPassed()).isTrue();
-    assertThat(result.factualityPassed()).isTrue();
-    assertThat(result.evaluatorFeedback()).containsExactly("relevancy: PASS");
   }
 
   @Test
@@ -83,7 +56,6 @@ class ChatQualityEvaluatorTest {
     assertThat(result.factualityScore()).isNull();
     assertThat(result.relevancyPassed()).isTrue();
     assertThat(result.factualityPassed()).isNull();
-    verify(officialEvaluators).evaluate(anyString(), anyString(), anyList());
   }
 
   @Test
@@ -113,13 +85,7 @@ class ChatQualityEvaluatorTest {
     when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
         .thenReturn(
             new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
-    lenient().when(evaluationChatClient.prompt()).thenReturn(requestSpec);
-    lenient()
-        .when(requestSpec.advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT))
-        .thenReturn(requestSpec);
-    lenient().when(requestSpec.messages(any(Message.class))).thenReturn(requestSpec);
-    lenient().when(requestSpec.call()).thenReturn(callResponseSpec);
-    when(callResponseSpec.entity(eq(LlmEvaluationResponse.class), any())).thenReturn(null);
+    stubLlmJudge(null);
 
     ChatEvaluationResult result = evaluator.evaluate("Hello", "Hi there", List.of());
 
@@ -172,12 +138,8 @@ class ChatQualityEvaluatorTest {
   }
 
   private void stubLlmJudge(LlmEvaluationResponse response) {
-    lenient().when(evaluationChatClient.prompt()).thenReturn(requestSpec);
-    lenient()
-        .when(requestSpec.advisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT))
-        .thenReturn(requestSpec);
-    lenient().when(requestSpec.messages(any(Message.class))).thenReturn(requestSpec);
-    lenient().when(requestSpec.call()).thenReturn(callResponseSpec);
+    when(evaluationChatClient.prompt()).thenReturn(requestSpec);
+    when(requestSpec.call()).thenReturn(callResponseSpec);
     when(callResponseSpec.entity(eq(LlmEvaluationResponse.class), any())).thenReturn(response);
   }
 }

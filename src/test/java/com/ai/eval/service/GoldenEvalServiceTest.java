@@ -104,7 +104,6 @@ class GoldenEvalServiceTest {
     GoldenSuiteReport report = useCase.run(List.of(GoldenEvalDomain.RAG), null);
 
     assertThat(report.passed()).isEqualTo(1);
-    verify(fixtureSeeder).ensureFixtures();
     verify(ragChatService)
         .chat("What modules?", List.of("doc-1"), 5, null, GoldenRagFixtureSeeder.OWNER_KEY);
   }

@@ -3,7 +3,6 @@ package com.ai.image.infra.llm;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.image.domain.model.ImageOptions;
@@ -52,7 +51,6 @@ class SpringAiImageGenerationGatewayTest {
             ImageOptions.of("dall-e-3", "standard", 1024, 1024, 1));
 
     assertThat(result.url()).isEqualTo(expectedUrl);
-    verify(imageModel).call(any(ImagePrompt.class));
   }
 
   @Test

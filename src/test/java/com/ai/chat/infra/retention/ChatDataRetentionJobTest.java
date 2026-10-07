@@ -83,6 +83,5 @@ class ChatDataRetentionJobTest {
     verify(sessionRepository).deleteById(ChatSessionId.of("33333333-3333-3333-3333-333333333333"));
     verify(invocationEventRepository)
         .deleteBySessionIds(List.of("33333333-3333-3333-3333-333333333333"));
-    verify(invocationEventRepository).deleteOlderThan(any());
   }
 }

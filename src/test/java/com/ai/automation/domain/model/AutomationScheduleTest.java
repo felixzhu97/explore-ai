@@ -97,34 +97,29 @@ class AutomationScheduleTest {
     }
   }
 
-  @Nested
-  @DisplayName("turnOn")
-  class TurnOn {
+  @Test
+  @DisplayName("should re-arm the next cron run when a disabled schedule is turned on")
+  void shouldReArmTheNextCronRunWhenADisabledScheduleIsTurnedOn() {
+    AutomationSchedule schedule = cronSchedule();
+    schedule.disable();
+    Instant later = NOW.plus(Duration.ofDays(1));
 
-    @Test
-    @DisplayName("should re-arm the next cron run when a disabled schedule is turned on")
-    void shouldReArmTheNextCronRunWhenADisabledScheduleIsTurnedOn() {
-      AutomationSchedule schedule = cronSchedule();
-      schedule.disable();
-      Instant later = NOW.plus(Duration.ofDays(1));
+    schedule.turnOn(later);
 
-      schedule.turnOn(later);
+    assertThat(schedule.isEnabled()).isTrue();
+    assertThat(schedule.getNextRunAt()).isEqualTo(later.plus(Duration.ofHours(1)));
+  }
 
-      assertThat(schedule.isEnabled()).isTrue();
-      assertThat(schedule.getNextRunAt()).isEqualTo(later.plus(Duration.ofHours(1)));
-    }
+  @Test
+  @DisplayName("should reject turning on a one-off schedule when its run already happened")
+  void shouldRejectTurningOnAOneOffScheduleWhenItsRunAlreadyHappened() {
+    AutomationSchedule schedule = onceSchedule(NOW.plusSeconds(60));
+    schedule.recordRunFinished(NOW.plusSeconds(90));
 
-    @Test
-    @DisplayName("should reject turning on a one-off schedule when its run already happened")
-    void shouldRejectTurningOnAOneOffScheduleWhenItsRunAlreadyHappened() {
-      AutomationSchedule schedule = onceSchedule(NOW.plusSeconds(60));
-      schedule.recordRunFinished(NOW.plusSeconds(90));
-
-      assertThatThrownBy(() -> schedule.turnOn(NOW.plusSeconds(120)))
-          .isInstanceOf(IllegalArgumentException.class)
-          .hasMessageContaining("already completed");
-      assertThat(schedule.isEnabled()).isFalse();
-    }
+    assertThatThrownBy(() -> schedule.turnOn(NOW.plusSeconds(120)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("already completed");
+    assertThat(schedule.isEnabled()).isFalse();
   }
 
   @Nested

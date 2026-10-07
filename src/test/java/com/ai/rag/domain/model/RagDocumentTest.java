@@ -155,50 +155,40 @@ class RagDocumentTest {
     }
   }
 
-  @Nested
-  @DisplayName("newChunk()")
-  class NewChunk {
+  @Test
+  @DisplayName("should tag the chunk with the document owner title and file name")
+  void shouldTagTheChunkWithTheDocumentOwnerTitleAndFileName() {
+    RagDocument doc = processing();
 
-    @Test
-    @DisplayName("should tag the chunk with the document owner title and file name")
-    void shouldTagTheChunkWithTheDocumentOwnerTitleAndFileName() {
-      RagDocument doc = processing();
+    DocumentChunk chunk = doc.newChunk(2, "text", Map.of("page", 4));
 
-      DocumentChunk chunk = doc.newChunk(2, "text", Map.of("page", 4));
+    assertThat(chunk.getDocumentId()).isEqualTo(doc.getId());
+    assertThat(chunk.getOwnerKey()).isEqualTo(OwnerKey.parse(TEST_OWNER_KEY));
+    assertThat(chunk.getChunkIndex()).isEqualTo(2);
+    assertThat(chunk.getMetadata())
+        .containsEntry("page", 4)
+        .containsEntry("title", TEST_TITLE)
+        .containsEntry("fileName", TEST_FILE_NAME)
+        .doesNotContainKey("ownerKey");
+  }
 
-      assertThat(chunk.getDocumentId()).isEqualTo(doc.getId());
-      assertThat(chunk.getOwnerKey()).isEqualTo(OwnerKey.parse(TEST_OWNER_KEY));
-      assertThat(chunk.getChunkIndex()).isEqualTo(2);
-      assertThat(chunk.getMetadata())
-          .containsEntry("page", 4)
-          .containsEntry("title", TEST_TITLE)
-          .containsEntry("fileName", TEST_FILE_NAME)
-          .doesNotContainKey("ownerKey");
-    }
+  @Test
+  @DisplayName("should leave out the file name when the document has none")
+  void shouldLeaveOutTheFileNameWhenTheDocumentHasNone() {
+    RagDocument doc = RagDocument.startIngestion("Notes", null, 5, TEST_OWNER_KEY);
 
-    @Test
-    @DisplayName("should leave out the file name when the document has none")
-    void shouldLeaveOutTheFileNameWhenTheDocumentHasNone() {
-      RagDocument doc = RagDocument.startIngestion("Notes", null, 5, TEST_OWNER_KEY);
+    DocumentChunk chunk = doc.newChunk(0, "text", Map.of());
 
-      DocumentChunk chunk = doc.newChunk(0, "text", Map.of());
-
-      assertThat(chunk.getMetadata()).doesNotContainKey("fileName");
-    }
+    assertThat(chunk.getMetadata()).doesNotContainKey("fileName");
   }
 
   @Nested
   @DisplayName("updateTitle()")
   class UpdateTitle {}
 
-  @Nested
-  @DisplayName("restore()")
-  class Restore {
-
-    @Test
-    @DisplayName("should not print the title")
-    void shouldNotPrintTheTitle() {
-      assertThat(processing().toString()).doesNotContain(TEST_TITLE);
-    }
+  @Test
+  @DisplayName("should not print the title")
+  void shouldNotPrintTheTitle() {
+    assertThat(processing().toString()).doesNotContain(TEST_TITLE);
   }
 }

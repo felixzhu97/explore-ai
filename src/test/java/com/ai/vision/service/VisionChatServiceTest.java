@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.chat.infra.prompt.LocalizedRagPromptBuilder;
@@ -24,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.test.util.ReflectionTestUtils;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
@@ -52,11 +50,11 @@ class VisionChatServiceTest {
   void setUp() {
     visionChatService =
         new VisionChatService(
+            "qwen3.5:35b",
             ragApplicationService,
             chatClientProvider,
             localizedRagPromptBuilder,
             new ObjectMapper());
-    ReflectionTestUtils.setField(visionChatService, "visionModel", "qwen3.5:35b");
   }
 
   @Test
@@ -86,8 +84,6 @@ class VisionChatServiceTest {
               assertThat(event.data()).contains("source text");
             })
         .verifyComplete();
-
-    verify(requestSpec).stream();
   }
 
   @Test

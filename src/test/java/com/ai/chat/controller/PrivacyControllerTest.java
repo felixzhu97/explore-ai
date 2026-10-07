@@ -13,7 +13,6 @@ import com.ai.common.infra.config.ClientIdentityProperties;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -36,38 +35,28 @@ class PrivacyControllerTest {
 
   @MockitoBean private OwnerErasureService ownerErasureService;
 
-  @Nested
-  @DisplayName("DELETE /api/privacy/sessions")
-  class EraseAllSessions {
+  @Test
+  @DisplayName("should erase all owner data")
+  void shouldEraseAllOwnerDataWhenDeletePrivacySessions() {
+    when(ownerContext.require(any())).thenReturn(OWNER);
 
-    @Test
-    @DisplayName("should erase all owner data")
-    void shouldEraseAllOwnerDataWhenDeletePrivacySessions() {
-      when(ownerContext.require(any())).thenReturn(OWNER);
-
-      assertThat(
-              mvc.delete()
-                  .uri("/api/privacy/sessions")
-                  .with(
-                      ClientIdentityRequestPostProcessor.withClientId(
-                          "c:11111111-1111-1111-1111-111111111111")))
-          .hasStatus(HttpStatus.NO_CONTENT);
-      verify(ownerErasureService).eraseAllForOwner(OWNER);
-    }
+    assertThat(
+            mvc.delete()
+                .uri("/api/privacy/sessions")
+                .with(
+                    ClientIdentityRequestPostProcessor.withClientId(
+                        "c:11111111-1111-1111-1111-111111111111")))
+        .hasStatus(HttpStatus.NO_CONTENT);
+    verify(ownerErasureService).eraseAllForOwner(OWNER);
   }
 
-  @Nested
-  @DisplayName("POST /api/privacy/reset-identity")
-  class ResetIdentity {
-
-    @Test
-    @DisplayName("should rotate cookie when reset identity")
-    void shouldRotateCookieWhenResetIdentity() {
-      assertThat(mvc.post().uri("/api/privacy/reset-identity"))
-          .hasStatus(HttpStatus.NO_CONTENT)
-          .cookies()
-          .containsCookie("ea_cid");
-    }
+  @Test
+  @DisplayName("should rotate cookie when reset identity")
+  void shouldRotateCookieWhenResetIdentity() {
+    assertThat(mvc.post().uri("/api/privacy/reset-identity"))
+        .hasStatus(HttpStatus.NO_CONTENT)
+        .cookies()
+        .containsCookie("ea_cid");
   }
 
   @TestConfiguration

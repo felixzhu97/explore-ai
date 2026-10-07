@@ -33,79 +33,66 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
 
   @MockitoBean private SkillService skillService;
 
-  @Nested
-  @DisplayName("GET /api/chat/providers")
-  class ListProviders {
+  @Test
+  @DisplayName("should return providers")
+  void shouldReturnProvidersWhenListProvidersCalled() {
+    when(providerCatalog.listProviders())
+        .thenReturn(
+            List.of(
+                new com.ai.chat.controller.dto.ProviderInfoResponse(
+                    "openai", "DeepSeek", List.of("deepseek-v4-flash"), ProviderStatus.AVAILABLE)));
 
-    @Test
-    @DisplayName("should return providers")
-    void shouldReturnProvidersWhenListProvidersCalled() {
-      when(providerCatalog.listProviders())
-          .thenReturn(
-              List.of(
-                  new com.ai.chat.controller.dto.ProviderInfoResponse(
-                      "openai",
-                      "DeepSeek",
-                      List.of("deepseek-v4-flash"),
-                      ProviderStatus.AVAILABLE)));
+    assertThat(mvc.get().uri("/api/chat/providers"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$")
+        .asArray()
+        .hasSize(1);
 
-      assertThat(mvc.get().uri("/api/chat/providers"))
-          .hasStatusOk()
-          .bodyJson()
-          .extractingPath("$")
-          .asArray()
-          .hasSize(1);
+    assertThat(mvc.get().uri("/api/chat/providers"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$[0].name")
+        .asString()
+        .isEqualTo("openai");
 
-      assertThat(mvc.get().uri("/api/chat/providers"))
-          .hasStatusOk()
-          .bodyJson()
-          .extractingPath("$[0].name")
-          .asString()
-          .isEqualTo("openai");
-
-      assertThat(mvc.get().uri("/api/chat/providers"))
-          .hasStatusOk()
-          .bodyJson()
-          .extractingPath("$[0].displayName")
-          .asString()
-          .isEqualTo("DeepSeek");
-    }
+    assertThat(mvc.get().uri("/api/chat/providers"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$[0].displayName")
+        .asString()
+        .isEqualTo("DeepSeek");
   }
 
-  @Nested
-  @DisplayName("GET /api/chat/models")
-  class ListModels {
+  @Test
+  @DisplayName("should return models for provider")
+  void shouldReturnModelsWhenListModelsCalled() {
+    when(providerCatalog.listModels("openai"))
+        .thenReturn(
+            List.of(
+                new com.ai.chat.controller.dto.ModelInfoResponse(
+                    "deepseek-v4-flash", "openai", "DeepSeek chat model")));
 
-    @Test
-    @DisplayName("should return models for provider")
-    void shouldReturnModelsWhenListModelsCalled() {
-      when(providerCatalog.listModels("openai"))
-          .thenReturn(
-              List.of(
-                  new com.ai.chat.controller.dto.ModelInfoResponse(
-                      "deepseek-v4-flash", "openai", "DeepSeek chat model")));
+    assertThat(mvc.get().uri("/api/chat/models").param("provider", "openai"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.provider")
+        .asString()
+        .isEqualTo("openai");
 
-      assertThat(mvc.get().uri("/api/chat/models").param("provider", "openai"))
-          .hasStatusOk()
-          .bodyJson()
-          .extractingPath("$.provider")
-          .asString()
-          .isEqualTo("openai");
+    assertThat(mvc.get().uri("/api/chat/models").param("provider", "openai"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.count")
+        .convertTo(Integer.class)
+        .isEqualTo(1);
 
-      assertThat(mvc.get().uri("/api/chat/models").param("provider", "openai"))
-          .hasStatusOk()
-          .bodyJson()
-          .extractingPath("$.count")
-          .convertTo(Integer.class)
-          .isEqualTo(1);
-
-      assertThat(mvc.get().uri("/api/chat/models").param("provider", "openai"))
-          .hasStatusOk()
-          .bodyJson()
-          .extractingPath("$.models[0].name")
-          .asString()
-          .isEqualTo("deepseek-v4-flash");
-    }
+    assertThat(mvc.get().uri("/api/chat/models").param("provider", "openai"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.models[0].name")
+        .asString()
+        .isEqualTo("deepseek-v4-flash");
   }
 
   @Nested
