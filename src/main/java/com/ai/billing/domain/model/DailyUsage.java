@@ -2,15 +2,21 @@ package com.ai.billing.domain.model;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import lombok.Value;
 
 /** Requests counted for one quota subject on one UTC day; a new day starts from zero. */
-public record DailyUsage(LocalDate day, int count) {
+@Value
+public class DailyUsage {
+  LocalDate day;
+  int count;
 
-  public DailyUsage {
+  public DailyUsage(LocalDate day, int count) {
     Objects.requireNonNull(day, "day");
     if (count < 0) {
       throw new IllegalArgumentException("count must not be negative");
     }
+    this.day = day;
+    this.count = count;
   }
 
   /** Returns empty usage for the day. */

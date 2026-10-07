@@ -57,7 +57,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
         .thenThrow(
             DomainException.notFound(
                 "AGENT_NOT_FOUND",
-                "Unknown agent type: " + AgentType.createType("missing").value()));
+                "Unknown agent type: " + AgentType.createType("missing").getValue()));
 
     assertThat(
             mvc.get()
@@ -87,7 +87,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
         .thenThrow(
             DomainException.notFound(
                 "AGENT_NOT_FOUND",
-                "Unknown agent type: " + AgentType.createType("missing").value()));
+                "Unknown agent type: " + AgentType.createType("missing").getValue()));
 
     assertThat(
             mvc.get()

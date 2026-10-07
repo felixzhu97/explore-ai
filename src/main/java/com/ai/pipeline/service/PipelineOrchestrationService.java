@@ -78,15 +78,16 @@ public class PipelineOrchestrationService {
     try {
       AgentDefinition agent = registry.requireAgent(type, ownerKey, language);
       return Flux.concat(
-              Flux.just(buildHandoffEvent(type.value(), "direct invoke")),
+              Flux.just(buildHandoffEvent(type.getValue(), "direct invoke")),
               workerInvoker
                   .invokeStream(agent, message)
                   .map(PipelineOrchestrationService::buildMessageEvent),
               Flux.just(buildDoneEvent()))
-          .doOnComplete(() -> recordAgent(type.value(), "agent.invoke", ownerKey, startedAt, null))
-          .doOnError(err -> recordAgent(type.value(), "agent.invoke", ownerKey, startedAt, err));
+          .doOnComplete(
+              () -> recordAgent(type.getValue(), "agent.invoke", ownerKey, startedAt, null))
+          .doOnError(err -> recordAgent(type.getValue(), "agent.invoke", ownerKey, startedAt, err));
     } catch (DomainException e) {
-      recordAgent(type.value(), "agent.invoke", ownerKey, startedAt, e);
+      recordAgent(type.getValue(), "agent.invoke", ownerKey, startedAt, e);
       return Flux.just(buildErrorEvent(e.getMessage()), buildDoneEvent());
     }
   }
@@ -180,7 +181,7 @@ public class PipelineOrchestrationService {
                       .formatted(message, current.get());
               StringBuilder stepOutput = new StringBuilder();
               return Flux.concat(
-                  Flux.just(buildHandoffEvent(node.agentType().value(), "pipeline step")),
+                  Flux.just(buildHandoffEvent(node.getAgentType().getValue(), "pipeline step")),
                   workerInvoker
                       .invokeStream(agent, stepInput)
                       .doOnNext(stepOutput::append)
@@ -194,10 +195,10 @@ public class PipelineOrchestrationService {
   private Flux<ServerSentEvent<String>> executePlan(
       String originalMessage, RoutingPlan plan, String ownerKey, String language) {
     List<Flux<ServerSentEvent<String>>> stages = new ArrayList<>();
-    stages.add(Flux.just(buildHandoffEvent(plan.primaryAgent().value(), plan.reason())));
+    stages.add(Flux.just(buildHandoffEvent(plan.getPrimaryAgent().getValue(), plan.getReason())));
 
-    if (plan.subtasks().isEmpty()) {
-      AgentDefinition primary = registry.requireAgent(plan.primaryAgent(), ownerKey, language);
+    if (plan.getSubtasks().isEmpty()) {
+      AgentDefinition primary = registry.requireAgent(plan.getPrimaryAgent(), ownerKey, language);
       stages.add(
           workerInvoker
               .invokeStream(primary, originalMessage)
@@ -214,7 +215,7 @@ public class PipelineOrchestrationService {
       String originalMessage, RoutingPlan plan, String ownerKey, String language) {
     return Mono.fromCallable(
             () -> {
-              List<RoutingPlan.Subtask> subtasks = plan.subtasks();
+              List<RoutingPlan.Subtask> subtasks = plan.getSubtasks();
               List<String> workerOutputs;
               try (ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
                 List<CompletableFuture<String>> futures =
@@ -225,11 +226,11 @@ public class PipelineOrchestrationService {
                                     () -> {
                                       AgentDefinition worker =
                                           registry.requireAgent(
-                                              subtask.agentType(), ownerKey, language);
+                                              subtask.getAgentType(), ownerKey, language);
                                       String result =
-                                          workerInvoker.invoke(worker, subtask.instruction());
+                                          workerInvoker.invoke(worker, subtask.getInstruction());
                                       return "### "
-                                          + subtask.agentType().value()
+                                          + subtask.getAgentType().getValue()
                                           + '\n'
                                           + result
                                           + "\n\n";
@@ -240,7 +241,7 @@ public class PipelineOrchestrationService {
               }
               String collected = String.join("", workerOutputs);
               AgentDefinition synthesizer =
-                  registry.requireAgent(plan.primaryAgent(), ownerKey, language);
+                  registry.requireAgent(plan.getPrimaryAgent(), ownerKey, language);
               String synthesisPrompt =
                   """
                             Original user request:
@@ -265,7 +266,7 @@ public class PipelineOrchestrationService {
       AgentPipeline.PipelineNode node, String ownerKey, String language) {
     return node.hasOwnPrompt()
         ? node.buildDefinition()
-        : node.buildDefinition(registry.requireAgent(node.agentType(), ownerKey, language));
+        : node.buildDefinition(registry.requireAgent(node.getAgentType(), ownerKey, language));
   }
 
   /** Builds an SSE message event. */

@@ -69,28 +69,28 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
     List<Object> args = new ArrayList<>();
 
     query
-        .capability()
+        .getCapability()
         .ifPresent(
             capability -> {
               where.append(" AND capability = ?");
               args.add(capability.getValue());
             });
     query
-        .from()
+        .getFrom()
         .ifPresent(
             from -> {
               where.append(" AND occurred_at >= ?");
               args.add(from);
             });
     query
-        .to()
+        .getTo()
         .ifPresent(
             to -> {
               where.append(" AND occurred_at < ?");
               args.add(to);
             });
     query
-        .day()
+        .getDay()
         .ifPresent(
             day -> {
               LocalDate date = LocalDate.parse(day);
@@ -101,28 +101,28 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
               args.add(end);
             });
     query
-        .outcome()
+        .getOutcome()
         .ifPresent(
             outcome -> {
               where.append(" AND outcome = ?");
               args.add(outcome.getValue());
             });
     query
-        .model()
+        .getModel()
         .ifPresent(
             model -> {
               where.append(" AND model = ?");
               args.add(model);
             });
     query
-        .agentType()
+        .getAgentType()
         .ifPresent(
             agentType -> {
               where.append(" AND agent_type = ?");
               args.add(agentType);
             });
     query
-        .toolName()
+        .getToolName()
         .ifPresent(
             toolName -> {
               where.append(" AND tool_name = ?");
@@ -134,8 +134,8 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
             "SELECT COUNT(*) FROM ai_invocation_event" + where, Long.class, args.toArray());
     long totalCount = total == null ? 0L : total;
 
-    int size = Math.max(1, Math.min(query.size(), 100));
-    int page = Math.max(0, query.page());
+    int size = Math.max(1, Math.min(query.getSize(), 100));
+    int page = Math.max(0, query.getPage());
     int offset = page * size;
 
     List<Object> pageArgs = new ArrayList<>(args);

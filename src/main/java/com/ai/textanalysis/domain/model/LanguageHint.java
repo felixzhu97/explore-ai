@@ -1,6 +1,11 @@
 package com.ai.textanalysis.domain.model;
 
-public record LanguageHint(String language) {
+import lombok.Value;
+
+/** Optional language the analysis should answer in. */
+@Value
+public class LanguageHint {
+  String language;
 
   private static final String DEFAULT = "English";
 

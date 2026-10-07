@@ -3,8 +3,13 @@ package com.ai.audio.domain.model;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import lombok.Value;
 
-public record VoiceCatalog(List<String> voices, List<String> models) {
+/** Voices and models available for speech synthesis. */
+@Value
+public class VoiceCatalog {
+  List<String> voices;
+  List<String> models;
 
   private static final Map<String, VoiceInfo> VOICE_DETAILS =
       Map.of(
@@ -15,7 +20,7 @@ public record VoiceCatalog(List<String> voices, List<String> models) {
           "nova", new VoiceInfo("nova", "Nova", "en", "female"),
           "shimmer", new VoiceInfo("shimmer", "Shimmer", "en", "female"));
 
-  public VoiceCatalog {
+  public VoiceCatalog(List<String> voices, List<String> models) {
     if (voices == null || voices.isEmpty()) {
       throw new IllegalArgumentException("Voices list must not be null or empty");
     }
@@ -24,6 +29,8 @@ public record VoiceCatalog(List<String> voices, List<String> models) {
     }
     voices = List.copyOf(voices);
     models = List.copyOf(models);
+    this.voices = voices;
+    this.models = models;
   }
 
   /** Returns the built-in voices and models. */

@@ -37,11 +37,11 @@ class OfficialSpringAiEvaluatorsTest {
 
     OfficialGateResult result = evaluators.evaluate("q", "a", List.of());
 
-    assertThat(result.passed()).isTrue();
-    assertThat(result.relevancyPassed()).isTrue();
-    assertThat(result.factualityEvaluated()).isFalse();
-    assertThat(result.factualityPassed()).isNull();
-    assertThat(result.relevanceScore()).isEqualTo(1.0);
+    assertThat(result.isPassed()).isTrue();
+    assertThat(result.isRelevancyPassed()).isTrue();
+    assertThat(result.isFactualityEvaluated()).isFalse();
+    assertThat(result.getFactualityPassed()).isNull();
+    assertThat(result.getRelevanceScore()).isEqualTo(1.0);
     verify(factCheckingEvaluator, never()).evaluate(any());
   }
 
@@ -55,9 +55,9 @@ class OfficialSpringAiEvaluatorsTest {
 
     OfficialGateResult result = evaluators.evaluate("q", "a", List.of("doc text"));
 
-    assertThat(result.passed()).isFalse();
-    assertThat(result.factualityEvaluated()).isTrue();
-    assertThat(result.factualityPassed()).isFalse();
-    assertThat(result.feedback()).anyMatch(f -> f.contains("factuality"));
+    assertThat(result.isPassed()).isFalse();
+    assertThat(result.isFactualityEvaluated()).isTrue();
+    assertThat(result.getFactualityPassed()).isFalse();
+    assertThat(result.getFeedback()).anyMatch(f -> f.contains("factuality"));
   }
 }

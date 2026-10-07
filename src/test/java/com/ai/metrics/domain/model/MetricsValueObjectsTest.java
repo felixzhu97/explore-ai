@@ -15,8 +15,8 @@ class MetricsValueObjectsTest {
   @Test
   @DisplayName("should clamp latency to zero when clock goes backwards")
   void shouldClampLatencyToZeroWhenClockGoesBackwards() {
-    assertThat(Latency.measureBetween(5_000_000L, 1_000_000L).millis()).isZero();
-    assertThat(Latency.measureBetween(1_000_000L, 4_500_000L).millis()).isEqualTo(3L);
+    assertThat(Latency.measureBetween(5_000_000L, 1_000_000L).getMillis()).isZero();
+    assertThat(Latency.measureBetween(1_000_000L, 4_500_000L).getMillis()).isEqualTo(3L);
   }
 
   @Test
@@ -24,8 +24,8 @@ class MetricsValueObjectsTest {
   void shouldCollapseControlCharactersAndCapLengthWhenSummarizingErrors() {
     ErrorSummary summary = ErrorSummary.createSummary(" ", "a\r\n\tb" + "x".repeat(600));
 
-    assertThat(summary.code()).isEqualTo("unknown");
-    assertThat(summary.message()).startsWith("a b").hasSize(ErrorSummary.MAX_MESSAGE_LENGTH);
+    assertThat(summary.getCode()).isEqualTo("unknown");
+    assertThat(summary.getMessage()).startsWith("a b").hasSize(ErrorSummary.MAX_MESSAGE_LENGTH);
     assertThat(ErrorSummary.createSummary(new IllegalStateException("boom")))
         .isEqualTo(ErrorSummary.createSummary("IllegalStateException", "boom"));
   }
@@ -60,10 +60,10 @@ class MetricsValueObjectsTest {
     Instant now = Instant.parse("2026-07-08T00:00:00Z");
     MetricsWindow window = MetricsWindow.parseWindow(" ");
 
-    assertThat(window.range()).isEqualTo("7d");
-    assertThat(window.span()).isEqualTo(Duration.ofDays(7));
+    assertThat(window.getRange()).isEqualTo("7d");
+    assertThat(window.getSpan()).isEqualTo(Duration.ofDays(7));
     assertThat(window.from(now)).isEqualTo(Instant.parse("2026-07-01T00:00:00Z"));
-    assertThat(MetricsWindow.parseWindow("30D").range()).isEqualTo("30d");
+    assertThat(MetricsWindow.parseWindow("30D").getRange()).isEqualTo("30d");
   }
 
   @Test
@@ -79,8 +79,8 @@ class MetricsValueObjectsTest {
   void shouldInterpolatePercentilesWhenLatenciesAreSorted() {
     LatencyStats stats = LatencyStats.calculateStats(List.of(10L, 20L, 30L, 40L, 100L));
 
-    assertThat(stats.p50Ms()).isEqualTo(30.0);
-    assertThat(stats.p95Ms()).isEqualTo(88.0);
+    assertThat(stats.getP50Ms()).isEqualTo(30.0);
+    assertThat(stats.getP95Ms()).isEqualTo(88.0);
     assertThat(LatencyStats.calculateStats(List.of())).isEqualTo(LatencyStats.EMPTY);
   }
 }

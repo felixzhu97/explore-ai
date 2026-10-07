@@ -129,7 +129,7 @@ public class DocumentUploadService {
     String fileName = document.getFileName();
     ExtractedDocument raw = reader.readDocument(fileContent, fileName);
     List<ExtractedDocument> chunkDocs =
-        raw.content().isBlank() ? List.of() : transformer.splitDocument(raw);
+        raw.getContent().isBlank() ? List.of() : transformer.splitDocument(raw);
     if (chunkDocs.isEmpty()) {
       throw DomainException.unprocessable("DOCUMENT_UNREADABLE", "No text found in " + fileName);
     }
@@ -137,7 +137,7 @@ public class DocumentUploadService {
     List<DocumentChunk> chunks = new ArrayList<>();
     for (int i = 0; i < chunkDocs.size(); i++) {
       ExtractedDocument chunkDoc = chunkDocs.get(i);
-      chunks.add(document.createChunk(i, chunkDoc.content(), chunkDoc.metadata()));
+      chunks.add(document.createChunk(i, chunkDoc.getContent(), chunkDoc.getMetadata()));
     }
 
     writer.writeChunks(chunks);

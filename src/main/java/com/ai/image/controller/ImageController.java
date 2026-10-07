@@ -60,7 +60,8 @@ public class ImageController {
     if (!image.isAvailable()) {
       throw DomainException.unavailable("IMAGE_GENERATION_FAILED", "Failed to generate image");
     }
-    String model = request.model() != null ? request.model() : image.model();
-    return ImageGenerationResponse.success(image.url(), image.base64(), model, request.prompt());
+    String model = request.model() != null ? request.model() : image.getModel();
+    return ImageGenerationResponse.success(
+        image.getUrl(), image.getBase64(), model, request.prompt());
   }
 }

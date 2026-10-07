@@ -112,10 +112,10 @@ public class RagSearchTool implements DocumentSearchTool {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < sources.size(); i++) {
       var source = sources.get(i);
-      String content = excerpt(source.content());
-      sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.score(), content));
-      if (source.metadata() != null
-          && source.metadata().get(ChunkMetadataKeys.TITLE) instanceof String title) {
+      String content = excerpt(source.getContent());
+      sb.append(String.format("【来源 %d】相似度: %.2f\n%s\n", i + 1, source.getScore(), content));
+      if (source.getMetadata() != null
+          && source.getMetadata().get(ChunkMetadataKeys.TITLE) instanceof String title) {
         sb.append(String.format("文档: %s\n", title));
       }
       sb.append("---\n\n");

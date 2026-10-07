@@ -1,8 +1,14 @@
 package com.ai.image.domain.model;
 
 import java.util.List;
+import lombok.Value;
 
-public record ImageCatalog(List<String> models, List<String> sizes, List<String> qualities) {
+/** Models, sizes and qualities available for image generation. */
+@Value
+public class ImageCatalog {
+  List<String> models;
+  List<String> sizes;
+  List<String> qualities;
 
   private static final ImageCatalog DEFAULT =
       new ImageCatalog(
@@ -10,7 +16,7 @@ public record ImageCatalog(List<String> models, List<String> sizes, List<String>
           List.of("512x512", "768x768", "1024x1024", "1024x1792", "1792x1024"),
           List.of("standard", "hd"));
 
-  public ImageCatalog {
+  public ImageCatalog(List<String> models, List<String> sizes, List<String> qualities) {
     if (models == null || models.isEmpty()) {
       throw new IllegalArgumentException("Models list must not be null or empty");
     }
@@ -23,6 +29,9 @@ public record ImageCatalog(List<String> models, List<String> sizes, List<String>
     models = List.copyOf(models);
     sizes = List.copyOf(sizes);
     qualities = List.copyOf(qualities);
+    this.models = models;
+    this.sizes = sizes;
+    this.qualities = qualities;
   }
 
   /** Returns the default catalog. */

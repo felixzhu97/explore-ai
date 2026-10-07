@@ -1,9 +1,13 @@
 package com.ai.account.domain.model;
 
 import java.util.Locale;
+import lombok.Value;
 
 /** Sign-in provider and subject pair, normalized the same way for saving and lookup. */
-public record ExternalIdentity(String provider, String subject) {
+@Value
+public class ExternalIdentity {
+  String provider;
+  String subject;
 
   public static final String EXPLORE_IAM = "explore-iam";
 
@@ -11,9 +15,11 @@ public record ExternalIdentity(String provider, String subject) {
   static final int MAX_PROVIDER_LENGTH = 32;
   static final int MAX_SUBJECT_LENGTH = 255;
 
-  public ExternalIdentity {
+  public ExternalIdentity(String provider, String subject) {
     provider = normalizeProvider(provider);
     subject = normalizeSubject(subject);
+    this.provider = provider;
+    this.subject = subject;
   }
 
   /** Normalizes a provider registration id and subject. */

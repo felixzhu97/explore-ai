@@ -1,15 +1,18 @@
 package com.ai.account.domain.model;
 
 import java.util.regex.Pattern;
+import lombok.Value;
 
 /** Email address of an account; login handles and display names are never stored here. */
-public record ContactEmail(String value) {
+@Value
+public class ContactEmail {
+  String value;
 
   static final int MAX_LENGTH = 320;
 
   private static final Pattern SHAPE = Pattern.compile("^[^\\s@]+@[^\\s@]+$");
 
-  public ContactEmail {
+  public ContactEmail(String value) {
     if (value == null || value.isBlank()) {
       throw new IllegalArgumentException("email is required");
     }
@@ -17,6 +20,7 @@ public record ContactEmail(String value) {
     if (value.length() > MAX_LENGTH || !SHAPE.matcher(value).matches()) {
       throw new IllegalArgumentException("email is not an email address");
     }
+    this.value = value;
   }
 
   /** Returns the email, or {@code null} when the value is blank or not an email address. */

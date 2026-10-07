@@ -47,7 +47,7 @@ public class McpClientController {
   public ResponseEntity<List<McpToolResponse>> listTools() {
     List<McpToolResponse> tools =
         mcpService.getToolDefinitions().stream()
-            .map(def -> new McpToolResponse(def.name(), def.description()))
+            .map(def -> new McpToolResponse(def.getName(), def.getDescription()))
             .toList();
     return ResponseEntity.ok(tools);
   }

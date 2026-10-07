@@ -46,7 +46,7 @@ class PipelineTemplateTest {
     assertThat(pipeline.getNodes()).hasSize(2);
     assertThat(pipeline.getEdges()).hasSize(1);
     assertThat(pipeline.resolveExecutionOrder())
-        .extracting(node -> node.agentType().value())
+        .extracting(node -> node.getAgentType().getValue())
         .containsExactly("research", "analyst");
   }
 

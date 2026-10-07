@@ -2,12 +2,15 @@ package com.ai.chat.domain.model;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.Value;
 
 /**
  * Primary language of user input, read from its character distribution: {@code zh}, {@code ja},
  * {@code en}, or {@code default} when no language dominates.
  */
-public record DetectedLanguage(String code) {
+@Value
+public class DetectedLanguage {
+  String code;
 
   private static final Pattern CJK_UNIFIED_IDEOGRAPHS = Pattern.compile("[\\u4e00-\\u9fff]");
   private static final Pattern HIRAGANA = Pattern.compile("[\\u3040-\\u309f]");

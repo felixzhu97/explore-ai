@@ -48,11 +48,11 @@ public class GoldenEvalService {
     List<GoldenEvalCase> cases = suiteRepository.loadByCategories(categories);
     if (caseIds != null && !caseIds.isEmpty()) {
       Set<String> wanted = new LinkedHashSet<>(caseIds);
-      cases = cases.stream().filter(c -> wanted.contains(c.id())).toList();
+      cases = cases.stream().filter(c -> wanted.contains(c.getId())).toList();
     }
 
     Map<String, String> fixtureIds =
-        cases.stream().anyMatch(c -> c.category() == GoldenEvalCategory.RAG)
+        cases.stream().anyMatch(c -> c.getCategory() == GoldenEvalCategory.RAG)
             ? fixtureSeeder.ensureFixtures()
             : Map.of();
 
@@ -68,22 +68,22 @@ public class GoldenEvalService {
       GeneratedAnswer generated = generate(evalCase, fixtureIds);
       List<String> context = resolveContext(evalCase, generated.contextTexts());
       OfficialGateResult gate =
-          officialEvaluators.evaluate(evalCase.userText(), generated.answer(), context);
+          officialEvaluators.evaluate(evalCase.getUserText(), generated.answer(), context);
       return new CaseEvalOutcome(
-          evalCase.id(),
-          evalCase.category(),
-          evalCase.userText(),
+          evalCase.getId(),
+          evalCase.getCategory(),
+          evalCase.getUserText(),
           truncate(generated.answer()),
-          gate.passed(),
-          gate.relevancyPassed(),
-          gate.factualityPassed(),
-          gate.feedback(),
+          gate.isPassed(),
+          gate.isRelevancyPassed(),
+          gate.getFactualityPassed(),
+          gate.getFeedback(),
           null);
     } catch (RuntimeException ex) {
       return new CaseEvalOutcome(
-          evalCase.id(),
-          evalCase.category(),
-          evalCase.userText(),
+          evalCase.getId(),
+          evalCase.getCategory(),
+          evalCase.getUserText(),
           "",
           false,
           false,
@@ -94,32 +94,32 @@ public class GoldenEvalService {
   }
 
   private GeneratedAnswer generate(GoldenEvalCase evalCase, Map<String, String> fixtureIds) {
-    if (evalCase.category() == GoldenEvalCategory.RAG) {
+    if (evalCase.getCategory() == GoldenEvalCategory.RAG) {
       List<String> documentIds = resolveDocumentIds(evalCase, fixtureIds);
       RagChatResult result =
           ragChatService.chat(
-              evalCase.userText(), documentIds, 5, null, GoldenRagFixtureSeeder.OWNER_KEY);
+              evalCase.getUserText(), documentIds, 5, null, GoldenRagFixtureSeeder.OWNER_KEY);
       List<String> sources =
           result.sources().stream()
-              .map(SourceCitation::content)
+              .map(SourceCitation::getContent)
               .filter(text -> text != null && !text.isBlank())
               .toList();
       return new GeneratedAnswer(result.response(), sources);
     }
 
     TextChatOptions options =
-        evalCase.toolsEnabled() ? TextChatOptions.defaults() : TextChatOptions.withoutTools();
-    String answer = chatService.chat(evalCase.userText(), options);
+        evalCase.isToolsEnabled() ? TextChatOptions.defaults() : TextChatOptions.withoutTools();
+    String answer = chatService.chat(evalCase.getUserText(), options);
     return new GeneratedAnswer(answer == null ? "" : answer, List.of());
   }
 
   private static List<String> resolveDocumentIds(
       GoldenEvalCase evalCase, Map<String, String> fixtureIds) {
-    if (!evalCase.documentIds().isEmpty()) {
-      return evalCase.documentIds();
+    if (!evalCase.getDocumentIds().isEmpty()) {
+      return evalCase.getDocumentIds();
     }
     List<String> ids = new ArrayList<>();
-    for (String key : evalCase.fixtureKeys()) {
+    for (String key : evalCase.getFixtureKeys()) {
       String id = fixtureIds.get(key.toLowerCase(Locale.ROOT));
       if (id != null) {
         ids.add(id);
@@ -133,11 +133,11 @@ public class GoldenEvalService {
     if (runtimeSources != null) {
       context.addAll(runtimeSources);
     }
-    if (context.isEmpty() && !evalCase.contexts().isEmpty()) {
-      context.addAll(evalCase.contexts());
+    if (context.isEmpty() && !evalCase.getContexts().isEmpty()) {
+      context.addAll(evalCase.getContexts());
     }
     if (context.isEmpty()) {
-      context.addAll(evalCase.ideal());
+      context.addAll(evalCase.getIdeal());
     }
     return List.copyOf(context);
   }

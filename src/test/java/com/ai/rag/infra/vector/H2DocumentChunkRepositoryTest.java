@@ -87,9 +87,9 @@ class H2DocumentChunkRepositoryTest {
           repository.searchChunks(new float[] {1f, 0f}, 5, OWNER, List.of());
 
       assertThat(results)
-          .extracting(scored -> scored.chunk().getContent())
+          .extracting(scored -> scored.getChunk().getContent())
           .containsExactly("high", "low");
-      assertThat(results).extracting(ScoredChunk::score).containsExactly(1.0, 0.0);
+      assertThat(results).extracting(ScoredChunk::getScore).containsExactly(1.0, 0.0);
     }
 
     @Test
@@ -104,7 +104,9 @@ class H2DocumentChunkRepositoryTest {
           repository.searchChunks(
               new float[] {1f, 0f}, 5, OWNER, List.of(own.getValue(), foreign.getValue()));
 
-      assertThat(results).extracting(scored -> scored.chunk().getContent()).containsExactly("own");
+      assertThat(results)
+          .extracting(scored -> scored.getChunk().getContent())
+          .containsExactly("own");
     }
 
     @Test

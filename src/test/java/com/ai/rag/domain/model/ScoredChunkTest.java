@@ -27,7 +27,7 @@ class ScoredChunkTest {
   void shouldScoreTheChunkOnceAgainstTheQuery() {
     ScoredChunk scored = ScoredChunk.createScoredChunk(chunk(1f, 0f), new float[] {1f, 0f});
 
-    assertThat(scored.score()).isEqualTo(1.0);
+    assertThat(scored.getScore()).isEqualTo(1.0);
   }
 
   @Test

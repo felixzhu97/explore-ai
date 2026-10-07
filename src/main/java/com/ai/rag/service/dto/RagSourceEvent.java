@@ -14,13 +14,13 @@ public record RagSourceEvent(String content, double score, Map<String, Object> m
   /** Maps retrieved documents to events, skipping chunks without text. */
   public static List<RagSourceEvent> fromAll(List<SourceCitation> sources) {
     return sources.stream()
-        .filter(source -> source.content() != null && !source.content().isBlank())
+        .filter(source -> source.getContent() != null && !source.getContent().isBlank())
         .map(
             source ->
                 new RagSourceEvent(
-                    source.content(),
-                    source.score(),
-                    source.metadata() == null ? Map.of() : source.metadata()))
+                    source.getContent(),
+                    source.getScore(),
+                    source.getMetadata() == null ? Map.of() : source.getMetadata()))
         .toList();
   }
 }

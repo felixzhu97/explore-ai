@@ -3,9 +3,13 @@ package com.ai.metrics.domain.model;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Locale;
+import lombok.Value;
 
 /** Metrics time range ending now, such as {@code 7d} or {@code 30d}. */
-public record MetricsWindow(String range, Duration span) {
+@Value
+public class MetricsWindow {
+  String range;
+  Duration span;
 
   public static final String DEFAULT_RANGE = "7d";
 

@@ -77,6 +77,6 @@ class JdbcMetricsQueryRepositorySchemaTest {
 
     List<TimePoint> points = repository.countDailyDocumentsUploaded(FROM, TO);
 
-    assertThat(points).singleElement().extracting(TimePoint::value).isEqualTo(1L);
+    assertThat(points).singleElement().extracting(TimePoint::getValue).isEqualTo(1L);
   }
 }

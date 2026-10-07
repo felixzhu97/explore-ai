@@ -43,7 +43,7 @@ public class DocumentSearchService {
 
     String context =
         matches.stream()
-            .map(scored -> scored.chunk().getContent())
+            .map(scored -> scored.getChunk().getContent())
             .collect(Collectors.joining("\n\n"));
 
     List<SourceCitation> sources =
@@ -51,7 +51,9 @@ public class DocumentSearchService {
             .map(
                 scored ->
                     new SourceCitation(
-                        scored.chunk().getExcerpt(), scored.score(), scored.chunk().getMetadata()))
+                        scored.getChunk().getExcerpt(),
+                        scored.getScore(),
+                        scored.getChunk().getMetadata()))
             .toList();
 
     return new RetrievalResult(context, sources);

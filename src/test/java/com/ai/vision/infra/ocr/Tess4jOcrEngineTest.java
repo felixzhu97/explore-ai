@@ -38,7 +38,7 @@ class Tess4jOcrEngineTest {
     assumeTrue(engine.isAvailable(), "Tesseract native library is not installed");
     when(tesseract.doOCR(IMAGE)).thenReturn("  Hello \n");
 
-    assertThat(engine.extractText(IMAGE).text()).isEqualTo("Hello");
+    assertThat(engine.extractText(IMAGE).getText()).isEqualTo("Hello");
   }
 
   @Test

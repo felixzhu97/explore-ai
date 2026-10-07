@@ -13,7 +13,7 @@ class AgentTypeTest {
 
   @Test
   void shouldNormalizeToLowercaseWhenCreated() {
-    assertEquals("k8s", AgentType.createType("K8S").value());
+    assertEquals("k8s", AgentType.createType("K8S").getValue());
   }
 
   @Test

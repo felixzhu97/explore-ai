@@ -24,7 +24,7 @@ class AutomationRunRepositoryTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should insert a new run as the same managed instance")
   void shouldInsertANewRunAsTheSameManagedInstance() {
-    AutomationRun run = AutomationRun.startRun(ScheduleId.generateId(), OWNER.value());
+    AutomationRun run = AutomationRun.startRun(ScheduleId.generateId(), OWNER.getValue());
     run.markSkippedForQuota();
 
     AutomationRun saved = repository.save(run);
@@ -69,7 +69,8 @@ class AutomationRunRepositoryTest extends AbstractDataJpaTest {
   }
 
   private void save(ScheduleId scheduleId, OwnerKey owner, String startedAt, String result) {
-    AutomationRun run = AutomationRun.startRun(scheduleId, owner.value(), Instant.parse(startedAt));
+    AutomationRun run =
+        AutomationRun.startRun(scheduleId, owner.getValue(), Instant.parse(startedAt));
     run.markSucceeded(result, EmailDeliveryStatus.SENT);
     repository.save(run);
   }

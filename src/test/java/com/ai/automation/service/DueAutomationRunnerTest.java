@@ -82,7 +82,7 @@ class DueAutomationRunnerTest {
     assertThat(executed).isEqualTo(1);
     ArgumentCaptor<EmailMessage> email = ArgumentCaptor.forClass(EmailMessage.class);
     verify(emailGateway).sendEmail(email.capture());
-    assertThat(email.getValue().to()).isEqualTo("user@example.com");
+    assertThat(email.getValue().getTo()).isEqualTo("user@example.com");
     assertThat(savedRun().getStatus()).isEqualTo(RunStatus.SUCCESS);
     verify(scheduleRepository).save(schedule);
   }

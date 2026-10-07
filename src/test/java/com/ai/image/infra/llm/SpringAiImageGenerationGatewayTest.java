@@ -50,7 +50,7 @@ class SpringAiImageGenerationGatewayTest {
             com.ai.image.domain.model.ImagePrompt.createPrompt("sunset"),
             ImageOptions.createOptions("dall-e-3", "standard", 1024, 1024, 1));
 
-    assertThat(result.url()).isEqualTo(expectedUrl);
+    assertThat(result.getUrl()).isEqualTo(expectedUrl);
   }
 
   @Test
@@ -71,7 +71,7 @@ class SpringAiImageGenerationGatewayTest {
             com.ai.image.domain.model.ImagePrompt.createPrompt("sunset"),
             ImageOptions.createOptions("dall-e-3", "standard", 1024, 1024, 1));
 
-    assertThat(result.base64()).isEqualTo(expectedBase64);
+    assertThat(result.getBase64()).isEqualTo(expectedBase64);
     assertThat(result.hasBase64()).isTrue();
   }
 

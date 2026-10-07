@@ -9,6 +9,6 @@ public record AgentsInventoryResponse(ModuleStatus status, long agentCount, long
   /** Maps agent health to a response. */
   public static AgentsInventoryResponse from(AgentsHealth health) {
     return new AgentsInventoryResponse(
-        health.status(), health.agentCount(), health.healthyAgentCount());
+        health.getStatus(), health.getAgentCount(), health.getHealthyAgentCount());
   }
 }

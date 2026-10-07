@@ -55,8 +55,8 @@ public class Account extends AbstractEntity<AccountId> {
       ExternalIdentity identity, ContactEmail email, String displayName) {
     Objects.requireNonNull(identity, "identity");
     Account account = new Account(AccountId.generateId());
-    account.provider = identity.provider();
-    account.subject = identity.subject();
+    account.provider = identity.getProvider();
+    account.subject = identity.getSubject();
     account.email = email;
     account.displayName = normalizeDisplayName(displayName);
     return account;
@@ -90,7 +90,7 @@ public class Account extends AbstractEntity<AccountId> {
 
   /** Returns the guest partition of the linked browser, when one is linked. */
   public Optional<OwnerKey> findGuestOwnerKey() {
-    return Optional.ofNullable(linkedClientId).map(id -> OwnerKey.createClientKey(id.value()));
+    return Optional.ofNullable(linkedClientId).map(id -> OwnerKey.createClientKey(id.getValue()));
   }
 
   /** Returns the name to show for this account: display name first, then email. */
@@ -98,7 +98,7 @@ public class Account extends AbstractEntity<AccountId> {
     if (displayName != null) {
       return Optional.of(displayName);
     }
-    return Optional.ofNullable(email).map(ContactEmail::value);
+    return Optional.ofNullable(email).map(ContactEmail::getValue);
   }
 
   /** Keeps stored values the provider did not send, since tokens may omit profile claims. */

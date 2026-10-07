@@ -41,7 +41,7 @@ class CatalogAgentRegistryTest {
 
   @Test
   void shouldOverrideBuiltinWithEnabledClientDefinition() {
-    String typeKey = registry.listWorkers("c:client-a", "en").getFirst().getType().value();
+    String typeKey = registry.listWorkers("c:client-a", "en").getFirst().getType().getValue();
     library(
         CustomAgent.createAgent(
             "c:client-a",
@@ -60,7 +60,7 @@ class CatalogAgentRegistryTest {
     assertThat(registry.listAll("c:client-a", "en"))
         .anySatisfy(
             agent -> {
-              if (agent.getType().value().equals(typeKey)) {
+              if (agent.getType().getValue().equals(typeKey)) {
                 assertThat(agent.getName()).isEqualTo("Override Name");
               }
             });
@@ -75,7 +75,7 @@ class CatalogAgentRegistryTest {
     assertThat(registry.listAll("c:client-a", "en"))
         .anySatisfy(
             agent -> {
-              assertThat(agent.getType().value()).isEqualTo("custom_writer");
+              assertThat(agent.getType().getValue()).isEqualTo("custom_writer");
               assertThat(agent.getName()).isEqualTo("Writer");
             });
   }
@@ -84,13 +84,13 @@ class CatalogAgentRegistryTest {
   @DisplayName("should keep built-in order and append custom agents with new types last")
   void shouldKeepBuiltInOrderAndAppendCustomAgentsWithNewTypesLast() {
     List<String> builtinTypes =
-        registry.listBuiltins("en").stream().map(agent -> agent.getType().value()).toList();
+        registry.listBuiltins("en").stream().map(agent -> agent.getType().getValue()).toList();
     library(
         CustomAgent.createAgent("c:client-a", "legal", "Legal", "", "Check contracts.", List.of()));
 
     List<String> allTypes =
         registry.listAll("c:client-a", "en").stream()
-            .map(agent -> agent.getType().value())
+            .map(agent -> agent.getType().getValue())
             .toList();
 
     assertThat(allTypes.subList(0, builtinTypes.size())).isEqualTo(builtinTypes);

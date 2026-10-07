@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.Value;
 
 /** Read-side repository for aggregated invocation counts, latencies, tokens, and inventories. */
 public interface MetricsQueryRepository {
@@ -58,18 +59,42 @@ public interface MetricsQueryRepository {
   /** Returns the document and chunk totals. */
   RagInventory getRagInventory();
 
-  record TokenTotals(Long promptTokens, Long completionTokens) {}
+  /** Prompt and completion token sums. */
+  @Value
+  class TokenTotals {
+    Long promptTokens;
+    Long completionTokens;
+  }
 
-  record NamedCount(String name, long count) {}
+  /** Count of events for one name. */
+  @Value
+  class NamedCount {
+    String name;
+    long count;
+  }
 
-  record TimePoint(String day, long value) {}
+  /** Value for one day of a time series. */
+  @Value
+  class TimePoint {
+    String day;
+    long value;
+  }
 
-  record ChatInventory(
-      long sessionCount, long activeSessionCount, long messageCount, long webSourceReplyCount) {}
+  /** Totals of chat sessions, messages and web-sourced replies. */
+  @Value
+  class ChatInventory {
+    long sessionCount;
+    long activeSessionCount;
+    long messageCount;
+    long webSourceReplyCount;
+  }
 
-  record RagInventory(
-      long documentCount,
-      Map<String, Long> documentsByStatus,
-      long chunkCount,
-      long totalFileBytes) {}
+  /** Totals of documents, chunks and stored bytes. */
+  @Value
+  class RagInventory {
+    long documentCount;
+    Map<String, Long> documentsByStatus;
+    long chunkCount;
+    long totalFileBytes;
+  }
 }

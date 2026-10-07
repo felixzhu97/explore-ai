@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
 
-  private static final TypeReference<List<WebSource>> SOURCES_TYPE = new TypeReference<>() {};
+  private static final TypeReference<List<StoredSource>> SOURCES_TYPE = new TypeReference<>() {};
 
   private final JdbcTemplate jdbcTemplate;
   private final ObjectMapper objectMapper;
@@ -89,10 +89,18 @@ public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
       return List.of();
     }
     try {
-      List<WebSource> parsed = objectMapper.readValue(json, SOURCES_TYPE);
-      return parsed == null ? List.of() : List.copyOf(parsed);
+      List<StoredSource> parsed = objectMapper.readValue(json, SOURCES_TYPE);
+      return parsed == null
+          ? List.of()
+          : parsed.stream().map(StoredSource::createWebSource).toList();
     } catch (JsonProcessingException e) {
       return List.of();
+    }
+  }
+
+  private record StoredSource(String title, String url, String snippet, String publishedAt) {
+    WebSource createWebSource() {
+      return new WebSource(title, url, snippet, publishedAt);
     }
   }
 }

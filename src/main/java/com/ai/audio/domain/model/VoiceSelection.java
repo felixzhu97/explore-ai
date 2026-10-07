@@ -1,8 +1,14 @@
 package com.ai.audio.domain.model;
 
 import com.ai.common.exception.DomainException;
+import lombok.Value;
 
-public record VoiceSelection(String voice, String model) {
+/** Voice and model chosen for one speech request. */
+@Value
+public class VoiceSelection {
+  String voice;
+  String model;
+
   /** Creates a selection with catalog defaults, rejecting unknown voices or models. */
   public static VoiceSelection createSelection(String voice, String model) {
     VoiceCatalog catalog = VoiceCatalog.createDefaultCatalog();

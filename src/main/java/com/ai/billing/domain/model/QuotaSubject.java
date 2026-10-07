@@ -2,22 +2,26 @@ package com.ai.billing.domain.model;
 
 import com.ai.common.domain.model.OwnerKey;
 import java.util.Objects;
+import lombok.Value;
 
 /** Who a quota counter belongs to; each kind has its own prefix so counters never collide. */
-public record QuotaSubject(String key) {
+@Value
+public class QuotaSubject {
+  String key;
 
   public static final QuotaSubject GLOBAL = new QuotaSubject("global");
 
   private static final String OWNER_PREFIX = "owner:";
   private static final String ADDRESS_PREFIX = "address:";
 
-  public QuotaSubject {
+  public QuotaSubject(String key) {
     Objects.requireNonNull(key, "key");
+    this.key = key;
   }
 
   /** Counter of a data owner, shared by HTTP requests and scheduled automations. */
   public static QuotaSubject createOwnerSubject(OwnerKey ownerKey) {
-    return new QuotaSubject(OWNER_PREFIX + ownerKey.value());
+    return new QuotaSubject(OWNER_PREFIX + ownerKey.getValue());
   }
 
   /** Counter of a client IP address. */

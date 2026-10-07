@@ -15,9 +15,9 @@ public record RagInventoryResponse(
   /** Maps the knowledge base inventory read from the metrics store. */
   public static RagInventoryResponse from(RagInventory inventory) {
     return new RagInventoryResponse(
-        inventory.documentCount(),
-        inventory.documentsByStatus(),
-        inventory.chunkCount(),
-        inventory.totalFileBytes());
+        inventory.getDocumentCount(),
+        inventory.getDocumentsByStatus(),
+        inventory.getChunkCount(),
+        inventory.getTotalFileBytes());
   }
 }

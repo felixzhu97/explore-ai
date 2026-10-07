@@ -27,7 +27,7 @@ public class AudioService {
 
   /** Lists the text-to-speech models. */
   public List<String> getAvailableTtsModels() {
-    return VoiceCatalog.createDefaultCatalog().models();
+    return VoiceCatalog.createDefaultCatalog().getModels();
   }
 
   /** Synthesizes speech and returns the audio with its media type, possibly empty. */

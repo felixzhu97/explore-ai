@@ -22,7 +22,7 @@ class ChatSessionRepositoryTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should find the session only for its owner")
   void shouldFindTheSessionOnlyForItsOwner() {
-    ChatSession session = repository.save(ChatSession.createSession("Planning", OWNER.value()));
+    ChatSession session = repository.save(ChatSession.createSession("Planning", OWNER.getValue()));
     flushAndClear();
 
     ChatSession reloaded = repository.findByIdAndOwnerKey(session.getId(), OWNER).orElseThrow();
@@ -67,7 +67,7 @@ class ChatSessionRepositoryTest extends AbstractDataJpaTest {
     ChatSession session =
         repository.save(
             ChatSession.restoreSession(
-                ChatSessionId.generateId(), null, lastActivity, OWNER.value()));
+                ChatSessionId.generateId(), null, lastActivity, OWNER.getValue()));
     em.flush();
 
     session.applyGeneratedTitle(SessionTitle.createGeneratedTitle("Trip plan"));
@@ -82,7 +82,7 @@ class ChatSessionRepositoryTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should no longer find a deleted session")
   void shouldNoLongerFindADeletedSession() {
-    ChatSession session = repository.save(ChatSession.createSession("Gone", OWNER.value()));
+    ChatSession session = repository.save(ChatSession.createSession("Gone", OWNER.getValue()));
     flushAndClear();
 
     repository.deleteById(session.getId());
@@ -94,6 +94,6 @@ class ChatSessionRepositoryTest extends AbstractDataJpaTest {
   private void save(String title, String lastActivityAt, OwnerKey owner) {
     repository.save(
         ChatSession.restoreSession(
-            ChatSessionId.generateId(), title, Instant.parse(lastActivityAt), owner.value()));
+            ChatSessionId.generateId(), title, Instant.parse(lastActivityAt), owner.getValue()));
   }
 }

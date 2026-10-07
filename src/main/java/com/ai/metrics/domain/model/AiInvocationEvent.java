@@ -97,17 +97,17 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
     this.capability = builder.capability;
     this.operation = builder.operation;
     this.outcome = builder.outcome;
-    this.latencyMs = builder.latency.millis();
-    this.errorCode = builder.error == null ? null : builder.error.code();
-    this.errorMessage = builder.error == null ? null : builder.error.message();
+    this.latencyMs = builder.latency.getMillis();
+    this.errorCode = builder.error == null ? null : builder.error.getCode();
+    this.errorMessage = builder.error == null ? null : builder.error.getMessage();
     this.provider = toNullIfBlank(builder.provider);
     this.model = toNullIfBlank(builder.model);
     this.sessionId = toNullIfBlank(builder.sessionId);
     this.documentId = toNullIfBlank(builder.documentId);
     this.agentType = toNullIfBlank(builder.agentType);
     this.toolName = toNullIfBlank(builder.toolName);
-    this.promptTokens = builder.tokens.prompt();
-    this.completionTokens = builder.tokens.completion();
+    this.promptTokens = builder.tokens.getPrompt();
+    this.completionTokens = builder.tokens.getCompletion();
   }
 
   /** Starts a successful invocation event; optional context goes on the returned builder. */

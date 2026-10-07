@@ -17,7 +17,7 @@ public class BillingPlanService {
 
   /** Returns the active plan. */
   public Plan currentPlan() {
-    return currentPolicy().plan();
+    return currentPolicy().getPlan();
   }
 
   /** Returns the quota policy of the active plan. */

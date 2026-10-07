@@ -103,7 +103,7 @@ public class SpringAiEvaluatorOptimizerWorkflow implements EvaluatorOptimizerWor
     }
 
     GenerationStep last = chainOfThought.getLast();
-    return new EvaluatorOptimizerResult(last.response(), chainOfThought);
+    return new EvaluatorOptimizerResult(last.getResponse(), chainOfThought);
   }
 
   private GenerationEntity generate(String task, String context) {

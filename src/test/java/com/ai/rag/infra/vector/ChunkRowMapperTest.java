@@ -53,7 +53,7 @@ class ChunkRowMapperTest {
     List<ScoredChunk> results =
         adapter.searchChunks(new float[] {1.0f, 0.0f, 0.0f, 0.0f}, 5, "c:owner", List.of());
     assertThat(results).hasSize(1);
-    DocumentChunk found = results.get(0).chunk();
+    DocumentChunk found = results.get(0).getChunk();
     assertThat(found.getId()).isEqualTo(TEST_CHUNK_ID);
     assertThat(found.getDocumentId()).isEqualTo(TEST_DOCUMENT_ID);
     assertThat(found.getContent()).isEqualTo("Test content " + TEST_CHUNK_ID);
@@ -85,7 +85,7 @@ class ChunkRowMapperTest {
         adapter.searchChunks(new float[] {1.0f, 0.0f}, 1, "c:owner", List.of());
 
     assertThat(results).hasSize(1);
-    assertThat(results.get(0).chunk().getContent()).isEqualTo("high");
+    assertThat(results.get(0).getChunk().getContent()).isEqualTo("high");
   }
 
   @Test
@@ -118,7 +118,7 @@ class ChunkRowMapperTest {
         .thenReturn(List.of(chunkWithMetadata));
     List<ScoredChunk> results =
         adapter.searchChunks(new float[] {1.0f, 2.0f}, 5, "c:owner", List.of());
-    assertThat(results.get(0).chunk().getMetadata()).containsKey("source");
+    assertThat(results.get(0).getChunk().getMetadata()).containsKey("source");
   }
 
   private DocumentChunk createMockChunk(ChunkId id, DocumentId documentId) {

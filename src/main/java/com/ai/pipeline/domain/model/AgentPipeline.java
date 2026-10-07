@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import lombok.Getter;
+import lombok.Value;
 
 /**
  * User-authored multi-agent pipeline graph (nodes + directed edges). Each node carries an editable
@@ -42,10 +43,10 @@ public final class AgentPipeline {
 
     Map<String, PipelineNode> byId = new LinkedHashMap<>();
     for (PipelineNode node : nodes) {
-      if (byId.put(node.id(), node) != null) {
-        throw new IllegalArgumentException("duplicate node id: " + node.id());
+      if (byId.put(node.getId(), node) != null) {
+        throw new IllegalArgumentException("duplicate node id: " + node.getId());
       }
-      if (node.agentType().isSupervisor()) {
+      if (node.getAgentType().isSupervisor()) {
         throw new IllegalArgumentException("pipeline nodes must be worker agents, not supervisor");
       }
     }
@@ -58,14 +59,14 @@ public final class AgentPipeline {
     }
 
     for (PipelineEdge edge : edges) {
-      if (!byId.containsKey(edge.sourceId()) || !byId.containsKey(edge.targetId())) {
+      if (!byId.containsKey(edge.getSourceId()) || !byId.containsKey(edge.getTargetId())) {
         throw new IllegalArgumentException("edge references unknown node");
       }
-      if (edge.sourceId().equals(edge.targetId())) {
+      if (edge.getSourceId().equals(edge.getTargetId())) {
         throw new IllegalArgumentException("self-loop edges are not allowed");
       }
-      if (outgoing.get(edge.sourceId()).add(edge.targetId())) {
-        indegree.merge(edge.targetId(), 1, Integer::sum);
+      if (outgoing.get(edge.getSourceId()).add(edge.getTargetId())) {
+        indegree.merge(edge.getTargetId(), 1, Integer::sum);
       }
     }
 
@@ -131,28 +132,42 @@ public final class AgentPipeline {
   }
 
   /** Graph node with an editable agent snapshot (double-click edit on canvas). */
-  public record PipelineNode(
-      String id,
-      AgentType agentType,
-      String name,
-      String description,
-      String systemPrompt,
-      List<String> toolKeys) {
-    public PipelineNode {
+  @Value
+  public static class PipelineNode {
+    String id;
+    AgentType agentType;
+    String name;
+    String description;
+    String systemPrompt;
+    List<String> toolKeys;
+
+    public PipelineNode(
+        String id,
+        AgentType agentType,
+        String name,
+        String description,
+        String systemPrompt,
+        List<String> toolKeys) {
       Objects.requireNonNull(id, "id");
       Objects.requireNonNull(agentType, "agentType");
       if (id.isBlank()) {
         throw new IllegalArgumentException("node id must not be blank");
       }
-      name = name == null || name.isBlank() ? agentType.value() : name.trim();
+      name = name == null || name.isBlank() ? agentType.getValue() : name.trim();
       description = description == null ? "" : description.trim();
       systemPrompt = systemPrompt == null ? "" : systemPrompt.trim();
       toolKeys = toolKeys == null ? List.of() : List.copyOf(toolKeys);
+      this.id = id;
+      this.agentType = agentType;
+      this.name = name;
+      this.description = description;
+      this.systemPrompt = systemPrompt;
+      this.toolKeys = toolKeys;
     }
 
     /** Creates a node with default settings. */
     public static PipelineNode createNode(String id, AgentType agentType) {
-      return new PipelineNode(id, agentType, agentType.value(), "", "", List.of());
+      return new PipelineNode(id, agentType, agentType.getValue(), "", "", List.of());
     }
 
     /** Tells whether the node carries its own system prompt instead of a catalog agent's. */
@@ -181,19 +196,26 @@ public final class AgentPipeline {
     /** Builds an agent definition from this node, defaulting the prompt when none is set. */
     public AgentDefinition buildDefinition() {
       String prompt =
-          systemPrompt.isBlank() ? "You are agent " + agentType.value() + "." : systemPrompt;
+          systemPrompt.isBlank() ? "You are agent " + agentType.getValue() + "." : systemPrompt;
       return AgentDefinition.createDefinition(
           agentType, name, description, prompt, toolKeys, AgentDefinition.RUNTIME_SINGLE);
     }
   }
 
-  public record PipelineEdge(String sourceId, String targetId) {
-    public PipelineEdge {
+  /** Directed link from one pipeline node to the next. */
+  @Value
+  public static class PipelineEdge {
+    String sourceId;
+    String targetId;
+
+    public PipelineEdge(String sourceId, String targetId) {
       Objects.requireNonNull(sourceId, "sourceId");
       Objects.requireNonNull(targetId, "targetId");
       if (sourceId.isBlank() || targetId.isBlank()) {
         throw new IllegalArgumentException("edge endpoints must not be blank");
       }
+      this.sourceId = sourceId;
+      this.targetId = targetId;
     }
   }
 }

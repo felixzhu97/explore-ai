@@ -23,17 +23,17 @@ public class SpringAiImageGenerationGateway implements ImageGenerationGateway {
 
     OpenAiImageOptions.Builder optionsBuilder =
         OpenAiImageOptions.builder()
-            .model(options.model())
-            .width(options.size().width())
-            .height(options.size().height())
-            .n(options.count());
+            .model(options.getModel())
+            .width(options.getSize().getWidth())
+            .height(options.getSize().getHeight())
+            .n(options.getCount());
 
-    if (StringUtils.hasText(options.quality())) {
-      optionsBuilder.quality(options.quality());
+    if (StringUtils.hasText(options.getQuality())) {
+      optionsBuilder.quality(options.getQuality());
     }
 
     var imagePrompt =
-        new org.springframework.ai.image.ImagePrompt(prompt.value(), optionsBuilder.build());
+        new org.springframework.ai.image.ImagePrompt(prompt.getValue(), optionsBuilder.build());
     ImageResponse response = imageModel.call(imagePrompt);
 
     if (response == null || response.getResults() == null || response.getResults().isEmpty()) {
@@ -48,12 +48,12 @@ public class SpringAiImageGenerationGateway implements ImageGenerationGateway {
     var output = firstResult.getOutput();
     String imageBase64 = output.getB64Json();
     if (StringUtils.hasText(imageBase64)) {
-      return GeneratedImage.createBase64Image(imageBase64, options.model(), prompt.value());
+      return GeneratedImage.createBase64Image(imageBase64, options.getModel(), prompt.getValue());
     }
 
     String imageUrl = output.getUrl();
     if (StringUtils.hasText(imageUrl)) {
-      return GeneratedImage.createUrlImage(imageUrl, options.model(), prompt.value());
+      return GeneratedImage.createUrlImage(imageUrl, options.getModel(), prompt.getValue());
     }
 
     return GeneratedImage.createEmptyImage();

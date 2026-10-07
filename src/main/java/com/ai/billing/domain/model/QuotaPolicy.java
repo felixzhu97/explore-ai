@@ -2,6 +2,7 @@ package com.ai.billing.domain.model;
 
 import java.util.Objects;
 import java.util.OptionalInt;
+import lombok.Value;
 
 /**
  * Daily limits for a plan: per owner, per client IP and across all clients.
@@ -11,14 +12,25 @@ import java.util.OptionalInt;
  * @param ipDailyRequests configured per-IP ceiling, raised to the plan limit when lower
  * @param globalDailyRequests ceiling across all clients; 0 turns it off
  */
-public record QuotaPolicy(
-    boolean enforced, Plan plan, int dailyLimit, int ipDailyRequests, int globalDailyRequests) {
+@Value
+public class QuotaPolicy {
+  boolean enforced;
+  Plan plan;
+  int dailyLimit;
+  int ipDailyRequests;
+  int globalDailyRequests;
 
-  public QuotaPolicy {
+  public QuotaPolicy(
+      boolean enforced, Plan plan, int dailyLimit, int ipDailyRequests, int globalDailyRequests) {
     Objects.requireNonNull(plan, "plan");
     if (dailyLimit < 0 || ipDailyRequests < 0 || globalDailyRequests < 0) {
       throw new IllegalArgumentException("quota limits must not be negative");
     }
+    this.enforced = enforced;
+    this.plan = plan;
+    this.dailyLimit = dailyLimit;
+    this.ipDailyRequests = ipDailyRequests;
+    this.globalDailyRequests = globalDailyRequests;
   }
 
   /** Returns the per-IP limit, never below the plan limit so one client is never cut short. */

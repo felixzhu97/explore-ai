@@ -87,7 +87,7 @@ public class CustomAgent extends AbstractEnableableDescribedOwnerEntity<CustomAg
 
   /** Tells whether this custom agent defines the agent type. */
   public boolean hasAgentType(AgentType type) {
-    return type != null && typeKey.equals(type.value());
+    return type != null && typeKey.equals(type.getValue());
   }
 
   /** Returns the tool keys as a read-only list. */

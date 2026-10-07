@@ -1,6 +1,15 @@
 package com.ai.image.domain.model;
 
-public record GeneratedImage(String url, String base64, String model, String prompt) {
+import lombok.Value;
+
+/** Image returned by a generation model, as a URL or Base64 data. */
+@Value
+public class GeneratedImage {
+  String url;
+  String base64;
+  String model;
+  String prompt;
+
   /** Creates an image that has a URL. */
   public static GeneratedImage createUrlImage(String url, String model, String prompt) {
     return new GeneratedImage(url, null, model, prompt);

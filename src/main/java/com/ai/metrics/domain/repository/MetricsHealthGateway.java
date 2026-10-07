@@ -1,15 +1,26 @@
 package com.ai.metrics.domain.repository;
 
 import com.ai.metrics.domain.model.ModuleStatus;
+import lombok.Value;
 
 /** Gateway supplying system, agent, and MCP health to the metrics dashboard. */
 public interface MetricsHealthGateway {
 
   /** Agent pipeline health: UP only when every registered agent is healthy. */
-  record AgentsHealth(ModuleStatus status, long agentCount, long healthyAgentCount) {}
+  @Value
+  class AgentsHealth {
+    ModuleStatus status;
+    long agentCount;
+    long healthyAgentCount;
+  }
 
   /** MCP client health: DISABLED when the MCP module is off. */
-  record McpHealth(ModuleStatus status, long registeredTools, long connectedServers) {}
+  @Value
+  class McpHealth {
+    ModuleStatus status;
+    long registeredTools;
+    long connectedServers;
+  }
 
   /** Returns the status of each module. */
   ModuleStatus getSystemStatus();

@@ -46,8 +46,8 @@ class SpringAiParallelizationWorkflowTest {
     ParallelizationResult result =
         workflow.runParallel("Translate to French:", List.of("Hello", "World"), 2);
 
-    assertThat(result.outputs()).hasSize(2);
-    assertThat(result.outputs()).containsExactlyInAnyOrder("fr:Hello", "fr:World");
+    assertThat(result.getOutputs()).hasSize(2);
+    assertThat(result.getOutputs()).containsExactlyInAnyOrder("fr:Hello", "fr:World");
   }
 
   @Test
@@ -67,7 +67,7 @@ class SpringAiParallelizationWorkflowTest {
 
     ParallelizationResult result = workflow.runParallel("Echo:", items, 1_000);
 
-    assertThat(result.outputs()).hasSize(16);
+    assertThat(result.getOutputs()).hasSize(16);
     assertThat(peak.get()).isLessThanOrEqualTo(8);
   }
 }

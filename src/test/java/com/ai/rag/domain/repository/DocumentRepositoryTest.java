@@ -63,7 +63,8 @@ class DocumentRepositoryTest extends AbstractDataJpaTest {
   }
 
   private RagDocument save(String title, OwnerKey owner) {
-    RagDocument document = RagDocument.startIngestion(title, title + ".pdf", 2048L, owner.value());
+    RagDocument document =
+        RagDocument.startIngestion(title, title + ".pdf", 2048L, owner.getValue());
     document.completeIngestion(4);
     return repository.save(document);
   }

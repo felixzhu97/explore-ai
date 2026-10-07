@@ -44,8 +44,8 @@ class SpringAiChainWorkflowTest {
 
     ChainResult result = workflow.runChain("raw input", new String[] {"extract", "format"});
 
-    assertThat(result.output()).isEqualTo("step-2");
-    assertThat(result.intermediateSteps()).containsExactly("raw input", "step-1", "step-2");
+    assertThat(result.getOutput()).isEqualTo("step-2");
+    assertThat(result.getIntermediateSteps()).containsExactly("raw input", "step-1", "step-2");
     verify(chatClientProvider, times(2)).createBareStateless(any(TextChatOptions.class));
   }
 }

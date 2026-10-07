@@ -29,6 +29,6 @@ public class OwnerContext {
 
   /** Returns the owner key for the request or fails when it is missing. */
   public String requireValue(HttpServletRequest request) {
-    return require(request).value();
+    return require(request).getValue();
   }
 }

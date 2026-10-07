@@ -9,7 +9,7 @@ public class ClientIdAttributeConverter implements AttributeConverter<ClientId, 
 
   @Override
   public String convertToDatabaseColumn(ClientId attribute) {
-    return attribute == null ? null : attribute.value();
+    return attribute == null ? null : attribute.getValue();
   }
 
   @Override

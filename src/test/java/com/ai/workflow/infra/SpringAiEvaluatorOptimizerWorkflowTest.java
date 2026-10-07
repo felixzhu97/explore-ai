@@ -50,8 +50,8 @@ class SpringAiEvaluatorOptimizerWorkflowTest {
 
     EvaluatorOptimizerResult result = workflow.runLoop("Implement a counter");
 
-    assertThat(result.solution()).isEqualTo("class Solution {}");
-    assertThat(result.chainOfThought()).hasSize(1);
-    assertThat(result.chainOfThought().getFirst().thoughts()).isEqualTo("first draft");
+    assertThat(result.getSolution()).isEqualTo("class Solution {}");
+    assertThat(result.getChainOfThought()).hasSize(1);
+    assertThat(result.getChainOfThought().getFirst().getThoughts()).isEqualTo("first draft");
   }
 }

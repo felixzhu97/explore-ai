@@ -29,12 +29,12 @@ class DailyUsageQuotaServiceTest {
   @Test
   @DisplayName("should reject new client ids when they share an exhausted ip")
   void shouldRejectNewClientIdsWhenTheyShareAnExhaustedIp() {
-    assertThat(consume("client-a", "203.0.113.7").allowed()).isTrue();
-    assertThat(consume("client-b", "203.0.113.7").allowed()).isTrue();
-    assertThat(consume("client-c", "203.0.113.7").allowed()).isTrue();
+    assertThat(consume("client-a", "203.0.113.7").isAllowed()).isTrue();
+    assertThat(consume("client-b", "203.0.113.7").isAllowed()).isTrue();
+    assertThat(consume("client-c", "203.0.113.7").isAllowed()).isTrue();
 
-    assertThat(consume("client-d", "203.0.113.7").allowed()).isFalse();
-    assertThat(consume("client-d", "198.51.100.9").allowed()).isTrue();
+    assertThat(consume("client-d", "203.0.113.7").isAllowed()).isFalse();
+    assertThat(consume("client-d", "198.51.100.9").isAllowed()).isTrue();
   }
 
   @Test
@@ -43,8 +43,8 @@ class DailyUsageQuotaServiceTest {
     consume("client-a", "203.0.113.7");
     consume("client-a", "203.0.113.7");
 
-    assertThat(consume("client-a", "203.0.113.7").allowed()).isFalse();
-    assertThat(consume("client-b", "203.0.113.7").allowed()).isTrue();
+    assertThat(consume("client-a", "203.0.113.7").isAllowed()).isFalse();
+    assertThat(consume("client-b", "203.0.113.7").isAllowed()).isTrue();
   }
 
   @Test
@@ -58,11 +58,11 @@ class DailyUsageQuotaServiceTest {
   @Test
   @DisplayName("should count against the ip limit when the request has no client identity")
   void shouldCountAgainstTheIpLimitWhenTheRequestHasNoClientIdentity() {
-    assertThat(service.tryConsume(null, "203.0.113.7").remaining()).isEqualTo(2);
-    assertThat(service.tryConsume(null, "203.0.113.7").remaining()).isEqualTo(1);
-    assertThat(service.tryConsume(null, "203.0.113.7").remaining()).isZero();
+    assertThat(service.tryConsume(null, "203.0.113.7").getRemaining()).isEqualTo(2);
+    assertThat(service.tryConsume(null, "203.0.113.7").getRemaining()).isEqualTo(1);
+    assertThat(service.tryConsume(null, "203.0.113.7").getRemaining()).isZero();
 
-    assertThat(service.tryConsume(null, "203.0.113.7").allowed()).isFalse();
+    assertThat(service.tryConsume(null, "203.0.113.7").isAllowed()).isFalse();
   }
 
   @Test
@@ -71,7 +71,7 @@ class DailyUsageQuotaServiceTest {
     OwnerKey guest = OwnerKey.createClientKey("client-a");
 
     assertThat(service.tryConsume(guest)).isTrue();
-    assertThat(consume("client-a", null).remaining()).isZero();
+    assertThat(consume("client-a", null).getRemaining()).isZero();
     assertThat(service.tryConsume(guest)).isFalse();
   }
 
@@ -81,8 +81,8 @@ class DailyUsageQuotaServiceTest {
     properties.setFreeDailyRequests(10);
     properties.setIpDailyRequests(1);
 
-    assertThat(consume("client-a", null).allowed()).isTrue();
-    assertThat(consume("client-a", null).allowed()).isTrue();
+    assertThat(consume("client-a", null).isAllowed()).isTrue();
+    assertThat(consume("client-a", null).isAllowed()).isTrue();
   }
 
   @Test

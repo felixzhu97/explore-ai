@@ -33,10 +33,10 @@ class GoldenEvalIT {
     GoldenSuiteReport report = goldenEvalService.run(List.of(GoldenEvalCategory.CHAT), List.of());
     logReport("CHAT", report);
 
-    assertThat(report.total()).isGreaterThan(0);
-    assertThat(report.cases()).isNotEmpty();
-    assertThat(report.passRate()).isBetween(0.0, 1.0);
-    assertThat(report.passed() + report.failed()).isEqualTo(report.total());
+    assertThat(report.getTotal()).isGreaterThan(0);
+    assertThat(report.getCases()).isNotEmpty();
+    assertThat(report.getPassRate()).isBetween(0.0, 1.0);
+    assertThat(report.getPassed() + report.getFailed()).isEqualTo(report.getTotal());
   }
 
   @Test
@@ -45,25 +45,25 @@ class GoldenEvalIT {
     GoldenSuiteReport report = goldenEvalService.run(List.of(GoldenEvalCategory.RAG), List.of());
     logReport("RAG", report);
 
-    assertThat(report.total()).isGreaterThan(0);
-    assertThat(report.cases()).allMatch(c -> c.category() == GoldenEvalCategory.RAG);
-    assertThat(report.passRate()).isBetween(0.0, 1.0);
+    assertThat(report.getTotal()).isGreaterThan(0);
+    assertThat(report.getCases()).allMatch(c -> c.getCategory() == GoldenEvalCategory.RAG);
+    assertThat(report.getPassRate()).isBetween(0.0, 1.0);
   }
 
   private static void logReport(String label, GoldenSuiteReport report) {
     System.out.printf(
         "Golden %s: total=%d passed=%d failed=%d passRate=%.2f%n",
-        label, report.total(), report.passed(), report.failed(), report.passRate());
+        label, report.getTotal(), report.getPassed(), report.getFailed(), report.getPassRate());
     report
-        .cases()
+        .getCases()
         .forEach(
             c ->
                 System.out.printf(
                     "  [%s] passed=%s relevancy=%s factuality=%s error=%s%n",
-                    c.id(),
-                    c.passed(),
-                    c.relevancyPassed(),
-                    c.factualityPassed(),
-                    c.generationError()));
+                    c.getId(),
+                    c.isPassed(),
+                    c.isRelevancyPassed(),
+                    c.getFactualityPassed(),
+                    c.getGenerationError()));
   }
 }

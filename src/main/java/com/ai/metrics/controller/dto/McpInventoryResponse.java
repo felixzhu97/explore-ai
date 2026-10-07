@@ -9,6 +9,6 @@ public record McpInventoryResponse(
   /** Maps MCP health to a response. */
   public static McpInventoryResponse from(McpHealth health) {
     return new McpInventoryResponse(
-        health.status(), health.registeredTools(), health.connectedServers());
+        health.getStatus(), health.getRegisteredTools(), health.getConnectedServers());
   }
 }

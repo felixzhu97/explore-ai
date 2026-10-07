@@ -1,13 +1,21 @@
 package com.ai.automation.domain.model;
 
 import java.util.Objects;
+import lombok.Value;
 
-public record EmailMessage(String to, String subject, String textBody, String htmlBody) {
+/** Email to send: recipient, subject, plain text and optional HTML body. */
+@Value
+public class EmailMessage {
+  String to;
+  String subject;
+  String textBody;
+  String htmlBody;
+
   public EmailMessage(String to, String subject, String textBody) {
     this(to, subject, textBody, null);
   }
 
-  public EmailMessage {
+  public EmailMessage(String to, String subject, String textBody, String htmlBody) {
     Objects.requireNonNull(to, "to");
     Objects.requireNonNull(subject, "subject");
     Objects.requireNonNull(textBody, "textBody");
@@ -20,6 +28,10 @@ public record EmailMessage(String to, String subject, String textBody, String ht
     if (htmlBody != null && htmlBody.isBlank()) {
       htmlBody = null;
     }
+    this.to = to;
+    this.subject = subject;
+    this.textBody = textBody;
+    this.htmlBody = htmlBody;
   }
 
   /** Tells whether the email has an HTML body. */

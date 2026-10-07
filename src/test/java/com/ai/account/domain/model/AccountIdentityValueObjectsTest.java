@@ -22,7 +22,7 @@ class AccountIdentityValueObjectsTest {
   @Test
   @DisplayName("should use the explore iam provider when the identity comes from an IAM token")
   void shouldUseTheExploreIamProviderWhenTheIdentityComesFromAnIamToken() {
-    assertThat(ExternalIdentity.createIamIdentity("sub").provider()).isEqualTo("explore-iam");
+    assertThat(ExternalIdentity.createIamIdentity("sub").getProvider()).isEqualTo("explore-iam");
   }
 
   @ParameterizedTest
@@ -71,7 +71,7 @@ class AccountIdentityValueObjectsTest {
   @Test
   @DisplayName("should accept a client id when it is a UUID")
   void shouldAcceptAClientIdWhenItIsAUuid() {
-    assertThat(ClientId.parseId(" 55555555-5555-5555-5555-555555555555 ").value())
+    assertThat(ClientId.parseId(" 55555555-5555-5555-5555-555555555555 ").getValue())
         .isEqualTo("55555555-5555-5555-5555-555555555555");
   }
 

@@ -1,12 +1,15 @@
 package com.ai.common.domain.model;
 
 import java.util.Objects;
+import lombok.Value;
 
 /**
  * Data partition key: guest browser {@code c:{clientId}} or signed-in account {@code
  * u:{accountId}}.
  */
-public record OwnerKey(String value) {
+@Value
+public class OwnerKey {
+  String value;
 
   public static final String CLIENT_PREFIX = "c:";
   public static final String ACCOUNT_PREFIX = "u:";
@@ -14,7 +17,7 @@ public record OwnerKey(String value) {
   /** Rows without a visitor, such as session-less metrics; never matches a live visitor. */
   public static final OwnerKey UNOWNED = new OwnerKey("c:legacy-orphan");
 
-  public OwnerKey {
+  public OwnerKey(String value) {
     Objects.requireNonNull(value, "value");
     String trimmed = value.trim();
     if (trimmed.isEmpty()) {
@@ -27,6 +30,7 @@ public record OwnerKey(String value) {
       throw new IllegalArgumentException("owner key id is required");
     }
     value = trimmed;
+    this.value = value;
   }
 
   /** Creates a guest owner key prefixed with {@code c:} for the given client id. */

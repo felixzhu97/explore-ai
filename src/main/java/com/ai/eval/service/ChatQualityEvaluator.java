@@ -80,26 +80,26 @@ public class ChatQualityEvaluator {
     double overallScore =
         calculateOverallScore(
             safetyResult.coherenceScore(),
-            gate.relevanceScore(),
+            gate.getRelevanceScore(),
             safetyResult.helpfulnessScore(),
-            gate.factualityScore());
+            gate.getFactualityScore());
 
     List<String> safetyFlags = buildSafetyFlags(safetyResult, gate);
     List<String> suggestions = buildSuggestions(safetyResult, gate);
 
     return ChatEvaluationResult.builder()
         .coherenceScore(safetyResult.coherenceScore())
-        .relevanceScore(gate.relevanceScore())
+        .relevanceScore(gate.getRelevanceScore())
         .helpfulnessScore(safetyResult.helpfulnessScore())
-        .factualityScore(gate.factualityScore())
-        .factualityAvailable(gate.factualityEvaluated())
+        .factualityScore(gate.getFactualityScore())
+        .factualityAvailable(gate.isFactualityEvaluated())
         .overallScore(overallScore)
         .hasSafetyIssues(safetyResult.hasSafetyIssues())
         .safetyFlags(safetyFlags)
         .suggestions(suggestions)
-        .relevancyPassed(gate.relevancyPassed())
-        .factualityPassed(gate.factualityPassed())
-        .evaluatorFeedback(gate.feedback())
+        .relevancyPassed(gate.isRelevancyPassed())
+        .factualityPassed(gate.getFactualityPassed())
+        .evaluatorFeedback(gate.getFeedback())
         .build();
   }
 
@@ -124,10 +124,10 @@ public class ChatQualityEvaluator {
       String concern = safetyResult.safetyConcern();
       safetyFlags.add(concern != null && !concern.isBlank() ? concern : DEFAULT_SAFETY_CONCERN);
     }
-    if (gate.factualityEvaluated()
-        && gate.factualityScore() != null
-        && gate.factualityScore() < 0.5) {
-      safetyFlags.add("Low factuality score: " + String.format("%.2f", gate.factualityScore()));
+    if (gate.isFactualityEvaluated()
+        && gate.getFactualityScore() != null
+        && gate.getFactualityScore() < 0.5) {
+      safetyFlags.add("Low factuality score: " + String.format("%.2f", gate.getFactualityScore()));
     }
     return safetyFlags;
   }
@@ -141,10 +141,10 @@ public class ChatQualityEvaluator {
     if (safetyResult.coherenceScore() < 0.7) {
       suggestions.add("Improve logical flow and coherence");
     }
-    if (!gate.relevancyPassed()) {
+    if (!gate.isRelevancyPassed()) {
       suggestions.add("Response does not fully address the user's question");
     }
-    if (gate.factualityEvaluated() && Boolean.FALSE.equals(gate.factualityPassed())) {
+    if (gate.isFactualityEvaluated() && Boolean.FALSE.equals(gate.getFactualityPassed())) {
       suggestions.add("Response may contain inaccurate information");
     }
     return suggestions;

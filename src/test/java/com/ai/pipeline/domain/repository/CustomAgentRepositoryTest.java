@@ -62,6 +62,7 @@ class CustomAgentRepositoryTest extends AbstractDataJpaTest {
 
   private CustomAgent save(OwnerKey owner, String typeKey, String name, List<String> toolKeys) {
     return repository.save(
-        CustomAgent.createAgent(owner.value(), typeKey, name, "Description", "Prompt", toolKeys));
+        CustomAgent.createAgent(
+            owner.getValue(), typeKey, name, "Description", "Prompt", toolKeys));
   }
 }

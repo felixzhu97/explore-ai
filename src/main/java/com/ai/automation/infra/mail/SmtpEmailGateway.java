@@ -31,9 +31,9 @@ public class SmtpEmailGateway implements EmailGateway {
     } else {
       SimpleMailMessage mail = new SimpleMailMessage();
       mail.setFrom(mailProperties.getFrom());
-      mail.setTo(message.to());
-      mail.setSubject(message.subject());
-      mail.setText(message.textBody());
+      mail.setTo(message.getTo());
+      mail.setSubject(message.getSubject());
+      mail.setText(message.getTextBody());
       mailSender.send(mail);
     }
   }
@@ -43,9 +43,9 @@ public class SmtpEmailGateway implements EmailGateway {
       MimeMessage mime = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(mime, true, "UTF-8");
       helper.setFrom(mailProperties.getFrom());
-      helper.setTo(message.to());
-      helper.setSubject(message.subject());
-      helper.setText(message.textBody(), message.htmlBody());
+      helper.setTo(message.getTo());
+      helper.setSubject(message.getSubject());
+      helper.setText(message.getTextBody(), message.getHtmlBody());
       mailSender.send(mime);
     } catch (MessagingException e) {
       throw new IllegalStateException("Failed to send multipart email via SMTP", e);

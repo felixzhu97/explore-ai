@@ -315,13 +315,13 @@ public class ChatService {
       sb.append('[')
           .append(index++)
           .append("] ")
-          .append(source.title())
+          .append(source.getTitle())
           .append('\n')
           .append("URL: ")
-          .append(source.url())
+          .append(source.getUrl())
           .append('\n')
           .append("Summary: ")
-          .append(source.snippet())
+          .append(source.getSnippet())
           .append("\n\n");
     }
     sb.append(

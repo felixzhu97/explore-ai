@@ -15,7 +15,7 @@ public interface AccountRepository extends Repository<Account, AccountId> {
 
   /** Finds the account for a sign-in identity. */
   default Optional<Account> findByIdentity(ExternalIdentity identity) {
-    return findByProviderAndSubject(identity.provider(), identity.subject());
+    return findByProviderAndSubject(identity.getProvider(), identity.getSubject());
   }
 
   /** Finds the account linked to a browser Client Identity. */

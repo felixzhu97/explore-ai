@@ -22,17 +22,17 @@ public class ImageGenerationService {
 
   /** Lists the supported image models. */
   public List<String> getAvailableImageModels() {
-    return ImageCatalog.createDefaultCatalog().models();
+    return ImageCatalog.createDefaultCatalog().getModels();
   }
 
   /** Lists the supported image sizes. */
   public List<String> getAvailableImageSizes() {
-    return ImageCatalog.createDefaultCatalog().sizes();
+    return ImageCatalog.createDefaultCatalog().getSizes();
   }
 
   /** Lists the supported image qualities. */
   public List<String> getAvailableImageQualities() {
-    return ImageCatalog.createDefaultCatalog().qualities();
+    return ImageCatalog.createDefaultCatalog().getQualities();
   }
 
   /** Generates an image after checking the provider is configured, or returns an empty image. */

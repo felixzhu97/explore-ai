@@ -23,7 +23,7 @@ class PipelineTemplateRepositoryTest extends AbstractDataJpaTest {
     PipelineTemplate template =
         repository.save(
             PipelineTemplate.createTemplate(
-                OWNER.value(),
+                OWNER.getValue(),
                 "Research flow",
                 "Two-step workflow",
                 List.of("researcher", "writer"),

@@ -1,3 +1,9 @@
 package com.ai.vision.domain.model;
 
-public record CaptionResult(String text) {}
+import lombok.Value;
+
+/** Caption that describes an image. */
+@Value
+public class CaptionResult {
+  String text;
+}

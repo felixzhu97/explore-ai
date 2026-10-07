@@ -12,7 +12,7 @@ final class YoloNonMaxSuppression {
   /** Removes boxes that overlap a stronger box. */
   static List<Detection> apply(List<Detection> candidates, float nmsThreshold) {
     List<Detection> sorted = new ArrayList<>(candidates);
-    sorted.sort(Comparator.comparingDouble(Detection::confidence).reversed());
+    sorted.sort(Comparator.comparingDouble(Detection::getConfidence).reversed());
 
     List<Detection> kept = new ArrayList<>();
     boolean[] suppressed = new boolean[sorted.size()];
@@ -33,13 +33,13 @@ final class YoloNonMaxSuppression {
   }
 
   private static float calculateIou(Detection a, Detection b) {
-    double x1 = Math.max(a.x(), b.x());
-    double y1 = Math.max(a.y(), b.y());
-    double x2 = Math.min(a.x() + a.width(), b.x() + b.width());
-    double y2 = Math.min(a.y() + a.height(), b.y() + b.height());
+    double x1 = Math.max(a.getLeft(), b.getLeft());
+    double y1 = Math.max(a.getTop(), b.getTop());
+    double x2 = Math.min(a.getLeft() + a.getWidth(), b.getLeft() + b.getWidth());
+    double y2 = Math.min(a.getTop() + a.getHeight(), b.getTop() + b.getHeight());
 
     double intersection = Math.max(0, x2 - x1) * Math.max(0, y2 - y1);
-    double union = a.width() * a.height() + b.width() * b.height() - intersection;
+    double union = a.getWidth() * a.getHeight() + b.getWidth() * b.getHeight() - intersection;
     if (union <= 0) {
       return 0f;
     }

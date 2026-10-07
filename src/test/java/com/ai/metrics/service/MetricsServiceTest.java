@@ -99,8 +99,8 @@ class MetricsServiceTest {
 
     assertThat(page.total()).isEqualTo(1);
     assertThat(page.items()).hasSize(1);
-    assertThat(eventRepository.lastQuery.capability()).contains(AiCapability.CHAT);
-    assertThat(eventRepository.lastQuery.day()).contains("2026-07-26");
+    assertThat(eventRepository.lastQuery.getCapability()).contains(AiCapability.CHAT);
+    assertThat(eventRepository.lastQuery.getDay()).contains("2026-07-26");
   }
 
   @Test
@@ -178,9 +178,9 @@ class MetricsServiceTest {
 
     assertThat(page.page()).isZero();
     assertThat(page.size()).isEqualTo(20);
-    assertThat(eventRepository.lastQuery.from()).isPresent();
-    assertThat(eventRepository.lastQuery.to()).isPresent();
-    assertThat(eventRepository.lastQuery.outcome()).contains(InvocationOutcome.SUCCESS);
-    assertThat(eventRepository.lastQuery.model()).contains("gpt");
+    assertThat(eventRepository.lastQuery.getFrom()).isPresent();
+    assertThat(eventRepository.lastQuery.getTo()).isPresent();
+    assertThat(eventRepository.lastQuery.getOutcome()).contains(InvocationOutcome.SUCCESS);
+    assertThat(eventRepository.lastQuery.getModel()).contains("gpt");
   }
 }

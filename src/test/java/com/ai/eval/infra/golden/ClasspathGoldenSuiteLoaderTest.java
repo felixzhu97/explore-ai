@@ -29,11 +29,11 @@ class ClasspathGoldenSuiteLoaderTest {
 
     assertThat(cases).hasSize(1);
     GoldenEvalCase evalCase = cases.getFirst();
-    assertThat(evalCase.id()).isEqualTo("c1");
-    assertThat(evalCase.category()).isEqualTo(GoldenEvalCategory.CHAT);
-    assertThat(evalCase.userText()).isEqualTo("What is Explore AI?");
-    assertThat(evalCase.ideal()).containsExactly("A demo platform.");
-    assertThat(evalCase.toolsEnabled()).isFalse();
+    assertThat(evalCase.getId()).isEqualTo("c1");
+    assertThat(evalCase.getCategory()).isEqualTo(GoldenEvalCategory.CHAT);
+    assertThat(evalCase.getUserText()).isEqualTo("What is Explore AI?");
+    assertThat(evalCase.getIdeal()).containsExactly("A demo platform.");
+    assertThat(evalCase.isToolsEnabled()).isFalse();
   }
 
   @Test
@@ -48,11 +48,11 @@ class ClasspathGoldenSuiteLoaderTest {
 
     assertThat(cases).hasSize(1);
     GoldenEvalCase evalCase = cases.getFirst();
-    assertThat(evalCase.category()).isEqualTo(GoldenEvalCategory.RAG);
-    assertThat(evalCase.userText()).isEqualTo("Which modules?");
-    assertThat(evalCase.ideal()).containsExactly("Chat", "RAG");
-    assertThat(evalCase.fixtureKeys()).containsExactly("overview");
-    assertThat(evalCase.contexts()).containsExactly("Chat and RAG");
+    assertThat(evalCase.getCategory()).isEqualTo(GoldenEvalCategory.RAG);
+    assertThat(evalCase.getUserText()).isEqualTo("Which modules?");
+    assertThat(evalCase.getIdeal()).containsExactly("Chat", "RAG");
+    assertThat(evalCase.getFixtureKeys()).containsExactly("overview");
+    assertThat(evalCase.getContexts()).containsExactly("Chat and RAG");
   }
 
   @Test
