@@ -1,6 +1,6 @@
 package com.ai.textanalysis.infra.llm;
 
-import com.ai.common.domain.exception.AiServiceException;
+import com.ai.common.exception.DomainException;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.textanalysis.domain.model.Sentiment;
@@ -40,7 +40,8 @@ public class SpringAiTextAnalysisGateway implements TextAnalysisGateway {
 
   private static TextAnalysis toDomain(StructuredAnalysisEntity entity) {
     if (entity == null) {
-      throw new AiServiceException("AI returned empty structured analysis response");
+      throw DomainException.unavailable(
+          "AI_SERVICE_ERROR", "AI returned empty structured analysis response");
     }
     return TextAnalysis.create(
         entity.summary(),

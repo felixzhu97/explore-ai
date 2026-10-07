@@ -1,16 +1,17 @@
 package com.ai.image.domain.vo;
 
-import com.ai.image.domain.exception.InvalidImagePromptException;
+import com.ai.common.exception.DomainException;
 
 public record ImageSize(int width, int height) {
   /** Creates a size, rejecting non-positive or catalog-unsupported dimensions. */
   public static ImageSize of(int width, int height) {
     if (width <= 0 || height <= 0) {
-      throw new InvalidImagePromptException("Image dimensions must be positive");
+      throw DomainException.invalid("INVALID_IMAGE_PROMPT", "Image dimensions must be positive");
     }
     ImageSize size = new ImageSize(width, height);
     if (!size.isSupported()) {
-      throw new InvalidImagePromptException("Unsupported image size: " + width + "x" + height);
+      throw DomainException.invalid(
+          "INVALID_IMAGE_PROMPT", "Unsupported image size: " + width + "x" + height);
     }
     return size;
   }

@@ -1,7 +1,6 @@
 package com.ai.rag.service;
 
-import com.ai.rag.domain.exception.DocumentNotFoundException;
-import com.ai.rag.domain.exception.DocumentProcessingException;
+import com.ai.common.exception.DomainException;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
@@ -107,7 +106,10 @@ public class DocumentUploadService {
     RagDocument document =
         documentRepository
             .findByIdAndOwnerKey(documentId, ownerKey)
-            .orElseThrow(() -> new DocumentNotFoundException(documentId));
+            .orElseThrow(
+                () ->
+                    DomainException.notFound(
+                        "DOCUMENT_NOT_FOUND", "Document not found: " + documentId));
     chunkRepository.deleteChunksByDocumentId(document.getId());
     documentRepository.deleteByIdAndOwnerKey(documentId, ownerKey);
   }
@@ -126,7 +128,7 @@ public class DocumentUploadService {
     RawDocument raw = reader.read(fileContent, fileName);
     List<RawDocument> chunkDocs = raw.content().isBlank() ? List.of() : transformer.transform(raw);
     if (chunkDocs.isEmpty()) {
-      throw new DocumentProcessingException("No text found in " + fileName);
+      throw DomainException.unprocessable("DOCUMENT_UNREADABLE", "No text found in " + fileName);
     }
 
     List<DocumentChunk> chunks = new ArrayList<>();

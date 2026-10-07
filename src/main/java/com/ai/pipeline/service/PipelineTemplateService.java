@@ -1,8 +1,7 @@
 package com.ai.pipeline.service;
 
 import com.ai.common.domain.vo.DomainStrings;
-import com.ai.pipeline.domain.exception.PipelineTemplateNameConflictException;
-import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
+import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
 import com.ai.pipeline.domain.vo.PipelineTemplateId;
@@ -95,13 +94,18 @@ public class PipelineTemplateService {
   private PipelineTemplate findOwned(String ownerKey, String id) {
     return repository
         .findByIdAndOwnerKey(PipelineTemplateId.of(id), ownerKey)
-        .orElseThrow(() -> new PipelineTemplateNotFoundException(id));
+        .orElseThrow(
+            () ->
+                DomainException.notFound(
+                    "PIPELINE_TEMPLATE_NOT_FOUND", "Pipeline template not found: " + id));
   }
 
   private void assertNameAvailable(String ownerKey, String name, PipelineTemplateId excludeId) {
     String normalized = DomainStrings.normalizeName(name);
     if (repository.existsByOwnerKeyAndNameIgnoringId(ownerKey, normalized, excludeId)) {
-      throw new PipelineTemplateNameConflictException(normalized);
+      throw DomainException.conflict(
+          "PIPELINE_TEMPLATE_NAME_CONFLICT",
+          "Pipeline template name already exists: " + normalized);
     }
   }
 

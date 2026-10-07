@@ -1,7 +1,6 @@
 package com.ai.pipeline.service;
 
-import com.ai.pipeline.domain.exception.SavedAgentNotFoundException;
-import com.ai.pipeline.domain.exception.SavedAgentTypeConflictException;
+import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.SavedAgent;
 import com.ai.pipeline.domain.repository.SavedAgentRepository;
 import com.ai.pipeline.domain.vo.SavedAgentId;
@@ -64,12 +63,15 @@ public class SavedAgentService {
   private SavedAgent findOwned(String ownerKey, String id) {
     return repository
         .findByIdAndOwnerKey(SavedAgentId.of(id), ownerKey)
-        .orElseThrow(() -> new SavedAgentNotFoundException(id));
+        .orElseThrow(
+            () ->
+                DomainException.notFound("SAVED_AGENT_NOT_FOUND", "Saved agent not found: " + id));
   }
 
   private void assertTypeAvailable(String ownerKey, String typeKey, SavedAgentId excludeId) {
     if (repository.existsByOwnerKeyAndTypeKeyIgnoringId(ownerKey, typeKey, excludeId)) {
-      throw new SavedAgentTypeConflictException(typeKey);
+      throw DomainException.conflict(
+          "SAVED_AGENT_TYPE_CONFLICT", "Agent type key already exists: " + typeKey);
     }
   }
 }

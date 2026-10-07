@@ -1,6 +1,6 @@
 package com.ai.textanalysis.domain.vo;
 
-import com.ai.textanalysis.domain.exception.InvalidAnalysisTextException;
+import com.ai.common.exception.DomainException;
 
 public record AnalysisText(String value) {
 
@@ -24,12 +24,12 @@ public record AnalysisText(String value) {
 
   public AnalysisText {
     if (value == null || value.isBlank()) {
-      throw new InvalidAnalysisTextException("Analysis text must not be blank");
+      throw DomainException.invalid("INVALID_ANALYSIS_TEXT", "Analysis text must not be blank");
     }
     value = value.trim();
     if (value.length() > MAX_LENGTH) {
-      throw new InvalidAnalysisTextException(
-          "Analysis text exceeds maximum length of " + MAX_LENGTH);
+      throw DomainException.invalid(
+          "INVALID_ANALYSIS_TEXT", "Analysis text exceeds maximum length of " + MAX_LENGTH);
     }
   }
 

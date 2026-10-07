@@ -6,13 +6,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.ai.audio.domain.exception.InvalidSpeechTextException;
-import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.audio.domain.model.SynthesizedAudio;
 import com.ai.audio.domain.repository.TextToSpeechGateway;
 import com.ai.audio.domain.repository.TtsConfiguration;
 import com.ai.audio.domain.vo.SpeechText;
 import com.ai.audio.domain.vo.VoiceSelection;
+import com.ai.common.exception.DomainException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -56,7 +55,8 @@ class AudioServiceTest {
     when(ttsConfiguration.isConfigured()).thenReturn(true);
 
     assertThatThrownBy(() -> service.synthesize("hello", "zh-CN", null))
-        .isInstanceOf(InvalidSpeechTextException.class)
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "INVALID_SPEECH_TEXT")
         .hasMessageContaining("Unknown voice");
   }
 
@@ -66,7 +66,8 @@ class AudioServiceTest {
     when(ttsConfiguration.isEnabled()).thenReturn(false);
 
     assertThatThrownBy(() -> service.synthesize("hello", "alloy", null))
-        .isInstanceOf(TtsProviderNotConfiguredException.class);
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "TTS_PROVIDER_NOT_CONFIGURED");
   }
 
   @Test
@@ -76,7 +77,8 @@ class AudioServiceTest {
     when(ttsConfiguration.isConfigured()).thenReturn(false);
 
     assertThatThrownBy(() -> service.synthesize("hello", "alloy", null))
-        .isInstanceOf(TtsProviderNotConfiguredException.class);
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "TTS_PROVIDER_NOT_CONFIGURED");
   }
 
   @Test

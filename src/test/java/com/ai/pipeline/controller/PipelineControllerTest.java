@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.ai.pipeline.domain.exception.AgentNotFoundException;
+import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.pipeline.service.PipelineService;
@@ -62,7 +62,9 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should return 404 when health unknown")
     void shouldReturn404WhenHealthUnknown() {
       when(pipelineService.getHealth(eq("missing"), eq(ownerKey()), anyString()))
-          .thenThrow(new AgentNotFoundException(AgentType.of("missing")));
+          .thenThrow(
+              DomainException.notFound(
+                  "AGENT_NOT_FOUND", "Unknown agent type: " + AgentType.of("missing").value()));
 
       assertThat(
               mvc.get()
@@ -93,7 +95,9 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should return 404 when agent unknown")
     void shouldReturn404WhenGetAgentUnknown() {
       when(pipelineService.getHealth(eq("missing"), eq(ownerKey()), anyString()))
-          .thenThrow(new AgentNotFoundException(AgentType.of("missing")));
+          .thenThrow(
+              DomainException.notFound(
+                  "AGENT_NOT_FOUND", "Unknown agent type: " + AgentType.of("missing").value()));
 
       assertThat(
               mvc.get()

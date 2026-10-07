@@ -7,7 +7,6 @@ import com.ai.pipeline.controller.dto.AgentInfoResponse;
 import com.ai.pipeline.controller.dto.AgentInvokeRequest;
 import com.ai.pipeline.controller.dto.PipelineInvokeRequest;
 import com.ai.pipeline.controller.dto.PipelineModuleHealthResponse;
-import com.ai.pipeline.domain.exception.AgentNotFoundException;
 import com.ai.pipeline.domain.model.AgentPipeline;
 import com.ai.pipeline.domain.vo.AgentType;
 import com.ai.pipeline.service.PipelineService;
@@ -62,14 +61,10 @@ public class PipelineController {
       @PathVariable String agentType,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    try {
-      String ownerKey = ownerContext.requireValue(request);
-      return ResponseEntity.ok(
-          AgentInfoResponse.from(
-              pipelineService.getHealth(agentType, ownerKey, resolveLanguage(lang, request))));
-    } catch (AgentNotFoundException e) {
-      return ResponseEntity.notFound().build();
-    }
+    String ownerKey = ownerContext.requireValue(request);
+    return ResponseEntity.ok(
+        AgentInfoResponse.from(
+            pipelineService.getHealth(agentType, ownerKey, resolveLanguage(lang, request))));
   }
 
   /** Returns the health of one agent. */
@@ -78,14 +73,10 @@ public class PipelineController {
       @PathVariable String agentType,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    try {
-      String ownerKey = ownerContext.requireValue(request);
-      return ResponseEntity.ok(
-          AgentHealthResponse.from(
-              pipelineService.getHealth(agentType, ownerKey, resolveLanguage(lang, request))));
-    } catch (AgentNotFoundException e) {
-      return ResponseEntity.notFound().build();
-    }
+    String ownerKey = ownerContext.requireValue(request);
+    return ResponseEntity.ok(
+        AgentHealthResponse.from(
+            pipelineService.getHealth(agentType, ownerKey, resolveLanguage(lang, request))));
   }
 
   /** Streams a supervisor run. */

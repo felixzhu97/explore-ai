@@ -1,7 +1,7 @@
 package com.ai.automation.infra.pipeline;
 
 import com.ai.automation.domain.repository.PipelineGateway;
-import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
+import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
 import com.ai.pipeline.domain.vo.PipelineTemplateId;
@@ -27,7 +27,11 @@ public class InProcessPipelineGateway implements PipelineGateway {
         pipelineTemplateRepository
             .findByIdAndOwnerKey(PipelineTemplateId.of(pipelineTemplateId), ownerKey)
             .filter(PipelineTemplate::isRunnable)
-            .orElseThrow(() -> new PipelineTemplateNotFoundException(pipelineTemplateId));
+            .orElseThrow(
+                () ->
+                    DomainException.notFound(
+                        "PIPELINE_TEMPLATE_NOT_FOUND",
+                        "Pipeline template not found: " + pipelineTemplateId));
     return pipelineService.invokePipelineSync(
         template.composeInvokeMessage(brief), template.toLinearPipeline(), ownerKey, language);
   }

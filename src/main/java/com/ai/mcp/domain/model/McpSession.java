@@ -1,6 +1,6 @@
 package com.ai.mcp.domain.model;
 
-import com.ai.mcp.domain.exception.InvalidMcpSessionException;
+import com.ai.common.exception.DomainException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -41,7 +41,7 @@ public class McpSession {
   /** Marks the session closed, rejecting a second close. */
   public void close() {
     if (status == McpSessionStatus.CLOSED) {
-      throw new InvalidMcpSessionException("Session already closed: " + id);
+      throw DomainException.invalid("INVALID_MCP_SESSION", "Session already closed: " + id);
     }
     status = McpSessionStatus.CLOSED;
   }
@@ -73,13 +73,13 @@ public class McpSession {
 
   private void ensureNotClosed() {
     if (status == McpSessionStatus.CLOSED) {
-      throw new InvalidMcpSessionException("Cannot activate closed session: " + id);
+      throw DomainException.invalid("INVALID_MCP_SESSION", "Cannot activate closed session: " + id);
     }
   }
 
   private static String validateServerName(String serverName) {
     if (serverName == null || serverName.isBlank()) {
-      throw new InvalidMcpSessionException("Server name must not be blank");
+      throw DomainException.invalid("INVALID_MCP_SESSION", "Server name must not be blank");
     }
     return serverName.trim();
   }

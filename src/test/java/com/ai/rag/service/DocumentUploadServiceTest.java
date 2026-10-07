@@ -13,8 +13,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.domain.vo.OwnerKey;
-import com.ai.rag.domain.exception.DocumentNotFoundException;
-import com.ai.rag.domain.exception.DocumentProcessingException;
+import com.ai.common.exception.DomainException;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
@@ -157,10 +156,13 @@ class DocumentUploadServiceTest {
       when(documentRepository.save(any(RagDocument.class)))
           .thenAnswer(invocation -> invocation.getArgument(0));
       when(reader.read(eq(pdfContent), eq(fileName)))
-          .thenThrow(new DocumentProcessingException("Could not extract text from document.pdf"));
+          .thenThrow(
+              DomainException.unprocessable(
+                  "DOCUMENT_UNREADABLE", "Could not extract text from document.pdf"));
 
       assertThatThrownBy(() -> service.upload("PDF", fileName, pdfContent, "c:test-owner"))
-          .isInstanceOf(DocumentProcessingException.class)
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "DOCUMENT_UNREADABLE")
           .hasMessage("Could not extract text from document.pdf");
 
       verify(documentRepository, times(2)).save(any(RagDocument.class));
@@ -175,7 +177,8 @@ class DocumentUploadServiceTest {
           .thenReturn(new RawDocument(" \n", Map.of(), "blank.txt"));
 
       assertThatThrownBy(() -> service.upload("Blank", "blank.txt", " \n", "c:test-owner"))
-          .isInstanceOf(DocumentProcessingException.class)
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "DOCUMENT_UNREADABLE")
           .hasMessage("No text found in blank.txt");
 
       verifyNoInteractions(transformer, writer);
@@ -399,7 +402,8 @@ class DocumentUploadServiceTest {
           .thenReturn(Optional.empty());
 
       assertThatThrownBy(() -> service.delete(documentId, "c:test-owner"))
-          .isInstanceOf(DocumentNotFoundException.class);
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "DOCUMENT_NOT_FOUND");
     }
 
     @Test

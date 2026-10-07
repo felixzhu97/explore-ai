@@ -3,7 +3,7 @@ package com.ai.tools.domain.vo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.tools.domain.exception.InvalidWeatherQueryException;
+import com.ai.common.exception.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -21,13 +21,16 @@ class WeatherQueryTest {
   @Test
   @DisplayName("should reject blank city")
   void shouldRejectBlankCity() {
-    assertThatThrownBy(() -> WeatherQuery.of(" ")).isInstanceOf(InvalidWeatherQueryException.class);
+    assertThatThrownBy(() -> WeatherQuery.of(" "))
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "INVALID_WEATHER_QUERY");
   }
 
   @Test
   @DisplayName("should reject blank via compact constructor")
   void shouldRejectBlankViaCompactConstructor() {
     assertThatThrownBy(() -> new WeatherQuery(" ", " "))
-        .isInstanceOf(InvalidWeatherQueryException.class);
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "INVALID_WEATHER_QUERY");
   }
 }

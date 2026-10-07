@@ -1,6 +1,5 @@
 package com.ai.audio.service;
 
-import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.audio.domain.model.SynthesizedAudio;
 import com.ai.audio.domain.repository.TextToSpeechGateway;
 import com.ai.audio.domain.repository.TtsConfiguration;
@@ -8,6 +7,7 @@ import com.ai.audio.domain.vo.SpeechText;
 import com.ai.audio.domain.vo.VoiceCatalog;
 import com.ai.audio.domain.vo.VoiceInfo;
 import com.ai.audio.domain.vo.VoiceSelection;
+import com.ai.common.exception.DomainException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -47,10 +47,13 @@ public class AudioService {
 
   private void ensureProviderConfigured() {
     if (!ttsConfiguration.isEnabled()) {
-      throw TtsProviderNotConfiguredException.disabled();
+      throw DomainException.unavailable(
+          "TTS_PROVIDER_NOT_CONFIGURED", "Text-to-speech is disabled");
     }
     if (!ttsConfiguration.isConfigured()) {
-      throw TtsProviderNotConfiguredException.apiKeyMissing();
+      throw DomainException.unavailable(
+          "TTS_PROVIDER_NOT_CONFIGURED",
+          "TTS provider not configured. Set OPENAI_API_KEY or TTS_API_KEY");
     }
   }
 

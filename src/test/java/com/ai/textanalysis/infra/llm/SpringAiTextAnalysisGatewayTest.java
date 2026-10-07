@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.exception.AiServiceException;
+import com.ai.common.exception.DomainException;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.textanalysis.domain.vo.AnalysisText;
@@ -51,7 +51,8 @@ class SpringAiTextAnalysisGatewayTest {
     when(callResponseSpec.entity(any(Class.class))).thenReturn(null);
 
     assertThatThrownBy(() -> repository.analyze(AnalysisText.of("Sample"), LanguageHint.none()))
-        .isInstanceOf(AiServiceException.class)
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "AI_SERVICE_ERROR")
         .hasMessageContaining("empty structured analysis");
   }
 }

@@ -1,11 +1,11 @@
 package com.ai.tools.domain.vo;
 
-import com.ai.tools.domain.exception.InvalidWeatherQueryException;
+import com.ai.common.exception.DomainException;
 
 public record WeatherQuery(String city, String normalizedCity) {
   public WeatherQuery {
     if (city == null || city.isBlank()) {
-      throw new InvalidWeatherQueryException("City must not be blank");
+      throw DomainException.invalid("INVALID_WEATHER_QUERY", "City must not be blank");
     }
     city = city.trim();
     normalizedCity = city.toLowerCase();

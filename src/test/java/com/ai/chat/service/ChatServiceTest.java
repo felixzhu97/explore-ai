@@ -10,7 +10,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatSessionRepository;
@@ -20,6 +19,7 @@ import com.ai.chat.domain.vo.ChatSessionId;
 import com.ai.chat.domain.vo.ContentHash;
 import com.ai.chat.domain.vo.SessionTitle;
 import com.ai.chat.domain.vo.WebSource;
+import com.ai.common.exception.DomainException;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
@@ -202,7 +202,8 @@ class ChatServiceTest {
               () ->
                   useCase.findSessionHistoryWithSources(
                       "44444444-4444-4444-4444-444444444444", CLIENT_A))
-          .isInstanceOf(ChatSessionNotFoundException.class);
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "SESSION_NOT_FOUND");
       verify(chatWebSourcesRepository, never()).findByConversationId(any());
     }
   }
@@ -244,7 +245,8 @@ class ChatServiceTest {
 
       assertThatThrownBy(
               () -> useCase.deleteSession("22222222-2222-2222-2222-222222222222", CLIENT_B))
-          .isInstanceOf(ChatSessionNotFoundException.class);
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "SESSION_NOT_FOUND");
       verify(repository, never()).delete(any());
     }
 

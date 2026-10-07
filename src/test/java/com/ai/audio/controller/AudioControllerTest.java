@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.audio.domain.model.SynthesizedAudio;
 import com.ai.audio.domain.vo.VoiceInfo;
 import com.ai.audio.service.AudioService;
+import com.ai.common.exception.DomainException;
 import com.ai.testsupport.SliceWebMvcTest;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -166,7 +166,10 @@ class AudioControllerTest {
     @DisplayName("should return 503 when provider is not configured")
     void shouldReturn503WhenProviderIsNotConfigured() {
       when(audioService.synthesizeAudio(any(), any(), any()))
-          .thenThrow(TtsProviderNotConfiguredException.apiKeyMissing());
+          .thenThrow(
+              DomainException.unavailable(
+                  "TTS_PROVIDER_NOT_CONFIGURED",
+                  "TTS provider not configured. Set OPENAI_API_KEY or TTS_API_KEY"));
 
       assertThat(
               mvc.post()

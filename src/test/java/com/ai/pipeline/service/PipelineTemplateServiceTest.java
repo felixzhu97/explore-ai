@@ -3,8 +3,7 @@ package com.ai.pipeline.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.pipeline.domain.exception.PipelineTemplateNameConflictException;
-import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
+import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.vo.PipelineTemplateId;
 import com.ai.pipeline.test.fixture.FakePipelineTemplateRepository;
@@ -47,14 +46,16 @@ class PipelineTemplateServiceTest {
 
     assertThatThrownBy(
             () -> useCase.create(CLIENT_ID, "My flow", "", List.of("analyst"), "", "other", null))
-        .isInstanceOf(PipelineTemplateNameConflictException.class);
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "PIPELINE_TEMPLATE_NAME_CONFLICT");
   }
 
   @Test
   @DisplayName("should throw when get missing")
   void shouldThrowWhenGetMissing() {
     assertThatThrownBy(() -> useCase.get(CLIENT_ID, PipelineTemplateId.generate().value()))
-        .isInstanceOf(PipelineTemplateNotFoundException.class);
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "PIPELINE_TEMPLATE_NOT_FOUND");
   }
 
   @Test

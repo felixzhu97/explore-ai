@@ -4,13 +4,12 @@ import com.ai.audio.controller.dto.TextToSpeechRequest;
 import com.ai.audio.controller.dto.TtsModelsResponse;
 import com.ai.audio.controller.dto.VoiceResponse;
 import com.ai.audio.controller.dto.VoicesResponse;
-import com.ai.audio.domain.exception.InvalidSpeechTextException;
-import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
 import com.ai.audio.service.AudioService;
+import com.ai.common.controller.GlobalExceptionHandler;
+import com.ai.common.exception.DomainException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -60,10 +59,8 @@ public class AudioController {
           .contentType(MediaType.parseMediaType(mediaType))
           .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
           .body(audio.data());
-    } catch (InvalidSpeechTextException e) {
-      return ResponseEntity.badRequest().build();
-    } catch (TtsProviderNotConfiguredException e) {
-      return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+    } catch (DomainException e) {
+      return ResponseEntity.status(GlobalExceptionHandler.statusOf(e.kind())).build();
     } catch (Exception e) {
       return ResponseEntity.internalServerError().build();
     }

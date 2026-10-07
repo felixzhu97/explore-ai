@@ -1,7 +1,7 @@
 package com.ai.tools.infra.tools;
 
 import com.ai.common.domain.tool.WeatherTool;
-import com.ai.tools.domain.exception.InvalidWeatherQueryException;
+import com.ai.common.exception.DomainException;
 import com.ai.tools.domain.model.WeatherReport;
 import com.ai.tools.domain.vo.WeatherForecast;
 import com.ai.tools.domain.vo.WeatherQuery;
@@ -26,7 +26,7 @@ public class WeatherTools implements WeatherTool {
       @ToolParam(description = "City name in Chinese or English (e.g. 北京, beijing)") String city) {
     try {
       return weatherReport.lookupCurrent(WeatherQuery.of(city)).content();
-    } catch (InvalidWeatherQueryException e) {
+    } catch (DomainException e) {
       return e.getMessage();
     }
   }
@@ -43,7 +43,7 @@ public class WeatherTools implements WeatherTool {
       WeatherQuery query = WeatherQuery.of(city);
       int forecastDays = days != null ? Math.max(1, Math.min(7, days)) : 3;
       return weatherReport.generateForecast(WeatherForecast.of(query, forecastDays)).content();
-    } catch (InvalidWeatherQueryException e) {
+    } catch (DomainException e) {
       return e.getMessage();
     }
   }

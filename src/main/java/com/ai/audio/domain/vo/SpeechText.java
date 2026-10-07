@@ -1,6 +1,6 @@
 package com.ai.audio.domain.vo;
 
-import com.ai.audio.domain.exception.InvalidSpeechTextException;
+import com.ai.common.exception.DomainException;
 
 public record SpeechText(String value) {
 
@@ -8,11 +8,12 @@ public record SpeechText(String value) {
 
   public SpeechText {
     if (value == null || value.isBlank()) {
-      throw new InvalidSpeechTextException("Speech text must not be blank");
+      throw DomainException.invalid("INVALID_SPEECH_TEXT", "Speech text must not be blank");
     }
     value = value.trim();
     if (value.length() > MAX_LENGTH) {
-      throw new InvalidSpeechTextException("Speech text exceeds maximum length of " + MAX_LENGTH);
+      throw DomainException.invalid(
+          "INVALID_SPEECH_TEXT", "Speech text exceeds maximum length of " + MAX_LENGTH);
     }
   }
 
