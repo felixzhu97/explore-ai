@@ -14,13 +14,13 @@ public class MetricsWindow {
   public static final String DEFAULT_RANGE = "7d";
 
   /** Parses a range, defaulting to {@value #DEFAULT_RANGE}; rejects unsupported ranges. */
-  public static MetricsWindow parseWindow(String raw) {
+  public static MetricsWindow parseWindow(String text) {
     String normalized =
-        raw == null || raw.isBlank() ? DEFAULT_RANGE : raw.trim().toLowerCase(Locale.ROOT);
+        text == null || text.isBlank() ? DEFAULT_RANGE : text.trim().toLowerCase(Locale.ROOT);
     return switch (normalized) {
       case "7d" -> new MetricsWindow(normalized, Duration.ofDays(7));
       case "30d" -> new MetricsWindow(normalized, Duration.ofDays(30));
-      default -> throw new IllegalArgumentException("Unsupported range: " + raw);
+      default -> throw new IllegalArgumentException("Unsupported range: " + text);
     };
   }
 

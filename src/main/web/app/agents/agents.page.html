@@ -26,10 +26,10 @@
           </h2>
           <div class="mt-3 flex flex-col gap-3">
             <label class="text-xs font-medium text-foreground/70">
-              {{ i18n.t().agents.typeKey }}
+              {{ i18n.t().agents.agentType }}
               <input
                 class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60"
-                [formField]="draftForm.typeKey"
+                [formField]="draftForm.agentType"
               />
             </label>
             <label class="text-xs font-medium text-foreground/70">
@@ -47,9 +47,9 @@
               />
             </label>
             <div>
-              <p class="text-xs font-medium text-foreground/70">{{ i18n.t().agents.toolKeys }}</p>
+              <p class="text-xs font-medium text-foreground/70">{{ i18n.t().agents.tools }}</p>
               <div class="mt-2 flex flex-wrap gap-1.5">
-                @for (toolKey of availableToolKeys; track toolKey) {
+                @for (toolKey of availableTools; track toolKey) {
                   <button
                     type="button"
                     class="rounded-md border px-2.5 py-1.5 text-xs transition"
@@ -141,7 +141,7 @@
                       </span>
                     }
                   </p>
-                  <p class="mt-0.5 font-mono text-[10px] text-foreground/45">{{ agent.typeKey }}</p>
+                  <p class="mt-0.5 font-mono text-[10px] text-foreground/45">{{ agent.agentType }}</p>
                   <p class="mt-0.5 text-sm text-foreground/60">{{ agent.description }}</p>
                 </div>
                 <div class="flex shrink-0 flex-wrap gap-1">

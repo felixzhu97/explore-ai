@@ -131,12 +131,12 @@ public class BundledSkillLoader {
     return values;
   }
 
-  private static List<String> parseAllowedTools(String raw) {
-    if (raw == null || raw.isBlank()) {
+  private static List<String> parseAllowedTools(String text) {
+    if (text == null || text.isBlank()) {
       return List.of();
     }
     List<String> tools = new ArrayList<>();
-    for (String part : raw.split(",")) {
+    for (String part : text.split(",")) {
       String tool = part.trim();
       if (!tool.isBlank()) {
         tools.add(tool);

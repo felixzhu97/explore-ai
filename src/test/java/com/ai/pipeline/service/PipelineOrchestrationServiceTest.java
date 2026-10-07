@@ -249,7 +249,7 @@ class PipelineOrchestrationServiceTest {
 
     assert invoker.lastAgentName.equals("Custom K8s");
     assert invoker.lastSystemPrompt.equals("You are a custom k8s worker.");
-    assert invoker.lastToolKeys.equals(List.of("datetime"));
+    assert invoker.lastTools.equals(List.of("datetime"));
   }
 
   @Test
@@ -319,7 +319,7 @@ class PipelineOrchestrationServiceTest {
     private String lastAgentType;
     private String lastAgentName;
     private String lastSystemPrompt;
-    private List<String> lastToolKeys = List.of();
+    private List<String> lastTools = List.of();
     private String lastTask;
     private final java.util.concurrent.atomic.AtomicInteger invokeCount =
         new java.util.concurrent.atomic.AtomicInteger();
@@ -330,7 +330,7 @@ class PipelineOrchestrationServiceTest {
       lastAgentType = agent.getType().getValue();
       lastAgentName = agent.getName();
       lastSystemPrompt = agent.getSystemPrompt();
-      lastToolKeys = agent.getToolKeys();
+      lastTools = agent.getTools();
       lastTask = task;
       invokeCount.incrementAndGet();
       streamOrder.add(agent.getType().getValue());
@@ -342,7 +342,7 @@ class PipelineOrchestrationServiceTest {
       lastAgentType = agent.getType().getValue();
       lastAgentName = agent.getName();
       lastSystemPrompt = agent.getSystemPrompt();
-      lastToolKeys = agent.getToolKeys();
+      lastTools = agent.getTools();
       lastTask = task;
       invokeCount.incrementAndGet();
       return "worker-reply for " + agent.getType().getValue();

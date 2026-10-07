@@ -5,7 +5,7 @@ public enum AutomationActionType {
   RUN_PIPELINE_TEMPLATE;
 
   /** Parses an action type, ignoring case. */
-  public static AutomationActionType parseType(String raw) {
-    return AutomationActionType.valueOf(raw.trim().toUpperCase());
+  public static AutomationActionType parseType(String text) {
+    return AutomationActionType.valueOf(text.trim().toUpperCase());
   }
 }

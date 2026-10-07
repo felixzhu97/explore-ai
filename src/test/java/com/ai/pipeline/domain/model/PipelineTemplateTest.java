@@ -91,7 +91,7 @@ class PipelineTemplateTest {
 
   @Test
   @DisplayName("should use the template short topic when the brief is the generic text")
-  void shouldUseTheTemplateShortTopicWhenTheBriefIsTheGenericText() {
+  void shouldUseTheTemplateTopicWhenTheBriefIsTheGenericText() {
     String message = template.composeFirstMessage(PipelineTemplate.GENERIC_BRIEF);
 
     assertThat(message).startsWith("Competitor landscape brief\n\n");

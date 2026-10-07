@@ -20,10 +20,10 @@ public enum AgentRuntime {
   }
 
   /** Maps the normalized runtime of an agent definition; rejects unknown runtimes. */
-  public static AgentRuntime createResponse(String raw) {
+  public static AgentRuntime createResponse(String text) {
     return Arrays.stream(values())
-        .filter(runtime -> runtime.value.equals(raw))
+        .filter(runtime -> runtime.value.equals(text))
         .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Unsupported agent runtime: " + raw));
+        .orElseThrow(() -> new IllegalArgumentException("Unsupported agent runtime: " + text));
   }
 }

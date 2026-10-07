@@ -19,16 +19,16 @@ public enum InvocationOutcome {
   }
 
   /** Parses a case-insensitive outcome value, rejecting blank or unknown input. */
-  public static InvocationOutcome parseOutcome(String raw) {
-    if (raw == null || raw.isBlank()) {
+  public static InvocationOutcome parseOutcome(String text) {
+    if (text == null || text.isBlank()) {
       throw new IllegalArgumentException("outcome must not be blank");
     }
-    String normalized = raw.trim().toLowerCase(Locale.ROOT);
+    String normalized = text.trim().toLowerCase(Locale.ROOT);
     for (InvocationOutcome outcome : values()) {
       if (outcome.value.equals(normalized)) {
         return outcome;
       }
     }
-    throw new IllegalArgumentException("Unknown outcome: " + raw);
+    throw new IllegalArgumentException("Unknown outcome: " + text);
   }
 }

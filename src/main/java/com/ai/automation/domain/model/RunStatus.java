@@ -7,7 +7,7 @@ public enum RunStatus {
   SKIPPED;
 
   /** Parses a run status, ignoring case. */
-  public static RunStatus parseStatus(String raw) {
-    return RunStatus.valueOf(raw.trim().toUpperCase());
+  public static RunStatus parseStatus(String text) {
+    return RunStatus.valueOf(text.trim().toUpperCase());
   }
 }

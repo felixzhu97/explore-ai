@@ -32,15 +32,15 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
 
   @Size(max = 200)
   @Column(length = 200)
-  private String shortTopic;
+  private String topic;
 
   @NotBlank
   @Column(nullable = false, columnDefinition = "clob")
-  private String briefPrompt;
+  private String brief;
 
   @Size(max = 64)
   @Column(length = 64)
-  private String sourceTemplateId;
+  private String builtinTemplateId;
 
   private PipelineTemplate(
       PipelineTemplateId id,
@@ -48,14 +48,14 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
       String name,
       String description,
       List<String> agentTypes,
-      String shortTopic,
-      String briefPrompt,
-      String sourceTemplateId) {
+      String topic,
+      String brief,
+      String builtinTemplateId) {
     super(id, ownerKey, name, description);
     this.agentTypes = copyAgentTypes(agentTypes);
-    this.shortTopic = normalizeShortTopic(shortTopic);
-    this.briefPrompt = DomainStrings.requireNonBlank(briefPrompt, "briefPrompt");
-    this.sourceTemplateId = normalizeSourceTemplateId(sourceTemplateId);
+    this.topic = normalizeTopic(topic);
+    this.brief = DomainStrings.requireNonBlank(brief, "brief");
+    this.builtinTemplateId = normalizeBuiltinTemplateId(builtinTemplateId);
   }
 
   /** Creates an enabled template with a new id, optionally linked to its catalog source. */
@@ -64,32 +64,28 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
       String name,
       String description,
       List<String> agentTypes,
-      String shortTopic,
-      String briefPrompt,
-      String sourceTemplateId) {
+      String topic,
+      String brief,
+      String builtinTemplateId) {
     return new PipelineTemplate(
         PipelineTemplateId.generateId(),
         ownerKey,
         name,
         description,
         agentTypes,
-        shortTopic,
-        briefPrompt,
-        sourceTemplateId);
+        topic,
+        brief,
+        builtinTemplateId);
   }
 
   /** Replaces the editable fields, normalizing agent types and bumping the update timestamp. */
   public PipelineTemplate update(
-      String name,
-      String description,
-      List<String> agentTypes,
-      String shortTopic,
-      String briefPrompt) {
+      String name, String description, List<String> agentTypes, String topic, String brief) {
     rename(name);
     updateDescription(description);
     this.agentTypes = copyAgentTypes(agentTypes);
-    this.shortTopic = normalizeShortTopic(shortTopic);
-    this.briefPrompt = DomainStrings.requireNonBlank(briefPrompt, "briefPrompt");
+    this.topic = normalizeTopic(topic);
+    this.brief = DomainStrings.requireNonBlank(brief, "brief");
     return this;
   }
 
@@ -113,14 +109,14 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
   }
 
   /**
-   * Builds the first message of a run as {@code topic + "\n\n" + briefPrompt}, like the pipelines
-   * canvas. A blank or generic schedule brief falls back to the template's short topic.
+   * Builds the first message of a run as {@code topic + "\n\n" + brief}, like the pipelines canvas.
+   * A blank or generic schedule brief falls back to the template's short topic.
    */
   public String composeFirstMessage(String scheduleBrief) {
-    String instructions = briefPrompt == null ? "" : briefPrompt.trim();
+    String instructions = brief == null ? "" : brief.trim();
     String topic;
     if (isGenericBrief(scheduleBrief)) {
-      topic = shortTopic == null ? "" : shortTopic.trim();
+      topic = this.topic == null ? "" : this.topic.trim();
     } else {
       topic = scheduleBrief.trim();
     }
@@ -147,15 +143,15 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
         || brief.trim().toLowerCase(Locale.ROOT).equals(GENERIC_BRIEF.toLowerCase(Locale.ROOT));
   }
 
-  private static String normalizeShortTopic(String shortTopic) {
-    return DomainStrings.normalizeDescription(shortTopic, 200);
+  private static String normalizeTopic(String topic) {
+    return DomainStrings.normalizeDescription(topic, 200);
   }
 
-  private static String normalizeSourceTemplateId(String sourceTemplateId) {
-    if (sourceTemplateId == null || sourceTemplateId.isBlank()) {
+  private static String normalizeBuiltinTemplateId(String builtinTemplateId) {
+    if (builtinTemplateId == null || builtinTemplateId.isBlank()) {
       return null;
     }
-    return sourceTemplateId.trim();
+    return builtinTemplateId.trim();
   }
 
   private static List<String> copyAgentTypes(List<String> agentTypes) {

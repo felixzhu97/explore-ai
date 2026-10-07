@@ -40,8 +40,8 @@ public class PipelineTemplateService {
         findNextAvailableName(ownerKey, template.name()),
         template.description(),
         template.agentTypes(),
-        template.shortTopic(),
-        template.briefPrompt(),
+        template.topic(),
+        template.brief(),
         template.id());
   }
 
@@ -51,13 +51,13 @@ public class PipelineTemplateService {
       String name,
       String description,
       List<String> agentTypes,
-      String shortTopic,
-      String briefPrompt,
-      String sourceTemplateId) {
+      String topic,
+      String brief,
+      String builtinTemplateId) {
     assertNameAvailable(ownerKey, name, null);
     PipelineTemplate template =
         PipelineTemplate.createTemplate(
-            ownerKey, name, description, agentTypes, shortTopic, briefPrompt, sourceTemplateId);
+            ownerKey, name, description, agentTypes, topic, brief, builtinTemplateId);
     return repository.save(template);
   }
 
@@ -68,11 +68,11 @@ public class PipelineTemplateService {
       String name,
       String description,
       List<String> agentTypes,
-      String shortTopic,
-      String briefPrompt) {
+      String topic,
+      String brief) {
     PipelineTemplate template = findOwned(ownerKey, id);
     assertNameAvailable(ownerKey, name, template.getId());
-    template.update(name, description, agentTypes, shortTopic, briefPrompt);
+    template.update(name, description, agentTypes, topic, brief);
     return repository.save(template);
   }
 

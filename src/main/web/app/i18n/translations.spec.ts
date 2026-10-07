@@ -197,8 +197,8 @@ describe('translations', () => {
           'saveCanvas',
           'newTemplate',
           'agentTypesHint',
-          'shortTopicHint',
-          'briefPromptHint',
+          'topicHint',
+          'briefHint',
         ] as const;
 
         SUPPORTED_LANGUAGES.forEach((lang) => {

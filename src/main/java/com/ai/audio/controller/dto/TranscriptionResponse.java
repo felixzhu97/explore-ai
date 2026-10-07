@@ -42,14 +42,14 @@ public record TranscriptionResponse(TranscriptionType type, String text) {
 
     /** Parses a wire value case-insensitively; rejects unknown frame kinds. */
     @JsonCreator
-    public static TranscriptionType parseType(String raw) {
-      String normalized = raw == null ? "" : raw.trim().toLowerCase(Locale.ROOT);
+    public static TranscriptionType parseType(String text) {
+      String normalized = text == null ? "" : text.trim().toLowerCase(Locale.ROOT);
       for (TranscriptionType type : values()) {
         if (type.value.equals(normalized)) {
           return type;
         }
       }
-      throw new IllegalArgumentException("Unknown transcription type: " + raw);
+      throw new IllegalArgumentException("Unknown transcription type: " + text);
     }
   }
 }

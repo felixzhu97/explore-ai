@@ -41,18 +41,18 @@ class CatalogAgentRegistryTest {
 
   @Test
   void shouldOverrideBuiltinWithEnabledClientDefinition() {
-    String typeKey = registry.listWorkers("c:client-a", "en").getFirst().getType().getValue();
+    String agentType = registry.listWorkers("c:client-a", "en").getFirst().getType().getValue();
     library(
         CustomAgent.createAgent(
             "c:client-a",
-            typeKey,
+            agentType,
             "Override Name",
             "override desc",
             "You are an override.",
             List.of("web")));
 
     Optional<AgentDefinition> found =
-        registry.findByType(AgentType.createType(typeKey), "c:client-a", "en");
+        registry.findByType(AgentType.createType(agentType), "c:client-a", "en");
     assertThat(found).isPresent();
     assertThat(found.get().getName()).isEqualTo("Override Name");
     assertThat(found.get().getSystemPrompt()).isEqualTo("You are an override.");
@@ -60,7 +60,7 @@ class CatalogAgentRegistryTest {
     assertThat(registry.listAll("c:client-a", "en"))
         .anySatisfy(
             agent -> {
-              if (agent.getType().getValue().equals(typeKey)) {
+              if (agent.getType().getValue().equals(agentType)) {
                 assertThat(agent.getName()).isEqualTo("Override Name");
               }
             });

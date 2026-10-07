@@ -39,10 +39,10 @@
             />
           </label>
           <div class="flex flex-col gap-1.5">
-            <p class="text-xs text-foreground/60">{{ i18n.t().pipelines.nodeEditor.toolKeys }}</p>
-            <p class="text-[10px] text-foreground/60">{{ i18n.t().pipelines.nodeEditor.toolKeysHint }}</p>
+            <p class="text-xs text-foreground/60">{{ i18n.t().pipelines.nodeEditor.tools }}</p>
+            <p class="text-[10px] text-foreground/60">{{ i18n.t().pipelines.nodeEditor.toolsHint }}</p>
             <div class="flex flex-wrap gap-1.5">
-              @for (toolKey of availableToolKeys; track toolKey) {
+              @for (toolKey of availableTools; track toolKey) {
                 <button
                   type="button"
                   class="rounded-md border px-2.5 py-1.5 text-xs transition"

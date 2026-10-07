@@ -20,10 +20,10 @@ public enum MetricsRange {
   }
 
   /** Maps a normalized range such as {@code 7d}; rejects unknown ranges. */
-  public static MetricsRange fromValue(String raw) {
+  public static MetricsRange fromValue(String text) {
     return Arrays.stream(values())
-        .filter(range -> range.value.equals(raw))
+        .filter(range -> range.value.equals(text))
         .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Unsupported range: " + raw));
+        .orElseThrow(() -> new IllegalArgumentException("Unsupported range: " + text));
   }
 }

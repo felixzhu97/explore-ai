@@ -24,11 +24,11 @@ public class ContactEmail {
   }
 
   /** Returns the email, or {@code null} when the value is blank or not an email address. */
-  public static ContactEmail parseOptionalEmail(String raw) {
-    if (raw == null) {
+  public static ContactEmail parseOptionalEmail(String text) {
+    if (text == null) {
       return null;
     }
-    String trimmed = raw.trim();
+    String trimmed = text.trim();
     if (trimmed.isEmpty() || trimmed.length() > MAX_LENGTH || !SHAPE.matcher(trimmed).matches()) {
       return null;
     }

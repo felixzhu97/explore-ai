@@ -82,10 +82,10 @@ class PipelineTemplateServiceTest {
 
     assertThat(english.getName()).isEqualTo("Competitive intelligence");
     assertThat(english.getAgentTypes()).containsExactly("research", "analyst");
-    assertThat(english.getSourceTemplateId()).isEqualTo("competitiveIntel");
-    assertThat(english.getBriefPrompt()).contains("Competitive Intelligence Brief");
+    assertThat(english.getBuiltinTemplateId()).isEqualTo("competitiveIntel");
+    assertThat(english.getBrief()).contains("Competitive Intelligence Brief");
     assertThat(chinese.getName()).isEqualTo("竞品情报");
-    assertThat(chinese.getBriefPrompt()).contains("竞品情报简报");
+    assertThat(chinese.getBrief()).contains("竞品情报简报");
   }
 
   @Test

@@ -15,7 +15,7 @@ public final class AgentDefinition {
   private final String name;
   private final String description;
   private final String systemPrompt;
-  private final List<String> toolKeys;
+  private final List<String> tools;
   private final String runtime;
   private final boolean healthy;
 
@@ -24,14 +24,14 @@ public final class AgentDefinition {
       String name,
       String description,
       String systemPrompt,
-      List<String> toolKeys,
+      List<String> tools,
       String runtime,
       boolean healthy) {
     this.type = Objects.requireNonNull(type, "type");
     this.name = Objects.requireNonNull(name, "name");
     this.description = Objects.requireNonNull(description, "description");
     this.systemPrompt = Objects.requireNonNull(systemPrompt, "systemPrompt");
-    this.toolKeys = toolKeys == null ? List.of() : List.copyOf(toolKeys);
+    this.tools = tools == null ? List.of() : List.copyOf(tools);
     this.runtime =
         runtime == null || runtime.isBlank() ? RUNTIME_SINGLE : runtime.trim().toLowerCase();
     this.healthy = healthy;
@@ -49,9 +49,9 @@ public final class AgentDefinition {
       String name,
       String description,
       String systemPrompt,
-      List<String> toolKeys,
+      List<String> tools,
       String runtime) {
-    return new AgentDefinition(type, name, description, systemPrompt, toolKeys, runtime, true);
+    return new AgentDefinition(type, name, description, systemPrompt, tools, runtime, true);
   }
 
   /** Tells whether the agent can be a pipeline worker. */

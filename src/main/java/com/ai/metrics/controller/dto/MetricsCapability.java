@@ -23,8 +23,8 @@ public enum MetricsCapability {
   }
 
   /** Maps a capability value such as {@code chat}; rejects unknown capabilities. */
-  public static MetricsCapability fromValue(String raw) {
-    return createResponse(AiCapability.parseCapability(raw));
+  public static MetricsCapability fromValue(String text) {
+    return createResponse(AiCapability.parseCapability(text));
   }
 
   private AiCapability aiCapability() {

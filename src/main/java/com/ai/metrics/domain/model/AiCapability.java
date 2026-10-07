@@ -24,11 +24,11 @@ public enum AiCapability {
   }
 
   /** Resolves a case-insensitive capability value, returning empty when blank or unknown. */
-  public static Optional<AiCapability> findCapability(String raw) {
-    if (raw == null || raw.isBlank()) {
+  public static Optional<AiCapability> findCapability(String text) {
+    if (text == null || text.isBlank()) {
       return Optional.empty();
     }
-    String normalized = raw.trim().toLowerCase(Locale.ROOT);
+    String normalized = text.trim().toLowerCase(Locale.ROOT);
     for (AiCapability capability : values()) {
       if (capability.value.equals(normalized)) {
         return Optional.of(capability);
@@ -38,8 +38,8 @@ public enum AiCapability {
   }
 
   /** Parses a capability value, rejecting unknown values. */
-  public static AiCapability parseCapability(String raw) {
-    return findCapability(raw)
-        .orElseThrow(() -> new IllegalArgumentException("Unknown AI capability: " + raw));
+  public static AiCapability parseCapability(String text) {
+    return findCapability(text)
+        .orElseThrow(() -> new IllegalArgumentException("Unknown AI capability: " + text));
   }
 }

@@ -50,8 +50,8 @@ public class OwnerKey {
   }
 
   /** Wraps a stored owner key value. */
-  public static OwnerKey parseKey(String raw) {
-    return new OwnerKey(raw);
+  public static OwnerKey parseKey(String text) {
+    return new OwnerKey(text);
   }
 
   /** Tells whether the key belongs to a signed-in account. */

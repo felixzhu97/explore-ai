@@ -139,7 +139,7 @@ public final class AgentPipeline {
     String name;
     String description;
     String systemPrompt;
-    List<String> toolKeys;
+    List<String> tools;
 
     public PipelineNode(
         String id,
@@ -147,7 +147,7 @@ public final class AgentPipeline {
         String name,
         String description,
         String systemPrompt,
-        List<String> toolKeys) {
+        List<String> tools) {
       Objects.requireNonNull(id, "id");
       Objects.requireNonNull(agentType, "agentType");
       if (id.isBlank()) {
@@ -156,13 +156,13 @@ public final class AgentPipeline {
       name = name == null || name.isBlank() ? agentType.getValue() : name.trim();
       description = description == null ? "" : description.trim();
       systemPrompt = systemPrompt == null ? "" : systemPrompt.trim();
-      toolKeys = toolKeys == null ? List.of() : List.copyOf(toolKeys);
+      tools = tools == null ? List.of() : List.copyOf(tools);
       this.id = id;
       this.agentType = agentType;
       this.name = name;
       this.description = description;
       this.systemPrompt = systemPrompt;
-      this.toolKeys = toolKeys;
+      this.tools = tools;
     }
 
     /** Creates a node with default settings. */
@@ -189,7 +189,7 @@ public final class AgentPipeline {
           name,
           description.isBlank() ? fallback.getDescription() : description,
           fallback.getSystemPrompt(),
-          toolKeys.isEmpty() ? fallback.getToolKeys() : toolKeys,
+          tools.isEmpty() ? fallback.getTools() : tools,
           AgentDefinition.RUNTIME_SINGLE);
     }
 
@@ -198,7 +198,7 @@ public final class AgentPipeline {
       String prompt =
           systemPrompt.isBlank() ? "You are agent " + agentType.getValue() + "." : systemPrompt;
       return AgentDefinition.createDefinition(
-          agentType, name, description, prompt, toolKeys, AgentDefinition.RUNTIME_SINGLE);
+          agentType, name, description, prompt, tools, AgentDefinition.RUNTIME_SINGLE);
     }
   }
 

@@ -21,17 +21,18 @@ public interface CustomAgentRepository extends Repository<CustomAgent, CustomAge
   List<CustomAgent> findAllByOwnerKeyAndEnabledTrueOrderByNameAsc(OwnerKey ownerKey);
 
   /** Tells whether the owner already has a custom agent with the type key. */
-  boolean existsByOwnerKeyAndTypeKey(OwnerKey ownerKey, String typeKey);
+  boolean existsByOwnerKeyAndAgentType(OwnerKey ownerKey, String agentType);
 
   /** Tells whether another of the owner's custom agents already has the type key. */
-  boolean existsByOwnerKeyAndTypeKeyAndIdNot(OwnerKey ownerKey, String typeKey, CustomAgentId id);
+  boolean existsByOwnerKeyAndAgentTypeAndIdNot(
+      OwnerKey ownerKey, String agentType, CustomAgentId id);
 
   /** Tells whether the owner has a custom agent with the type key other than {@code excludeId}. */
-  default boolean existsByOwnerKeyAndTypeKeyIgnoringId(
-      OwnerKey ownerKey, String typeKey, CustomAgentId excludeId) {
+  default boolean existsByOwnerKeyAndAgentTypeIgnoringId(
+      OwnerKey ownerKey, String agentType, CustomAgentId excludeId) {
     return excludeId == null
-        ? existsByOwnerKeyAndTypeKey(ownerKey, typeKey)
-        : existsByOwnerKeyAndTypeKeyAndIdNot(ownerKey, typeKey, excludeId);
+        ? existsByOwnerKeyAndAgentType(ownerKey, agentType)
+        : existsByOwnerKeyAndAgentTypeAndIdNot(ownerKey, agentType, excludeId);
   }
 
   /** Saves the agent and returns the stored copy. */

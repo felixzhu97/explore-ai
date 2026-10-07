@@ -25,9 +25,9 @@ class CustomAgentRepositoryTest extends AbstractDataJpaTest {
 
     CustomAgent reloaded = repository.findByIdAndOwnerKey(agent.getId(), OWNER).orElseThrow();
 
-    assertThat(reloaded.getTypeKey()).isEqualTo("researcher");
+    assertThat(reloaded.getAgentType()).isEqualTo("researcher");
     assertThat(reloaded.getName()).isEqualTo("Research Agent");
-    assertThat(reloaded.getToolKeys()).containsExactly("draft", "edit");
+    assertThat(reloaded.getTools()).containsExactly("draft", "edit");
     assertThat(reloaded.isEnabled()).isTrue();
     assertThat(repository.findByIdAndOwnerKey(agent.getId(), OTHER)).isEmpty();
   }
@@ -50,19 +50,18 @@ class CustomAgentRepositoryTest extends AbstractDataJpaTest {
 
   @Test
   @DisplayName("should match a taken type key only within the owner and outside the excluded id")
-  void shouldMatchATakenTypeKeyOnlyWithinTheOwnerAndOutsideTheExcludedId() {
+  void shouldMatchATakenAgentTypeOnlyWithinTheOwnerAndOutsideTheExcludedId() {
     final CustomAgent agent = save(OWNER, "writer", "Writer", List.of());
     flushAndClear();
 
-    assertThat(repository.existsByOwnerKeyAndTypeKeyIgnoringId(OWNER, "writer", null)).isTrue();
-    assertThat(repository.existsByOwnerKeyAndTypeKeyIgnoringId(OTHER, "writer", null)).isFalse();
-    assertThat(repository.existsByOwnerKeyAndTypeKeyIgnoringId(OWNER, "writer", agent.getId()))
+    assertThat(repository.existsByOwnerKeyAndAgentTypeIgnoringId(OWNER, "writer", null)).isTrue();
+    assertThat(repository.existsByOwnerKeyAndAgentTypeIgnoringId(OTHER, "writer", null)).isFalse();
+    assertThat(repository.existsByOwnerKeyAndAgentTypeIgnoringId(OWNER, "writer", agent.getId()))
         .isFalse();
   }
 
-  private CustomAgent save(OwnerKey owner, String typeKey, String name, List<String> toolKeys) {
+  private CustomAgent save(OwnerKey owner, String agentType, String name, List<String> tools) {
     return repository.save(
-        CustomAgent.createAgent(
-            owner.getValue(), typeKey, name, "Description", "Prompt", toolKeys));
+        CustomAgent.createAgent(owner.getValue(), agentType, name, "Description", "Prompt", tools));
   }
 }

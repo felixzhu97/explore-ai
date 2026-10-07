@@ -196,8 +196,8 @@ export interface Translations {
       dblclickHint: string;
       description: string;
       systemPrompt: string;
-      toolKeys: string;
-      toolKeysHint: string;
+      tools: string;
+      toolsHint: string;
     };
     templates: {
       title: string;
@@ -226,10 +226,10 @@ export interface Translations {
       agentTypesHint: string;
       useCanvas: string;
       canvasEmpty: string;
-      shortTopic: string;
-      shortTopicHint: string;
-      briefPrompt: string;
-      briefPromptHint: string;
+      topic: string;
+      topicHint: string;
+      brief: string;
+      briefHint: string;
       enable: string;
       disable: string;
       statusDisabled: string;
@@ -409,10 +409,10 @@ export interface Translations {
     myAgents: string;
     emptyState: string;
     loading: string;
-    typeKey: string;
+    agentType: string;
     description: string;
     systemPrompt: string;
-    toolKeys: string;
+    tools: string;
     enable: string;
     disable: string;
     statusDisabled: string;

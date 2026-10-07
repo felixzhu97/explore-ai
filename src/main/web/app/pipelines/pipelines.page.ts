@@ -82,7 +82,7 @@ export class PipelinesPageComponent implements OnDestroy {
   readonly error = signal<string | null>(null);
 
   readonly isLoading = signal(false);
-  #activeBriefPrompt: string | null = null;
+  #activeBrief: string | null = null;
   #streamAbort: (() => void) | null = null;
   #messageSeq = 0;
   #savedRatio = DEFAULT_RESULTS_RATIO;
@@ -135,7 +135,7 @@ export class PipelinesPageComponent implements OnDestroy {
   /** Clears the hint when the graph changes. */
   onGraphChange(graph: PipelineGraph): void {
     if (graph.nodes.length === 0) {
-      this.#activeBriefPrompt = null;
+      this.#activeBrief = null;
     }
     this.pipelineHint.set(null);
   }
@@ -147,7 +147,7 @@ export class PipelinesPageComponent implements OnDestroy {
 
   /** Remembers the brief of the applied template. */
   onTemplateApplied(event: { topic: string; brief: string }): void {
-    this.#activeBriefPrompt = event.brief;
+    this.#activeBrief = event.brief;
   }
 
   /** Starts dragging the splitter. */
@@ -184,7 +184,7 @@ export class PipelinesPageComponent implements OnDestroy {
 
     const topic =
       textOr(task.trim(), this.i18n.t().pipelines.defaultMessage);
-    const brief = this.#activeBriefPrompt?.trim();
+    const brief = this.#activeBrief?.trim();
     const invokeMessage = hasText(brief) ? `${topic}\n\n${brief}` : topic;
 
     this.#streamAbort?.();

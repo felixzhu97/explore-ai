@@ -5,9 +5,9 @@ import java.util.List;
 /** Builtin agent template loaded from classpath JSON (one locale file per language). */
 public record AgentTemplate(
     String id,
-    String typeKey,
+    String agentType,
     String name,
     String description,
     String systemPrompt,
-    List<String> toolKeys,
+    List<String> tools,
     String runtime) {}

@@ -54,13 +54,13 @@ public class DueAutomationRunner {
       run.markSkippedForQuota();
     } else {
       try {
-        String result =
+        String answer =
             pipelineGateway.runSavedTemplate(
                 schedule.getOwnerKeyValue(),
                 schedule.getPipelineTemplateId().toString(),
                 schedule.getBrief(),
                 "en");
-        run.markSucceeded(result, sendResultEmail(schedule, result));
+        run.markSucceeded(answer, sendResultEmail(schedule, answer));
       } catch (Exception ex) {
         run.markFailedBeforeEmail(ex.getMessage());
       }
@@ -70,9 +70,9 @@ public class DueAutomationRunner {
     scheduleRepository.save(schedule);
   }
 
-  private EmailDeliveryStatus sendResultEmail(AutomationSchedule schedule, String result) {
+  private EmailDeliveryStatus sendResultEmail(AutomationSchedule schedule, String answer) {
     AutomationMailFormatter.FormattedMail formatted =
-        mailFormatter.formatMail(schedule.getName(), schedule.getBrief(), result);
+        mailFormatter.formatMail(schedule.getName(), schedule.getBrief(), answer);
     try {
       emailGateway.sendEmail(
           schedule.composeResultEmail(formatted.textBody(), formatted.htmlBody()));

@@ -53,20 +53,20 @@ public final class AgentTemplateCatalog {
   }
 
   /** Finds a template by case-insensitive type key, falling back to the English catalog. */
-  public static Optional<AgentTemplate> findByTypeKey(String typeKey, String language) {
-    if (typeKey == null || typeKey.isBlank()) {
+  public static Optional<AgentTemplate> findByAgentType(String agentType, String language) {
+    if (agentType == null || agentType.isBlank()) {
       return Optional.empty();
     }
-    String key = typeKey.trim().toLowerCase(Locale.ROOT);
+    String key = agentType.trim().toLowerCase(Locale.ROOT);
     Optional<AgentTemplate> localized =
         listAll(language).stream()
-            .filter(template -> template.typeKey().equalsIgnoreCase(key))
+            .filter(template -> template.agentType().equalsIgnoreCase(key))
             .findFirst();
     if (localized.isPresent()) {
       return localized;
     }
     return listAll(DEFAULT_LANGUAGE).stream()
-        .filter(template -> template.typeKey().equalsIgnoreCase(key))
+        .filter(template -> template.agentType().equalsIgnoreCase(key))
         .findFirst();
   }
 

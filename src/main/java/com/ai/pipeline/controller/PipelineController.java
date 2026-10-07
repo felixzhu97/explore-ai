@@ -107,7 +107,7 @@ public class PipelineController {
                         node.name(),
                         node.description(),
                         node.systemPrompt(),
-                        node.toolKeys() == null ? List.of() : node.toolKeys()))
+                        node.tools() == null ? List.of() : node.tools()))
             .toList();
     List<AgentPipeline.PipelineEdge> edges =
         request.edges().stream()

@@ -7,7 +7,7 @@ function node(
     name: string;
     description: string;
     systemPrompt: string;
-    toolKeys: string[];
+    tools: string[];
     x: number;
     y: number;
   }> = {},
@@ -18,7 +18,7 @@ function node(
     name: extras.name ?? agentType,
     description: extras.description ?? '',
     systemPrompt: extras.systemPrompt ?? '',
-    toolKeys: extras.toolKeys ?? [],
+    tools: extras.tools ?? [],
     position: { x: extras.x ?? 0, y: extras.y ?? 0 },
   };
 }
@@ -73,7 +73,7 @@ describe('toPipelineInvokeRequest', () => {
           name: 'Custom',
           description: 'd',
           systemPrompt: 'prompt',
-          toolKeys: ['web_search'],
+          tools: ['web_search'],
         }),
       ],
       connections: [],
@@ -88,7 +88,7 @@ describe('toPipelineInvokeRequest', () => {
           name: 'Custom',
           description: 'd',
           systemPrompt: 'prompt',
-          toolKeys: ['web_search'],
+          tools: ['web_search'],
         },
       ],
       edges: [],

@@ -23,7 +23,7 @@ describe('AgentsService', () => {
   it('should list custom agents from api', () => {
     service.listCustomAgents().subscribe((agents) => {
       expect(agents).toHaveLength(1);
-      expect(agents[0]?.typeKey).toBe('researcher');
+      expect(agents[0]?.agentType).toBe('researcher');
     });
 
     const request = httpMock.expectOne(customAgentsBase);
@@ -31,11 +31,11 @@ describe('AgentsService', () => {
     const response: CustomAgentResponse[] = [
       {
         id: '1',
-        typeKey: 'researcher',
+        agentType: 'researcher',
         name: 'Researcher',
         description: '',
         systemPrompt: 'You research.',
-        toolKeys: ['web'],
+        tools: ['web'],
         enabled: true,
         ...STAMPS,
       },
@@ -45,11 +45,11 @@ describe('AgentsService', () => {
 
   it('should create custom agent', () => {
     const body = {
-      typeKey: 'custom',
+      agentType: 'custom',
       name: 'Custom',
       description: 'd',
       systemPrompt: 'prompt',
-      toolKeys: ['web'],
+      tools: ['web'],
     };
     service.createAgent(body).subscribe((agent) => {
       expect(agent.id).toBe('42');
@@ -72,11 +72,11 @@ describe('AgentsService', () => {
     expect(request.request.body).toEqual({ enabled: false });
     const response: CustomAgentResponse = {
       id: '42',
-      typeKey: 'custom',
+      agentType: 'custom',
       name: 'Custom',
       description: '',
       systemPrompt: 'p',
-      toolKeys: [],
+      tools: [],
       enabled: false,
       ...STAMPS,
     };

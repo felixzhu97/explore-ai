@@ -80,8 +80,8 @@ public class PipelineTemplateController {
                     body.name(),
                     body.description(),
                     body.agentTypes(),
-                    body.shortTopic(),
-                    body.briefPrompt(),
+                    body.topic(),
+                    body.brief(),
                     null)));
   }
 
@@ -99,8 +99,8 @@ public class PipelineTemplateController {
             body.name(),
             body.description(),
             body.agentTypes(),
-            body.shortTopic(),
-            body.briefPrompt()));
+            body.topic(),
+            body.brief()));
   }
 
   /** Turns a saved pipeline on or off. */

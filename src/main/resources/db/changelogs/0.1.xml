@@ -280,11 +280,11 @@
       <column name="agent_types" type="${clob.type}">
         <constraints nullable="false"/>
       </column>
-      <column name="short_topic" type="${string.type}(200)"/>
-      <column name="brief_prompt" type="${clob.type}">
+      <column name="topic" type="${string.type}(200)"/>
+      <column name="brief" type="${clob.type}">
         <constraints nullable="false"/>
       </column>
-      <column name="source_template_id" type="${string.type}(64)"/>
+      <column name="builtin_template_id" type="${string.type}(64)"/>
       <column name="enabled" type="BOOLEAN" defaultValueBoolean="true">
         <constraints nullable="false"/>
       </column>
@@ -315,7 +315,7 @@
       <column name="owner_key" type="${string.type}(80)">
         <constraints nullable="false"/>
       </column>
-      <column name="type_key" type="${string.type}(64)">
+      <column name="agent_type" type="${string.type}(64)">
         <constraints nullable="false"/>
       </column>
       <column name="name" type="${string.type}(120)">
@@ -325,7 +325,7 @@
       <column name="system_prompt" type="${clob.type}">
         <constraints nullable="false"/>
       </column>
-      <column name="tool_keys" type="${clob.type}">
+      <column name="tools" type="${clob.type}">
         <constraints nullable="false"/>
       </column>
       <column name="enabled" type="BOOLEAN" defaultValueBoolean="true">
@@ -343,8 +343,8 @@
     </createTable>
     <addUniqueConstraint
       tableName="custom_agent"
-      columnNames="owner_key, type_key"
-      constraintName="uk_custom_agent_owner_key_type_key"/>
+      columnNames="owner_key, agent_type"
+      constraintName="uk_custom_agent_owner_key_agent_type"/>
     <createIndex indexName="idx_custom_agent_owner_key" tableName="custom_agent">
       <column name="owner_key"/>
     </createIndex>

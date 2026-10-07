@@ -10,7 +10,7 @@ public record AgentInfoResponse(
     boolean healthy,
     boolean supervisor,
     AgentRuntime runtime,
-    List<String> toolKeys,
+    List<String> tools,
     String systemPrompt) {
   /** Builds a response from an agent definition, flagging whether it is the supervisor. */
   public static AgentInfoResponse createResponse(AgentDefinition definition) {
@@ -21,7 +21,7 @@ public record AgentInfoResponse(
         definition.isHealthy(),
         definition.getType().isSupervisor(),
         AgentRuntime.createResponse(definition.getRuntime()),
-        definition.getToolKeys(),
+        definition.getTools(),
         definition.getSystemPrompt());
   }
 }
