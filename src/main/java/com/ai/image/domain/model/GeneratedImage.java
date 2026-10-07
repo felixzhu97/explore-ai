@@ -2,17 +2,17 @@ package com.ai.image.domain.model;
 
 public record GeneratedImage(String url, String base64, String model, String prompt) {
   /** Creates an image that has a URL. */
-  public static GeneratedImage fromUrl(String url, String model, String prompt) {
+  public static GeneratedImage createUrlImage(String url, String model, String prompt) {
     return new GeneratedImage(url, null, model, prompt);
   }
 
   /** Creates an image that has Base64 data. */
-  public static GeneratedImage fromBase64(String base64, String model, String prompt) {
+  public static GeneratedImage createBase64Image(String base64, String model, String prompt) {
     return new GeneratedImage(null, base64, model, prompt);
   }
 
   /** Creates an image with no data. */
-  public static GeneratedImage empty() {
+  public static GeneratedImage createEmptyImage() {
     return new GeneratedImage(null, null, null, null);
   }
 

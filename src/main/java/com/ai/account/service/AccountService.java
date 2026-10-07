@@ -57,7 +57,8 @@ public class AccountService {
 
     // Session may be missing after a host mismatch; Client Identity link still proves login.
     if (ClientId.isValid(clientId)) {
-      Optional<Account> byClient = accountRepository.findByLinkedClientId(ClientId.parse(clientId));
+      Optional<Account> byClient =
+          accountRepository.findByLinkedClientId(ClientId.parseId(clientId));
       if (byClient.isPresent()) {
         return authenticated(clientId, byClient.get());
       }
@@ -81,7 +82,8 @@ public class AccountService {
         accountRepository
             .findByIdentity(signIn.identity())
             .orElseGet(
-                () -> Account.create(signIn.identity(), signIn.email(), signIn.displayName()));
+                () ->
+                    Account.createAccount(signIn.identity(), signIn.email(), signIn.displayName()));
     accountRepository
         .findByLinkedClientId(clientId)
         .filter(previous -> !previous.getId().equals(account.getId()))
@@ -101,7 +103,7 @@ public class AccountService {
       return;
     }
     accountRepository
-        .findByLinkedClientId(ClientId.parse(clientId))
+        .findByLinkedClientId(ClientId.parseId(clientId))
         .ifPresent(
             account -> {
               account.unlinkBrowser();
@@ -134,7 +136,7 @@ public class AccountService {
         clientId,
         account.getId().toString(),
         account.getEmail(),
-        account.displayLabel().orElse(null));
+        account.findDisplayLabel().orElse(null));
   }
 
   private AccountMeResponse authenticated(String clientId, OAuthSignIn signIn) {

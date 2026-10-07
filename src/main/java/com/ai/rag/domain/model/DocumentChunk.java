@@ -45,7 +45,7 @@ public class DocumentChunk {
   }
 
   /** Creates a chunk without an embedding. */
-  public static DocumentChunk create(
+  public static DocumentChunk createChunk(
       ChunkId id,
       DocumentId documentId,
       OwnerKey ownerKey,
@@ -57,7 +57,7 @@ public class DocumentChunk {
   }
 
   /** Restores a stored chunk. */
-  public static DocumentChunk reconstitute(
+  public static DocumentChunk restoreChunk(
       ChunkId id,
       DocumentId documentId,
       OwnerKey ownerKey,
@@ -80,13 +80,13 @@ public class DocumentChunk {
   }
 
   /** Returns a copy with the embedding. */
-  public DocumentChunk withEmbedding(float[] embedding) {
+  public DocumentChunk copyWithEmbedding(float[] embedding) {
     return new DocumentChunk(
         id, documentId, ownerKey, content, chunkIndex, metadata, embedding, createdAt);
   }
 
   /** Cosine similarity to the query embedding; 0 when either side is missing or sizes differ. */
-  public double similarityTo(float[] queryEmbedding) {
+  public double calculateSimilarity(float[] queryEmbedding) {
     if (!isComparableWith(queryEmbedding)) {
       return 0.0;
     }
@@ -108,7 +108,7 @@ public class DocumentChunk {
   }
 
   /** Returns the chunk text cut to {@value #EXCERPT_LENGTH} characters plus an ellipsis. */
-  public String excerpt() {
+  public String getExcerpt() {
     return content.length() <= EXCERPT_LENGTH
         ? content
         : content.substring(0, EXCERPT_LENGTH) + "...";

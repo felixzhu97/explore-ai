@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class SkillRepositoryTest extends AbstractDataJpaTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parse("c:aaaaaaaa-0000-0000-0000-000000000001");
-  private static final OwnerKey OTHER = OwnerKey.parse("c:bbbbbbbb-0000-0000-0000-000000000002");
+  private static final OwnerKey OWNER = OwnerKey.parseKey("c:aaaaaaaa-0000-0000-0000-000000000001");
+  private static final OwnerKey OTHER = OwnerKey.parseKey("c:bbbbbbbb-0000-0000-0000-000000000002");
 
   @Autowired private SkillRepository repository;
 
@@ -100,6 +100,7 @@ class SkillRepositoryTest extends AbstractDataJpaTest {
   }
 
   private Skill save(OwnerKey owner, String name, List<String> allowedTools) {
-    return repository.save(Skill.create(owner.value(), name, null, "Instructions", allowedTools));
+    return repository.save(
+        Skill.createSkill(owner.value(), name, null, "Instructions", allowedTools));
   }
 }

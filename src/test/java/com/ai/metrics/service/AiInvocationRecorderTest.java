@@ -18,7 +18,8 @@ import org.junit.jupiter.api.Test;
 @DisplayName("AiInvocationRecorder")
 class AiInvocationRecorderTest {
 
-  private static final OwnerKey OWNER = OwnerKey.forClient("11111111-1111-4111-8111-111111111111");
+  private static final OwnerKey OWNER =
+      OwnerKey.createClientKey("11111111-1111-4111-8111-111111111111");
 
   @Test
   @DisplayName("should persist event when repository succeeds")
@@ -40,7 +41,13 @@ class AiInvocationRecorderTest {
             new SimpleMeterRegistry());
 
     recorder.recordSuccess(
-        AiCapability.CHAT, "chat.stream", Latency.ofMillis(15), OWNER, "openai", "gpt", "s1");
+        AiCapability.CHAT,
+        "chat.stream",
+        Latency.createFromMillis(15),
+        OWNER,
+        "openai",
+        "gpt",
+        "s1");
 
     assertThat(saved).hasSize(1);
     assertThat(saved.getFirst().getOutcome()).isEqualTo(InvocationOutcome.SUCCESS);
@@ -70,7 +77,7 @@ class AiInvocationRecorderTest {
                 recorder.recordError(
                     AiCapability.RAG,
                     "rag.chat",
-                    Latency.ofMillis(20),
+                    Latency.createFromMillis(20),
                     OWNER,
                     "openai",
                     null,

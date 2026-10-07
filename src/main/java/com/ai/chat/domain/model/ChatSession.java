@@ -42,29 +42,34 @@ public class ChatSession extends AbstractOwnerAwareEntity<ChatSessionId> {
   }
 
   /** Creates a new chat session for the owner with the title the user typed. */
-  public static ChatSession create(String title, String ownerKey) {
+  public static ChatSession createSession(String title, String ownerKey) {
     return new ChatSession(
-        ChatSessionId.generate(), SessionTitle.of(title), Instant.now(), OwnerKey.parse(ownerKey));
+        ChatSessionId.generateId(),
+        SessionTitle.createTitle(title),
+        Instant.now(),
+        OwnerKey.parseKey(ownerKey));
   }
 
   /** Starts the owner's default session; it gets a generated title after the first exchange. */
-  public static ChatSession startDefault(String ownerKey) {
-    return startWithId(ChatSessionId.generate(), ownerKey);
+  public static ChatSession createDefaultSession(String ownerKey) {
+    return createSessionWithId(ChatSessionId.generateId(), ownerKey);
   }
 
   /** Starts an untitled session under an id the client chose. */
-  public static ChatSession startWithId(ChatSessionId id, String ownerKey) {
-    return new ChatSession(id, SessionTitle.DEFAULT, Instant.now(), OwnerKey.parse(ownerKey));
+  public static ChatSession createSessionWithId(ChatSessionId id, String ownerKey) {
+    return new ChatSession(id, SessionTitle.DEFAULT, Instant.now(), OwnerKey.parseKey(ownerKey));
   }
 
   /** Rebuilds a stored chat session. */
-  public static ChatSession of(ChatSessionId id, String title, Instant createdAt, String ownerKey) {
-    return new ChatSession(id, SessionTitle.of(title), createdAt, OwnerKey.parse(ownerKey));
+  public static ChatSession restoreSession(
+      ChatSessionId id, String title, Instant createdAt, String ownerKey) {
+    return new ChatSession(
+        id, SessionTitle.createTitle(title), createdAt, OwnerKey.parseKey(ownerKey));
   }
 
   /** Returns the title text. */
   public String getTitle() {
-    return title.value();
+    return title.getValue();
   }
 
   /** Renames the session as the user asked, ignoring blank titles. */
@@ -72,15 +77,15 @@ public class ChatSession extends AbstractOwnerAwareEntity<ChatSessionId> {
     if (newTitle == null || newTitle.isBlank()) {
       return;
     }
-    this.title = SessionTitle.of(newTitle);
+    this.title = SessionTitle.createTitle(newTitle);
     updateLastActivity();
   }
 
   /** Tells whether the session is still untitled and has an exchange to name it after. */
   public boolean needsGeneratedTitle() {
     return title.isDefault()
-        && firstUserMessage().isPresent()
-        && lastAssistantMessage().filter(reply -> !reply.getText().isBlank()).isPresent();
+        && findFirstUserMessage().isPresent()
+        && findLastAssistantMessage().filter(reply -> !reply.getText().isBlank()).isPresent();
   }
 
   /**
@@ -124,12 +129,12 @@ public class ChatSession extends AbstractOwnerAwareEntity<ChatSessionId> {
   }
 
   /** Returns the message that opened the conversation, if the user has written one. */
-  public Optional<ChatMessage> firstUserMessage() {
+  public Optional<ChatMessage> findFirstUserMessage() {
     return messages.stream().filter(ChatMessage::isFromUser).findFirst();
   }
 
   /** Returns the newest assistant reply, if there is one. */
-  public Optional<ChatMessage> lastAssistantMessage() {
+  public Optional<ChatMessage> findLastAssistantMessage() {
     return messages.stream().filter(ChatMessage::isFromAssistant).reduce((first, last) -> last);
   }
 
@@ -164,6 +169,6 @@ public class ChatSession extends AbstractOwnerAwareEntity<ChatSessionId> {
   @Override
   public String toString() {
     return "ChatSession{id=%s, title='%s', messageCount=%d}"
-        .formatted(getId(), title.value(), messages.size());
+        .formatted(getId(), title.getValue(), messages.size());
   }
 }

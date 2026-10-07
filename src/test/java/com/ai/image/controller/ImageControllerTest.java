@@ -30,7 +30,7 @@ class ImageControllerTest {
   @DisplayName("should generate image with all parameters")
   void shouldGenerateImageWithAllParameters() {
     GeneratedImage image =
-        GeneratedImage.fromUrl("https://example.com/image.png", "dall-e-3", "A cat");
+        GeneratedImage.createUrlImage("https://example.com/image.png", "dall-e-3", "A cat");
     when(imageGenerationService.generateImage("A cat", "dall-e-3", "standard", 1024, 1024, 1))
         .thenReturn(image);
 
@@ -81,7 +81,7 @@ class ImageControllerTest {
   @DisplayName("should use default values when optional parameters are null")
   void shouldUseDefaultValuesWhenOptionalParametersAreNull() {
     GeneratedImage image =
-        GeneratedImage.fromUrl("https://example.com/default.png", "dall-e-3", "Sunset");
+        GeneratedImage.createUrlImage("https://example.com/default.png", "dall-e-3", "Sunset");
     when(imageGenerationService.generateImage("Sunset", null, null, 1024, 1024, 1))
         .thenReturn(image);
 
@@ -102,7 +102,7 @@ class ImageControllerTest {
   @DisplayName("should use image model when request model is null")
   void shouldUseImageModelWhenRequestModelIsNull() {
     GeneratedImage image =
-        GeneratedImage.fromUrl("https://example.com/image.png", "dall-e-3", "Mountain");
+        GeneratedImage.createUrlImage("https://example.com/image.png", "dall-e-3", "Mountain");
     when(imageGenerationService.generateImage("Mountain", null, "hd", 512, 512, 2))
         .thenReturn(image);
 
@@ -130,7 +130,7 @@ class ImageControllerTest {
   @Test
   @DisplayName("should return base64 payload when service returns base64 image")
   void shouldReturnBase64PayloadWhenServiceReturnsBase64Image() {
-    GeneratedImage image = GeneratedImage.fromBase64("abc123", "dall-e-3", "Test");
+    GeneratedImage image = GeneratedImage.createBase64Image("abc123", "dall-e-3", "Test");
     when(imageGenerationService.generateImage("Test", null, null, 1024, 1024, 1)).thenReturn(image);
 
     assertThat(
@@ -149,7 +149,7 @@ class ImageControllerTest {
   @DisplayName("should return 503 when service returns empty image")
   void shouldReturn503WhenServiceReturnsEmptyImage() {
     when(imageGenerationService.generateImage(any(), any(), any(), anyInt(), anyInt(), anyInt()))
-        .thenReturn(GeneratedImage.empty());
+        .thenReturn(GeneratedImage.createEmptyImage());
 
     assertThat(
             mvc.post()
@@ -167,7 +167,7 @@ class ImageControllerTest {
   @DisplayName("should pass custom dimensions to service")
   void shouldPassCustomDimensionsToService() {
     GeneratedImage image =
-        GeneratedImage.fromUrl("https://example.com/wide.png", "dall-e-2", "Landscape");
+        GeneratedImage.createUrlImage("https://example.com/wide.png", "dall-e-2", "Landscape");
     when(imageGenerationService.generateImage("Landscape", "dall-e-2", null, 1920, 1080, 1))
         .thenReturn(image);
 

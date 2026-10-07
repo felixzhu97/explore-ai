@@ -18,17 +18,17 @@ public enum ModuleFlag {
     this.pathPrefix = pathPrefix;
   }
 
-  public String key() {
+  public String getKey() {
     return key;
   }
 
   /** Returns the property that holds the module's bootstrap value. */
-  public String bootstrapProperty() {
+  public String getBootstrapProperty() {
     return "launchdarkly.bootstrap." + key;
   }
 
   /** Returns the module whose path prefix matches the request path, or null if none does. */
-  public static ModuleFlag fromPath(String requestPath) {
+  public static ModuleFlag findFlagByPath(String requestPath) {
     if (requestPath == null) {
       return null;
     }

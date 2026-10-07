@@ -7,7 +7,7 @@ public enum Sentiment {
   NEGATIVE;
 
   /** Parses a case-insensitive sentiment name, falling back to {@code NEUTRAL}. */
-  public static Sentiment fromString(String value) {
+  public static Sentiment parseSentiment(String value) {
     if (value == null || value.isBlank()) {
       return NEUTRAL;
     }

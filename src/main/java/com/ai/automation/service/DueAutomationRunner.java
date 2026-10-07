@@ -37,8 +37,9 @@ public class DueAutomationRunner {
         scheduleRepository.findDue(now, Limit.of(properties.getScanBatchSize()));
     int executed = 0;
     for (AutomationSchedule schedule : due) {
-      Instant provisional = schedule.provisionalNextRunAt(now);
-      if (!scheduleRepository.claim(schedule.getId(), schedule.getNextRunAt(), provisional)) {
+      Instant provisional = schedule.calculateClaimedNextRunAt(now);
+      if (!scheduleRepository.claimSchedule(
+          schedule.getId(), schedule.getNextRunAt(), provisional)) {
         continue;
       }
       executeOne(schedule);
@@ -48,9 +49,9 @@ public class DueAutomationRunner {
   }
 
   private void executeOne(AutomationSchedule schedule) {
-    AutomationRun run = AutomationRun.start(schedule.getId(), schedule.getOwnerKeyValue());
+    AutomationRun run = AutomationRun.startRun(schedule.getId(), schedule.getOwnerKeyValue());
     if (!dailyUsageQuotaService.tryConsume(schedule.getOwnerKey())) {
-      run.skipForQuota();
+      run.markSkippedForQuota();
     } else {
       try {
         String result =
@@ -59,13 +60,13 @@ public class DueAutomationRunner {
                 schedule.getPipelineTemplateId().toString(),
                 schedule.getBrief(),
                 "en");
-        run.succeed(result, sendResultEmail(schedule, result));
+        run.markSucceeded(result, sendResultEmail(schedule, result));
       } catch (Exception ex) {
-        run.failBeforeEmail(ex.getMessage());
+        run.markFailedBeforeEmail(ex.getMessage());
       }
     }
     runRepository.save(run);
-    schedule.recordRunFinished(Instant.now());
+    schedule.completeRun(Instant.now());
     scheduleRepository.save(schedule);
   }
 
@@ -73,7 +74,8 @@ public class DueAutomationRunner {
     AutomationMailFormatter.FormattedMail formatted =
         mailFormatter.format(schedule.getName(), schedule.getBrief(), result);
     try {
-      emailGateway.send(schedule.resultEmail(formatted.textBody(), formatted.htmlBody()));
+      emailGateway.sendEmail(
+          schedule.composeResultEmail(formatted.textBody(), formatted.htmlBody()));
       return EmailDeliveryStatus.SENT;
     } catch (Exception ex) {
       return EmailDeliveryStatus.FAILED;

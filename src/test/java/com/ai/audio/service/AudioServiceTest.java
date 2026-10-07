@@ -40,8 +40,9 @@ class AudioServiceTest {
     when(ttsConfiguration.isEnabled()).thenReturn(true);
     when(ttsConfiguration.isConfigured()).thenReturn(true);
     when(ttsConfiguration.getDefaultVoice()).thenReturn("alloy");
-    when(textToSpeechGateway.synthesize(any(SpeechText.class), any(VoiceSelection.class), eq(1.0)))
-        .thenReturn(SynthesizedAudio.create(new byte[] {1, 2, 3}));
+    when(textToSpeechGateway.synthesizeSpeech(
+            any(SpeechText.class), any(VoiceSelection.class), eq(1.0)))
+        .thenReturn(SynthesizedAudio.createAudio(new byte[] {1, 2, 3}));
 
     byte[] audio = service.synthesize("hello", null, 1.0);
 
@@ -87,8 +88,9 @@ class AudioServiceTest {
     when(ttsConfiguration.isEnabled()).thenReturn(true);
     when(ttsConfiguration.isConfigured()).thenReturn(true);
     when(ttsConfiguration.getDefaultVoice()).thenReturn("alloy");
-    when(textToSpeechGateway.synthesize(any(SpeechText.class), any(VoiceSelection.class), eq(null)))
-        .thenReturn(SynthesizedAudio.empty());
+    when(textToSpeechGateway.synthesizeSpeech(
+            any(SpeechText.class), any(VoiceSelection.class), eq(null)))
+        .thenReturn(SynthesizedAudio.createEmptyAudio());
 
     assertThat(service.synthesize("hello", null, null)).isNull();
   }

@@ -14,6 +14,6 @@ public class ContactEmailAttributeConverter implements AttributeConverter<Contac
 
   @Override
   public ContactEmail convertToEntityAttribute(String dbData) {
-    return ContactEmail.ofNullable(dbData);
+    return ContactEmail.parseOptionalEmail(dbData);
   }
 }

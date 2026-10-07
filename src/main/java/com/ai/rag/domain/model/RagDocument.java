@@ -48,7 +48,7 @@ public class RagDocument extends AbstractOwnerAwareEntity<DocumentId> {
       DocumentStatus status,
       int chunkCount,
       String ownerKey) {
-    super(id, OwnerKey.parse(ownerKey));
+    super(id, OwnerKey.parseKey(ownerKey));
     this.title = resolveTitle(title, fileName);
     this.fileName = fileName;
     this.fileSize = fileSize;
@@ -66,7 +66,7 @@ public class RagDocument extends AbstractOwnerAwareEntity<DocumentId> {
       throw new IllegalArgumentException("Uploaded file is empty");
     }
     return new RagDocument(
-        DocumentId.generate(), title, fileName, fileSize, DocumentStatus.PROCESSING, 0, ownerKey);
+        DocumentId.generateId(), title, fileName, fileSize, DocumentStatus.PROCESSING, 0, ownerKey);
   }
 
   private static String resolveTitle(String title, String fileName) {
@@ -104,13 +104,14 @@ public class RagDocument extends AbstractOwnerAwareEntity<DocumentId> {
   }
 
   /** Creates the chunk at {@code index}, tagged with this document's owner, title and file. */
-  public DocumentChunk newChunk(int index, String content, Map<String, Object> sourceMetadata) {
+  public DocumentChunk createChunk(int index, String content, Map<String, Object> sourceMetadata) {
     Map<String, Object> metadata = new HashMap<>(sourceMetadata);
     metadata.put(TITLE_METADATA_KEY, title);
     if (fileName != null) {
       metadata.put(FILE_NAME_METADATA_KEY, fileName);
     }
-    return DocumentChunk.create(ChunkId.generate(), getId(), ownerKey, content, index, metadata);
+    return DocumentChunk.createChunk(
+        ChunkId.generateId(), getId(), ownerKey, content, index, metadata);
   }
 
   @Override

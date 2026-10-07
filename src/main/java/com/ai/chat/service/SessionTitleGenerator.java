@@ -24,7 +24,7 @@ public class SessionTitleGenerator {
 
   /** Asks the LLM for a short title from the first exchange, falling back to the user message. */
   public SessionTitle generate(String userMessage, String assistantReply) {
-    SessionTitle fallback = SessionTitle.fromFirstMessage(userMessage);
+    SessionTitle fallback = SessionTitle.createTitleFromFirstMessage(userMessage);
     if (fallback.isDefault() || assistantReply == null || assistantReply.isBlank()) {
       return fallback;
     }
@@ -39,7 +39,7 @@ public class SessionTitleGenerator {
               .call()
               .entity(SessionTitleResponse.class, spec -> spec.validateSchema());
       if (response != null) {
-        SessionTitle generated = SessionTitle.generated(response.title());
+        SessionTitle generated = SessionTitle.createGeneratedTitle(response.title());
         if (!generated.isDefault()) {
           return generated;
         }

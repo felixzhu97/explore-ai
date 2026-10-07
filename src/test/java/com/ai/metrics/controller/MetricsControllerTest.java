@@ -171,11 +171,11 @@ class MetricsControllerTest {
     UUID id = UUID.randomUUID();
     Instant occurredAt = Instant.parse("2026-07-26T08:00:00Z");
     AiInvocationEvent event =
-        AiInvocationEvent.succeeded(
+        AiInvocationEvent.createSucceededEvent(
                 AiCapability.TOOLS,
                 "tools.weather",
-                Latency.ofMillis(25),
-                OwnerKey.forClient("11111111-1111-4111-8111-111111111111"))
+                Latency.createFromMillis(25),
+                OwnerKey.createClientKey("11111111-1111-4111-8111-111111111111"))
             .id(id)
             .occurredAt(occurredAt)
             .provider("openai")
@@ -230,8 +230,8 @@ class MetricsControllerTest {
   @DisplayName("should serialize occurredAt as an ISO-8601 UTC string")
   void shouldSerializeOccurredAtAsAnIso8601UtcString() {
     AiInvocationEvent event =
-        AiInvocationEvent.succeeded(
-                AiCapability.TOOLS, "tools.weather", Latency.ofMillis(25), OwnerKey.UNOWNED)
+        AiInvocationEvent.createSucceededEvent(
+                AiCapability.TOOLS, "tools.weather", Latency.createFromMillis(25), OwnerKey.UNOWNED)
             .id(UUID.randomUUID())
             .occurredAt(Instant.parse("2026-07-26T08:00:00.123Z"))
             .build();

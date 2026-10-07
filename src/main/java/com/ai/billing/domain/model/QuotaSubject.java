@@ -16,12 +16,12 @@ public record QuotaSubject(String key) {
   }
 
   /** Counter of a data owner, shared by HTTP requests and scheduled automations. */
-  public static QuotaSubject owner(OwnerKey ownerKey) {
+  public static QuotaSubject createOwnerSubject(OwnerKey ownerKey) {
     return new QuotaSubject(OWNER_PREFIX + ownerKey.value());
   }
 
   /** Counter of a client IP address. */
-  public static QuotaSubject address(String ip) {
+  public static QuotaSubject createAddressSubject(String ip) {
     if (ip == null || ip.isBlank()) {
       throw new IllegalArgumentException("ip is required");
     }

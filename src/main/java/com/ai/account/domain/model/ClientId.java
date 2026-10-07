@@ -17,7 +17,7 @@ public record ClientId(String value) {
   }
 
   /** Parses a Client Identity value, rejecting anything that is not a UUID. */
-  public static ClientId parse(String raw) {
+  public static ClientId parseId(String raw) {
     return new ClientId(raw);
   }
 

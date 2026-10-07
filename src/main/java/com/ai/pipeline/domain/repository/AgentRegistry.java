@@ -21,5 +21,5 @@ public interface AgentRegistry {
   Optional<AgentDefinition> findByType(AgentType type, String ownerKey, String language);
 
   /** Returns an agent by type, failing when it is missing. */
-  AgentDefinition require(AgentType type, String ownerKey, String language);
+  AgentDefinition requireAgent(AgentType type, String ownerKey, String language);
 }

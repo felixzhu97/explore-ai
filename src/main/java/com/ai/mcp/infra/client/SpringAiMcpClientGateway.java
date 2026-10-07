@@ -32,7 +32,7 @@ public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallba
     List<McpToolDefinition> definitions = new ArrayList<>();
     for (ToolCallback tool : tools) {
       var def = tool.getToolDefinition();
-      definitions.add(McpToolDefinition.create(def.name(), def.description()));
+      definitions.add(McpToolDefinition.createDefinition(def.name(), def.description()));
     }
     serverCallbacks.put(serverName, callbacks);
     registerTools(definitions, serverName);
@@ -64,7 +64,7 @@ public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallba
             session ->
                 servers.put(
                     session.getServerName(),
-                    McpServerConnection.connected(
+                    McpServerConnection.createConnectedServer(
                         session.getServerName(), session.getToolCount())));
     return servers;
   }

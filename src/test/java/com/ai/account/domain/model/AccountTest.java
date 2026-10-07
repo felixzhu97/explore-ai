@@ -9,24 +9,24 @@ import org.junit.jupiter.api.Test;
 @DisplayName("Account")
 class AccountTest {
 
-  private static final ClientId CLIENT = ClientId.parse("11111111-1111-1111-1111-111111111111");
+  private static final ClientId CLIENT = ClientId.parseId("11111111-1111-1111-1111-111111111111");
   private static final ClientId OTHER_CLIENT =
-      ClientId.parse("22222222-2222-2222-2222-222222222222");
+      ClientId.parseId("22222222-2222-2222-2222-222222222222");
 
   @Test
   @DisplayName("should create an unlinked account with a normalized identity")
   void shouldCreateAnUnlinkedAccountWithANormalizedIdentity() {
     Account account =
-        Account.create(
-            ExternalIdentity.of("Google", " sub-1 "),
-            ContactEmail.ofNullable(" User@Example.com "),
+        Account.createAccount(
+            ExternalIdentity.createIdentity("Google", " sub-1 "),
+            ContactEmail.parseOptionalEmail(" User@Example.com "),
             null);
 
     assertThat(account.getId().getValue()).isNotNull();
-    assertThat(account.identity()).isEqualTo(ExternalIdentity.of("google", "sub-1"));
+    assertThat(account.getIdentity()).isEqualTo(ExternalIdentity.createIdentity("google", "sub-1"));
     assertThat(account.getEmail()).isEqualTo(new ContactEmail("User@Example.com"));
     assertThat(account.getLinkedClientId()).isNull();
-    assertThat(account.guestOwnerKey()).isEmpty();
+    assertThat(account.findGuestOwnerKey()).isEmpty();
   }
 
   @Test
@@ -39,7 +39,7 @@ class AccountTest {
     assertThat(account.getLinkedClientId()).isEqualTo(CLIENT);
     assertThat(account.getEmail()).isEqualTo(new ContactEmail("c@d.com"));
     assertThat(account.getDisplayName()).isEqualTo("octocat");
-    assertThat(account.guestOwnerKey()).contains(OwnerKey.forClient(CLIENT.value()));
+    assertThat(account.findGuestOwnerKey()).contains(OwnerKey.createClientKey(CLIENT.value()));
   }
 
   @Test
@@ -73,7 +73,7 @@ class AccountTest {
     account.unlinkBrowser();
 
     assertThat(account.getLinkedClientId()).isNull();
-    assertThat(account.guestOwnerKey()).isEmpty();
+    assertThat(account.findGuestOwnerKey()).isEmpty();
   }
 
   @Test
@@ -81,15 +81,17 @@ class AccountTest {
   void shouldOwnDataUnderItsAccountId() {
     Account account = account(null, null);
 
-    assertThat(account.ownerKey()).isEqualTo(OwnerKey.forAccount(account.getId().toString()));
+    assertThat(account.createOwnerKey())
+        .isEqualTo(OwnerKey.createAccountKey(account.getId().toString()));
   }
 
   @Test
   @DisplayName("should label the account with the display name before the email")
   void shouldLabelTheAccountWithTheDisplayNameBeforeTheEmail() {
-    assertThat(account(new ContactEmail("a@b.com"), "octocat").displayLabel()).contains("octocat");
-    assertThat(account(new ContactEmail("a@b.com"), null).displayLabel()).contains("a@b.com");
-    assertThat(account(null, null).displayLabel()).isEmpty();
+    assertThat(account(new ContactEmail("a@b.com"), "octocat").findDisplayLabel())
+        .contains("octocat");
+    assertThat(account(new ContactEmail("a@b.com"), null).findDisplayLabel()).contains("a@b.com");
+    assertThat(account(null, null).findDisplayLabel()).isEmpty();
   }
 
   @Test
@@ -109,6 +111,7 @@ class AccountTest {
   }
 
   private static Account account(ContactEmail email, String displayName) {
-    return Account.create(ExternalIdentity.of("github", "42"), email, displayName);
+    return Account.createAccount(
+        ExternalIdentity.createIdentity("github", "42"), email, displayName);
   }
 }

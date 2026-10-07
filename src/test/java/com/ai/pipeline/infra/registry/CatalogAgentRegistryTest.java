@@ -22,7 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("CatalogAgentRegistry")
 class CatalogAgentRegistryTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parse("c:client-a");
+  private static final OwnerKey OWNER = OwnerKey.parseKey("c:client-a");
 
   @Mock private CustomAgentRepository customAgents;
   private CatalogAgentRegistry registry;
@@ -43,7 +43,7 @@ class CatalogAgentRegistryTest {
   void shouldOverrideBuiltinWithEnabledClientDefinition() {
     String typeKey = registry.listWorkers("c:client-a", "en").getFirst().getType().value();
     library(
-        CustomAgent.create(
+        CustomAgent.createAgent(
             "c:client-a",
             typeKey,
             "Override Name",
@@ -52,7 +52,7 @@ class CatalogAgentRegistryTest {
             List.of("web")));
 
     Optional<AgentDefinition> found =
-        registry.findByType(AgentType.of(typeKey), "c:client-a", "en");
+        registry.findByType(AgentType.createType(typeKey), "c:client-a", "en");
     assertThat(found).isPresent();
     assertThat(found.get().getName()).isEqualTo("Override Name");
     assertThat(found.get().getSystemPrompt()).isEqualTo("You are an override.");
@@ -69,7 +69,7 @@ class CatalogAgentRegistryTest {
   @Test
   void shouldIncludeCustomTypeFromEnabledLibrary() {
     library(
-        CustomAgent.create(
+        CustomAgent.createAgent(
             "c:client-a", "custom_writer", "Writer", "writes", "You write.", List.of("document")));
 
     assertThat(registry.listAll("c:client-a", "en"))
@@ -85,7 +85,8 @@ class CatalogAgentRegistryTest {
   void shouldKeepBuiltInOrderAndAppendCustomAgentsWithNewTypesLast() {
     List<String> builtinTypes =
         registry.listBuiltins("en").stream().map(agent -> agent.getType().value()).toList();
-    library(CustomAgent.create("c:client-a", "legal", "Legal", "", "Check contracts.", List.of()));
+    library(
+        CustomAgent.createAgent("c:client-a", "legal", "Legal", "", "Check contracts.", List.of()));
 
     List<String> allTypes =
         registry.listAll("c:client-a", "en").stream()
@@ -99,9 +100,10 @@ class CatalogAgentRegistryTest {
   @Test
   @DisplayName("should find a custom agent whatever the case of the requested type")
   void shouldFindACustomAgentWhateverTheCaseOfTheRequestedType() {
-    library(CustomAgent.create("c:client-a", "legal", "Legal", "", "Check contracts.", List.of()));
+    library(
+        CustomAgent.createAgent("c:client-a", "legal", "Legal", "", "Check contracts.", List.of()));
 
-    assertThat(registry.findByType(AgentType.of(" Legal "), "c:client-a", "en"))
+    assertThat(registry.findByType(AgentType.createType(" Legal "), "c:client-a", "en"))
         .map(AgentDefinition::getName)
         .contains("Legal");
   }

@@ -63,7 +63,7 @@ class DueAutomationRunnerTest {
   @DisplayName("should run the template and email the result when a schedule is due")
   void shouldRunTheTemplateAndEmailTheResultWhenAScheduleIsDue() {
     AutomationSchedule schedule =
-        AutomationSchedule.create(
+        AutomationSchedule.createSchedule(
             OWNER,
             "Daily",
             "0 0 9 * * *",
@@ -73,7 +73,7 @@ class DueAutomationRunnerTest {
             "Do the work",
             CREATED_AT);
     givenClaimed(schedule);
-    when(dailyUsageQuotaService.tryConsume(OwnerKey.parse(OWNER))).thenReturn(true);
+    when(dailyUsageQuotaService.tryConsume(OwnerKey.parseKey(OWNER))).thenReturn(true);
     when(pipelineGateway.runSavedTemplate(OWNER, TEMPLATE_ID, "Do the work", "en"))
         .thenReturn("workflow result");
 
@@ -81,7 +81,7 @@ class DueAutomationRunnerTest {
 
     assertThat(executed).isEqualTo(1);
     ArgumentCaptor<EmailMessage> email = ArgumentCaptor.forClass(EmailMessage.class);
-    verify(emailGateway).send(email.capture());
+    verify(emailGateway).sendEmail(email.capture());
     assertThat(email.getValue().to()).isEqualTo("user@example.com");
     assertThat(savedRun().getStatus()).isEqualTo(RunStatus.SUCCESS);
     verify(scheduleRepository).save(schedule);
@@ -91,7 +91,7 @@ class DueAutomationRunnerTest {
   @DisplayName("should record a skipped run when the daily quota is exhausted")
   void shouldRecordASkippedRunWhenTheDailyQuotaIsExhausted() {
     AutomationSchedule schedule =
-        AutomationSchedule.create(
+        AutomationSchedule.createSchedule(
             OWNER,
             "Daily",
             "0 0 9 * * *",
@@ -101,7 +101,7 @@ class DueAutomationRunnerTest {
             "Do the work",
             CREATED_AT);
     givenClaimed(schedule);
-    when(dailyUsageQuotaService.tryConsume(OwnerKey.parse(OWNER))).thenReturn(false);
+    when(dailyUsageQuotaService.tryConsume(OwnerKey.parseKey(OWNER))).thenReturn(false);
 
     runner.executeDue();
 
@@ -113,7 +113,7 @@ class DueAutomationRunnerTest {
   @DisplayName("should disable a one-off schedule after it runs")
   void shouldDisableAOneOffScheduleAfterItRuns() {
     AutomationSchedule schedule =
-        AutomationSchedule.createOnce(
+        AutomationSchedule.createOneOffSchedule(
             OWNER,
             "Once",
             "UTC",
@@ -123,7 +123,7 @@ class DueAutomationRunnerTest {
             CREATED_AT.plusSeconds(120),
             CREATED_AT);
     givenClaimed(schedule);
-    when(dailyUsageQuotaService.tryConsume(OwnerKey.parse(OWNER))).thenReturn(true);
+    when(dailyUsageQuotaService.tryConsume(OwnerKey.parseKey(OWNER))).thenReturn(true);
     when(pipelineGateway.runSavedTemplate(OWNER, TEMPLATE_ID, "Do once", "en"))
         .thenReturn("once result");
 
@@ -131,14 +131,14 @@ class DueAutomationRunnerTest {
 
     verify(scheduleRepository).save(schedule);
     assertThat(schedule.isEnabled()).isFalse();
-    assertThat(schedule.pendingRunAt()).isEmpty();
+    assertThat(schedule.getPendingRunAt()).isEmpty();
   }
 
   private void givenClaimed(AutomationSchedule schedule) {
     when(scheduleRepository.findDue(
             any(Instant.class), eq(Limit.of(properties.getScanBatchSize()))))
         .thenReturn(List.of(schedule));
-    when(scheduleRepository.claim(eq(schedule.getId()), eq(schedule.getNextRunAt()), any()))
+    when(scheduleRepository.claimSchedule(eq(schedule.getId()), eq(schedule.getNextRunAt()), any()))
         .thenReturn(true);
   }
 

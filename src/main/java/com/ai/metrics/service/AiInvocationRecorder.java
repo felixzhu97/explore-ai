@@ -27,9 +27,9 @@ public class AiInvocationRecorder {
           .counter(
               "ai.invocations",
               "capability",
-              event.getCapability().value(),
+              event.getCapability().getValue(),
               "outcome",
-              event.getOutcome().value(),
+              event.getOutcome().getValue(),
               "operation",
               event.getOperation())
           .increment();
@@ -37,9 +37,9 @@ public class AiInvocationRecorder {
           .timer(
               "ai.invocation.latency",
               "capability",
-              event.getCapability().value(),
+              event.getCapability().getValue(),
               "outcome",
-              event.getOutcome().value())
+              event.getOutcome().getValue())
           .record(Duration.ofMillis(event.getLatencyMs()));
     } catch (Exception expected) {
     }
@@ -55,7 +55,7 @@ public class AiInvocationRecorder {
       String model,
       String sessionId) {
     record(
-        AiInvocationEvent.succeeded(capability, operation, latency, owner)
+        AiInvocationEvent.createSucceededEvent(capability, operation, latency, owner)
             .provider(provider)
             .model(model)
             .sessionId(sessionId)
@@ -73,7 +73,8 @@ public class AiInvocationRecorder {
       String sessionId,
       Throwable error) {
     record(
-        AiInvocationEvent.failed(capability, operation, latency, owner, ErrorSummary.of(error))
+        AiInvocationEvent.createFailedEvent(
+                capability, operation, latency, owner, ErrorSummary.createSummary(error))
             .provider(provider)
             .model(model)
             .sessionId(sessionId)

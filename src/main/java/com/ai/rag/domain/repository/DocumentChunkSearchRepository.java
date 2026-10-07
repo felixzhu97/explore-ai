@@ -11,7 +11,7 @@ public interface DocumentChunkSearchRepository {
    * Returns the owner's top-K chunks by cosine similarity, best first, limited to {@code
    * documentIds} when it is not empty.
    */
-  List<ScoredChunk> search(
+  List<ScoredChunk> searchChunks(
       float[] queryEmbedding, int topK, String ownerKey, List<UUID> documentIds);
 
   /**

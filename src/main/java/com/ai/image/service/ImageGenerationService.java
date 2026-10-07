@@ -22,17 +22,17 @@ public class ImageGenerationService {
 
   /** Lists the supported image models. */
   public List<String> getAvailableImageModels() {
-    return ImageCatalog.defaults().models();
+    return ImageCatalog.createDefaultCatalog().models();
   }
 
   /** Lists the supported image sizes. */
   public List<String> getAvailableImageSizes() {
-    return ImageCatalog.defaults().sizes();
+    return ImageCatalog.createDefaultCatalog().sizes();
   }
 
   /** Lists the supported image qualities. */
   public List<String> getAvailableImageQualities() {
-    return ImageCatalog.defaults().qualities();
+    return ImageCatalog.createDefaultCatalog().qualities();
   }
 
   /** Generates an image after checking the provider is configured, or returns an empty image. */
@@ -40,10 +40,10 @@ public class ImageGenerationService {
       String prompt, String model, String quality, int width, int height, int n) {
     ensureProviderConfigured();
     GeneratedImage image =
-        imageGenerationGateway.generate(
-            ImagePrompt.of(prompt),
-            ImageOptions.of(resolveModel(model), quality, width, height, n));
-    return image.isAvailable() ? image : GeneratedImage.empty();
+        imageGenerationGateway.generateImage(
+            ImagePrompt.createPrompt(prompt),
+            ImageOptions.createOptions(resolveModel(model), quality, width, height, n));
+    return image.isAvailable() ? image : GeneratedImage.createEmptyImage();
   }
 
   private void ensureProviderConfigured() {

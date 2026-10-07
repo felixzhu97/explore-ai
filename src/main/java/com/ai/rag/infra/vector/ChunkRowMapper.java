@@ -22,9 +22,9 @@ public class ChunkRowMapper implements RowMapper<DocumentChunk> {
 
   @Override
   public DocumentChunk mapRow(ResultSet rs, int rowNum) throws SQLException {
-    ChunkId id = ChunkId.of(rs.getString("id"));
-    DocumentId documentId = DocumentId.of(rs.getString("document_id"));
-    OwnerKey ownerKey = OwnerKey.parse(rs.getString("owner_key"));
+    ChunkId id = ChunkId.parseId(rs.getString("id"));
+    DocumentId documentId = DocumentId.parseId(rs.getString("document_id"));
+    OwnerKey ownerKey = OwnerKey.parseKey(rs.getString("owner_key"));
     String content = rs.getString("content");
     int chunkIndex = rs.getInt("chunk_index");
     float[] embedding = parsePostgresVector(rs.getString("embedding"));
@@ -32,7 +32,7 @@ public class ChunkRowMapper implements RowMapper<DocumentChunk> {
     Instant storedAt = rs.getObject("created_at", Instant.class);
     Instant createdAt = storedAt != null ? storedAt : Instant.now();
 
-    return DocumentChunk.reconstitute(
+    return DocumentChunk.restoreChunk(
         id, documentId, ownerKey, content, chunkIndex, metadata, embedding, createdAt);
   }
 

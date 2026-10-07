@@ -15,12 +15,12 @@ public record ScoredChunk(DocumentChunk chunk, double score) {
   }
 
   /** Scores the chunk against the query embedding. */
-  public static ScoredChunk of(DocumentChunk chunk, float[] queryEmbedding) {
-    return new ScoredChunk(chunk, chunk.similarityTo(queryEmbedding));
+  public static ScoredChunk createScoredChunk(DocumentChunk chunk, float[] queryEmbedding) {
+    return new ScoredChunk(chunk, chunk.calculateSimilarity(queryEmbedding));
   }
 
   /** Tells whether the score reaches the threshold. */
-  public boolean meets(double threshold) {
+  public boolean meetsThreshold(double threshold) {
     return score >= threshold;
   }
 }

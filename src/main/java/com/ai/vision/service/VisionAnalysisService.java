@@ -76,12 +76,12 @@ public class VisionAnalysisService {
     long startedAt = System.nanoTime();
     try {
       var result = captioner.captionImage(image);
-      long processingTimeMs = Latency.since(startedAt).millis();
+      long processingTimeMs = Latency.measureSince(startedAt).millis();
       captionTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
           AiCapability.VISION,
           "vision.caption",
-          Latency.ofMillis(processingTimeMs),
+          Latency.createFromMillis(processingTimeMs),
           owner,
           null,
           null,
@@ -91,7 +91,7 @@ public class VisionAnalysisService {
       invocationRecorder.recordError(
           AiCapability.VISION,
           "vision.caption",
-          Latency.since(startedAt),
+          Latency.measureSince(startedAt),
           owner,
           null,
           null,
@@ -107,13 +107,13 @@ public class VisionAnalysisService {
     long startedAt = System.nanoTime();
     try {
       List<DetectionResponse> detections =
-          detector.detect(image).stream().map(this::toDto).toList();
-      long processingTimeMs = Latency.since(startedAt).millis();
+          detector.detectObjects(image).stream().map(this::toDto).toList();
+      long processingTimeMs = Latency.measureSince(startedAt).millis();
       detectTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
           AiCapability.VISION,
           "vision.detect",
-          Latency.ofMillis(processingTimeMs),
+          Latency.createFromMillis(processingTimeMs),
           owner,
           null,
           null,
@@ -123,7 +123,7 @@ public class VisionAnalysisService {
       invocationRecorder.recordError(
           AiCapability.VISION,
           "vision.detect",
-          Latency.since(startedAt),
+          Latency.measureSince(startedAt),
           owner,
           null,
           null,
@@ -138,13 +138,13 @@ public class VisionAnalysisService {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
-      var result = ocrEngine.extract(image);
-      long processingTimeMs = Latency.since(startedAt).millis();
+      var result = ocrEngine.extractText(image);
+      long processingTimeMs = Latency.measureSince(startedAt).millis();
       ocrTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
           AiCapability.VISION,
           "vision.ocr",
-          Latency.ofMillis(processingTimeMs),
+          Latency.createFromMillis(processingTimeMs),
           owner,
           null,
           null,
@@ -152,7 +152,14 @@ public class VisionAnalysisService {
       return new OcrResponse(result.text(), processingTimeMs);
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
-          AiCapability.VISION, "vision.ocr", Latency.since(startedAt), owner, null, null, null, ex);
+          AiCapability.VISION,
+          "vision.ocr",
+          Latency.measureSince(startedAt),
+          owner,
+          null,
+          null,
+          null,
+          ex);
       throw ex;
     }
   }

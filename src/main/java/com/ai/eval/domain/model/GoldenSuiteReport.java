@@ -13,7 +13,7 @@ public record GoldenSuiteReport(
   }
 
   /** Builds a report counting passed and failed outcomes and computing the pass rate. */
-  public static GoldenSuiteReport of(List<CaseEvalOutcome> outcomes) {
+  public static GoldenSuiteReport createReport(List<CaseEvalOutcome> outcomes) {
     List<CaseEvalOutcome> cases = outcomes == null ? List.of() : List.copyOf(outcomes);
     int total = cases.size();
     int passed = (int) cases.stream().filter(CaseEvalOutcome::passed).count();

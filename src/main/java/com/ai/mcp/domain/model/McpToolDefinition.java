@@ -10,7 +10,7 @@ public record McpToolDefinition(String name, String description) {
   }
 
   /** Creates a tool definition. */
-  public static McpToolDefinition create(String name, String description) {
+  public static McpToolDefinition createDefinition(String name, String description) {
     return new McpToolDefinition(name, description);
   }
 }

@@ -32,7 +32,8 @@ import org.springframework.mock.web.MockMultipartFile;
 @DisplayName("VisionAnalysisService")
 class VisionAnalysisServiceTest {
 
-  private static final OwnerKey OWNER = OwnerKey.forClient("11111111-1111-4111-8111-111111111111");
+  private static final OwnerKey OWNER =
+      OwnerKey.createClientKey("11111111-1111-4111-8111-111111111111");
 
   @Mock private ImageCaptioner captioner;
 
@@ -75,7 +76,7 @@ class VisionAnalysisServiceTest {
   @Test
   @DisplayName("should map detections from detector port")
   void shouldMapDetectionsFromDetectorPort() throws Exception {
-    when(detector.detect(any(BufferedImage.class)))
+    when(detector.detectObjects(any(BufferedImage.class)))
         .thenReturn(List.of(new Detection("cat", 0.91, 1, 2, 3, 4)));
 
     var response = useCase.detect(pngFile("photo.png"), OWNER);
@@ -88,7 +89,7 @@ class VisionAnalysisServiceTest {
   @Test
   @DisplayName("should return ocr text from ocr engine port")
   void shouldReturnOcrTextFromOcrEnginePort() throws Exception {
-    when(ocrEngine.extract(any(BufferedImage.class))).thenReturn(new OcrResult("Hello World"));
+    when(ocrEngine.extractText(any(BufferedImage.class))).thenReturn(new OcrResult("Hello World"));
 
     var response = useCase.recognizeText(pngFile("scan.png"), OWNER);
 

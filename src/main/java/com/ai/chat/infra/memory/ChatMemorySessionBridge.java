@@ -24,7 +24,7 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
 
   /** Seeds chat memory with the session's existing messages when the memory is still empty. */
   @Override
-  public void seedIfEmpty(String conversationId, List<ChatMessage> existingMessages) {
+  public void loadMessagesIfEmpty(String conversationId, List<ChatMessage> existingMessages) {
     if (existingMessages == null || existingMessages.isEmpty()) {
       return;
     }
@@ -38,7 +38,7 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
 
   /** Loads the conversation's user and assistant messages; system and tool messages stay out. */
   @Override
-  public List<ChatMessage> load(String conversationId) {
+  public List<ChatMessage> loadMessages(String conversationId) {
     return chatMemory.get(conversationId).stream()
         .filter(message -> toRole(message.getMessageType()) != null)
         .map(this::toDomainMessage)
@@ -47,7 +47,7 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
 
   /** Clears the model memory of a conversation. */
   @Override
-  public void clear(String conversationId) {
+  public void clearMessages(String conversationId) {
     chatMemory.clear(conversationId);
   }
 
@@ -63,7 +63,7 @@ public class ChatMemorySessionBridge implements ConversationMemoryRepository {
     if (type == MessageRole.ASSISTANT && ToolCallMarkupFilter.looksLikeToolMarkup(text)) {
       text = ToolCallMarkupFilter.sanitize(text);
     }
-    return ChatMessage.restore(MessageId.generate(), text, type, Instant.now());
+    return ChatMessage.restoreMessage(MessageId.generateId(), text, type, Instant.now());
   }
 
   private static MessageRole toRole(MessageType type) {

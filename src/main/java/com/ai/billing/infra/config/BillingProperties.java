@@ -28,7 +28,7 @@ public class BillingProperties {
 
   /** Builds the quota policy for the configured plan; unknown plans fall back to free. */
   public QuotaPolicy toPolicy() {
-    Plan active = Plan.parse(plan);
+    Plan active = Plan.parsePlan(plan);
     int dailyLimit = active == Plan.PRO ? proDailyRequests : freeDailyRequests;
     return new QuotaPolicy(quotaEnabled, active, dailyLimit, ipDailyRequests, globalDailyRequests);
   }

@@ -5,12 +5,8 @@ public enum ScheduleKind {
   CRON,
   ONCE;
 
-  public String value() {
-    return name();
-  }
-
   /** Parses a schedule kind case-insensitively, defaulting to {@code CRON} when blank. */
-  public static ScheduleKind from(String raw) {
+  public static ScheduleKind parseKind(String raw) {
     if (raw == null || raw.isBlank()) {
       return CRON;
     }

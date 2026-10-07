@@ -56,12 +56,12 @@ class H2SpringAiVectorStoreTest {
     float[] high = new float[] {1f, 0f};
     float[] low = new float[] {0f, 1f};
     UUID docId = UUID.randomUUID();
-    when(embeddingRepository.embed("apples")).thenReturn(query);
-    when(chunkSearchRepository.search(eq(query), eq(2), eq(OWNER), eq(List.of())))
+    when(embeddingRepository.embedText("apples")).thenReturn(query);
+    when(chunkSearchRepository.searchChunks(eq(query), eq(2), eq(OWNER), eq(List.of())))
         .thenReturn(
             List.of(
-                ScoredChunk.of(chunk(docId, "high", high), query),
-                ScoredChunk.of(chunk(docId, "low", low), query)));
+                ScoredChunk.createScoredChunk(chunk(docId, "high", high), query),
+                ScoredChunk.createScoredChunk(chunk(docId, "low", low), query)));
 
     List<Document> docs =
         vectorStore.similaritySearch(
@@ -83,8 +83,8 @@ class H2SpringAiVectorStoreTest {
   void shouldPassOwnerAndDocumentIdsWhenFilterExpressionHasBoth() {
     float[] query = new float[] {1f, 0f};
     UUID docA = UUID.randomUUID();
-    when(embeddingRepository.embed("q")).thenReturn(query);
-    when(chunkSearchRepository.search(any(), anyInt(), any(), any())).thenReturn(List.of());
+    when(embeddingRepository.embedText("q")).thenReturn(query);
+    when(chunkSearchRepository.searchChunks(any(), anyInt(), any(), any())).thenReturn(List.of());
 
     FilterExpressionBuilder b = new FilterExpressionBuilder();
     var filter =
@@ -98,7 +98,7 @@ class H2SpringAiVectorStoreTest {
 
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<UUID>> captor = ArgumentCaptor.forClass(List.class);
-    verify(chunkSearchRepository).search(eq(query), eq(5), eq(OWNER), captor.capture());
+    verify(chunkSearchRepository).searchChunks(eq(query), eq(5), eq(OWNER), captor.capture());
     assertThat(captor.getValue()).containsExactly(docA);
   }
 
@@ -108,9 +108,10 @@ class H2SpringAiVectorStoreTest {
     float[] query = new float[] {1f, 0f};
     float[] unrelated = new float[] {0f, 1f};
     UUID docId = UUID.randomUUID();
-    when(embeddingRepository.embed("What is this about?")).thenReturn(query);
-    when(chunkSearchRepository.search(query, 3, OWNER, List.of(docId)))
-        .thenReturn(List.of(ScoredChunk.of(chunk(docId, "middle", unrelated), query)));
+    when(embeddingRepository.embedText("What is this about?")).thenReturn(query);
+    when(chunkSearchRepository.searchChunks(query, 3, OWNER, List.of(docId)))
+        .thenReturn(
+            List.of(ScoredChunk.createScoredChunk(chunk(docId, "middle", unrelated), query)));
     when(chunkSearchRepository.findLeadingChunks(OWNER, List.of(docId), 3))
         .thenReturn(List.of(chunk(docId, "abstract", unrelated)));
 
@@ -131,11 +132,12 @@ class H2SpringAiVectorStoreTest {
   @DisplayName("should not fall back when no documents are selected")
   void shouldNotFallBackWhenNoDocumentsAreSelected() {
     float[] query = new float[] {1f, 0f};
-    when(embeddingRepository.embed("What is this about?")).thenReturn(query);
-    when(chunkSearchRepository.search(query, 3, OWNER, List.of()))
+    when(embeddingRepository.embedText("What is this about?")).thenReturn(query);
+    when(chunkSearchRepository.searchChunks(query, 3, OWNER, List.of()))
         .thenReturn(
             List.of(
-                ScoredChunk.of(chunk(UUID.randomUUID(), "middle", new float[] {0f, 1f}), query)));
+                ScoredChunk.createScoredChunk(
+                    chunk(UUID.randomUUID(), "middle", new float[] {0f, 1f}), query)));
 
     List<Document> docs =
         vectorStore.similaritySearch(
@@ -181,10 +183,10 @@ class H2SpringAiVectorStoreTest {
   }
 
   private static DocumentChunk chunk(UUID documentId, String content, float[] embedding) {
-    return DocumentChunk.reconstitute(
-        ChunkId.generate(),
-        DocumentId.of(documentId),
-        OwnerKey.parse(OWNER),
+    return DocumentChunk.restoreChunk(
+        ChunkId.generateId(),
+        DocumentId.createId(documentId),
+        OwnerKey.parseKey(OWNER),
         content,
         0,
         Map.of("title", "t"),

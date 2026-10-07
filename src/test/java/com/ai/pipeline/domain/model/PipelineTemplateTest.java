@@ -41,7 +41,7 @@ class PipelineTemplateTest {
   @Test
   @DisplayName("should run the agents one after another when built as a linear pipeline")
   void shouldRunTheAgentsOneAfterAnotherWhenBuiltAsALinearPipeline() {
-    AgentPipeline pipeline = create(List.of("research", "analyst")).toLinearPipeline();
+    AgentPipeline pipeline = create(List.of("research", "analyst")).buildLinearPipeline();
 
     assertThat(pipeline.getNodes()).hasSize(2);
     assertThat(pipeline.getEdges()).hasSize(1);
@@ -71,7 +71,7 @@ class PipelineTemplateTest {
           """;
 
   private final PipelineTemplate template =
-      PipelineTemplate.create(
+      PipelineTemplate.createTemplate(
           OWNER,
           "Competitor brief",
           null,
@@ -83,7 +83,7 @@ class PipelineTemplateTest {
   @Test
   @DisplayName("should put the topic before the instructions when the brief is a topic")
   void shouldPutTheTopicBeforeTheInstructionsWhenTheBriefIsATopic() {
-    String message = template.composeInvokeMessage("Market entry brief");
+    String message = template.composeFirstMessage("Market entry brief");
 
     assertThat(message).startsWith("Market entry brief\n\n");
     assertThat(message).contains("Competitive Intelligence Brief").contains("## Thesis");
@@ -92,7 +92,7 @@ class PipelineTemplateTest {
   @Test
   @DisplayName("should use the template short topic when the brief is the generic text")
   void shouldUseTheTemplateShortTopicWhenTheBriefIsTheGenericText() {
-    String message = template.composeInvokeMessage(PipelineTemplate.GENERIC_BRIEF);
+    String message = template.composeFirstMessage(PipelineTemplate.GENERIC_BRIEF);
 
     assertThat(message).startsWith("Competitor landscape brief\n\n");
     assertThat(message).doesNotContain(PipelineTemplate.GENERIC_BRIEF);
@@ -102,10 +102,10 @@ class PipelineTemplateTest {
   @DisplayName("should use the instructions alone when topic and brief are blank")
   void shouldUseTheInstructionsAloneWhenTopicAndBriefAreBlank() {
     PipelineTemplate noTopic =
-        PipelineTemplate.create(
+        PipelineTemplate.createTemplate(
             OWNER, "No topic", null, List.of("research"), "  ", BRIEF_PROMPT, null);
 
-    assertThat(noTopic.composeInvokeMessage("  ")).isEqualTo(BRIEF_PROMPT.trim());
+    assertThat(noTopic.composeFirstMessage("  ")).isEqualTo(BRIEF_PROMPT.trim());
   }
 
   @Test
@@ -113,10 +113,11 @@ class PipelineTemplateTest {
   void shouldNotRepeatTheInstructionsWhenTheBriefAlreadyContainsThem() {
     String full = "Custom topic\n\n" + BRIEF_PROMPT.trim();
 
-    assertThat(template.composeInvokeMessage(full)).isEqualTo(full);
+    assertThat(template.composeFirstMessage(full)).isEqualTo(full);
   }
 
   private static PipelineTemplate create(List<String> agentTypes) {
-    return PipelineTemplate.create(OWNER, "Daily", null, agentTypes, null, "Summarize news", null);
+    return PipelineTemplate.createTemplate(
+        OWNER, "Daily", null, agentTypes, null, "Summarize news", null);
   }
 }

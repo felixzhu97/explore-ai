@@ -33,18 +33,18 @@ public final class SessionTitle extends AbstractEmbeddable {
   }
 
   /** Returns the title a user typed, trimmed and cut to {@value #MAX_LENGTH} characters. */
-  public static SessionTitle of(String text) {
-    return clean(text, MAX_LENGTH);
+  public static SessionTitle createTitle(String text) {
+    return normalizeTitle(text, MAX_LENGTH);
   }
 
   /** Returns a title from the user's first message when no generated title is available. */
-  public static SessionTitle fromFirstMessage(String userMessage) {
-    return clean(userMessage, MAX_DERIVED_LENGTH);
+  public static SessionTitle createTitleFromFirstMessage(String userMessage) {
+    return normalizeTitle(userMessage, MAX_DERIVED_LENGTH);
   }
 
   /** Returns a title the model wrote for the first exchange, without wrapping quotes. */
-  public static SessionTitle generated(String modelTitle) {
-    return clean(
+  public static SessionTitle createGeneratedTitle(String modelTitle) {
+    return normalizeTitle(
         modelTitle == null ? null : modelTitle.strip().replaceAll("^[\"']+|[\"']+$", ""),
         MAX_DERIVED_LENGTH);
   }
@@ -55,7 +55,7 @@ public final class SessionTitle extends AbstractEmbeddable {
   }
 
   /** Returns the title text. */
-  public String value() {
+  public String getValue() {
     return title;
   }
 
@@ -64,7 +64,7 @@ public final class SessionTitle extends AbstractEmbeddable {
     return title;
   }
 
-  private static SessionTitle clean(String text, int maxLength) {
+  private static SessionTitle normalizeTitle(String text, int maxLength) {
     if (text == null || text.isBlank()) {
       return DEFAULT;
     }

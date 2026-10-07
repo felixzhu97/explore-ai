@@ -78,14 +78,14 @@ public class H2DocumentChunkRepository
 
   @Override
   @Transactional(readOnly = true)
-  public List<ScoredChunk> search(
+  public List<ScoredChunk> searchChunks(
       float[] queryEmbedding, int topK, String ownerKey, List<UUID> documentIds) {
     if (queryEmbedding.length == 0) {
       return List.of();
     }
     return loadCandidates(ownerKey, documentIds).stream()
         .filter(chunk -> chunk.isComparableWith(queryEmbedding))
-        .map(chunk -> ScoredChunk.of(chunk, queryEmbedding))
+        .map(chunk -> ScoredChunk.createScoredChunk(chunk, queryEmbedding))
         .sorted(ScoredChunk.BEST_FIRST)
         .limit(topK)
         .toList();

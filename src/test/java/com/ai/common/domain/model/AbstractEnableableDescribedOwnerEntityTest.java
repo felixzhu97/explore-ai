@@ -23,7 +23,7 @@ class AbstractEnableableDescribedOwnerEntityTest {
   static final class TestEntity extends AbstractEnableableDescribedOwnerEntity<SkillId> {
 
     TestEntity(String description) {
-      super(SkillId.generate(), "c:client-1", "name", description);
+      super(SkillId.generateId(), "c:client-1", "name", description);
     }
 
     void describe(String description) {

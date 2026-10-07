@@ -22,8 +22,8 @@ public class SpringAiTextAnalysisGateway implements TextAnalysisGateway {
   private final ChatClientProvider chatClientProvider;
 
   @Override
-  public TextAnalysis analyze(AnalysisText text, LanguageHint hint) {
-    LanguageHint effectiveHint = hint != null ? hint : LanguageHint.none();
+  public TextAnalysis analyzeText(AnalysisText text, LanguageHint hint) {
+    LanguageHint effectiveHint = hint != null ? hint : LanguageHint.createEmptyHint();
     String prompt = text.buildAnalysisPrompt(effectiveHint);
 
     ChatClient chatClient = chatClientProvider.createStateless(TextChatOptions.withoutTools());
@@ -43,9 +43,9 @@ public class SpringAiTextAnalysisGateway implements TextAnalysisGateway {
       throw DomainException.unavailable(
           "AI_SERVICE_ERROR", "AI returned empty structured analysis response");
     }
-    return TextAnalysis.create(
+    return TextAnalysis.createAnalysis(
         entity.summary(),
-        Sentiment.fromString(entity.sentiment()),
+        Sentiment.parseSentiment(entity.sentiment()),
         entity.keyPoints(),
         entity.entities(),
         entity.language());

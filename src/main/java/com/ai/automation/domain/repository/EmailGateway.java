@@ -5,5 +5,5 @@ import com.ai.automation.domain.model.EmailMessage;
 /** Outbound gateway that delivers automation result emails. */
 public interface EmailGateway {
   /** Sends the email. */
-  void send(EmailMessage message);
+  void sendEmail(EmailMessage message);
 }

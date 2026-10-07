@@ -20,7 +20,7 @@ public class CustomAgentService {
 
   /** Lists the owner's custom agents. */
   public List<CustomAgent> listLibrary(String ownerKey) {
-    return repository.findAllByOwnerKeyOrderByNameAsc(OwnerKey.parse(ownerKey));
+    return repository.findAllByOwnerKeyOrderByNameAsc(OwnerKey.parseKey(ownerKey));
   }
 
   /** Saves a new agent definition in the owner's library. */
@@ -32,7 +32,7 @@ public class CustomAgentService {
       String systemPrompt,
       List<String> toolKeys) {
     CustomAgent agent =
-        CustomAgent.create(ownerKey, typeKey, name, description, systemPrompt, toolKeys);
+        CustomAgent.createAgent(ownerKey, typeKey, name, description, systemPrompt, toolKeys);
     assertTypeAvailable(ownerKey, agent.getTypeKey(), null);
     return repository.save(agent);
   }
@@ -53,19 +53,19 @@ public class CustomAgentService {
   /** Enables or disables the owner's custom agent. */
   public CustomAgent setEnabled(String ownerKey, String id, boolean enabled) {
     CustomAgent agent = findOwned(ownerKey, id);
-    agent.changeEnabled(enabled);
+    agent.updateEnabledState(enabled);
     return repository.save(agent);
   }
 
   /** Deletes the owner's custom agent. */
   public void delete(String ownerKey, String id) {
     findOwned(ownerKey, id);
-    repository.deleteByIdAndOwnerKey(CustomAgentId.of(id), OwnerKey.parse(ownerKey));
+    repository.deleteByIdAndOwnerKey(CustomAgentId.parseId(id), OwnerKey.parseKey(ownerKey));
   }
 
   private CustomAgent findOwned(String ownerKey, String id) {
     return repository
-        .findByIdAndOwnerKey(CustomAgentId.of(id), OwnerKey.parse(ownerKey))
+        .findByIdAndOwnerKey(CustomAgentId.parseId(id), OwnerKey.parseKey(ownerKey))
         .orElseThrow(
             () ->
                 DomainException.notFound("SAVED_AGENT_NOT_FOUND", "Custom agent not found: " + id));
@@ -73,7 +73,7 @@ public class CustomAgentService {
 
   private void assertTypeAvailable(String ownerKey, String typeKey, CustomAgentId excludeId) {
     if (repository.existsByOwnerKeyAndTypeKeyIgnoringId(
-        OwnerKey.parse(ownerKey), typeKey, excludeId)) {
+        OwnerKey.parseKey(ownerKey), typeKey, excludeId)) {
       throw DomainException.conflict(
           "SAVED_AGENT_TYPE_CONFLICT", "Agent type key already exists: " + typeKey);
     }

@@ -34,7 +34,7 @@ public record AnalysisText(String value) {
   }
 
   /** Wraps the text to analyze. */
-  public static AnalysisText of(String text) {
+  public static AnalysisText createText(String text) {
     return new AnalysisText(text);
   }
 
@@ -42,7 +42,7 @@ public record AnalysisText(String value) {
   public String buildAnalysisPrompt(LanguageHint hint) {
     String prompt = ANALYSIS_PROMPT_TEMPLATE.replace("{text}", value);
     if (hint != null && hint.isSpecified()) {
-      prompt += "\n\nPlease respond in " + hint.responseLanguage() + ".";
+      prompt += "\n\nPlease respond in " + hint.getResponseLanguage() + ".";
     }
     return prompt;
   }

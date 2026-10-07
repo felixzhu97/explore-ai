@@ -66,26 +66,27 @@ class ImageGenerationServiceTest {
   @Test
   @DisplayName("should use configured model when request model is null")
   void shouldUseConfiguredModelWhenRequestModelIsNull() {
-    when(imageGenerationGateway.generate(any(ImagePrompt.class), any(ImageOptions.class)))
-        .thenReturn(GeneratedImage.fromBase64("abc", "x/z-image-turbo", "sunset"));
+    when(imageGenerationGateway.generateImage(any(ImagePrompt.class), any(ImageOptions.class)))
+        .thenReturn(GeneratedImage.createBase64Image("abc", "x/z-image-turbo", "sunset"));
 
     imageGenerationService.generateImage("sunset", null, null, 512, 512, 1);
 
     ArgumentCaptor<ImageOptions> optionsCaptor = ArgumentCaptor.forClass(ImageOptions.class);
-    verify(imageGenerationGateway).generate(any(ImagePrompt.class), optionsCaptor.capture());
+    verify(imageGenerationGateway).generateImage(any(ImagePrompt.class), optionsCaptor.capture());
     assertThat(optionsCaptor.getValue().model()).isEqualTo("x/z-image-turbo");
   }
 
   @Test
   @DisplayName("should use request model when provided")
   void shouldUseRequestModelWhenProvided() {
-    when(imageGenerationGateway.generate(any(ImagePrompt.class), any(ImageOptions.class)))
-        .thenReturn(GeneratedImage.fromUrl("https://example.com/a.png", "dall-e-3", "sunset"));
+    when(imageGenerationGateway.generateImage(any(ImagePrompt.class), any(ImageOptions.class)))
+        .thenReturn(
+            GeneratedImage.createUrlImage("https://example.com/a.png", "dall-e-3", "sunset"));
 
     imageGenerationService.generateImage("sunset", "dall-e-3", "standard", 1024, 1024, 1);
 
     ArgumentCaptor<ImageOptions> optionsCaptor = ArgumentCaptor.forClass(ImageOptions.class);
-    verify(imageGenerationGateway).generate(any(ImagePrompt.class), optionsCaptor.capture());
+    verify(imageGenerationGateway).generateImage(any(ImagePrompt.class), optionsCaptor.capture());
     assertThat(optionsCaptor.getValue().model()).isEqualTo("dall-e-3");
   }
 }

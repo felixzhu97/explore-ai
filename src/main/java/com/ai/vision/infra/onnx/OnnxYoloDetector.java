@@ -58,7 +58,7 @@ public class OnnxYoloDetector implements ObjectDetector {
   }
 
   @Override
-  public List<Detection> detect(BufferedImage image) {
+  public List<Detection> detectObjects(BufferedImage image) {
     ensureAvailable();
     int inputSize = properties.getDetect().getInputSize();
     float[] input = YoloImagePreprocessor.preprocess(image, inputSize);

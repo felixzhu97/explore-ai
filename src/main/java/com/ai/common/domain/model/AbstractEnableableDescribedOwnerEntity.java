@@ -36,7 +36,7 @@ public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends Abstrac
   }
 
   /** Turns the entity on or off. */
-  public void changeEnabled(boolean enabled) {
+  public void updateEnabledState(boolean enabled) {
     this.enabled = enabled;
   }
 }

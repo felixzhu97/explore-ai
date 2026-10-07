@@ -41,13 +41,13 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
   }
 
   /** Creates a new enabled skill for the owner with a generated id. */
-  public static Skill create(
+  public static Skill createSkill(
       String ownerKey,
       String name,
       String description,
       String instructions,
       List<String> allowedTools) {
-    return new Skill(SkillId.generate(), ownerKey, name, description, instructions, allowedTools);
+    return new Skill(SkillId.generateId(), ownerKey, name, description, instructions, allowedTools);
   }
 
   /** Replaces name, description, instructions, and allowed tools, then bumps the update time. */
@@ -61,7 +61,7 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
   }
 
   /** Renders the skill as a section of the chat system prompt. */
-  public String toPromptSection() {
+  public String buildPromptSection() {
     StringBuilder section = new StringBuilder("### ").append(getName()).append('\n');
     if (getDescription() != null && !getDescription().isBlank()) {
       section.append(getDescription()).append('\n');

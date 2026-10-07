@@ -17,7 +17,7 @@ class AutomationScheduleTest {
   private static final Instant NOW = Instant.parse("2026-08-07T00:00:00Z");
 
   private static AutomationSchedule cronSchedule() {
-    return AutomationSchedule.create(
+    return AutomationSchedule.createSchedule(
         OWNER,
         "Daily research",
         "0 0 * * * *",
@@ -29,7 +29,7 @@ class AutomationScheduleTest {
   }
 
   private static AutomationSchedule onceSchedule(Instant runAt) {
-    return AutomationSchedule.createOnce(
+    return AutomationSchedule.createOneOffSchedule(
         OWNER, "One shot", "UTC", TEMPLATE_ID, "user@example.com", "Do once", runAt, NOW);
   }
 
@@ -54,7 +54,7 @@ class AutomationScheduleTest {
     void shouldRejectTheScheduleWhenTheEmailIsInvalid() {
       assertThatThrownBy(
               () ->
-                  AutomationSchedule.create(
+                  AutomationSchedule.createSchedule(
                       OWNER,
                       "Daily research",
                       "0 0 9 * * *",
@@ -74,10 +74,10 @@ class AutomationScheduleTest {
 
       AutomationSchedule schedule = onceSchedule(runAt);
 
-      assertThat(schedule.isOnce()).isTrue();
+      assertThat(schedule.isOneOff()).isTrue();
       assertThat(schedule.getTiming().getCronExpression()).isNull();
       assertThat(schedule.getNextRunAt()).isEqualTo(runAt);
-      assertThat(schedule.pendingRunAt()).contains(runAt);
+      assertThat(schedule.getPendingRunAt()).contains(runAt);
     }
 
     @Test
@@ -104,7 +104,7 @@ class AutomationScheduleTest {
     schedule.disable();
     Instant later = NOW.plus(Duration.ofDays(1));
 
-    schedule.turnOn(later);
+    schedule.enableSchedule(later);
 
     assertThat(schedule.isEnabled()).isTrue();
     assertThat(schedule.getNextRunAt()).isEqualTo(later.plus(Duration.ofHours(1)));
@@ -114,9 +114,9 @@ class AutomationScheduleTest {
   @DisplayName("should reject turning on a one-off schedule when its run already happened")
   void shouldRejectTurningOnAOneOffScheduleWhenItsRunAlreadyHappened() {
     AutomationSchedule schedule = onceSchedule(NOW.plusSeconds(60));
-    schedule.recordRunFinished(NOW.plusSeconds(90));
+    schedule.completeRun(NOW.plusSeconds(90));
 
-    assertThatThrownBy(() -> schedule.turnOn(NOW.plusSeconds(120)))
+    assertThatThrownBy(() -> schedule.enableSchedule(NOW.plusSeconds(120)))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("already completed");
     assertThat(schedule.isEnabled()).isFalse();
@@ -131,9 +131,9 @@ class AutomationScheduleTest {
     void shouldClaimAOneOffRunWithNoFurtherRunWhenItIsPickedUp() {
       AutomationSchedule schedule = onceSchedule(NOW.plusSeconds(60));
 
-      Instant provisional = schedule.provisionalNextRunAt(NOW.plusSeconds(60));
+      Instant claimedNextRunAt = schedule.calculateClaimedNextRunAt(NOW.plusSeconds(60));
 
-      assertThat(provisional).isAfter(NOW.plus(Duration.ofDays(365 * 1000L)));
+      assertThat(claimedNextRunAt).isAfter(NOW.plus(Duration.ofDays(365 * 1000L)));
     }
 
     @Test
@@ -141,7 +141,7 @@ class AutomationScheduleTest {
     void shouldClaimTheNextCronRunWhenACronScheduleIsPickedUp() {
       AutomationSchedule schedule = cronSchedule();
 
-      assertThat(schedule.provisionalNextRunAt(NOW))
+      assertThat(schedule.calculateClaimedNextRunAt(NOW))
           .isEqualTo(Instant.parse("2026-08-07T01:00:00Z"));
     }
 
@@ -151,11 +151,11 @@ class AutomationScheduleTest {
       AutomationSchedule schedule = onceSchedule(NOW.plusSeconds(60));
       Instant finished = NOW.plusSeconds(90);
 
-      schedule.recordRunFinished(finished);
+      schedule.completeRun(finished);
 
       assertThat(schedule.isEnabled()).isFalse();
       assertThat(schedule.getLastRunAt()).isEqualTo(finished);
-      assertThat(schedule.pendingRunAt()).isEmpty();
+      assertThat(schedule.getPendingRunAt()).isEmpty();
       assertThat(schedule.hasPendingRun(finished)).isFalse();
     }
 
@@ -165,7 +165,7 @@ class AutomationScheduleTest {
       AutomationSchedule schedule = cronSchedule();
       Instant finished = Instant.parse("2026-08-07T01:05:00Z");
 
-      schedule.recordRunFinished(finished);
+      schedule.completeRun(finished);
 
       assertThat(schedule.isEnabled()).isTrue();
       assertThat(schedule.getLastRunAt()).isEqualTo(finished);
@@ -176,7 +176,7 @@ class AutomationScheduleTest {
     @Test
     @DisplayName("should address the result email to the recipient with the schedule name")
     void shouldAddressTheResultEmailToTheRecipientWithTheScheduleName() {
-      EmailMessage email = cronSchedule().resultEmail("text", "<p>html</p>");
+      EmailMessage email = cronSchedule().composeResultEmail("text", "<p>html</p>");
 
       assertThat(email.to()).isEqualTo("user@example.com");
       assertThat(email.subject()).isEqualTo("[ExploreAI] Daily research");
@@ -188,12 +188,12 @@ class AutomationScheduleTest {
   @DisplayName("should turn a finished one-off schedule back on when it gets a new run time")
   void shouldTurnAFinishedOneOffScheduleBackOnWhenItGetsANewRunTime() {
     AutomationSchedule schedule = onceSchedule(NOW.plusSeconds(60));
-    schedule.recordRunFinished(NOW.plusSeconds(90));
+    schedule.completeRun(NOW.plusSeconds(90));
     Instant newRunAt = NOW.plusSeconds(600);
 
     schedule.update(
         "One shot again",
-        ScheduleTiming.once("UTC"),
+        ScheduleTiming.createOneOffTiming("UTC"),
         newRunAt,
         TEMPLATE_ID,
         "user@example.com",

@@ -11,15 +11,15 @@ class SentimentTest {
   @Test
   @DisplayName("should parse known sentiment strings")
   void shouldParseKnownSentimentStrings() {
-    assertThat(Sentiment.fromString("positive")).isEqualTo(Sentiment.POSITIVE);
-    assertThat(Sentiment.fromString("NEGATIVE")).isEqualTo(Sentiment.NEGATIVE);
+    assertThat(Sentiment.parseSentiment("positive")).isEqualTo(Sentiment.POSITIVE);
+    assertThat(Sentiment.parseSentiment("NEGATIVE")).isEqualTo(Sentiment.NEGATIVE);
   }
 
   @Test
   @DisplayName("should default to neutral for unknown values")
   void shouldDefaultToNeutralForUnknownValues() {
-    assertThat(Sentiment.fromString("unknown")).isEqualTo(Sentiment.NEUTRAL);
-    assertThat(Sentiment.fromString(null)).isEqualTo(Sentiment.NEUTRAL);
+    assertThat(Sentiment.parseSentiment("unknown")).isEqualTo(Sentiment.NEUTRAL);
+    assertThat(Sentiment.parseSentiment(null)).isEqualTo(Sentiment.NEUTRAL);
   }
 
   @Test

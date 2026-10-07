@@ -55,7 +55,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     List<Long> latencies =
         jdbcTemplate.query(
             sql.toString(), (rs, rowNum) -> rs.getLong("latency_ms"), args.toArray());
-    return LatencyStats.fromSorted(latencies);
+    return LatencyStats.calculateStats(latencies);
   }
 
   @Override
@@ -184,7 +184,8 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     List<TimePoint> points = new ArrayList<>();
     byDay.forEach(
         (day, values) ->
-            points.add(new TimePoint(day, Math.round(LatencyStats.percentile(values, 0.95)))));
+            points.add(
+                new TimePoint(day, Math.round(LatencyStats.calculatePercentile(values, 0.95)))));
     return points;
   }
 
@@ -307,7 +308,7 @@ public class JdbcMetricsQueryRepository implements MetricsQueryRepository {
     String joiner = alreadyHasWhere ? " AND " : " WHERE ";
     if (capability.isPresent()) {
       sql.append(joiner).append("capability = ?");
-      args.add(capability.get().value());
+      args.add(capability.get().getValue());
       joiner = " AND ";
     }
     sql.append(joiner).append("occurred_at >= ? AND occurred_at < ?");

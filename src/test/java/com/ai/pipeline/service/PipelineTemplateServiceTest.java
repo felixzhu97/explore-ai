@@ -30,7 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PipelineTemplateServiceTest {
 
   private static final String CLIENT_ID = "c:client-1";
-  private static final OwnerKey OWNER = OwnerKey.parse(CLIENT_ID);
+  private static final OwnerKey OWNER = OwnerKey.parseKey(CLIENT_ID);
 
   @Mock private PipelineTemplateRepository repository;
   @InjectMocks private PipelineTemplateService useCase;
@@ -64,7 +64,7 @@ class PipelineTemplateServiceTest {
   @Test
   @DisplayName("should throw when get missing")
   void shouldThrowWhenGetMissing() {
-    assertThatThrownBy(() -> useCase.get(CLIENT_ID, PipelineTemplateId.generate().toString()))
+    assertThatThrownBy(() -> useCase.get(CLIENT_ID, PipelineTemplateId.generateId().toString()))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "PIPELINE_TEMPLATE_NOT_FOUND");
   }
@@ -101,7 +101,8 @@ class PipelineTemplateServiceTest {
   @DisplayName("should disable template when set enabled false")
   void shouldDisableTemplateWhenSetEnabledFalse() {
     PipelineTemplate template =
-        PipelineTemplate.create(CLIENT_ID, "My flow", "", List.of("analyst"), "", "brief", null);
+        PipelineTemplate.createTemplate(
+            CLIENT_ID, "My flow", "", List.of("analyst"), "", "brief", null);
     when(repository.findByIdAndOwnerKey(template.getId(), OWNER)).thenReturn(Optional.of(template));
     when(repository.save(template)).thenReturn(template);
 

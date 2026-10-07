@@ -16,7 +16,7 @@ public class PdfAndTextDocumentReader implements DocumentReader {
   private final PdfTextExtractor pdfTextExtractor;
 
   @Override
-  public ExtractedDocument read(byte[] content, String fileName) {
+  public ExtractedDocument readDocument(byte[] content, String fileName) {
     if (pdfTextExtractor.getExtension(fileName).equalsIgnoreCase("pdf")) {
       String text =
           pdfTextExtractor

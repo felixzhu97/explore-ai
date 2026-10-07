@@ -31,7 +31,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 @DisplayName("H2DocumentChunkRepository")
 class H2DocumentChunkRepositoryTest {
 
-  private static final OwnerKey OWNER_KEY = OwnerKey.parse("c:owner");
+  private static final OwnerKey OWNER_KEY = OwnerKey.parseKey("c:owner");
 
   private JdbcTemplate jdbcTemplate;
   private ObjectMapper objectMapper;
@@ -71,19 +71,20 @@ class H2DocumentChunkRepositoryTest {
     @Test
     @DisplayName("should return empty list when the owner has no chunks")
     void shouldReturnEmptyListWhenTheOwnerHasNoChunks() {
-      save(DocumentId.generate(), OTHER_OWNER, "other", new float[] {1f, 0f});
+      save(DocumentId.generateId(), OTHER_OWNER, "other", new float[] {1f, 0f});
 
-      assertThat(repository.search(new float[] {1f, 0f}, 5, OWNER, List.of())).isEmpty();
+      assertThat(repository.searchChunks(new float[] {1f, 0f}, 5, OWNER, List.of())).isEmpty();
     }
 
     @Test
     @DisplayName("should rank only the owner chunks by cosine similarity")
     void shouldRankOnlyTheOwnerChunksByCosineSimilarity() {
-      save(DocumentId.generate(), OWNER, "low", new float[] {0f, 1f});
-      save(DocumentId.generate(), OWNER, "high", new float[] {1f, 0f});
-      save(DocumentId.generate(), OTHER_OWNER, "foreign", new float[] {1f, 0f});
+      save(DocumentId.generateId(), OWNER, "low", new float[] {0f, 1f});
+      save(DocumentId.generateId(), OWNER, "high", new float[] {1f, 0f});
+      save(DocumentId.generateId(), OTHER_OWNER, "foreign", new float[] {1f, 0f});
 
-      List<ScoredChunk> results = repository.search(new float[] {1f, 0f}, 5, OWNER, List.of());
+      List<ScoredChunk> results =
+          repository.searchChunks(new float[] {1f, 0f}, 5, OWNER, List.of());
 
       assertThat(results)
           .extracting(scored -> scored.chunk().getContent())
@@ -94,13 +95,13 @@ class H2DocumentChunkRepositoryTest {
     @Test
     @DisplayName("should ignore another owner document when its id is requested")
     void shouldIgnoreAnotherOwnerDocumentWhenItsIdIsRequested() {
-      DocumentId own = DocumentId.generate();
-      DocumentId foreign = DocumentId.generate();
+      DocumentId own = DocumentId.generateId();
+      DocumentId foreign = DocumentId.generateId();
       save(own, OWNER, "own", new float[] {1f, 0f});
       save(foreign, OTHER_OWNER, "foreign", new float[] {1f, 0f});
 
       List<ScoredChunk> results =
-          repository.search(
+          repository.searchChunks(
               new float[] {1f, 0f}, 5, OWNER, List.of(own.getValue(), foreign.getValue()));
 
       assertThat(results).extracting(scored -> scored.chunk().getContent()).containsExactly("own");
@@ -109,21 +110,21 @@ class H2DocumentChunkRepositoryTest {
     @Test
     @DisplayName("should store the owner in its column and read it back without metadata")
     void shouldStoreTheOwnerInItsColumnAndReadItBackWithoutMetadata() {
-      DocumentId documentId = DocumentId.generate();
+      DocumentId documentId = DocumentId.generateId();
       save(documentId, OWNER, "own", new float[] {1f, 0f});
 
       DocumentChunk stored = repository.findChunksByDocumentId(documentId).getFirst();
 
-      assertThat(stored.getOwnerKey()).isEqualTo(OwnerKey.parse(OWNER));
+      assertThat(stored.getOwnerKey()).isEqualTo(OwnerKey.parseKey(OWNER));
       assertThat(stored.getMetadata()).doesNotContainKey("ownerKey");
     }
 
     @Test
     @DisplayName("should return the opening chunks of each requested owner document")
     void shouldReturnTheOpeningChunksOfEachRequestedOwnerDocument() {
-      final DocumentId first = DocumentId.generate();
-      final DocumentId second = DocumentId.generate();
-      final DocumentId foreign = DocumentId.generate();
+      final DocumentId first = DocumentId.generateId();
+      final DocumentId second = DocumentId.generateId();
+      final DocumentId foreign = DocumentId.generateId();
       save(first, OWNER, "first-2", 2);
       save(first, OWNER, "first-0", 0);
       save(first, OWNER, "first-1", 1);
@@ -141,21 +142,26 @@ class H2DocumentChunkRepositoryTest {
 
     private void save(DocumentId documentId, String ownerKey, String content, float[] embedding) {
       repository.saveChunk(
-          DocumentChunk.create(
-                  ChunkId.generate(), documentId, OwnerKey.parse(ownerKey), content, 0, Map.of())
-              .withEmbedding(embedding));
+          DocumentChunk.createChunk(
+                  ChunkId.generateId(),
+                  documentId,
+                  OwnerKey.parseKey(ownerKey),
+                  content,
+                  0,
+                  Map.of())
+              .copyWithEmbedding(embedding));
     }
 
     private void save(DocumentId documentId, String ownerKey, String content, int chunkIndex) {
       repository.saveChunk(
-          DocumentChunk.create(
-                  ChunkId.generate(),
+          DocumentChunk.createChunk(
+                  ChunkId.generateId(),
                   documentId,
-                  OwnerKey.parse(ownerKey),
+                  OwnerKey.parseKey(ownerKey),
                   content,
                   chunkIndex,
                   Map.of())
-              .withEmbedding(new float[] {1f, 0f}));
+              .copyWithEmbedding(new float[] {1f, 0f}));
     }
   }
 
@@ -163,9 +169,9 @@ class H2DocumentChunkRepositoryTest {
   @DisplayName("should save chunk with embedding via MERGE")
   void shouldSaveChunk() {
     DocumentChunk chunk =
-        DocumentChunk.create(
-                ChunkId.generate(), DocumentId.generate(), OWNER_KEY, "content", 0, Map.of())
-            .withEmbedding(new float[] {0.1f, 0.2f});
+        DocumentChunk.createChunk(
+                ChunkId.generateId(), DocumentId.generateId(), OWNER_KEY, "content", 0, Map.of())
+            .copyWithEmbedding(new float[] {0.1f, 0.2f});
     when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
     chunkRepository.saveChunk(chunk);
     verify(jdbcTemplate).update(contains("MERGE INTO"), any(Object[].class));
@@ -175,14 +181,14 @@ class H2DocumentChunkRepositoryTest {
   @DisplayName("should serialize metadata when present")
   void shouldSerializeMetadataWhenPresent() {
     DocumentChunk chunk =
-        DocumentChunk.create(
-                ChunkId.generate(),
-                DocumentId.generate(),
+        DocumentChunk.createChunk(
+                ChunkId.generateId(),
+                DocumentId.generateId(),
                 OWNER_KEY,
                 "content",
                 0,
                 Map.of("key", "value"))
-            .withEmbedding(new float[] {0.1f});
+            .copyWithEmbedding(new float[] {0.1f});
     when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1);
     chunkRepository.saveChunk(chunk);
     verify(jdbcTemplate).update(contains("MERGE INTO"), any(Object[].class));
@@ -284,7 +290,7 @@ class H2DocumentChunkRepositoryTest {
   @Test
   @DisplayName("should find chunks by document ID")
   void shouldFindChunksByDocumentId() {
-    DocumentId docId = DocumentId.generate();
+    DocumentId docId = DocumentId.generateId();
     when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(UUID.class)))
         .thenReturn(List.of());
     chunkRepository.findChunksByDocumentId(docId);
@@ -295,7 +301,7 @@ class H2DocumentChunkRepositoryTest {
   @Test
   @DisplayName("should delete chunks by document ID")
   void shouldDeleteChunksByDocumentId() {
-    DocumentId docId = DocumentId.generate();
+    DocumentId docId = DocumentId.generateId();
     when(jdbcTemplate.update(anyString(), any(UUID.class))).thenReturn(1);
     chunkRepository.deleteChunksByDocumentId(docId);
     verify(jdbcTemplate).update(contains("DELETE FROM"), eq(docId.getValue()));

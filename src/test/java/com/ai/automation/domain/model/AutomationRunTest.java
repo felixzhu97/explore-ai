@@ -14,9 +14,9 @@ class AutomationRunTest {
   @Test
   @DisplayName("should finish once when the run succeeds")
   void shouldFinishOnceWhenTheRunSucceeds() {
-    AutomationRun run = AutomationRun.start(ScheduleId.generate(), OWNER);
+    AutomationRun run = AutomationRun.startRun(ScheduleId.generateId(), OWNER);
 
-    run.succeed("done", EmailDeliveryStatus.SENT);
+    run.markSucceeded("done", EmailDeliveryStatus.SENT);
 
     assertThat(run.isFinished()).isTrue();
     assertThat(run.getStatus()).isEqualTo(RunStatus.SUCCESS);
@@ -25,21 +25,21 @@ class AutomationRunTest {
   @Test
   @DisplayName("should reject a second outcome when the run already finished")
   void shouldRejectASecondOutcomeWhenTheRunAlreadyFinished() {
-    AutomationRun run = AutomationRun.start(ScheduleId.generate(), OWNER);
-    run.succeed("done", EmailDeliveryStatus.SENT);
+    AutomationRun run = AutomationRun.startRun(ScheduleId.generateId(), OWNER);
+    run.markSucceeded("done", EmailDeliveryStatus.SENT);
 
-    assertThatThrownBy(() -> run.failBeforeEmail("late error"))
+    assertThatThrownBy(() -> run.markFailedBeforeEmail("late error"))
         .isInstanceOf(IllegalStateException.class);
-    assertThatThrownBy(run::skipForQuota).isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(run::markSkippedForQuota).isInstanceOf(IllegalStateException.class);
     assertThat(run.getStatus()).isEqualTo(RunStatus.SUCCESS);
   }
 
   @Test
   @DisplayName("should record a skipped run without email when the quota is used up")
   void shouldRecordASkippedRunWithoutEmailWhenTheQuotaIsUsedUp() {
-    AutomationRun run = AutomationRun.start(ScheduleId.generate(), OWNER);
+    AutomationRun run = AutomationRun.startRun(ScheduleId.generateId(), OWNER);
 
-    run.skipForQuota();
+    run.markSkippedForQuota();
 
     assertThat(run.getStatus()).isEqualTo(RunStatus.SKIPPED);
     assertThat(run.getEmailStatus()).isEqualTo(EmailDeliveryStatus.SKIPPED);
@@ -50,9 +50,9 @@ class AutomationRunTest {
   @Test
   @DisplayName("should record a failed run without email when the pipeline fails")
   void shouldRecordAFailedRunWithoutEmailWhenThePipelineFails() {
-    AutomationRun run = AutomationRun.start(ScheduleId.generate(), OWNER);
+    AutomationRun run = AutomationRun.startRun(ScheduleId.generateId(), OWNER);
 
-    run.failBeforeEmail("  model timed out ");
+    run.markFailedBeforeEmail("  model timed out ");
 
     assertThat(run.getStatus()).isEqualTo(RunStatus.FAILED);
     assertThat(run.getEmailStatus()).isEqualTo(EmailDeliveryStatus.SKIPPED);

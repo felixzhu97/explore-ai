@@ -17,12 +17,12 @@ public record ExternalIdentity(String provider, String subject) {
   }
 
   /** Normalizes a provider registration id and subject. */
-  public static ExternalIdentity of(String provider, String subject) {
+  public static ExternalIdentity createIdentity(String provider, String subject) {
     return new ExternalIdentity(provider, subject);
   }
 
   /** Identity of an Explore IAM access token subject. */
-  public static ExternalIdentity iam(String subject) {
+  public static ExternalIdentity createIamIdentity(String subject) {
     return new ExternalIdentity(EXPLORE_IAM, subject);
   }
 

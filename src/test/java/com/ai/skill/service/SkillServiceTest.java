@@ -31,7 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SkillServiceTest {
 
   private static final String CLIENT_ID = "c:client-1";
-  private static final OwnerKey OWNER = OwnerKey.parse(CLIENT_ID);
+  private static final OwnerKey OWNER = OwnerKey.parseKey(CLIENT_ID);
 
   @Mock private SkillRepository repository;
   @InjectMocks private SkillService useCase;
@@ -62,7 +62,7 @@ class SkillServiceTest {
   @Test
   @DisplayName("should build the active skills prompt from the valid skill ids only")
   void shouldBuildTheActiveSkillsPromptFromTheValidSkillIdsOnly() {
-    Skill brief = Skill.create(CLIENT_ID, "Brief Style", "", "Be short.", List.of());
+    Skill brief = Skill.createSkill(CLIENT_ID, "Brief Style", "", "Be short.", List.of());
     when(repository.findEnabledByOwnerKeyAndIds(OWNER, List.of(brief.getId())))
         .thenReturn(List.of(brief));
 
@@ -85,7 +85,7 @@ class SkillServiceTest {
   @Test
   @DisplayName("should throw when get missing")
   void shouldThrowWhenGetMissing() {
-    assertThatThrownBy(() -> useCase.get(CLIENT_ID, SkillId.generate().toString()))
+    assertThatThrownBy(() -> useCase.get(CLIENT_ID, SkillId.generateId().toString()))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "SKILL_NOT_FOUND");
   }
@@ -120,7 +120,7 @@ class SkillServiceTest {
   @Test
   @DisplayName("should disable skill when set enabled false")
   void shouldDisableSkillWhenSetEnabledFalse() {
-    Skill skill = Skill.create(CLIENT_ID, "Brief Style", "", "Instructions", List.of());
+    Skill skill = Skill.createSkill(CLIENT_ID, "Brief Style", "", "Instructions", List.of());
     when(repository.findByIdAndOwnerKey(skill.getId(), OWNER)).thenReturn(Optional.of(skill));
     when(repository.save(skill)).thenReturn(skill);
 

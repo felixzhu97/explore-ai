@@ -16,11 +16,13 @@ public class TextAnalysisService {
 
   /** Analyzes the text and asks the model to respond in the given language. */
   public TextAnalysis analyzeTextWithLanguage(String text, String language) {
-    return textAnalysisGateway.analyze(AnalysisText.of(text), LanguageHint.of(language));
+    return textAnalysisGateway.analyzeText(
+        AnalysisText.createText(text), LanguageHint.createHint(language));
   }
 
   /** Analyzes the text. */
   public TextAnalysis analyzeText(String text) {
-    return textAnalysisGateway.analyze(AnalysisText.of(text), LanguageHint.none());
+    return textAnalysisGateway.analyzeText(
+        AnalysisText.createText(text), LanguageHint.createEmptyHint());
   }
 }

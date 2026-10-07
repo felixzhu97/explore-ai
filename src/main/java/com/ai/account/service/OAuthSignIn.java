@@ -55,7 +55,9 @@ public record OAuthSignIn(ExternalIdentity identity, ContactEmail email, String 
     }
     return Optional.of(
         new OAuthSignIn(
-            ExternalIdentity.of(provider, subject), ContactEmail.ofNullable(email), displayName));
+            ExternalIdentity.createIdentity(provider, subject),
+            ContactEmail.parseOptionalEmail(email),
+            displayName));
   }
 
   private static String oidcEmail(OidcUser oidcUser) {

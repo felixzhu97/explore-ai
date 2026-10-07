@@ -12,7 +12,7 @@ class ImagePromptTest {
   @Test
   @DisplayName("should reject blank prompt")
   void shouldRejectBlankPrompt() {
-    assertThatThrownBy(() -> ImagePrompt.of(" "))
+    assertThatThrownBy(() -> ImagePrompt.createPrompt(" "))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "INVALID_IMAGE_PROMPT");
   }
@@ -29,7 +29,7 @@ class ImagePromptTest {
   @Test
   @DisplayName("should reject prompt exceeding max length")
   void shouldRejectPromptExceedingMaxLength() {
-    assertThatThrownBy(() -> ImagePrompt.of("a".repeat(4_001)))
+    assertThatThrownBy(() -> ImagePrompt.createPrompt("a".repeat(4_001)))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "INVALID_IMAGE_PROMPT")
         .hasMessageContaining("maximum length");

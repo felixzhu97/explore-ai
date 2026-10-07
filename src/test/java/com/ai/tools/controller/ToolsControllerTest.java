@@ -21,7 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @DisplayName("ToolsController")
 class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parse(OwnerKeyFixtures.CLIENT_FULL_KEY);
+  private static final OwnerKey OWNER = OwnerKey.parseKey(OwnerKeyFixtures.CLIENT_FULL_KEY);
 
   @MockitoBean private ToolService toolService;
 

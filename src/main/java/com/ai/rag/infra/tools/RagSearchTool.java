@@ -47,7 +47,7 @@ public class RagSearchTool implements DocumentSearchTool {
     try {
       List<DocumentId> documentIdList =
           documentIds != null && !documentIds.isEmpty()
-              ? documentIds.stream().map(DocumentId::of).collect(Collectors.toList())
+              ? documentIds.stream().map(DocumentId::parseId).collect(Collectors.toList())
               : null;
 
       var result =

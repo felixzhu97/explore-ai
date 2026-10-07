@@ -10,17 +10,17 @@ public record Latency(long millis) {
   }
 
   /** Wraps a measured duration in milliseconds. */
-  public static Latency ofMillis(long millis) {
+  public static Latency createFromMillis(long millis) {
     return new Latency(millis);
   }
 
   /** Measures from a {@link System#nanoTime()} reading until now. */
-  public static Latency since(long startNanos) {
-    return between(startNanos, System.nanoTime());
+  public static Latency measureSince(long startNanos) {
+    return measureBetween(startNanos, System.nanoTime());
   }
 
   /** Measures between two {@link System#nanoTime()} readings. */
-  public static Latency between(long startNanos, long endNanos) {
+  public static Latency measureBetween(long startNanos, long endNanos) {
     return new Latency((endNanos - startNanos) / NANOS_PER_MILLI);
   }
 }

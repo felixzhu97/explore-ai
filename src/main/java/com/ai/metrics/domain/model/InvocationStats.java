@@ -10,12 +10,12 @@ public record InvocationStats(long requests, long errors) {
   }
 
   /** Returns the share of failed requests, 0 when there were none. */
-  public double errorRate() {
+  public double calculateErrorRate() {
     return requests == 0 ? 0.0 : (double) errors / requests;
   }
 
   /** Returns the share of successful requests, 1 when there were none. */
-  public double successRate() {
-    return 1.0 - errorRate();
+  public double calculateSuccessRate() {
+    return 1.0 - calculateErrorRate();
   }
 }

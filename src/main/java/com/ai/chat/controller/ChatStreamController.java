@@ -70,8 +70,8 @@ public class ChatStreamController {
         request.messages().stream()
             .map(
                 dto ->
-                    ChatMessage.restore(
-                        MessageId.generate(), dto.content(), dto.role(), Instant.now()))
+                    ChatMessage.restoreMessage(
+                        MessageId.generateId(), dto.content(), dto.role(), Instant.now()))
             .toList();
     return chatService.streamChat(messages, options, ownerKey);
   }

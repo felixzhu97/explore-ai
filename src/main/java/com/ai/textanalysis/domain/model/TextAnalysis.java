@@ -30,7 +30,7 @@ public class TextAnalysis {
   }
 
   /** Creates an analysis result. */
-  public static TextAnalysis create(
+  public static TextAnalysis createAnalysis(
       String summary,
       Sentiment sentiment,
       List<String> keyPoints,

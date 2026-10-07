@@ -18,5 +18,5 @@ import org.springframework.stereotype.Component;
 public class DisabledEmailGateway implements EmailGateway {
 
   @Override
-  public void send(EmailMessage message) {}
+  public void sendEmail(EmailMessage message) {}
 }

@@ -8,15 +8,16 @@ public record LatencyStats(Double p50Ms, Double p95Ms) {
   public static final LatencyStats EMPTY = new LatencyStats(null, null);
 
   /** Computes the percentiles from latencies sorted in ascending order. */
-  public static LatencyStats fromSorted(List<Long> sortedMillis) {
+  public static LatencyStats calculateStats(List<Long> sortedMillis) {
     if (sortedMillis.isEmpty()) {
       return EMPTY;
     }
-    return new LatencyStats(percentile(sortedMillis, 0.50), percentile(sortedMillis, 0.95));
+    return new LatencyStats(
+        calculatePercentile(sortedMillis, 0.50), calculatePercentile(sortedMillis, 0.95));
   }
 
   /** Linearly interpolated percentile of ascending values; 0 when there are none. */
-  public static double percentile(List<Long> sortedValues, double percentile) {
+  public static double calculatePercentile(List<Long> sortedValues, double percentile) {
     if (sortedValues.isEmpty()) {
       return 0.0;
     }

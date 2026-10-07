@@ -13,8 +13,8 @@ import org.springframework.data.domain.Limit;
 
 class AutomationScheduleRepositoryTest extends AbstractDataJpaTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parse("c:44444444-4444-4444-4444-444444444444");
-  private static final OwnerKey OTHER = OwnerKey.parse("c:55555555-5555-5555-5555-555555555555");
+  private static final OwnerKey OWNER = OwnerKey.parseKey("c:44444444-4444-4444-4444-444444444444");
+  private static final OwnerKey OTHER = OwnerKey.parseKey("c:55555555-5555-5555-5555-555555555555");
   private static final String WORKFLOW_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
   private static final Instant JAN_1 = Instant.parse("2026-01-01T00:00:00Z");
 
@@ -26,16 +26,16 @@ class AutomationScheduleRepositoryTest extends AbstractDataJpaTest {
     AutomationSchedule schedule = save(OWNER, "Claimed", "0 0 9 * * *", JAN_1);
     flushAndClear();
     Instant nextRun = schedule.getNextRunAt();
-    Instant provisional = nextRun.plusSeconds(86_400);
+    Instant claimedNextRunAt = nextRun.plusSeconds(86_400);
 
-    boolean first = repository.claim(schedule.getId(), nextRun, provisional);
-    boolean second = repository.claim(schedule.getId(), nextRun, provisional);
+    boolean first = repository.claimSchedule(schedule.getId(), nextRun, claimedNextRunAt);
+    boolean second = repository.claimSchedule(schedule.getId(), nextRun, claimedNextRunAt);
     flushAndClear();
 
     AutomationSchedule reloaded = repository.findByIdAndOwnerKey(schedule.getId(), OWNER).get();
     assertThat(first).isTrue();
     assertThat(second).isFalse();
-    assertThat(reloaded.getNextRunAt()).isEqualTo(provisional);
+    assertThat(reloaded.getNextRunAt()).isEqualTo(claimedNextRunAt);
   }
 
   @Test
@@ -46,9 +46,11 @@ class AutomationScheduleRepositoryTest extends AbstractDataJpaTest {
     final Instant now = Instant.parse("2026-01-02T00:00:00Z");
     AutomationSchedule due = repository.findDue(now, Limit.of(1)).getFirst();
 
-    assertThat(repository.claim(due.getId(), due.getNextRunAt(), due.provisionalNextRunAt(now)))
+    assertThat(
+            repository.claimSchedule(
+                due.getId(), due.getNextRunAt(), due.calculateClaimedNextRunAt(now)))
         .isTrue();
-    due.recordRunFinished(now);
+    due.completeRun(now);
     repository.save(due);
     flushAndClear();
 
@@ -88,7 +90,7 @@ class AutomationScheduleRepositoryTest extends AbstractDataJpaTest {
 
   private AutomationSchedule save(OwnerKey owner, String name, String cron, Instant now) {
     return repository.save(
-        AutomationSchedule.create(
+        AutomationSchedule.createSchedule(
             owner.value(), name, cron, "UTC", WORKFLOW_ID, "user@example.com", "Brief", now));
   }
 }

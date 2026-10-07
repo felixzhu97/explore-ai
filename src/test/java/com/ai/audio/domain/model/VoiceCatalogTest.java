@@ -14,11 +14,11 @@ class VoiceCatalogTest {
   @Test
   @DisplayName("should contain default voices and models")
   void shouldContainDefaultVoicesAndModels() {
-    VoiceCatalog catalog = VoiceCatalog.defaults();
+    VoiceCatalog catalog = VoiceCatalog.createDefaultCatalog();
 
     assertThat(catalog.containsVoice("alloy")).isTrue();
     assertThat(catalog.containsModel("tts-1")).isTrue();
-    assertThat(catalog.defaultVoice()).isEqualTo("alloy");
+    assertThat(catalog.getDefaultVoice()).isEqualTo("alloy");
   }
 
   @Test
@@ -47,7 +47,7 @@ class VoiceCatalogTest {
   void shouldReturnUnknownVoiceInfoForBlankVoiceId() {
     VoiceCatalog catalog = new VoiceCatalog(List.of("alloy", ""), List.of("tts-1"));
 
-    List<VoiceInfo> infos = catalog.voiceInfos();
+    List<VoiceInfo> infos = catalog.listVoices();
 
     assertThat(infos.get(1).id()).isEqualTo("unknown");
     assertThat(infos.get(1).name()).isEqualTo("Unknown");

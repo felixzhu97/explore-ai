@@ -13,12 +13,12 @@ public class ToolResult {
   private final String content;
 
   /** Creates a successful result. */
-  public static ToolResult success(String content) {
+  public static ToolResult createSuccessResult(String content) {
     return new ToolResult(true, content);
   }
 
   /** Creates a failed result. */
-  public static ToolResult failure(String message) {
+  public static ToolResult createFailureResult(String message) {
     return new ToolResult(false, message);
   }
 }

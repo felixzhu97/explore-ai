@@ -51,7 +51,7 @@ public final class ScheduleTiming extends AbstractEmbeddable {
   }
 
   /** Repeats on the cron expression, evaluated in the time zone. */
-  public static ScheduleTiming cron(String cronExpression, String timezone) {
+  public static ScheduleTiming createCronTiming(String cronExpression, String timezone) {
     String cron = DomainStrings.requireNonBlank(cronExpression, "cronExpression").trim();
     if (cron.length() > MAX_CRON) {
       throw new IllegalArgumentException("cronExpression is too long");
@@ -61,19 +61,20 @@ public final class ScheduleTiming extends AbstractEmbeddable {
   }
 
   /** Runs once at an instant chosen by the user in the time zone. */
-  public static ScheduleTiming once(String timezone) {
+  public static ScheduleTiming createOneOffTiming(String timezone) {
     return new ScheduleTiming(ScheduleKind.ONCE, null, timezone);
   }
 
   /** Builds the timing for the kind; the cron expression is ignored for one-off runs. */
-  public static ScheduleTiming of(ScheduleKind kind, String cronExpression, String timezone) {
+  public static ScheduleTiming createTiming(
+      ScheduleKind kind, String cronExpression, String timezone) {
     return Objects.requireNonNull(kind, "scheduleKind") == ScheduleKind.ONCE
-        ? once(timezone)
-        : cron(cronExpression, timezone);
+        ? createOneOffTiming(timezone)
+        : createCronTiming(cronExpression, timezone);
   }
 
   /** Tells whether the schedule runs only once. */
-  public boolean isOnce() {
+  public boolean isOneOff() {
     return scheduleKind == ScheduleKind.ONCE;
   }
 
@@ -83,8 +84,8 @@ public final class ScheduleTiming extends AbstractEmbeddable {
    * @throws IllegalArgumentException when the expression never fires again
    * @throws IllegalStateException for a one-off timing, which has no cron fire times
    */
-  public Instant nextRunAfter(Instant after) {
-    if (isOnce()) {
+  public Instant calculateNextRunAt(Instant after) {
+    if (isOneOff()) {
       throw new IllegalStateException("One-off schedules have no cron fire times");
     }
     ZonedDateTime next =

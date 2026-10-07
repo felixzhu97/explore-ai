@@ -60,7 +60,7 @@ public class GoldenEvalService {
     for (GoldenEvalCase evalCase : cases) {
       outcomes.add(runOne(evalCase, fixtureIds));
     }
-    return GoldenSuiteReport.of(outcomes);
+    return GoldenSuiteReport.createReport(outcomes);
   }
 
   private CaseEvalOutcome runOne(GoldenEvalCase evalCase, Map<String, String> fixtureIds) {

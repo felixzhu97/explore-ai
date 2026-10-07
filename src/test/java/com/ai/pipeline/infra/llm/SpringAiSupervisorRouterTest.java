@@ -50,8 +50,8 @@ class SpringAiSupervisorRouterTest {
   @DisplayName("should route to primary worker from json response")
   void shouldRouteToPrimaryWorkerFromJsonResponse() {
     AgentDefinition researcher =
-        AgentDefinition.create(
-            AgentType.of("researcher"), "Researcher", "Finds facts", "You research.");
+        AgentDefinition.createDefinition(
+            AgentType.createType("researcher"), "Researcher", "Finds facts", "You research.");
     when(chatClientProvider.createBareStateless(any(TextChatOptions.class))).thenReturn(chatClient);
     when(chatClient.prompt()).thenReturn(requestSpec);
     when(requestSpec.system(any(String.class))).thenReturn(requestSpec);
@@ -69,7 +69,7 @@ class SpringAiSupervisorRouterTest {
 
     RoutingPlan plan = router.plan("find market data", List.of(researcher));
 
-    assertThat(plan.primaryAgent()).isEqualTo(AgentType.of("researcher"));
+    assertThat(plan.primaryAgent()).isEqualTo(AgentType.createType("researcher"));
     assertThat(plan.reason()).isEqualTo("needs lookup");
   }
 
@@ -77,7 +77,8 @@ class SpringAiSupervisorRouterTest {
   @DisplayName("should fallback when primary agent invalid")
   void shouldFallbackWhenPrimaryAgentInvalid() {
     AgentDefinition writer =
-        AgentDefinition.create(AgentType.of("writer"), "Writer", "Writes prose", "You write.");
+        AgentDefinition.createDefinition(
+            AgentType.createType("writer"), "Writer", "Writes prose", "You write.");
     when(chatClientProvider.createBareStateless(any(TextChatOptions.class))).thenReturn(chatClient);
     when(chatClient.prompt()).thenReturn(requestSpec);
     when(requestSpec.system(any(String.class))).thenReturn(requestSpec);
@@ -97,7 +98,7 @@ class SpringAiSupervisorRouterTest {
 
     RoutingPlan plan = router.plan("summarize", List.of(writer));
 
-    assertThat(plan.primaryAgent()).isEqualTo(AgentType.of("writer"));
+    assertThat(plan.primaryAgent()).isEqualTo(AgentType.createType("writer"));
     assertThat(plan.subtasks()).hasSize(1);
   }
 
@@ -105,7 +106,8 @@ class SpringAiSupervisorRouterTest {
   @DisplayName("should fallback when decision null")
   void shouldFallbackWhenDecisionNull() {
     AgentDefinition writer =
-        AgentDefinition.create(AgentType.of("writer"), "Writer", "Writes prose", "You write.");
+        AgentDefinition.createDefinition(
+            AgentType.createType("writer"), "Writer", "Writes prose", "You write.");
     when(chatClientProvider.createBareStateless(any(TextChatOptions.class))).thenReturn(chatClient);
     when(chatClient.prompt()).thenReturn(requestSpec);
     when(requestSpec.system(any(String.class))).thenReturn(requestSpec);
@@ -115,7 +117,7 @@ class SpringAiSupervisorRouterTest {
 
     RoutingPlan plan = router.plan("summarize", List.of(writer));
 
-    assertThat(plan.primaryAgent()).isEqualTo(AgentType.of("writer"));
+    assertThat(plan.primaryAgent()).isEqualTo(AgentType.createType("writer"));
     assertThat(plan.reason()).contains("fallback");
   }
 }

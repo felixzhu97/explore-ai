@@ -23,17 +23,17 @@ public record ChatEvaluationResult(
     List<String> evaluatorFeedback) {
 
   public ChatEvaluationResult {
-    coherenceScore = clamp(coherenceScore);
-    relevanceScore = clamp(relevanceScore);
-    helpfulnessScore = clamp(helpfulnessScore);
-    factualityScore = factualityScore == null ? null : clamp(factualityScore);
-    overallScore = clamp(overallScore);
+    coherenceScore = clampScore(coherenceScore);
+    relevanceScore = clampScore(relevanceScore);
+    helpfulnessScore = clampScore(helpfulnessScore);
+    factualityScore = factualityScore == null ? null : clampScore(factualityScore);
+    overallScore = clampScore(overallScore);
     safetyFlags = copyOf(safetyFlags);
     suggestions = copyOf(suggestions);
     evaluatorFeedback = copyOf(evaluatorFeedback);
   }
 
-  private static double clamp(double score) {
+  private static double clampScore(double score) {
     return Math.max(0, Math.min(1, score));
   }
 

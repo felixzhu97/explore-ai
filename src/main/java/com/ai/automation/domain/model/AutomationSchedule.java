@@ -76,7 +76,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
       String recipientEmail,
       String brief,
       Instant nextRunAt) {
-    super(ScheduleId.generate(), ownerKey, name);
+    super(ScheduleId.generateId(), ownerKey, name);
     this.timing = Objects.requireNonNull(timing, "timing");
     this.actionType = AutomationActionType.RUN_PIPELINE_TEMPLATE;
     this.pipelineTemplateId = requireTemplateId(pipelineTemplateId);
@@ -86,7 +86,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
   }
 
   /** Creates an enabled cron schedule whose first run is the next fire time after {@code now}. */
-  public static AutomationSchedule create(
+  public static AutomationSchedule createSchedule(
       String ownerKey,
       String name,
       String cronExpression,
@@ -95,7 +95,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
       String recipientEmail,
       String brief,
       Instant now) {
-    ScheduleTiming timing = ScheduleTiming.cron(cronExpression, timezone);
+    ScheduleTiming timing = ScheduleTiming.createCronTiming(cronExpression, timezone);
     return new AutomationSchedule(
         ownerKey,
         name,
@@ -103,11 +103,11 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
         pipelineTemplateId,
         recipientEmail,
         brief,
-        timing.nextRunAfter(now));
+        timing.calculateNextRunAt(now));
   }
 
   /** Creates an enabled one-off schedule that runs at {@code runAt}, which must be later. */
-  public static AutomationSchedule createOnce(
+  public static AutomationSchedule createOneOffSchedule(
       String ownerKey,
       String name,
       String timezone,
@@ -119,7 +119,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
     return new AutomationSchedule(
         ownerKey,
         name,
-        ScheduleTiming.once(timezone),
+        ScheduleTiming.createOneOffTiming(timezone),
         pipelineTemplateId,
         recipientEmail,
         brief,
@@ -143,11 +143,11 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
     this.pipelineTemplateId = requireTemplateId(pipelineTemplateId);
     this.recipientEmail = requireEmail(recipientEmail);
     this.brief = requireBrief(brief);
-    if (timing.isOnce()) {
+    if (timing.isOneOff()) {
       this.nextRunAt = requireFutureRunAt(runAt, now);
       this.enabled = true;
     } else {
-      this.nextRunAt = timing.nextRunAfter(now);
+      this.nextRunAt = timing.calculateNextRunAt(now);
     }
   }
 
@@ -156,56 +156,56 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
    *
    * @throws IllegalArgumentException when a one-off schedule has no run left
    */
-  public void turnOn(Instant now) {
-    if (isOnce()) {
+  public void enableSchedule(Instant now) {
+    if (isOneOff()) {
       if (!hasPendingRun(now)) {
         throw new IllegalArgumentException(
             "One-shot schedule already completed; set a new runAt before enabling");
       }
     } else {
-      this.nextRunAt = timing.nextRunAfter(now);
+      this.nextRunAt = timing.calculateNextRunAt(now);
     }
     this.enabled = true;
   }
 
   /** Tells whether a run is still to come after {@code now}; a cron schedule always has one. */
   public boolean hasPendingRun(Instant now) {
-    return !isOnce() || pendingRunAt().filter(runAt -> runAt.isAfter(now)).isPresent();
+    return !isOneOff() || getPendingRunAt().filter(runAt -> runAt.isAfter(now)).isPresent();
   }
 
   /** Returns when a one-off schedule will run, or empty once it has been claimed or finished. */
-  public Optional<Instant> pendingRunAt() {
-    return isOnce() && !ONCE_TERMINAL_NEXT.equals(nextRunAt)
+  public Optional<Instant> getPendingRunAt() {
+    return isOneOff() && !ONCE_TERMINAL_NEXT.equals(nextRunAt)
         ? Optional.of(nextRunAt)
         : Optional.empty();
   }
 
   /** Returns the next_run_at written while a run is claimed, so other scanners skip it. */
-  public Instant provisionalNextRunAt(Instant now) {
-    return isOnce() ? ONCE_TERMINAL_NEXT : timing.nextRunAfter(now);
+  public Instant calculateClaimedNextRunAt(Instant now) {
+    return isOneOff() ? ONCE_TERMINAL_NEXT : timing.calculateNextRunAt(now);
   }
 
   /**
    * Records a finished run; a one-off schedule turns off, a cron schedule moves to its next run.
    */
-  public void recordRunFinished(Instant finishedAt) {
+  public void completeRun(Instant finishedAt) {
     this.lastRunAt = Objects.requireNonNull(finishedAt, "finishedAt");
-    if (isOnce()) {
+    if (isOneOff()) {
       this.nextRunAt = ONCE_TERMINAL_NEXT;
       this.enabled = false;
     } else {
-      this.nextRunAt = timing.nextRunAfter(finishedAt);
+      this.nextRunAt = timing.calculateNextRunAt(finishedAt);
     }
   }
 
   /** Builds the email that delivers a run's result to the recipient. */
-  public EmailMessage resultEmail(String textBody, String htmlBody) {
+  public EmailMessage composeResultEmail(String textBody, String htmlBody) {
     return new EmailMessage(recipientEmail, SUBJECT_PREFIX + getName(), textBody, htmlBody);
   }
 
   /** Tells whether the schedule runs only once. */
-  public boolean isOnce() {
-    return timing.isOnce();
+  public boolean isOneOff() {
+    return timing.isOneOff();
   }
 
   private static Instant requireFutureRunAt(Instant runAt, Instant now) {
@@ -219,7 +219,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
   }
 
   private static PipelineTemplateId requireTemplateId(String pipelineTemplateId) {
-    return PipelineTemplateId.of(
+    return PipelineTemplateId.parseId(
         DomainStrings.requireNonBlank(pipelineTemplateId, "pipelineTemplateId"));
   }
 

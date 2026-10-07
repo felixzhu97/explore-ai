@@ -27,7 +27,7 @@ public record VoiceCatalog(List<String> voices, List<String> models) {
   }
 
   /** Returns the built-in voices and models. */
-  public static VoiceCatalog defaults() {
+  public static VoiceCatalog createDefaultCatalog() {
     return new VoiceCatalog(
         List.of("alloy", "echo", "fable", "onyx", "nova", "shimmer"),
         List.of("gpt-4o-mini-tts", "gpt-4o-tts", "tts-1", "tts-1-hd"));
@@ -44,17 +44,17 @@ public record VoiceCatalog(List<String> voices, List<String> models) {
   }
 
   /** Returns the first voice as the default. */
-  public String defaultVoice() {
+  public String getDefaultVoice() {
     return voices.getFirst();
   }
 
   /** Returns the first model as the default. */
-  public String defaultModel() {
+  public String getDefaultModel() {
     return models.getFirst();
   }
 
   /** Lists the voices with their display details. */
-  public List<VoiceInfo> voiceInfos() {
+  public List<VoiceInfo> listVoices() {
     return voices.stream().map(this::toVoiceInfo).toList();
   }
 

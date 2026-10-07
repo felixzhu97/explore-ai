@@ -29,20 +29,23 @@ class OwnerMergeServiceTest {
   @Test
   @DisplayName("should move the linked browser rows to the account when merging")
   void shouldMoveTheLinkedBrowserRowsToTheAccountWhenMerging() {
-    Account account = Account.create(ExternalIdentity.of("google", "sub"), null, null);
-    account.linkBrowser(ClientId.parse(CLIENT_ID), null, null);
+    Account account =
+        Account.createAccount(ExternalIdentity.createIdentity("google", "sub"), null, null);
+    account.linkBrowser(ClientId.parseId(CLIENT_ID), null, null);
 
     useCase.mergeGuestIntoAccount(account);
 
     verify(ownerPartitionRepository)
         .reassignOwner(
-            OwnerKey.forClient(CLIENT_ID), OwnerKey.forAccount(account.getId().toString()));
+            OwnerKey.createClientKey(CLIENT_ID),
+            OwnerKey.createAccountKey(account.getId().toString()));
   }
 
   @Test
   @DisplayName("should refuse to merge when the account has no linked browser")
   void shouldRefuseToMergeWhenTheAccountHasNoLinkedBrowser() {
-    Account account = Account.create(ExternalIdentity.of("google", "sub"), null, null);
+    Account account =
+        Account.createAccount(ExternalIdentity.createIdentity("google", "sub"), null, null);
 
     assertThatThrownBy(() -> useCase.mergeGuestIntoAccount(account))
         .isInstanceOf(IllegalStateException.class);

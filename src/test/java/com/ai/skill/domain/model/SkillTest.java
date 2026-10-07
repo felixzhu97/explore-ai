@@ -15,7 +15,8 @@ class SkillTest {
   @DisplayName("should create enabled skill when create called")
   void shouldCreateEnabledSkillWhenCreateCalled() {
     Skill skill =
-        Skill.create("c:client-1", "Brief Style", "Short answers", "Be concise.", List.of("Read"));
+        Skill.createSkill(
+            "c:client-1", "Brief Style", "Short answers", "Be concise.", List.of("Read"));
 
     assertThat(skill.getId()).isNotNull();
     assertThat(skill.getOwnerKeyValue()).isEqualTo("c:client-1");
@@ -31,7 +32,7 @@ class SkillTest {
   @Test
   @DisplayName("should update fields when update called")
   void shouldUpdateFieldsWhenUpdateCalled() {
-    Skill skill = Skill.create("c:client-1", "Old", "Old desc", "Old instructions", List.of());
+    Skill skill = Skill.createSkill("c:client-1", "Old", "Old desc", "Old instructions", List.of());
     final Instant beforeUpdate = skill.getUpdatedAt();
 
     skill.update("New", "New desc", "New instructions", List.of("Search"));
@@ -46,7 +47,7 @@ class SkillTest {
   @Test
   @DisplayName("should disable skill when disable called")
   void shouldDisableSkillWhenDisableCalled() {
-    Skill skill = Skill.create("c:client-1", "Name", "", "Instructions", List.of());
+    Skill skill = Skill.createSkill("c:client-1", "Name", "", "Instructions", List.of());
 
     skill.disable();
 
@@ -56,7 +57,7 @@ class SkillTest {
   @Test
   @DisplayName("should throw when name blank")
   void shouldThrowWhenNameBlank() {
-    assertThatThrownBy(() -> Skill.create("c:client-1", "  ", "", "Instructions", List.of()))
+    assertThatThrownBy(() -> Skill.createSkill("c:client-1", "  ", "", "Instructions", List.of()))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("name");
   }

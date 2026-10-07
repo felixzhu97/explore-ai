@@ -14,7 +14,7 @@ public enum MetricsCapability {
 
   @JsonValue
   public String value() {
-    return aiCapability().value();
+    return aiCapability().getValue();
   }
 
   /** Maps a capability to its API value. */
@@ -24,7 +24,7 @@ public enum MetricsCapability {
 
   /** Maps a capability value such as {@code chat}; rejects unknown capabilities. */
   public static MetricsCapability fromValue(String raw) {
-    return from(AiCapability.require(raw));
+    return from(AiCapability.parseCapability(raw));
   }
 
   private AiCapability aiCapability() {

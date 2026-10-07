@@ -71,16 +71,16 @@ public class H2SpringAiVectorStore implements VectorStore {
       return List.of();
     }
 
-    float[] queryEmbedding = embeddingRepository.embed(query);
+    float[] queryEmbedding = embeddingRepository.embedText(query);
     int topK = Math.max(request.getTopK(), 1);
     List<UUID> documentIds = extractDocumentIds(filter);
     List<ScoredChunk> chunks =
-        chunkSearchRepository.search(queryEmbedding, topK, ownerKey.get(), documentIds);
+        chunkSearchRepository.searchChunks(queryEmbedding, topK, ownerKey.get(), documentIds);
     double threshold = request.getSimilarityThreshold();
 
     List<Document> results =
         chunks.stream()
-            .filter(scored -> scored.meets(threshold))
+            .filter(scored -> scored.meetsThreshold(threshold))
             .map(H2SpringAiVectorStore::toDocument)
             .toList();
     if (results.isEmpty() && !documentIds.isEmpty()) {
@@ -97,7 +97,7 @@ public class H2SpringAiVectorStore implements VectorStore {
       float[] queryEmbedding, String ownerKey, List<UUID> documentIds, int topK) {
     List<Document> results =
         chunkSearchRepository.findLeadingChunks(ownerKey, documentIds, topK).stream()
-            .map(chunk -> toDocument(ScoredChunk.of(chunk, queryEmbedding)))
+            .map(chunk -> toDocument(ScoredChunk.createScoredChunk(chunk, queryEmbedding)))
             .toList();
     return results;
   }
@@ -109,7 +109,7 @@ public class H2SpringAiVectorStore implements VectorStore {
     metadata.put("score", scored.score());
     return Document.builder()
         .id(chunk.getId().toString())
-        .text(chunk.excerpt())
+        .text(chunk.getExcerpt())
         .metadata(metadata)
         .score(scored.score())
         .build();

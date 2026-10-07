@@ -89,8 +89,8 @@ class MetricsServiceTest {
   @DisplayName("should filter drilldown by capability and day")
   void shouldFilterDrilldownByCapabilityAndDay() {
     eventRepository.events.add(
-        AiInvocationEvent.succeeded(
-                AiCapability.CHAT, "chat.stream", Latency.ofMillis(12), OwnerKey.UNOWNED)
+        AiInvocationEvent.createSucceededEvent(
+                AiCapability.CHAT, "chat.stream", Latency.createFromMillis(12), OwnerKey.UNOWNED)
             .sessionId("s1")
             .build());
 

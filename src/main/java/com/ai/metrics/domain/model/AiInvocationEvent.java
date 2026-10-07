@@ -89,7 +89,9 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
 
   private AiInvocationEvent(Builder builder) {
     super(
-        builder.id != null ? InvocationEventId.of(builder.id) : InvocationEventId.generate(),
+        builder.id != null
+            ? InvocationEventId.createId(builder.id)
+            : InvocationEventId.generateId(),
         builder.ownerKey);
     this.occurredAt = Objects.requireNonNullElseGet(builder.occurredAt, Instant::now);
     this.capability = builder.capability;
@@ -109,13 +111,13 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
   }
 
   /** Starts a successful invocation event; optional context goes on the returned builder. */
-  public static Builder succeeded(
+  public static Builder createSucceededEvent(
       AiCapability capability, String operation, Latency latency, OwnerKey ownerKey) {
     return new Builder(capability, operation, InvocationOutcome.SUCCESS, latency, ownerKey, null);
   }
 
   /** Starts a failed invocation event; optional context goes on the returned builder. */
-  public static Builder failed(
+  public static Builder createFailedEvent(
       AiCapability capability,
       String operation,
       Latency latency,
@@ -132,13 +134,13 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
 
   /** Returns how long the invocation took. */
   public Latency latency() {
-    return Latency.ofMillis(latencyMs);
+    return Latency.createFromMillis(latencyMs);
   }
 
   /** Returns the error of a failed invocation, or empty when it succeeded. */
   public Optional<ErrorSummary> error() {
     return outcome == InvocationOutcome.ERROR
-        ? Optional.of(ErrorSummary.of(errorCode, errorMessage))
+        ? Optional.of(ErrorSummary.createSummary(errorCode, errorMessage))
         : Optional.empty();
   }
 
@@ -146,7 +148,10 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
     return value == null || value.isBlank() ? null : value.trim();
   }
 
-  /** Optional context of an event started by {@link #succeeded} or {@link #failed}. */
+  /**
+   * Optional context of an event started by {@link #createSucceededEvent} or {@link
+   * #createFailedEvent}.
+   */
   public static final class Builder {
     private final AiCapability capability;
     private final String operation;

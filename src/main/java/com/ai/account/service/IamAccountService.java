@@ -19,8 +19,8 @@ public class IamAccountService {
   /** Returns the account for the token subject, creating it on first use. */
   @Transactional
   public Account signIn(Jwt jwt) {
-    ExternalIdentity identity = ExternalIdentity.iam(jwt.getSubject());
-    ContactEmail email = ContactEmail.ofNullable(jwt.getClaimAsString("email"));
+    ExternalIdentity identity = ExternalIdentity.createIamIdentity(jwt.getSubject());
+    ContactEmail email = ContactEmail.parseOptionalEmail(jwt.getClaimAsString("email"));
     return accountRepository
         .findByIdentity(identity)
         .map(
@@ -28,6 +28,6 @@ public class IamAccountService {
               account.recordSignIn(email, null);
               return accountRepository.save(account);
             })
-        .orElseGet(() -> accountRepository.save(Account.create(identity, email, null)));
+        .orElseGet(() -> accountRepository.save(Account.createAccount(identity, email, null)));
   }
 }

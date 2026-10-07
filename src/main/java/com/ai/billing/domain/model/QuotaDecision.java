@@ -16,12 +16,12 @@ public record QuotaDecision(boolean allowed, Plan plan, int limit, int remaining
   }
 
   /** Allows the request with the requests left under the limit. */
-  public static QuotaDecision allow(Plan plan, int limit, int remaining) {
+  public static QuotaDecision createApproval(Plan plan, int limit, int remaining) {
     return new QuotaDecision(true, plan, limit, remaining);
   }
 
   /** Refuses the request; nothing is remaining, whichever limit ran out. */
-  public static QuotaDecision refuse(Plan plan, int limit) {
+  public static QuotaDecision createRefusal(Plan plan, int limit) {
     return new QuotaDecision(false, plan, limit, 0);
   }
 }

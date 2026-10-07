@@ -14,7 +14,7 @@ class TextAnalysisTest {
   @DisplayName("should filter null elements from key points and entities")
   void shouldFilterNullElementsFromKeyPointsAndEntities() {
     TextAnalysis analysis =
-        TextAnalysis.create(
+        TextAnalysis.createAnalysis(
             "s", Sentiment.NEUTRAL, Arrays.asList("a", null, "b"), Arrays.asList(null, "e"), "en");
 
     assertThat(analysis.getKeyPoints()).containsExactly("a", "b");
@@ -25,7 +25,7 @@ class TextAnalysisTest {
   @DisplayName("should return immutable entity lists")
   void shouldReturnImmutableEntityLists() {
     TextAnalysis analysis =
-        TextAnalysis.create("s", Sentiment.NEUTRAL, List.of("k"), List.of("e"), "en");
+        TextAnalysis.createAnalysis("s", Sentiment.NEUTRAL, List.of("k"), List.of("e"), "en");
 
     assertThat(analysis.getKeyPoints()).containsExactly("k");
     assertThat(analysis.getEntities()).containsExactly("e");

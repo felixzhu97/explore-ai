@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class RagDocumentTest {
 
   private static final DocumentId TEST_ID =
-      DocumentId.of(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
+      DocumentId.createId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
   private static final String TEST_TITLE = "Test Document";
   private static final String TEST_FILE_NAME = "test.pdf";
   private static final long TEST_FILE_SIZE = 1024L;
@@ -160,10 +160,10 @@ class RagDocumentTest {
   void shouldTagTheChunkWithTheDocumentOwnerTitleAndFileName() {
     RagDocument doc = processing();
 
-    DocumentChunk chunk = doc.newChunk(2, "text", Map.of("page", 4));
+    DocumentChunk chunk = doc.createChunk(2, "text", Map.of("page", 4));
 
     assertThat(chunk.getDocumentId()).isEqualTo(doc.getId());
-    assertThat(chunk.getOwnerKey()).isEqualTo(OwnerKey.parse(TEST_OWNER_KEY));
+    assertThat(chunk.getOwnerKey()).isEqualTo(OwnerKey.parseKey(TEST_OWNER_KEY));
     assertThat(chunk.getChunkIndex()).isEqualTo(2);
     assertThat(chunk.getMetadata())
         .containsEntry("page", 4)
@@ -177,7 +177,7 @@ class RagDocumentTest {
   void shouldLeaveOutTheFileNameWhenTheDocumentHasNone() {
     RagDocument doc = RagDocument.startIngestion("Notes", null, 5, TEST_OWNER_KEY);
 
-    DocumentChunk chunk = doc.newChunk(0, "text", Map.of());
+    DocumentChunk chunk = doc.createChunk(0, "text", Map.of());
 
     assertThat(chunk.getMetadata()).doesNotContainKey("fileName");
   }

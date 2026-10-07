@@ -15,11 +15,12 @@ class AgentPipelineTest {
   @Test
   void shouldOrderSingleNodeWithoutEdges() {
     AgentPipeline pipeline =
-        AgentPipeline.create(
-            List.of(AgentPipeline.PipelineNode.of("n1", AgentType.of("k8s"))), List.of());
+        AgentPipeline.createPipeline(
+            List.of(AgentPipeline.PipelineNode.createNode("n1", AgentType.createType("k8s"))),
+            List.of());
 
     assertEquals(
-        List.of(AgentType.of("k8s")),
+        List.of(AgentType.createType("k8s")),
         pipeline.resolveExecutionOrder().stream()
             .map(AgentPipeline.PipelineNode::agentType)
             .toList());
@@ -28,14 +29,14 @@ class AgentPipelineTest {
   @Test
   void shouldTopoSortConnectedWorkers() {
     AgentPipeline pipeline =
-        AgentPipeline.create(
+        AgentPipeline.createPipeline(
             List.of(
-                AgentPipeline.PipelineNode.of("a", AgentType.of("k8s")),
-                AgentPipeline.PipelineNode.of("b", AgentType.of("aiops"))),
+                AgentPipeline.PipelineNode.createNode("a", AgentType.createType("k8s")),
+                AgentPipeline.PipelineNode.createNode("b", AgentType.createType("aiops"))),
             List.of(new AgentPipeline.PipelineEdge("a", "b")));
 
     assertEquals(
-        List.of(AgentType.of("k8s"), AgentType.of("aiops")),
+        List.of(AgentType.createType("k8s"), AgentType.createType("aiops")),
         pipeline.resolveExecutionOrder().stream()
             .map(AgentPipeline.PipelineNode::agentType)
             .toList());
@@ -43,7 +44,7 @@ class AgentPipelineTest {
 
   @Test
   void shouldRejectEmptyPipeline() {
-    AgentPipeline pipeline = AgentPipeline.create(List.of(), List.of());
+    AgentPipeline pipeline = AgentPipeline.createPipeline(List.of(), List.of());
     IllegalArgumentException error =
         assertThrows(IllegalArgumentException.class, pipeline::resolveExecutionOrder);
     assertTrue(error.getMessage().contains("at least one"));
@@ -52,10 +53,10 @@ class AgentPipelineTest {
   @Test
   void shouldRejectUnconnectedNodes() {
     AgentPipeline pipeline =
-        AgentPipeline.create(
+        AgentPipeline.createPipeline(
             List.of(
-                AgentPipeline.PipelineNode.of("a", AgentType.of("k8s")),
-                AgentPipeline.PipelineNode.of("b", AgentType.of("aiops"))),
+                AgentPipeline.PipelineNode.createNode("a", AgentType.createType("k8s")),
+                AgentPipeline.PipelineNode.createNode("b", AgentType.createType("aiops"))),
             List.of());
 
     IllegalArgumentException error =
@@ -66,10 +67,10 @@ class AgentPipelineTest {
   @Test
   void shouldRejectCycle() {
     AgentPipeline pipeline =
-        AgentPipeline.create(
+        AgentPipeline.createPipeline(
             List.of(
-                AgentPipeline.PipelineNode.of("a", AgentType.of("k8s")),
-                AgentPipeline.PipelineNode.of("b", AgentType.of("aiops"))),
+                AgentPipeline.PipelineNode.createNode("a", AgentType.createType("k8s")),
+                AgentPipeline.PipelineNode.createNode("b", AgentType.createType("aiops"))),
             List.of(
                 new AgentPipeline.PipelineEdge("a", "b"),
                 new AgentPipeline.PipelineEdge("b", "a")));
@@ -82,8 +83,9 @@ class AgentPipelineTest {
   @Test
   void shouldRejectSupervisorNode() {
     AgentPipeline pipeline =
-        AgentPipeline.create(
-            List.of(AgentPipeline.PipelineNode.of("s", AgentType.supervisor())), List.of());
+        AgentPipeline.createPipeline(
+            List.of(AgentPipeline.PipelineNode.createNode("s", AgentType.createSupervisorType())),
+            List.of());
 
     assertThrows(IllegalArgumentException.class, pipeline::resolveExecutionOrder);
   }
@@ -93,7 +95,7 @@ class AgentPipelineTest {
     AgentPipeline.PipelineNode node =
         new AgentPipeline.PipelineNode(
             "n1",
-            AgentType.of("research"),
+            AgentType.createType("research"),
             "Custom Research",
             "custom desc",
             "Custom prompt",
@@ -102,16 +104,17 @@ class AgentPipelineTest {
     assertEquals("Custom Research", node.name());
     assertEquals("Custom prompt", node.systemPrompt());
     assertEquals(List.of("web_search"), node.toolKeys());
-    assertEquals("Custom prompt", node.toDefinition().getSystemPrompt());
+    assertEquals("Custom prompt", node.buildDefinition().getSystemPrompt());
   }
 
   @Test
   @DisplayName("should use the catalog prompt when a pipeline node has no prompt of its own")
   void shouldUseTheCatalogPromptWhenAPipelineNodeHasNoPromptOfItsOwn() {
     AgentPipeline.PipelineNode node =
-        new AgentPipeline.PipelineNode("n0", AgentType.of("research"), "Scout", "", "", List.of());
+        new AgentPipeline.PipelineNode(
+            "n0", AgentType.createType("research"), "Scout", "", "", List.of());
 
-    AgentDefinition definition = node.toDefinition(builtin("research"));
+    AgentDefinition definition = node.buildDefinition(builtin("research"));
 
     assertFalse(node.hasOwnPrompt());
     assertEquals("Scout", definition.getName());
@@ -123,14 +126,14 @@ class AgentPipelineTest {
   void shouldKeepTheNodePromptWhenAPipelineNodeHasItsOwnPrompt() {
     AgentPipeline.PipelineNode node =
         new AgentPipeline.PipelineNode(
-            "n0", AgentType.of("research"), "Scout", "", "Only cite sources.", List.of());
+            "n0", AgentType.createType("research"), "Scout", "", "Only cite sources.", List.of());
 
-    assertEquals("Only cite sources.", node.toDefinition(builtin("research")).getSystemPrompt());
+    assertEquals("Only cite sources.", node.buildDefinition(builtin("research")).getSystemPrompt());
   }
 
   private static AgentDefinition builtin(String type) {
-    return AgentDefinition.create(
-        AgentType.of(type),
+    return AgentDefinition.createDefinition(
+        AgentType.createType(type),
         "Builtin " + type,
         "",
         "You are " + type + ".",

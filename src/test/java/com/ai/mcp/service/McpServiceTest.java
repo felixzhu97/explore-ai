@@ -58,7 +58,7 @@ class McpServiceTest {
   @DisplayName("should return connected servers from repository")
   void shouldReturnConnectedServersFromRepository() {
     Map<String, McpServerConnection> servers =
-        Map.of("weather", McpServerConnection.connected("weather", 2));
+        Map.of("weather", McpServerConnection.createConnectedServer("weather", 2));
     when(mcpClientGateway.listServers()).thenReturn(servers);
 
     assertThat(service.getConnectedServers()).isEqualTo(servers);
@@ -67,7 +67,8 @@ class McpServiceTest {
   @Test
   @DisplayName("should return tool definitions from repository")
   void shouldReturnToolDefinitionsFromRepository() {
-    List<McpToolDefinition> tools = List.of(McpToolDefinition.create("weather", "Weather lookup"));
+    List<McpToolDefinition> tools =
+        List.of(McpToolDefinition.createDefinition("weather", "Weather lookup"));
     when(mcpClientGateway.listTools()).thenReturn(tools);
 
     assertThat(service.getToolDefinitions()).isEqualTo(tools);

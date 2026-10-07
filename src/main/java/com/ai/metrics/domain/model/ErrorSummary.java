@@ -18,15 +18,15 @@ public record ErrorSummary(String code, String message) {
   private static final Pattern CONTROL_AND_SPACE = Pattern.compile("[\\p{Cntrl}\\s]+");
 
   public ErrorSummary {
-    code = cap(clean(code), MAX_CODE_LENGTH);
+    code = truncateText(stripWhitespace(code), MAX_CODE_LENGTH);
     if (code == null) {
       code = UNKNOWN_CODE;
     }
-    message = cap(clean(message), MAX_MESSAGE_LENGTH);
+    message = truncateText(stripWhitespace(message), MAX_MESSAGE_LENGTH);
   }
 
   /** Summarizes an exception by its type and message. */
-  public static ErrorSummary of(Throwable error) {
+  public static ErrorSummary createSummary(Throwable error) {
     if (error == null) {
       return new ErrorSummary(UNKNOWN_CODE, null);
     }
@@ -35,11 +35,11 @@ public record ErrorSummary(String code, String message) {
   }
 
   /** Summarizes an error from a code and a message. */
-  public static ErrorSummary of(String code, String message) {
+  public static ErrorSummary createSummary(String code, String message) {
     return new ErrorSummary(code, message);
   }
 
-  private static String clean(String value) {
+  private static String stripWhitespace(String value) {
     if (value == null) {
       return null;
     }
@@ -47,7 +47,7 @@ public record ErrorSummary(String code, String message) {
     return collapsed.isEmpty() ? null : collapsed;
   }
 
-  private static String cap(String value, int max) {
+  private static String truncateText(String value, int max) {
     if (value == null || value.length() <= max) {
       return value;
     }

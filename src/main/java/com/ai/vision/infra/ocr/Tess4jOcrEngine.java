@@ -32,7 +32,7 @@ public class Tess4jOcrEngine implements OcrEngine {
   }
 
   @Override
-  public OcrResult extract(BufferedImage image) {
+  public OcrResult extractText(BufferedImage image) {
     ensureAvailable();
     try {
       String text = tesseract.doOCR(image);

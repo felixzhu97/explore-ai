@@ -14,17 +14,17 @@ public record DailyUsage(LocalDate day, int count) {
   }
 
   /** Returns empty usage for the day. */
-  public static DailyUsage none(LocalDate day) {
+  public static DailyUsage createEmptyUsage(LocalDate day) {
     return new DailyUsage(day, 0);
   }
 
   /** Returns the requests left under the limit today. */
-  public int remaining(int limit, LocalDate today) {
+  public int calculateRemaining(int limit, LocalDate today) {
     return Math.max(0, limit - countOn(today));
   }
 
   /** Returns usage with one more request today, starting over when the day changed. */
-  public DailyUsage consume(LocalDate today) {
+  public DailyUsage consumeQuota(LocalDate today) {
     return new DailyUsage(today, countOn(today) + 1);
   }
 

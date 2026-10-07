@@ -113,7 +113,7 @@ class AccountServiceTest {
         .setAuthentication(
             new OAuth2AuthenticationToken(oidcUser, oidcUser.getAuthorities(), "google"));
     Account linked = account("google", "sub-1", "user@example.com", CID_1);
-    when(accountRepository.findByIdentity(ExternalIdentity.of("google", "sub-1")))
+    when(accountRepository.findByIdentity(ExternalIdentity.createIdentity("google", "sub-1")))
         .thenReturn(Optional.of(linked));
 
     var response = useCase.getCurrentAccount(CID_1);
@@ -139,7 +139,7 @@ class AccountServiceTest {
         .setAuthentication(
             new OAuth2AuthenticationToken(githubUser, githubUser.getAuthorities(), "github"));
     Account linked = account("github", "42", "octocat@github.com", CID_GH);
-    when(accountRepository.findByIdentity(ExternalIdentity.of("github", "42")))
+    when(accountRepository.findByIdentity(ExternalIdentity.createIdentity("github", "42")))
         .thenReturn(Optional.of(linked));
 
     var response = useCase.getCurrentAccount(CID_GH);
@@ -165,7 +165,7 @@ class AccountServiceTest {
         .setAuthentication(
             new OAuth2AuthenticationToken(githubUser, githubUser.getAuthorities(), "github"));
     Account linked = account("github", "42", null, "octocat", CID_GH);
-    when(accountRepository.findByIdentity(ExternalIdentity.of("github", "42")))
+    when(accountRepository.findByIdentity(ExternalIdentity.createIdentity("github", "42")))
         .thenReturn(Optional.of(linked));
 
     var response = useCase.getCurrentAccount(CID_GH);
@@ -177,7 +177,7 @@ class AccountServiceTest {
 
   @Test
   void shouldLinkOAuthUserWhenNewSubject() {
-    when(accountRepository.findByIdentity(ExternalIdentity.of("google", "sub-9")))
+    when(accountRepository.findByIdentity(ExternalIdentity.createIdentity("google", "sub-9")))
         .thenReturn(Optional.empty());
 
     when(accountRepository.save(org.mockito.ArgumentMatchers.any(Account.class)))
@@ -192,9 +192,9 @@ class AccountServiceTest {
   @DisplayName("should unlink the previous account when another account signs in on the browser")
   void shouldUnlinkThePreviousAccountWhenAnotherAccountSignsInOnTheBrowser() {
     Account previous = account("google", "sub-a", "a@example.com", CID_SHARED);
-    when(accountRepository.findByIdentity(ExternalIdentity.of("github", "sub-b")))
+    when(accountRepository.findByIdentity(ExternalIdentity.createIdentity("github", "sub-b")))
         .thenReturn(Optional.empty());
-    when(accountRepository.findByLinkedClientId(ClientId.parse(CID_SHARED)))
+    when(accountRepository.findByLinkedClientId(ClientId.parseId(CID_SHARED)))
         .thenReturn(Optional.of(previous));
 
     useCase.linkOAuthUser(signIn("github", "sub-b", "b@example.com"), client(CID_SHARED));
@@ -207,9 +207,9 @@ class AccountServiceTest {
   @DisplayName("should keep the link when the same account signs in again")
   void shouldKeepTheLinkWhenTheSameAccountSignsInAgain() {
     Account account = account("google", "sub-a", "a@example.com", CID_SHARED);
-    when(accountRepository.findByIdentity(ExternalIdentity.of("google", "sub-a")))
+    when(accountRepository.findByIdentity(ExternalIdentity.createIdentity("google", "sub-a")))
         .thenReturn(Optional.of(account));
-    when(accountRepository.findByLinkedClientId(ClientId.parse(CID_SHARED)))
+    when(accountRepository.findByLinkedClientId(ClientId.parseId(CID_SHARED)))
         .thenReturn(Optional.of(account));
 
     useCase.linkOAuthUser(signIn("google", "sub-a", "a@example.com"), client(CID_SHARED));
@@ -220,7 +220,7 @@ class AccountServiceTest {
   @Test
   void shouldReturnAuthenticatedWhenLinkedClientIdPresentWithoutSecurityContext() {
     Account linked = account("google", "sub-2", "u@example.com", CID_2);
-    when(accountRepository.findByLinkedClientId(ClientId.parse(CID_2)))
+    when(accountRepository.findByLinkedClientId(ClientId.parseId(CID_2)))
         .thenReturn(Optional.of(linked));
 
     var response = useCase.getCurrentAccount(CID_2);
@@ -277,7 +277,8 @@ class AccountServiceTest {
         .setAuthentication(
             new JwtAuthenticationToken(jwt, AuthorityUtils.createAuthorityList("ROLE_USER")));
     Account linked = account("explore-iam", "iam-sub-1", "iam@example.com", null);
-    when(accountRepository.findByIdentity(ExternalIdentity.of("explore-iam", "iam-sub-1")))
+    when(accountRepository.findByIdentity(
+            ExternalIdentity.createIdentity("explore-iam", "iam-sub-1")))
         .thenReturn(Optional.of(linked));
     when(accountRepository.save(linked)).thenReturn(linked);
 
@@ -302,7 +303,8 @@ class AccountServiceTest {
     SecurityContextHolder.getContext()
         .setAuthentication(
             new JwtAuthenticationToken(jwt, AuthorityUtils.createAuthorityList("ROLE_USER")));
-    when(accountRepository.findByIdentity(ExternalIdentity.of("explore-iam", "iam-new")))
+    when(accountRepository.findByIdentity(
+            ExternalIdentity.createIdentity("explore-iam", "iam-new")))
         .thenReturn(Optional.empty());
     when(accountRepository.save(org.mockito.ArgumentMatchers.any(Account.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
@@ -320,8 +322,10 @@ class AccountServiceTest {
   private static Account account(
       String provider, String subject, String email, String displayName, String clientId) {
     Account account =
-        Account.create(
-            ExternalIdentity.of(provider, subject), ContactEmail.ofNullable(email), displayName);
+        Account.createAccount(
+            ExternalIdentity.createIdentity(provider, subject),
+            ContactEmail.parseOptionalEmail(email),
+            displayName);
     if (clientId != null) {
       account.linkBrowser(client(clientId), null, null);
     }
@@ -330,11 +334,13 @@ class AccountServiceTest {
 
   private static OAuthSignIn signIn(String provider, String subject, String email) {
     return new OAuthSignIn(
-        ExternalIdentity.of(provider, subject), ContactEmail.ofNullable(email), null);
+        ExternalIdentity.createIdentity(provider, subject),
+        ContactEmail.parseOptionalEmail(email),
+        null);
   }
 
   private static ClientId client(String raw) {
-    return ClientId.parse(raw);
+    return ClientId.parseId(raw);
   }
 
   private static OidcUser oidcUser(String subject, String email) {

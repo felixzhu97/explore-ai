@@ -10,22 +10,22 @@ import lombok.NonNull;
 /** Message ID value object ensuring type safety for message identifiers. */
 @Getter
 @EqualsAndHashCode(callSuper = false)
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor(staticName = "createId")
 public final class MessageId extends AbstractEmbeddable {
 
   @NonNull private UUID value;
 
   /** Parses an id from its UUID text. */
-  public static MessageId of(String text) {
+  public static MessageId parseId(String text) {
     if (text == null || text.isBlank()) {
       throw new IllegalArgumentException("Id cannot be blank");
     }
-    return of(UUID.fromString(text.strip()));
+    return createId(UUID.fromString(text.strip()));
   }
 
   /** Creates a new random id. */
-  public static MessageId generate() {
-    return of(UUID.randomUUID());
+  public static MessageId generateId() {
+    return createId(UUID.randomUUID());
   }
 
   @Override

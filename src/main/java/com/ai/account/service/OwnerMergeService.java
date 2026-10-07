@@ -19,9 +19,9 @@ public class OwnerMergeService {
   public void mergeGuestIntoAccount(Account account) {
     OwnerKey from =
         account
-            .guestOwnerKey()
+            .findGuestOwnerKey()
             .orElseThrow(() -> new IllegalStateException("account is not linked to a browser"));
-    OwnerKey to = account.ownerKey();
+    OwnerKey to = account.createOwnerKey();
     from.requireMergeableInto(to);
     ownerPartitionRepository.reassignOwner(from, to);
   }

@@ -117,7 +117,7 @@ public class RagChatService {
       TextChatOptions options) {
     Filter.Expression filter = buildRetrievalFilter(ownerKey, documentIds);
 
-    String languageCode = DetectedLanguage.of(question).code();
+    String languageCode = DetectedLanguage.createLanguage(question).code();
     String languageHint =
         "Respond in the same language as the user question (detected: " + languageCode + ").";
 
@@ -176,8 +176,11 @@ public class RagChatService {
       String documentId,
       long startedAt) {
     invocationRecorder.record(
-        AiInvocationEvent.succeeded(
-                AiCapability.RAG, "rag.chat", Latency.since(startedAt), OwnerKey.parse(ownerKey))
+        AiInvocationEvent.createSucceededEvent(
+                AiCapability.RAG,
+                "rag.chat",
+                Latency.measureSince(startedAt),
+                OwnerKey.parseKey(ownerKey))
             .provider(options.provider())
             .model(options.model())
             .sessionId(sessionId)
@@ -189,8 +192,8 @@ public class RagChatService {
     invocationRecorder.recordError(
         AiCapability.RAG,
         "rag.chat",
-        Latency.since(startedAt),
-        OwnerKey.parse(ownerKey),
+        Latency.measureSince(startedAt),
+        OwnerKey.parseKey(ownerKey),
         "openai",
         null,
         sessionId,

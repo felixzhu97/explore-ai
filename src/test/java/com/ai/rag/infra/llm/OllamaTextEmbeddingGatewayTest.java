@@ -38,7 +38,7 @@ class OllamaTextEmbeddingGatewayTest {
     when(embeddingModel.call(any(EmbeddingRequest.class)))
         .thenReturn(new EmbeddingResponse(List.of(new Embedding(new float[] {0.1f, 0.2f}, 0))));
 
-    assertThat(adapter.embed("Hello world")).containsExactly(0.1f, 0.2f);
+    assertThat(adapter.embedText("Hello world")).containsExactly(0.1f, 0.2f);
   }
 
   @Test
@@ -47,7 +47,7 @@ class OllamaTextEmbeddingGatewayTest {
     when(embeddingModel.call(any(EmbeddingRequest.class)))
         .thenReturn(new EmbeddingResponse(List.of()));
 
-    assertThatThrownBy(() -> adapter.embed("Test"))
+    assertThatThrownBy(() -> adapter.embedText("Test"))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "RAG_SERVICE_ERROR")
         .hasMessageContaining("Empty embedding response");
@@ -60,7 +60,7 @@ class OllamaTextEmbeddingGatewayTest {
     when(mockResponse.getResults()).thenReturn(null);
     when(embeddingModel.call(any(EmbeddingRequest.class))).thenReturn(mockResponse);
 
-    assertThatThrownBy(() -> adapter.embed("Test"))
+    assertThatThrownBy(() -> adapter.embedText("Test"))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "RAG_SERVICE_ERROR")
         .hasMessageContaining("Empty embedding response");
@@ -72,7 +72,7 @@ class OllamaTextEmbeddingGatewayTest {
     when(embeddingModel.call(any(EmbeddingRequest.class)))
         .thenThrow(DomainException.failed("RAG_SERVICE_ERROR", "Service error"));
 
-    assertThatThrownBy(() -> adapter.embed("Test"))
+    assertThatThrownBy(() -> adapter.embedText("Test"))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "RAG_SERVICE_ERROR")
         .hasMessage("Service error");
@@ -84,7 +84,7 @@ class OllamaTextEmbeddingGatewayTest {
     when(embeddingModel.call(any(EmbeddingRequest.class)))
         .thenThrow(new RuntimeException("Network error"));
 
-    assertThatThrownBy(() -> adapter.embed("Test"))
+    assertThatThrownBy(() -> adapter.embedText("Test"))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "RAG_SERVICE_ERROR")
         .hasMessageContaining("Embedding generation failed")

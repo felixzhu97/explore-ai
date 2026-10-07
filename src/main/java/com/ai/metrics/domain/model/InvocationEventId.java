@@ -15,22 +15,22 @@ import lombok.NonNull;
 @Getter
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor(staticName = "createId")
 public final class InvocationEventId extends AbstractEmbeddable {
 
   @NonNull private UUID value;
 
   /** Parses an id from its UUID text. */
-  public static InvocationEventId of(String text) {
+  public static InvocationEventId parseId(String text) {
     if (text == null || text.isBlank()) {
       throw new IllegalArgumentException("Id cannot be blank");
     }
-    return of(UUID.fromString(text.strip()));
+    return createId(UUID.fromString(text.strip()));
   }
 
   /** Creates a new random id. */
-  public static InvocationEventId generate() {
-    return of(UUID.randomUUID());
+  public static InvocationEventId generateId() {
+    return createId(UUID.randomUUID());
   }
 
   @Override

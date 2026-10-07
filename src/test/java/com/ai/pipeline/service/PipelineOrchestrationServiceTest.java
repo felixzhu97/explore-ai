@@ -49,12 +49,16 @@ class PipelineOrchestrationServiceTest {
     var registry =
         CatalogAgentRegistry.fixed(
             List.of(
-                AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
-                AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "You are k8s"),
-                AgentDefinition.create(AgentType.of("aiops"), "AIOps", "ops", "You are aiops")));
+                AgentDefinition.createDefinition(
+                    AgentType.createSupervisorType(), "Supervisor", "coords", "sys"),
+                AgentDefinition.createDefinition(
+                    AgentType.createType("k8s"), "K8s", "cluster", "You are k8s"),
+                AgentDefinition.createDefinition(
+                    AgentType.createType("aiops"), "AIOps", "ops", "You are aiops")));
     invoker = new RecordingInvoker();
     SupervisorRouter router =
-        (message, workers) -> RoutingPlan.single(AgentType.of("k8s"), "kubernetes intent");
+        (message, workers) ->
+            RoutingPlan.createSingleAgentPlan(AgentType.createType("k8s"), "kubernetes intent");
     useCase = new PipelineOrchestrationService(registry, router, invoker, recorder());
   }
 
@@ -76,7 +80,8 @@ class PipelineOrchestrationServiceTest {
 
   @Test
   void shouldInvokeWorkerDirectlyWhenAgentTypeGiven() {
-    StepVerifier.create(useCase.invokeAgent(AgentType.of("aiops"), "detect anomaly", OWNER, "en"))
+    StepVerifier.create(
+            useCase.invokeAgent(AgentType.createType("aiops"), "detect anomaly", OWNER, "en"))
         .assertNext(event -> assertEvent(event, "agent_handoff"))
         .assertNext(event -> assertEvent(event, "message"))
         .assertNext(event -> assertEvent(event, "done"))
@@ -90,7 +95,7 @@ class PipelineOrchestrationServiceTest {
   @Test
   void shouldDelegateToSupervisorWhenAgentTypeIsSupervisor() {
     StepVerifier.create(
-            useCase.invokeAgent(AgentType.supervisor(), "scale deployment", OWNER, "en"))
+            useCase.invokeAgent(AgentType.createSupervisorType(), "scale deployment", OWNER, "en"))
         .assertNext(event -> assertEvent(event, "agent_handoff"))
         .assertNext(event -> assertEvent(event, "message"))
         .assertNext(event -> assertEvent(event, "done"))
@@ -99,7 +104,7 @@ class PipelineOrchestrationServiceTest {
 
   @Test
   void shouldEmitErrorWhenAgentUnknown() {
-    StepVerifier.create(useCase.invokeAgent(AgentType.of("missing"), "hello", OWNER, "en"))
+    StepVerifier.create(useCase.invokeAgent(AgentType.createType("missing"), "hello", OWNER, "en"))
         .assertNext(event -> assertEvent(event, "error"))
         .assertNext(event -> assertEvent(event, "done"))
         .verifyComplete();
@@ -108,7 +113,7 @@ class PipelineOrchestrationServiceTest {
   @Test
   @DisplayName("should emit error and done when direct invoke agent is unknown")
   void shouldEmitErrorAndDoneWhenDirectInvokeAgentIsUnknown() {
-    StepVerifier.create(useCase.invokeAgent(AgentType.of("missing"), "hi", OWNER, "en"))
+    StepVerifier.create(useCase.invokeAgent(AgentType.createType("missing"), "hi", OWNER, "en"))
         .assertNext(event -> assertEvent(event, "error"))
         .assertNext(event -> assertEvent(event, "done"))
         .verifyComplete();
@@ -119,19 +124,21 @@ class PipelineOrchestrationServiceTest {
     SupervisorRouter multiRouter =
         (message, workers) ->
             new RoutingPlan(
-                AgentType.of("k8s"),
+                AgentType.createType("k8s"),
                 "needs k8s and aiops",
                 List.of(
-                    new RoutingPlan.Subtask(AgentType.of("k8s"), "check pods"),
-                    new RoutingPlan.Subtask(AgentType.of("aiops"), "check anomalies")));
+                    new RoutingPlan.Subtask(AgentType.createType("k8s"), "check pods"),
+                    new RoutingPlan.Subtask(AgentType.createType("aiops"), "check anomalies")));
     useCase =
         new PipelineOrchestrationService(
             CatalogAgentRegistry.fixed(
                 List.of(
-                    AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
-                    AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "You are k8s"),
-                    AgentDefinition.create(
-                        AgentType.of("aiops"), "AIOps", "ops", "You are aiops"))),
+                    AgentDefinition.createDefinition(
+                        AgentType.createSupervisorType(), "Supervisor", "coords", "sys"),
+                    AgentDefinition.createDefinition(
+                        AgentType.createType("k8s"), "K8s", "cluster", "You are k8s"),
+                    AgentDefinition.createDefinition(
+                        AgentType.createType("aiops"), "AIOps", "ops", "You are aiops"))),
             multiRouter,
             invoker,
             recorder());
@@ -155,8 +162,10 @@ class PipelineOrchestrationServiceTest {
         new PipelineOrchestrationService(
             CatalogAgentRegistry.fixed(
                 List.of(
-                    AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
-                    AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "You are k8s"))),
+                    AgentDefinition.createDefinition(
+                        AgentType.createSupervisorType(), "Supervisor", "coords", "sys"),
+                    AgentDefinition.createDefinition(
+                        AgentType.createType("k8s"), "K8s", "cluster", "You are k8s"))),
             failing,
             invoker,
             recorder());
@@ -188,10 +197,10 @@ class PipelineOrchestrationServiceTest {
   @Test
   void shouldRunPipelineStepsInOrder() {
     AgentPipeline pipeline =
-        AgentPipeline.create(
+        AgentPipeline.createPipeline(
             List.of(
-                AgentPipeline.PipelineNode.of("a", AgentType.of("k8s")),
-                AgentPipeline.PipelineNode.of("b", AgentType.of("aiops"))),
+                AgentPipeline.PipelineNode.createNode("a", AgentType.createType("k8s")),
+                AgentPipeline.PipelineNode.createNode("b", AgentType.createType("aiops"))),
             List.of(new AgentPipeline.PipelineEdge("a", "b")));
 
     StepVerifier.create(useCase.invokePipeline("investigate outage", pipeline, OWNER, "en"))
@@ -220,11 +229,11 @@ class PipelineOrchestrationServiceTest {
   @Test
   void shouldPreferNodeSnapshotPromptWhenPresent() {
     AgentPipeline pipeline =
-        AgentPipeline.create(
+        AgentPipeline.createPipeline(
             List.of(
                 new AgentPipeline.PipelineNode(
                     "a",
-                    AgentType.of("k8s"),
+                    AgentType.createType("k8s"),
                     "Custom K8s",
                     "custom desc",
                     "You are a custom k8s worker.",
@@ -250,19 +259,22 @@ class PipelineOrchestrationServiceTest {
         new PipelineOrchestrationService(
             CatalogAgentRegistry.fixed(
                 List.of(
-                    AgentDefinition.create(AgentType.supervisor(), "Supervisor", "coords", "sys"),
-                    AgentDefinition.create(AgentType.of("k8s"), "K8s", "cluster", "You are k8s"),
-                    AgentDefinition.create(
-                        AgentType.of("aiops"), "AIOps", "ops", "You are aiops"))),
-            (message, workers) -> RoutingPlan.single(AgentType.of("k8s"), "unused"),
+                    AgentDefinition.createDefinition(
+                        AgentType.createSupervisorType(), "Supervisor", "coords", "sys"),
+                    AgentDefinition.createDefinition(
+                        AgentType.createType("k8s"), "K8s", "cluster", "You are k8s"),
+                    AgentDefinition.createDefinition(
+                        AgentType.createType("aiops"), "AIOps", "ops", "You are aiops"))),
+            (message, workers) ->
+                RoutingPlan.createSingleAgentPlan(AgentType.createType("k8s"), "unused"),
             delayed,
             recorder());
 
     AgentPipeline pipeline =
-        AgentPipeline.create(
+        AgentPipeline.createPipeline(
             List.of(
-                AgentPipeline.PipelineNode.of("a", AgentType.of("k8s")),
-                AgentPipeline.PipelineNode.of("b", AgentType.of("aiops"))),
+                AgentPipeline.PipelineNode.createNode("a", AgentType.createType("k8s")),
+                AgentPipeline.PipelineNode.createNode("b", AgentType.createType("aiops"))),
             List.of(new AgentPipeline.PipelineEdge("a", "b")));
 
     StepVerifier.create(useCase.invokePipeline("investigate outage", pipeline, OWNER, "en"))
@@ -291,7 +303,7 @@ class PipelineOrchestrationServiceTest {
 
   @Test
   void shouldEmitErrorWhenPipelineInvalid() {
-    AgentPipeline pipeline = AgentPipeline.create(List.of(), List.of());
+    AgentPipeline pipeline = AgentPipeline.createPipeline(List.of(), List.of());
 
     StepVerifier.create(useCase.invokePipeline("x", pipeline, OWNER, "en"))
         .assertNext(event -> assertEvent(event, "error"))

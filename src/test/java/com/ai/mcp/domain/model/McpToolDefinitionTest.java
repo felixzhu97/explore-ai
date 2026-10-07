@@ -11,7 +11,7 @@ class McpToolDefinitionTest {
   @Test
   @DisplayName("should reject blank tool name")
   void shouldRejectBlankToolName() {
-    assertThatThrownBy(() -> McpToolDefinition.create(" ", "desc"))
+    assertThatThrownBy(() -> McpToolDefinition.createDefinition(" ", "desc"))
         .isInstanceOf(IllegalArgumentException.class);
   }
 

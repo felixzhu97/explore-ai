@@ -43,10 +43,12 @@ class SpringAiTextToSpeechGatewayTest {
     when(textToSpeechModel.call(any(TextToSpeechPrompt.class))).thenReturn(mockResponse);
 
     var audio =
-        repository.synthesize(
-            SpeechText.of("Hello, world!"), VoiceSelection.of("alloy", null), 1.0);
+        repository.synthesizeSpeech(
+            SpeechText.createText("Hello, world!"),
+            VoiceSelection.createSelection("alloy", null),
+            1.0);
 
-    assertThat(audio.data()).isEqualTo(expectedAudio);
+    assertThat(audio.copyBytes()).isEqualTo(expectedAudio);
   }
 
   @Test
@@ -55,7 +57,8 @@ class SpringAiTextToSpeechGatewayTest {
     when(textToSpeechModel.call(any(TextToSpeechPrompt.class))).thenReturn(null);
 
     var audio =
-        repository.synthesize(SpeechText.of("Hello"), VoiceSelection.of("alloy", null), null);
+        repository.synthesizeSpeech(
+            SpeechText.createText("Hello"), VoiceSelection.createSelection("alloy", null), null);
 
     assertThat(audio.isEmpty()).isTrue();
   }

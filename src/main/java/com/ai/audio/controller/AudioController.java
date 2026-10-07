@@ -53,12 +53,12 @@ public class AudioController {
         return ResponseEntity.internalServerError().build();
       }
 
-      String mediaType = audio.mediaType();
+      String mediaType = audio.getMediaType();
       String filename = mediaType.contains("wav") ? "speech.wav" : "speech.mp3";
       return ResponseEntity.ok()
           .contentType(MediaType.parseMediaType(mediaType))
           .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-          .body(audio.data());
+          .body(audio.copyBytes());
     } catch (DomainException e) {
       return ResponseEntity.status(GlobalExceptionHandler.statusOf(e.kind())).build();
     } catch (Exception e) {

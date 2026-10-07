@@ -14,15 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class ChatSessionRepositoryTest extends AbstractDataJpaTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parse("c:11111111-1111-1111-1111-111111111111");
-  private static final OwnerKey OTHER = OwnerKey.parse("c:22222222-2222-2222-2222-222222222222");
+  private static final OwnerKey OWNER = OwnerKey.parseKey("c:11111111-1111-1111-1111-111111111111");
+  private static final OwnerKey OTHER = OwnerKey.parseKey("c:22222222-2222-2222-2222-222222222222");
 
   @Autowired private ChatSessionRepository repository;
 
   @Test
   @DisplayName("should find the session only for its owner")
   void shouldFindTheSessionOnlyForItsOwner() {
-    ChatSession session = repository.save(ChatSession.create("Planning", OWNER.value()));
+    ChatSession session = repository.save(ChatSession.createSession("Planning", OWNER.value()));
     flushAndClear();
 
     ChatSession reloaded = repository.findByIdAndOwnerKey(session.getId(), OWNER).orElseThrow();
@@ -66,10 +66,11 @@ class ChatSessionRepositoryTest extends AbstractDataJpaTest {
     Instant lastActivity = Instant.parse("2026-01-01T00:00:00Z");
     ChatSession session =
         repository.save(
-            ChatSession.of(ChatSessionId.generate(), null, lastActivity, OWNER.value()));
+            ChatSession.restoreSession(
+                ChatSessionId.generateId(), null, lastActivity, OWNER.value()));
     em.flush();
 
-    session.applyGeneratedTitle(SessionTitle.generated("Trip plan"));
+    session.applyGeneratedTitle(SessionTitle.createGeneratedTitle("Trip plan"));
     repository.save(session);
     flushAndClear();
 
@@ -81,7 +82,7 @@ class ChatSessionRepositoryTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should no longer find a deleted session")
   void shouldNoLongerFindADeletedSession() {
-    ChatSession session = repository.save(ChatSession.create("Gone", OWNER.value()));
+    ChatSession session = repository.save(ChatSession.createSession("Gone", OWNER.value()));
     flushAndClear();
 
     repository.deleteById(session.getId());
@@ -92,7 +93,7 @@ class ChatSessionRepositoryTest extends AbstractDataJpaTest {
 
   private void save(String title, String lastActivityAt, OwnerKey owner) {
     repository.save(
-        ChatSession.of(
-            ChatSessionId.generate(), title, Instant.parse(lastActivityAt), owner.value()));
+        ChatSession.restoreSession(
+            ChatSessionId.generateId(), title, Instant.parse(lastActivityAt), owner.value()));
   }
 }
