@@ -1,6 +1,6 @@
 package com.ai.image.service;
 
-import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
+import com.ai.common.exception.DomainException;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.domain.repository.ImageGenerationGateway;
 import com.ai.image.domain.vo.ImageCatalog;
@@ -48,16 +48,23 @@ public class ImageGenerationService {
 
   private void ensureProviderConfigured() {
     if (!imageProperties.isEnabled()) {
-      throw ImageProviderNotConfiguredException.disabled();
+      throw DomainException.unavailable(
+          "IMAGE_PROVIDER_NOT_CONFIGURED", "Image generation is disabled");
     }
     if (!imageProperties.isConfigured()) {
       if (imageProperties.isOpenAiProvider()) {
-        throw ImageProviderNotConfiguredException.openAiKeyMissing();
+        throw DomainException.unavailable(
+            "IMAGE_PROVIDER_NOT_CONFIGURED",
+            "Image provider not configured. Set OPENAI_API_KEY and app.ai.image.provider=openai");
       }
-      throw ImageProviderNotConfiguredException.ollamaModelMissing();
+      throw DomainException.unavailable(
+          "IMAGE_PROVIDER_NOT_CONFIGURED",
+          "Image provider not configured. Run: ollama pull x/flux2-klein");
     }
     if (imageProperties.isOllamaProvider() && isLocalOllamaEndpoint(imageProperties.getBaseUrl())) {
-      throw ImageProviderNotConfiguredException.ollamaModelMissing();
+      throw DomainException.unavailable(
+          "IMAGE_PROVIDER_NOT_CONFIGURED",
+          "Image provider not configured. Run: ollama pull x/flux2-klein");
     }
   }
 

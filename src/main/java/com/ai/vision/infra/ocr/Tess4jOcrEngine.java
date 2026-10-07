@@ -1,7 +1,6 @@
 package com.ai.vision.infra.ocr;
 
-import com.ai.vision.domain.exception.VisionOcrException;
-import com.ai.vision.domain.exception.VisionProviderUnavailableException;
+import com.ai.common.exception.DomainException;
 import com.ai.vision.domain.model.OcrResult;
 import com.ai.vision.domain.repository.OcrEngine;
 import com.ai.vision.infra.config.VisionModelProperties;
@@ -39,7 +38,7 @@ public class Tess4jOcrEngine implements OcrEngine {
       String text = tesseract.doOCR(image);
       return new OcrResult(text == null ? "" : text.trim());
     } catch (TesseractException ex) {
-      throw new VisionOcrException("OCR extraction failed", ex);
+      throw DomainException.failed("OCR_FAILED", "OCR extraction failed", ex);
     }
   }
 
@@ -50,8 +49,8 @@ public class Tess4jOcrEngine implements OcrEngine {
 
   private void ensureAvailable() {
     if (!available) {
-      throw new VisionProviderUnavailableException(
-          "ocr",
+      throw DomainException.unavailable(
+          "VISION_PROVIDER_UNAVAILABLE",
           "Tesseract OCR is not available. Install tesseract and provide tessdata at "
               + properties.getOcr().getTessdataPath());
     }

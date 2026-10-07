@@ -3,7 +3,7 @@ package com.ai.audio.domain.vo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.audio.domain.exception.InvalidSpeechTextException;
+import com.ai.common.exception.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,14 +19,17 @@ class SpeechTextTest {
   @Test
   @DisplayName("should reject blank text")
   void shouldRejectBlankText() {
-    assertThatThrownBy(() -> SpeechText.of(" ")).isInstanceOf(InvalidSpeechTextException.class);
+    assertThatThrownBy(() -> SpeechText.of(" "))
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "INVALID_SPEECH_TEXT");
   }
 
   @Test
   @DisplayName("should reject null via compact constructor")
   void shouldRejectNullViaCompactConstructor() {
     assertThatThrownBy(() -> new SpeechText(null))
-        .isInstanceOf(InvalidSpeechTextException.class)
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "INVALID_SPEECH_TEXT")
         .hasMessageContaining("blank");
   }
 
@@ -34,7 +37,8 @@ class SpeechTextTest {
   @DisplayName("should reject text exceeding max length")
   void shouldRejectTextExceedingMaxLength() {
     assertThatThrownBy(() -> SpeechText.of("a".repeat(10_001)))
-        .isInstanceOf(InvalidSpeechTextException.class)
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "INVALID_SPEECH_TEXT")
         .hasMessageContaining("maximum length");
   }
 }

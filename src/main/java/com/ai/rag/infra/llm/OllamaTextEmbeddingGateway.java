@@ -1,6 +1,6 @@
 package com.ai.rag.infra.llm;
 
-import com.ai.rag.domain.exception.RagServiceException;
+import com.ai.common.exception.DomainException;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
 import java.util.List;
 import org.springframework.ai.embedding.EmbeddingModel;
@@ -41,7 +41,8 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
       // Extract embedding from response
       List<org.springframework.ai.embedding.Embedding> embeddings = response.getResults();
       if (embeddings == null || embeddings.isEmpty()) {
-        throw new RagServiceException("Empty embedding response from Ollama API");
+        throw DomainException.failed(
+            "RAG_SERVICE_ERROR", "Empty embedding response from Ollama API");
       }
 
       // Get the embedding output (may be float[] or List<Float>)
@@ -50,10 +51,11 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
 
       return result;
 
-    } catch (RagServiceException e) {
+    } catch (DomainException e) {
       throw e;
     } catch (Exception e) {
-      throw new RagServiceException("Embedding generation failed: " + e.getMessage(), e);
+      throw DomainException.failed(
+          "RAG_SERVICE_ERROR", "Embedding generation failed: " + e.getMessage(), e);
     }
   }
 
@@ -67,7 +69,8 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
       return embeddings.stream().map(e -> convertToFloatArray(e.getOutput())).toList();
 
     } catch (Exception e) {
-      throw new RagServiceException("Batch embedding generation failed: " + e.getMessage(), e);
+      throw DomainException.failed(
+          "RAG_SERVICE_ERROR", "Batch embedding generation failed: " + e.getMessage(), e);
     }
   }
 
@@ -95,6 +98,7 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
       }
       return result;
     }
-    throw new RagServiceException("Unsupported embedding output type: " + output.getClass());
+    throw DomainException.failed(
+        "RAG_SERVICE_ERROR", "Unsupported embedding output type: " + output.getClass());
   }
 }

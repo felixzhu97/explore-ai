@@ -1,8 +1,7 @@
 package com.ai.skill.service;
 
 import com.ai.common.domain.vo.DomainStrings;
-import com.ai.skill.domain.exception.SkillNameConflictException;
-import com.ai.skill.domain.exception.SkillNotFoundException;
+import com.ai.common.exception.DomainException;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.repository.SkillRepository;
 import com.ai.skill.domain.vo.SkillId;
@@ -103,13 +102,14 @@ public class SkillService {
   private Skill findOwnedSkill(String ownerKey, String id) {
     return skillRepository
         .findByIdAndOwnerKey(SkillId.of(id), ownerKey)
-        .orElseThrow(() -> new SkillNotFoundException(id));
+        .orElseThrow(() -> DomainException.notFound("SKILL_NOT_FOUND", "Skill not found: " + id));
   }
 
   private void assertNameAvailable(String ownerKey, String name, SkillId excludeId) {
     String normalized = DomainStrings.normalizeName(name);
     if (skillRepository.existsByOwnerKeyAndNameIgnoringId(ownerKey, normalized, excludeId)) {
-      throw new SkillNameConflictException(normalized);
+      throw DomainException.conflict(
+          "SKILL_NAME_CONFLICT", "Skill name already exists: " + normalized);
     }
   }
 

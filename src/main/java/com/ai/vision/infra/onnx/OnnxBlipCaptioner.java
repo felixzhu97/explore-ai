@@ -5,7 +5,7 @@ import ai.onnxruntime.OnnxValue;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
-import com.ai.vision.domain.exception.VisionProviderUnavailableException;
+import com.ai.common.exception.DomainException;
 import com.ai.vision.domain.model.CaptionResult;
 import com.ai.vision.domain.repository.ImageCaptioner;
 import com.ai.vision.infra.config.VisionModelProperties;
@@ -98,8 +98,8 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
       }
       return new CaptionResult(caption);
     } catch (OrtException ex) {
-      throw new VisionProviderUnavailableException(
-          "caption", "Caption generation failed: " + ex.getMessage());
+      throw DomainException.unavailable(
+          "VISION_PROVIDER_UNAVAILABLE", "Caption generation failed: " + ex.getMessage());
     }
   }
 
@@ -210,8 +210,8 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
 
   private void ensureAvailable() {
     if (!available) {
-      throw new VisionProviderUnavailableException(
-          "caption",
+      throw DomainException.unavailable(
+          "VISION_PROVIDER_UNAVAILABLE",
           "BLIP captioner is not available. Provide ONNX models and tokenizer at "
               + properties.getCaption().getVisionOnnx());
     }

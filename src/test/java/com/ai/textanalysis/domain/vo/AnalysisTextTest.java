@@ -3,7 +3,7 @@ package com.ai.textanalysis.domain.vo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.textanalysis.domain.exception.InvalidAnalysisTextException;
+import com.ai.common.exception.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,8 @@ class AnalysisTextTest {
   @DisplayName("should reject blank text")
   void shouldRejectBlankText() {
     assertThatThrownBy(() -> AnalysisText.of("   "))
-        .isInstanceOf(InvalidAnalysisTextException.class)
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "INVALID_ANALYSIS_TEXT")
         .hasMessageContaining("blank");
   }
 
@@ -30,7 +31,8 @@ class AnalysisTextTest {
   @DisplayName("should reject text exceeding max length")
   void shouldRejectTextExceedingMaxLength() {
     assertThatThrownBy(() -> AnalysisText.of("a".repeat(50_001)))
-        .isInstanceOf(InvalidAnalysisTextException.class)
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "INVALID_ANALYSIS_TEXT")
         .hasMessageContaining("maximum length");
   }
 
@@ -38,7 +40,8 @@ class AnalysisTextTest {
   @DisplayName("should reject null via compact constructor")
   void shouldRejectNullViaCompactConstructor() {
     assertThatThrownBy(() -> new AnalysisText(null))
-        .isInstanceOf(InvalidAnalysisTextException.class)
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "INVALID_ANALYSIS_TEXT")
         .hasMessageContaining("blank");
   }
 

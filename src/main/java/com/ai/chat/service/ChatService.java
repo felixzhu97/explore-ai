@@ -1,14 +1,13 @@
 package com.ai.chat.service;
 
-import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.chat.domain.vo.ChatSessionId;
-import com.ai.common.domain.exception.AiServiceException;
 import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.exception.DomainException;
 import com.ai.common.infra.llm.ToolCallMarkupFilter;
 import com.ai.common.infra.llm.ToolEventChannel;
 import com.ai.common.infra.prompt.PromptTemplates;
@@ -79,7 +78,7 @@ public class ChatService {
         repository
             .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
             .map(this::withStoredMessages)
-            .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
+            .orElseThrow(() -> DomainException.notFound("SESSION_NOT_FOUND", "Session not found"));
     return new SessionHistory(
         session.getMessages(), chatWebSourcesRepository.findByConversationId(sessionId));
   }
@@ -109,7 +108,7 @@ public class ChatService {
     ChatSession session =
         repository
             .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
-            .orElseThrow(() -> new ChatSessionNotFoundException(sessionId));
+            .orElseThrow(() -> DomainException.notFound("SESSION_NOT_FOUND", "Session not found"));
     sessionEraser.eraseAll(List.of(session));
   }
 
@@ -219,7 +218,8 @@ public class ChatService {
                 ChatClient chatClient = chatClientProvider.createStateless(options);
                 String content = chatClient.prompt().user(userMessage).call().content();
                 if (content == null || content.isBlank()) {
-                  throw new AiServiceException("AI returned empty response");
+                  throw DomainException.unavailable(
+                      "AI_SERVICE_ERROR", "AI returned empty response");
                 }
                 return content;
               });
@@ -409,7 +409,7 @@ public class ChatService {
             .content();
 
     if (aiResponse == null || aiResponse.isBlank()) {
-      throw new AiServiceException("AI returned empty response");
+      throw DomainException.unavailable("AI_SERVICE_ERROR", "AI returned empty response");
     }
 
     session.recordExchange(conversationMemoryRepository.load(conversationId));
@@ -461,7 +461,7 @@ public class ChatService {
       return owned.get();
     }
     if (repository.exists(id)) {
-      throw new ChatSessionNotFoundException(sessionId);
+      throw DomainException.notFound("SESSION_NOT_FOUND", "Session not found");
     }
     ChatSession session = ChatSession.startWithId(id, ownerKey);
     repository.save(session);

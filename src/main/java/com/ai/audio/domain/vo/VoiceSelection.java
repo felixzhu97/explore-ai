@@ -1,6 +1,6 @@
 package com.ai.audio.domain.vo;
 
-import com.ai.audio.domain.exception.InvalidSpeechTextException;
+import com.ai.common.exception.DomainException;
 
 public record VoiceSelection(String voice, String model) {
   /** Creates a selection with catalog defaults, rejecting unknown voices or models. */
@@ -11,10 +11,10 @@ public record VoiceSelection(String voice, String model) {
     String effectiveModel =
         model != null && !model.isBlank() ? model.trim() : catalog.defaultModel();
     if (!catalog.containsVoice(effectiveVoice)) {
-      throw new InvalidSpeechTextException("Unknown voice: " + effectiveVoice);
+      throw DomainException.invalid("INVALID_SPEECH_TEXT", "Unknown voice: " + effectiveVoice);
     }
     if (!catalog.containsModel(effectiveModel)) {
-      throw new InvalidSpeechTextException("Unknown model: " + effectiveModel);
+      throw DomainException.invalid("INVALID_SPEECH_TEXT", "Unknown model: " + effectiveModel);
     }
     return new VoiceSelection(effectiveVoice, effectiveModel);
   }

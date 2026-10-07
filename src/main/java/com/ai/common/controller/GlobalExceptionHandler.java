@@ -1,25 +1,7 @@
 package com.ai.common.controller;
 
-import com.ai.audio.domain.exception.TtsProviderNotConfiguredException;
-import com.ai.automation.domain.exception.AutomationLimitExceededException;
-import com.ai.automation.domain.exception.AutomationScheduleNotFoundException;
-import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.common.controller.dto.ErrorResponse;
-import com.ai.common.domain.exception.AiServiceException;
-import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
-import com.ai.image.domain.exception.InvalidImagePromptException;
-import com.ai.pipeline.domain.exception.PipelineTemplateNameConflictException;
-import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
-import com.ai.pipeline.domain.exception.SavedAgentNotFoundException;
-import com.ai.pipeline.domain.exception.SavedAgentTypeConflictException;
-import com.ai.rag.domain.exception.DocumentNotFoundException;
-import com.ai.rag.domain.exception.DocumentProcessingException;
-import com.ai.rag.domain.exception.RagServiceException;
-import com.ai.skill.domain.exception.SkillNameConflictException;
-import com.ai.skill.domain.exception.SkillNotFoundException;
-import com.ai.vision.domain.exception.VisionInvalidFileException;
-import com.ai.vision.domain.exception.VisionOcrException;
-import com.ai.vision.domain.exception.VisionProviderUnavailableException;
+import com.ai.common.exception.DomainException;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.dao.DataAccessException;
@@ -43,11 +25,11 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  /** Returns 404 when a chat session does not exist. */
-  @ExceptionHandler(ChatSessionNotFoundException.class)
-  public ResponseEntity<ErrorResponse> handleSessionNotFound(ChatSessionNotFoundException e) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ErrorResponse.of("Session not found", "SESSION_NOT_FOUND"));
+  /** Returns the status for the kind of domain error, with its code in the body. */
+  @ExceptionHandler(DomainException.class)
+  public ResponseEntity<ErrorResponse> handleDomainError(DomainException e) {
+    return ResponseEntity.status(statusOf(e.kind()))
+        .body(ErrorResponse.of(e.getMessage(), e.code()));
   }
 
   /** Returns 401 when the request has no Client Identity. */
@@ -56,139 +38,6 @@ public class GlobalExceptionHandler {
       ClientIdentityRequiredException e) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(ErrorResponse.of("Client identity required", "CLIENT_IDENTITY_REQUIRED"));
-  }
-
-  /** Returns 404 when a skill does not exist. */
-  @ExceptionHandler(SkillNotFoundException.class)
-  public ResponseEntity<ErrorResponse> handleSkillNotFound(SkillNotFoundException e) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ErrorResponse.of(e.getMessage(), "SKILL_NOT_FOUND"));
-  }
-
-  /** Returns 409 when a skill name is already taken. */
-  @ExceptionHandler(SkillNameConflictException.class)
-  public ResponseEntity<ErrorResponse> handleSkillNameConflict(SkillNameConflictException e) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(ErrorResponse.of(e.getMessage(), "SKILL_NAME_CONFLICT"));
-  }
-
-  /** Returns 404 when a pipeline template does not exist. */
-  @ExceptionHandler(PipelineTemplateNotFoundException.class)
-  public ResponseEntity<ErrorResponse> handlePipelineTemplateNotFound(
-      PipelineTemplateNotFoundException e) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ErrorResponse.of(e.getMessage(), "PIPELINE_TEMPLATE_NOT_FOUND"));
-  }
-
-  /** Returns 409 when a pipeline template name is already taken. */
-  @ExceptionHandler(PipelineTemplateNameConflictException.class)
-  public ResponseEntity<ErrorResponse> handlePipelineTemplateNameConflict(
-      PipelineTemplateNameConflictException e) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(ErrorResponse.of(e.getMessage(), "PIPELINE_TEMPLATE_NAME_CONFLICT"));
-  }
-
-  /** Returns 404 when a saved agent does not exist. */
-  @ExceptionHandler(SavedAgentNotFoundException.class)
-  public ResponseEntity<ErrorResponse> handleSavedAgentNotFound(SavedAgentNotFoundException e) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ErrorResponse.of(e.getMessage(), "SAVED_AGENT_NOT_FOUND"));
-  }
-
-  /** Returns 404 when an automation schedule does not exist. */
-  @ExceptionHandler(AutomationScheduleNotFoundException.class)
-  public ResponseEntity<ErrorResponse> handleAutomationScheduleNotFound(
-      AutomationScheduleNotFoundException e) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ErrorResponse.of(e.getMessage(), "AUTOMATION_SCHEDULE_NOT_FOUND"));
-  }
-
-  /** Returns 429 when the automation schedule limit is reached. */
-  @ExceptionHandler(AutomationLimitExceededException.class)
-  public ResponseEntity<ErrorResponse> handleAutomationLimitExceeded(
-      AutomationLimitExceededException e) {
-    return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-        .body(ErrorResponse.of(e.getMessage(), "AUTOMATION_LIMIT_EXCEEDED"));
-  }
-
-  /** Returns 409 when a saved agent of that type already exists. */
-  @ExceptionHandler(SavedAgentTypeConflictException.class)
-  public ResponseEntity<ErrorResponse> handleSavedAgentTypeConflict(
-      SavedAgentTypeConflictException e) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(ErrorResponse.of(e.getMessage(), "SAVED_AGENT_TYPE_CONFLICT"));
-  }
-
-  /** Returns 503 when the AI provider fails. */
-  @ExceptionHandler(AiServiceException.class)
-  public ResponseEntity<ErrorResponse> handleAiServiceError(AiServiceException e) {
-    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-        .body(ErrorResponse.of("AI service error: " + e.getMessage(), e.getErrorCode()));
-  }
-
-  /** Returns 404 when a document does not exist. */
-  @ExceptionHandler(DocumentNotFoundException.class)
-  public ResponseEntity<ErrorResponse> handleDocumentNotFound(DocumentNotFoundException e) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ErrorResponse.of(e.getMessage(), "DOCUMENT_NOT_FOUND"));
-  }
-
-  /** Returns 422 when a document cannot be processed. */
-  @ExceptionHandler(DocumentProcessingException.class)
-  public ResponseEntity<ErrorResponse> handleDocumentProcessing(DocumentProcessingException e) {
-    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
-        .body(ErrorResponse.of(e.getMessage(), "DOCUMENT_UNREADABLE"));
-  }
-
-  /** Returns 503 when the vision provider is unavailable. */
-  @ExceptionHandler(VisionProviderUnavailableException.class)
-  public ResponseEntity<ErrorResponse> handleVisionProviderUnavailable(
-      VisionProviderUnavailableException e) {
-    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-        .body(ErrorResponse.of(e.getMessage(), "VISION_PROVIDER_UNAVAILABLE"));
-  }
-
-  /** Returns 400 for an invalid vision file. */
-  @ExceptionHandler(VisionInvalidFileException.class)
-  public ResponseEntity<ErrorResponse> handleVisionInvalidFile(VisionInvalidFileException e) {
-    return ResponseEntity.badRequest().body(ErrorResponse.of(e.getMessage(), "INVALID_FILE"));
-  }
-
-  /** Returns 500 when OCR fails. */
-  @ExceptionHandler(VisionOcrException.class)
-  public ResponseEntity<ErrorResponse> handleVisionOcrError(VisionOcrException e) {
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(ErrorResponse.of(e.getMessage(), "OCR_FAILED"));
-  }
-
-  /** Returns 500 when the RAG service fails. */
-  @ExceptionHandler(RagServiceException.class)
-  public ResponseEntity<ErrorResponse> handleRagServiceError(RagServiceException e) {
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(ErrorResponse.of("RAG service error: " + e.getMessage(), "RAG_SERVICE_ERROR"));
-  }
-
-  /** Returns 503 when the image provider is not configured. */
-  @ExceptionHandler(ImageProviderNotConfiguredException.class)
-  public ResponseEntity<ErrorResponse> handleImageProviderNotConfigured(
-      ImageProviderNotConfiguredException e) {
-    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-        .body(ErrorResponse.of(e.getMessage(), "IMAGE_PROVIDER_NOT_CONFIGURED"));
-  }
-
-  /** Returns 400 for an invalid image prompt. */
-  @ExceptionHandler(InvalidImagePromptException.class)
-  public ResponseEntity<ErrorResponse> handleInvalidImagePrompt(InvalidImagePromptException e) {
-    return ResponseEntity.badRequest()
-        .body(ErrorResponse.of(e.getMessage(), "INVALID_IMAGE_PROMPT"));
-  }
-
-  /** Returns 503 when text-to-speech is not configured. */
-  @ExceptionHandler(TtsProviderNotConfiguredException.class)
-  public ResponseEntity<ErrorResponse> handleTtsProviderNotConfigured(
-      TtsProviderNotConfiguredException e) {
-    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-        .body(ErrorResponse.of(e.getMessage(), "TTS_PROVIDER_NOT_CONFIGURED"));
   }
 
   /** Returns 400 with the invalid request body fields. */
@@ -308,6 +157,19 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleGenericException(Exception e) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(ErrorResponse.of("An unexpected error occurred", "INTERNAL_ERROR"));
+  }
+
+  /** Maps each kind of domain error to its HTTP status. */
+  public static HttpStatus statusOf(DomainException.Kind kind) {
+    return switch (kind) {
+      case NOT_FOUND -> HttpStatus.NOT_FOUND;
+      case CONFLICT -> HttpStatus.CONFLICT;
+      case INVALID -> HttpStatus.BAD_REQUEST;
+      case LIMIT_EXCEEDED -> HttpStatus.TOO_MANY_REQUESTS;
+      case UNPROCESSABLE -> HttpStatus.UNPROCESSABLE_CONTENT;
+      case UNAVAILABLE -> HttpStatus.SERVICE_UNAVAILABLE;
+      case FAILED -> HttpStatus.INTERNAL_SERVER_ERROR;
+    };
   }
 
   private String formatUploadLimit(long maxUploadSizeBytes) {

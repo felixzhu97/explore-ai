@@ -7,8 +7,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.ai.common.exception.DomainException;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
-import com.ai.rag.domain.exception.DocumentProcessingException;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.RawDocument;
@@ -55,10 +55,13 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
   void shouldKeepTheDocumentAsFailedWhenItsTextCannotBeExtracted() {
     String owner = newOwner();
     when(reader.read(any(byte[].class), eq("broken.pdf")))
-        .thenThrow(new DocumentProcessingException("Could not extract text from broken.pdf"));
+        .thenThrow(
+            DomainException.unprocessable(
+                "DOCUMENT_UNREADABLE", "Could not extract text from broken.pdf"));
 
     assertThatThrownBy(() -> service.upload("Broken", "broken.pdf", new byte[] {1, 2}, owner))
-        .isInstanceOf(DocumentProcessingException.class);
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "DOCUMENT_UNREADABLE");
 
     assertThat(documentRepository.findAllByOwnerKey(owner))
         .singleElement()
@@ -75,7 +78,8 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
     when(transformer.transform(any(RawDocument.class))).thenReturn(List.of());
 
     assertThatThrownBy(() -> service.upload("Blank", "blank.txt", "  \n ", owner))
-        .isInstanceOf(DocumentProcessingException.class)
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "DOCUMENT_UNREADABLE")
         .hasMessage("No text found in blank.txt");
 
     assertThat(documentRepository.findAllByOwnerKey(owner))

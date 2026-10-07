@@ -4,12 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.common.controller.dto.ErrorResponse;
-import com.ai.common.domain.exception.AiServiceException;
-import com.ai.rag.domain.exception.DocumentNotFoundException;
-import com.ai.rag.domain.exception.DocumentProcessingException;
-import com.ai.rag.domain.exception.RagServiceException;
+import com.ai.common.exception.DomainException;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -17,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -66,152 +64,56 @@ class GlobalExceptionHandlerTest {
   }
 
   @Nested
-  @DisplayName("ChatSessionNotFoundException")
-  class HandleSessionNotFound {
+  @DisplayName("DomainException")
+  class HandleDomainError {
+
+    @ParameterizedTest(name = "{0} -> {1}")
+    @CsvSource({
+      "NOT_FOUND, NOT_FOUND",
+      "CONFLICT, CONFLICT",
+      "INVALID, BAD_REQUEST",
+      "LIMIT_EXCEEDED, TOO_MANY_REQUESTS",
+      "UNPROCESSABLE, UNPROCESSABLE_CONTENT",
+      "UNAVAILABLE, SERVICE_UNAVAILABLE",
+      "FAILED, INTERNAL_SERVER_ERROR"
+    })
+    @DisplayName("should map each kind to its status and keep the error code")
+    void shouldMapEachKindToItsStatusAndKeepTheErrorCode(
+        DomainException.Kind kind, HttpStatus status) {
+      DomainException exception = new DomainException(kind, "SOME_CODE", "Something went wrong");
+
+      ResponseEntity<ErrorResponse> response = handler.handleDomainError(exception);
+
+      assertThat(response.getStatusCode()).isEqualTo(status);
+      assertThat(response.getBody()).isNotNull();
+      assertThat(response.getBody().errorCode()).isEqualTo("SOME_CODE");
+      assertThat(response.getBody().message()).isEqualTo("Something went wrong");
+    }
 
     @Test
-    @DisplayName("should return 404 with SESSION_NOT_FOUND error code")
-    void shouldReturn404WithSessionNotFoundErrorCode() {
-      ChatSessionNotFoundException exception = new ChatSessionNotFoundException("test-session-123");
+    @DisplayName("should not reveal the session id when a session is missing")
+    void shouldNotRevealTheSessionIdWhenASessionIsMissing() {
+      DomainException exception =
+          DomainException.notFound("SESSION_NOT_FOUND", "Session not found");
 
-      ResponseEntity<ErrorResponse> response = handler.handleSessionNotFound(exception);
+      ResponseEntity<ErrorResponse> response = handler.handleDomainError(exception);
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-      assertThat(response.getBody()).isNotNull();
       assertThat(response.getBody().errorCode()).isEqualTo("SESSION_NOT_FOUND");
       assertThat(response.getBody().message()).isEqualTo("Session not found");
     }
 
     @Test
-    @DisplayName("should handle session not found with different session id")
-    void shouldHandleSessionNotFoundWithDifferentSessionId() {
-      ChatSessionNotFoundException exception = new ChatSessionNotFoundException("another-session");
+    @DisplayName("should return the message without the cause when a provider fails")
+    void shouldReturnTheMessageWithoutTheCauseWhenAProviderFails() {
+      DomainException exception =
+          DomainException.unavailable(
+              "AI_SERVICE_ERROR", "Service unavailable", new RuntimeException("Network timeout"));
 
-      ResponseEntity<ErrorResponse> response = handler.handleSessionNotFound(exception);
-
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-      assertThat(response.getBody().message()).isEqualTo("Session not found");
-    }
-  }
-
-  @Nested
-  @DisplayName("AiServiceException")
-  class HandleAiServiceError {
-
-    @Test
-    @DisplayName("should return 503 with AI_SERVICE_ERROR error code")
-    void shouldReturn503WithAiServiceErrorCode() {
-      AiServiceException exception = new AiServiceException("OpenAI API error");
-
-      ResponseEntity<ErrorResponse> response = handler.handleAiServiceError(exception);
+      ResponseEntity<ErrorResponse> response = handler.handleDomainError(exception);
 
       assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-      assertThat(response.getBody()).isNotNull();
-      assertThat(response.getBody().errorCode()).isEqualTo("AI_SERVICE_ERROR");
-      assertThat(response.getBody().message()).contains("OpenAI API error");
-    }
-
-    @Test
-    @DisplayName("should return 503 with custom error code")
-    void shouldReturn503WithCustomErrorCode() {
-      AiServiceException exception =
-          new AiServiceException("Rate limit exceeded", "RATE_LIMIT", null);
-
-      ResponseEntity<ErrorResponse> response = handler.handleAiServiceError(exception);
-
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-      assertThat(response.getBody().errorCode()).isEqualTo("RATE_LIMIT");
-    }
-
-    @Test
-    @DisplayName("should handle exception with cause")
-    void shouldHandleExceptionWithCause() {
-      Throwable cause = new RuntimeException("Network timeout");
-      AiServiceException exception = new AiServiceException("Service unavailable", cause);
-
-      ResponseEntity<ErrorResponse> response = handler.handleAiServiceError(exception);
-
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-      assertThat(response.getBody().message()).contains("Service unavailable");
-    }
-  }
-
-  @Nested
-  @DisplayName("DocumentNotFoundException")
-  class HandleDocumentNotFound {
-
-    @Test
-    @DisplayName("should return 404 with DOCUMENT_NOT_FOUND error code")
-    void shouldReturn404WithDocumentNotFoundErrorCode() {
-      UUID docId = UUID.randomUUID();
-      DocumentNotFoundException exception = new DocumentNotFoundException(docId);
-
-      ResponseEntity<ErrorResponse> response = handler.handleDocumentNotFound(exception);
-
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-      assertThat(response.getBody()).isNotNull();
-      assertThat(response.getBody().errorCode()).isEqualTo("DOCUMENT_NOT_FOUND");
-      assertThat(response.getBody().message()).contains(docId.toString());
-    }
-
-    @Test
-    @DisplayName("should handle document not found with specific UUID")
-    void shouldHandleDocumentNotFoundWithSpecificUuid() {
-      UUID specificId = UUID.fromString("11111111-1111-1111-1111-111111111111");
-      DocumentNotFoundException exception = new DocumentNotFoundException(specificId);
-
-      ResponseEntity<ErrorResponse> response = handler.handleDocumentNotFound(exception);
-
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-      assertThat(response.getBody().errorCode()).isEqualTo("DOCUMENT_NOT_FOUND");
-    }
-  }
-
-  @Nested
-  @DisplayName("DocumentProcessingException")
-  class HandleDocumentProcessing {
-
-    @Test
-    @DisplayName("should return 422 with DOCUMENT_UNREADABLE error code")
-    void shouldReturn422WithDocumentUnreadableErrorCode() {
-      DocumentProcessingException exception =
-          new DocumentProcessingException("Could not extract text from scan.pdf");
-
-      ResponseEntity<ErrorResponse> response = handler.handleDocumentProcessing(exception);
-
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
-      assertThat(response.getBody().errorCode()).isEqualTo("DOCUMENT_UNREADABLE");
-      assertThat(response.getBody().message()).isEqualTo("Could not extract text from scan.pdf");
-    }
-  }
-
-  @Nested
-  @DisplayName("RagServiceException")
-  class HandleRagServiceError {
-
-    @Test
-    @DisplayName("should return 500 with RAG_SERVICE_ERROR error code")
-    void shouldReturn500WithRagServiceErrorCode() {
-      RagServiceException exception = new RagServiceException("Vector store connection failed");
-
-      ResponseEntity<ErrorResponse> response = handler.handleRagServiceError(exception);
-
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-      assertThat(response.getBody()).isNotNull();
-      assertThat(response.getBody().errorCode()).isEqualTo("RAG_SERVICE_ERROR");
-      assertThat(response.getBody().message()).contains("Vector store connection failed");
-    }
-
-    @Test
-    @DisplayName("should handle exception with nested cause")
-    void shouldHandleExceptionWithNestedCause() {
-      Throwable cause = new RuntimeException("Database error");
-      RagServiceException exception = new RagServiceException("Search failed", cause);
-
-      ResponseEntity<ErrorResponse> response = handler.handleRagServiceError(exception);
-
-      assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-      assertThat(response.getBody().message()).contains("Search failed");
+      assertThat(response.getBody().message()).isEqualTo("Service unavailable");
     }
   }
 

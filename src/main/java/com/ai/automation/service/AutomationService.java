@@ -1,7 +1,5 @@
 package com.ai.automation.service;
 
-import com.ai.automation.domain.exception.AutomationLimitExceededException;
-import com.ai.automation.domain.exception.AutomationScheduleNotFoundException;
 import com.ai.automation.domain.model.AutomationRun;
 import com.ai.automation.domain.model.AutomationSchedule;
 import com.ai.automation.domain.repository.AutomationRunRepository;
@@ -11,7 +9,7 @@ import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.automation.domain.vo.ScheduleKind;
 import com.ai.automation.domain.vo.ScheduleTiming;
 import com.ai.automation.infra.config.AutomationProperties;
-import com.ai.pipeline.domain.exception.PipelineTemplateNotFoundException;
+import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
 import com.ai.pipeline.domain.vo.PipelineTemplateId;
@@ -59,7 +57,8 @@ public class AutomationService {
       String recipientEmail,
       String brief) {
     if (scheduleRepository.countByOwnerKey(ownerKey) >= properties.getMaxSchedulesPerClient()) {
-      throw new AutomationLimitExceededException(
+      throw DomainException.limitExceeded(
+          "AUTOMATION_LIMIT_EXCEEDED",
           "Schedule limit reached (" + properties.getMaxSchedulesPerClient() + ")");
     }
     requireWorkflow(ownerKey, pipelineTemplateId);
@@ -130,13 +129,21 @@ public class AutomationService {
   private AutomationSchedule requireOwned(String ownerKey, String scheduleId) {
     return scheduleRepository
         .findByIdAndOwnerKey(ScheduleId.of(scheduleId), ownerKey)
-        .orElseThrow(() -> new AutomationScheduleNotFoundException(scheduleId));
+        .orElseThrow(
+            () ->
+                DomainException.notFound(
+                    "AUTOMATION_SCHEDULE_NOT_FOUND",
+                    "Automation schedule not found: " + scheduleId));
   }
 
   private void requireWorkflow(String ownerKey, String pipelineTemplateId) {
     pipelineTemplateRepository
         .findByIdAndOwnerKey(PipelineTemplateId.of(pipelineTemplateId), ownerKey)
         .filter(PipelineTemplate::isRunnable)
-        .orElseThrow(() -> new PipelineTemplateNotFoundException(pipelineTemplateId));
+        .orElseThrow(
+            () ->
+                DomainException.notFound(
+                    "PIPELINE_TEMPLATE_NOT_FOUND",
+                    "Pipeline template not found: " + pipelineTemplateId));
   }
 }

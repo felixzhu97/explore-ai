@@ -1,6 +1,6 @@
 package com.ai.image.controller;
 
-import com.ai.common.domain.exception.AiServiceException;
+import com.ai.common.exception.DomainException;
 import com.ai.image.controller.dto.ImageGenerationRequest;
 import com.ai.image.controller.dto.ImageGenerationResponse;
 import com.ai.image.controller.dto.ImageModelsResponse;
@@ -58,7 +58,7 @@ public class ImageController {
             request.height(),
             request.n());
     if (!image.isAvailable()) {
-      throw new AiServiceException("Failed to generate image", "IMAGE_GENERATION_FAILED", null);
+      throw DomainException.unavailable("IMAGE_GENERATION_FAILED", "Failed to generate image");
     }
     String model = request.model() != null ? request.model() : image.model();
     return ImageGenerationResponse.success(image.url(), image.base64(), model, request.prompt());

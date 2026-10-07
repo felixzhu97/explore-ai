@@ -3,7 +3,7 @@ package com.ai.mcp.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.mcp.domain.exception.InvalidMcpSessionException;
+import com.ai.common.exception.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +35,8 @@ class McpSessionTest {
     McpSession session = McpSession.open("server-1", 1);
     session.close();
 
-    assertThatThrownBy(session::close).isInstanceOf(InvalidMcpSessionException.class);
+    assertThatThrownBy(session::close)
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "INVALID_MCP_SESSION");
   }
 }

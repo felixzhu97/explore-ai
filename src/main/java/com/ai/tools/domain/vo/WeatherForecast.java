@@ -1,14 +1,15 @@
 package com.ai.tools.domain.vo;
 
-import com.ai.tools.domain.exception.InvalidWeatherQueryException;
+import com.ai.common.exception.DomainException;
 
 public record WeatherForecast(WeatherQuery query, int days) {
   public WeatherForecast {
     if (query == null) {
-      throw new InvalidWeatherQueryException("Query must not be null");
+      throw DomainException.invalid("INVALID_WEATHER_QUERY", "Query must not be null");
     }
     if (days < 1 || days > 7) {
-      throw new InvalidWeatherQueryException("Forecast days must be between 1 and 7");
+      throw DomainException.invalid(
+          "INVALID_WEATHER_QUERY", "Forecast days must be between 1 and 7");
     }
   }
 

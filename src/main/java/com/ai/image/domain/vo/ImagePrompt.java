@@ -1,6 +1,6 @@
 package com.ai.image.domain.vo;
 
-import com.ai.image.domain.exception.InvalidImagePromptException;
+import com.ai.common.exception.DomainException;
 
 public record ImagePrompt(String value) {
 
@@ -8,11 +8,12 @@ public record ImagePrompt(String value) {
 
   public ImagePrompt {
     if (value == null || value.isBlank()) {
-      throw new InvalidImagePromptException("Image prompt must not be blank");
+      throw DomainException.invalid("INVALID_IMAGE_PROMPT", "Image prompt must not be blank");
     }
     value = value.trim();
     if (value.length() > MAX_LENGTH) {
-      throw new InvalidImagePromptException("Image prompt exceeds maximum length of " + MAX_LENGTH);
+      throw DomainException.invalid(
+          "INVALID_IMAGE_PROMPT", "Image prompt exceeds maximum length of " + MAX_LENGTH);
     }
   }
 

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.rag.domain.exception.RagServiceException;
+import com.ai.common.exception.DomainException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +48,7 @@ class OllamaTextEmbeddingGatewayTest {
 
       try {
         adapter.embed("Hello world");
-      } catch (RagServiceException e) {
+      } catch (DomainException e) {
         // Expected for empty results
       }
 
@@ -63,7 +63,8 @@ class OllamaTextEmbeddingGatewayTest {
       when(embeddingModel.call(any(EmbeddingRequest.class))).thenReturn(mockResponse);
 
       assertThatThrownBy(() -> adapter.embed("Test"))
-          .isInstanceOf(RagServiceException.class)
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "RAG_SERVICE_ERROR")
           .hasMessageContaining("Empty embedding response");
     }
 
@@ -75,29 +76,32 @@ class OllamaTextEmbeddingGatewayTest {
       when(embeddingModel.call(any(EmbeddingRequest.class))).thenReturn(mockResponse);
 
       assertThatThrownBy(() -> adapter.embed("Test"))
-          .isInstanceOf(RagServiceException.class)
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "RAG_SERVICE_ERROR")
           .hasMessageContaining("Empty embedding response");
     }
 
     @Test
-    @DisplayName("should propagate RagServiceException")
-    void shouldPropagateRagServiceException() {
+    @DisplayName("should propagate a domain error unchanged")
+    void shouldPropagateADomainErrorUnchanged() {
       when(embeddingModel.call(any(EmbeddingRequest.class)))
-          .thenThrow(new RagServiceException("Service error"));
+          .thenThrow(DomainException.failed("RAG_SERVICE_ERROR", "Service error"));
 
       assertThatThrownBy(() -> adapter.embed("Test"))
-          .isInstanceOf(RagServiceException.class)
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "RAG_SERVICE_ERROR")
           .hasMessage("Service error");
     }
 
     @Test
-    @DisplayName("should wrap generic exception in RagServiceException")
+    @DisplayName("should wrap a generic exception in a RAG service error")
     void shouldWrapGenericException() {
       when(embeddingModel.call(any(EmbeddingRequest.class)))
           .thenThrow(new RuntimeException("Network error"));
 
       assertThatThrownBy(() -> adapter.embed("Test"))
-          .isInstanceOf(RagServiceException.class)
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "RAG_SERVICE_ERROR")
           .hasMessageContaining("Embedding generation failed")
           .hasCauseInstanceOf(RuntimeException.class);
     }
@@ -116,7 +120,7 @@ class OllamaTextEmbeddingGatewayTest {
 
       try {
         adapter.embedBatch(List.of("Text 1", "Text 2"));
-      } catch (RagServiceException e) {
+      } catch (DomainException e) {
         // Expected for empty results
       }
 
@@ -130,7 +134,8 @@ class OllamaTextEmbeddingGatewayTest {
           .thenThrow(new RuntimeException("Batch error"));
 
       assertThatThrownBy(() -> adapter.embedBatch(List.of("Text 1", "Text 2")))
-          .isInstanceOf(RagServiceException.class)
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "RAG_SERVICE_ERROR")
           .hasMessageContaining("Batch embedding generation failed");
     }
   }

@@ -1,8 +1,8 @@
 package com.ai.pipeline.infra.registry;
 
+import com.ai.common.exception.DomainException;
 import com.ai.common.infra.prompt.ClasspathPromptLoader;
 import com.ai.common.infra.prompt.PromptTemplates;
-import com.ai.pipeline.domain.exception.AgentNotFoundException;
 import com.ai.pipeline.domain.model.AgentCatalog;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.SavedAgent;
@@ -68,7 +68,10 @@ public class CatalogAgentRegistry implements AgentRegistry {
       @Override
       public AgentDefinition require(AgentType type, String ownerKey, String language) {
         return findByType(type, ownerKey, language)
-            .orElseThrow(() -> new AgentNotFoundException(type));
+            .orElseThrow(
+                () ->
+                    DomainException.notFound(
+                        "AGENT_NOT_FOUND", "Unknown agent type: " + type.value()));
       }
     };
   }
@@ -107,7 +110,10 @@ public class CatalogAgentRegistry implements AgentRegistry {
 
   @Override
   public AgentDefinition require(AgentType type, String ownerKey, String language) {
-    return findByType(type, ownerKey, language).orElseThrow(() -> new AgentNotFoundException(type));
+    return findByType(type, ownerKey, language)
+        .orElseThrow(
+            () ->
+                DomainException.notFound("AGENT_NOT_FOUND", "Unknown agent type: " + type.value()));
   }
 
   private List<SavedAgent> library(String ownerKey) {

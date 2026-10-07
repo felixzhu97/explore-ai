@@ -3,8 +3,7 @@ package com.ai.skill.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.skill.domain.exception.SkillNameConflictException;
-import com.ai.skill.domain.exception.SkillNotFoundException;
+import com.ai.common.exception.DomainException;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.vo.SkillId;
 import com.ai.skill.test.fixture.FakeSkillRepository;
@@ -43,7 +42,8 @@ class SkillServiceTest {
     repository.seed(Skill.create(CLIENT_ID, "Brief Style", "", "Instructions", List.of()));
 
     assertThatThrownBy(() -> useCase.create(CLIENT_ID, "Brief Style", "", "Other", List.of()))
-        .isInstanceOf(SkillNameConflictException.class);
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "SKILL_NAME_CONFLICT");
   }
 
   @Test
@@ -94,7 +94,8 @@ class SkillServiceTest {
   @DisplayName("should throw when get missing")
   void shouldThrowWhenGetMissing() {
     assertThatThrownBy(() -> useCase.get(CLIENT_ID, SkillId.generate().value()))
-        .isInstanceOf(SkillNotFoundException.class);
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "SKILL_NOT_FOUND");
   }
 
   @Test

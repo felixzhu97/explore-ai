@@ -1,12 +1,12 @@
 package com.ai.pipeline.service;
 
 import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.exception.DomainException;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.ErrorSummary;
 import com.ai.metrics.domain.vo.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
-import com.ai.pipeline.domain.exception.AgentNotFoundException;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentPipeline;
 import com.ai.pipeline.domain.model.RoutingPlan;
@@ -85,7 +85,7 @@ public class PipelineOrchestrationService {
               Flux.just(buildDoneEvent()))
           .doOnComplete(() -> recordAgent(type.value(), "agent.invoke", ownerKey, startedAt, null))
           .doOnError(err -> recordAgent(type.value(), "agent.invoke", ownerKey, startedAt, err));
-    } catch (AgentNotFoundException e) {
+    } catch (DomainException e) {
       recordAgent(type.value(), "agent.invoke", ownerKey, startedAt, e);
       return Flux.just(buildErrorEvent(e.getMessage()), buildDoneEvent());
     }
@@ -116,7 +116,7 @@ public class PipelineOrchestrationService {
                       buildErrorEvent(
                           err.getMessage() != null ? err.getMessage() : "pipeline failed"),
                       buildDoneEvent()));
-    } catch (IllegalArgumentException | AgentNotFoundException e) {
+    } catch (IllegalArgumentException | DomainException e) {
       return Flux.just(buildErrorEvent(e.getMessage()), buildDoneEvent());
     }
   }

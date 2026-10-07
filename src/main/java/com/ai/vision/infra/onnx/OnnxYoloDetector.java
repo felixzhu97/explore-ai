@@ -5,7 +5,7 @@ import ai.onnxruntime.OnnxValue;
 import ai.onnxruntime.OrtEnvironment;
 import ai.onnxruntime.OrtException;
 import ai.onnxruntime.OrtSession;
-import com.ai.vision.domain.exception.VisionProviderUnavailableException;
+import com.ai.common.exception.DomainException;
 import com.ai.vision.domain.model.Detection;
 import com.ai.vision.domain.repository.ObjectDetector;
 import com.ai.vision.infra.config.VisionModelProperties;
@@ -77,8 +77,8 @@ public class OnnxYoloDetector implements ObjectDetector {
         return parseDetections(predictions[0], image.getWidth(), image.getHeight(), inputSize);
       }
     } catch (OrtException ex) {
-      throw new VisionProviderUnavailableException(
-          "detect", "Object detection failed: " + ex.getMessage());
+      throw DomainException.unavailable(
+          "VISION_PROVIDER_UNAVAILABLE", "Object detection failed: " + ex.getMessage());
     }
   }
 
@@ -105,7 +105,8 @@ public class OnnxYoloDetector implements ObjectDetector {
     int numPredictions = output[0].length;
     boolean channelsFirst = channels < numPredictions;
     if (!channelsFirst) {
-      throw new VisionProviderUnavailableException("detect", "Unexpected YOLO output shape");
+      throw DomainException.unavailable(
+          "VISION_PROVIDER_UNAVAILABLE", "Unexpected YOLO output shape");
     }
 
     float confidenceThreshold = properties.getDetect().getConfidenceThreshold();
@@ -155,8 +156,8 @@ public class OnnxYoloDetector implements ObjectDetector {
 
   private void ensureAvailable() {
     if (!available) {
-      throw new VisionProviderUnavailableException(
-          "detect",
+      throw DomainException.unavailable(
+          "VISION_PROVIDER_UNAVAILABLE",
           "YOLOv8 detector is not available. Provide ONNX model at "
               + properties.getDetect().getOnnxPath());
     }

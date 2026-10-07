@@ -2,6 +2,7 @@ package com.ai.vision.service;
 
 import com.ai.common.controller.dto.HealthStatus;
 import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.exception.DomainException;
 import com.ai.metrics.domain.vo.AiDomain;
 import com.ai.metrics.domain.vo.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
@@ -11,7 +12,6 @@ import com.ai.vision.controller.dto.DetectionResponse;
 import com.ai.vision.controller.dto.OcrResponse;
 import com.ai.vision.controller.dto.VisionHealthResponse;
 import com.ai.vision.controller.dto.VisionProvidersResponse;
-import com.ai.vision.domain.exception.VisionInvalidFileException;
 import com.ai.vision.domain.model.Detection;
 import com.ai.vision.domain.repository.ImageCaptioner;
 import com.ai.vision.domain.repository.ObjectDetector;
@@ -154,7 +154,7 @@ public class VisionAnalysisService {
     try (var inputStream = file.getInputStream()) {
       BufferedImage image = ImageIO.read(inputStream);
       if (image == null) {
-        throw new VisionInvalidFileException("Unsupported or corrupt image file");
+        throw DomainException.invalid("INVALID_FILE", "Unsupported or corrupt image file");
       }
       return image;
     }

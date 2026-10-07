@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
+import com.ai.common.exception.DomainException;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.domain.repository.ImageGenerationGateway;
 import com.ai.image.domain.vo.ImageOptions;
@@ -47,7 +47,8 @@ class ImageGenerationServiceTest {
 
     assertThatThrownBy(
             () -> imageGenerationService.generateImage("sunset", null, null, 512, 512, 1))
-        .isInstanceOf(ImageProviderNotConfiguredException.class);
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "IMAGE_PROVIDER_NOT_CONFIGURED");
   }
 
   @Test
@@ -58,7 +59,8 @@ class ImageGenerationServiceTest {
 
     assertThatThrownBy(
             () -> imageGenerationService.generateImage("sunset", null, null, 512, 512, 1))
-        .isInstanceOf(ImageProviderNotConfiguredException.class);
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "IMAGE_PROVIDER_NOT_CONFIGURED");
   }
 
   @Test

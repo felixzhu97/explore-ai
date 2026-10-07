@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.rag.domain.exception.DocumentProcessingException;
+import com.ai.common.exception.DomainException;
 import com.ai.rag.infra.parser.PdfTextExtractor;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -67,7 +67,8 @@ class PdfAndTextDocumentReaderTest {
     when(pdfTextExtractor.extractText(content)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> reader.read(content, "empty.pdf"))
-        .isInstanceOf(DocumentProcessingException.class)
+        .isInstanceOf(DomainException.class)
+        .hasFieldOrPropertyWithValue("code", "DOCUMENT_UNREADABLE")
         .hasMessage("Could not extract text from empty.pdf");
   }
 }

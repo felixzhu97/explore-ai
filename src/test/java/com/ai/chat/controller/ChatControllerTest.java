@@ -5,7 +5,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.vo.ChatSessionId;
@@ -13,6 +12,7 @@ import com.ai.chat.domain.vo.ContentHash;
 import com.ai.chat.domain.vo.WebSource;
 import com.ai.chat.service.ChatService;
 import com.ai.chat.service.SessionHistory;
+import com.ai.common.exception.DomainException;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;
 import com.ai.testsupport.OwnerKeyFixtures;
@@ -317,7 +317,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should return 404 when session not found")
     void shouldReturn404WhenSessionNotFound() {
       when(chatService.findSessionHistoryWithSources("missing", ownerKey()))
-          .thenThrow(new ChatSessionNotFoundException("missing"));
+          .thenThrow(DomainException.notFound("SESSION_NOT_FOUND", "Session not found"));
 
       assertThat(mvc.get().uri("/api/chat/sessions/missing/messages"))
           .hasStatus(HttpStatus.NOT_FOUND);

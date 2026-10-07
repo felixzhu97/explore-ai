@@ -1,11 +1,11 @@
 package com.ai.vision.controller;
 
 import com.ai.account.controller.OwnerContext;
+import com.ai.common.exception.DomainException;
 import com.ai.vision.controller.dto.CaptionResponse;
 import com.ai.vision.controller.dto.DetectResponse;
 import com.ai.vision.controller.dto.OcrResponse;
 import com.ai.vision.controller.dto.VisionHealthResponse;
-import com.ai.vision.domain.exception.VisionInvalidFileException;
 import com.ai.vision.service.VisionAnalysisService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -69,7 +69,7 @@ public class VisionController {
 
   private void validateFile(MultipartFile file) {
     if (file == null || file.isEmpty()) {
-      throw new VisionInvalidFileException("Image file is required");
+      throw DomainException.invalid("INVALID_FILE", "Image file is required");
     }
   }
 }
