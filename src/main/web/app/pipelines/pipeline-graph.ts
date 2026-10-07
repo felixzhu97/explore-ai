@@ -4,7 +4,7 @@ export interface PipelineNode {
   name: string;
   description: string;
   systemPrompt: string;
-  toolKeys: string[];
+  tools: string[];
   position: { x: number; y: number };
 }
 
@@ -27,7 +27,7 @@ export interface PipelineInvokeRequest {
     name?: string;
     description?: string;
     systemPrompt?: string;
-    toolKeys?: string[];
+    tools?: string[];
   }[];
   edges: { sourceId: string; targetId: string }[];
 }
@@ -155,7 +155,7 @@ export function toPipelineInvokeRequest(
       name: node.name,
       description: node.description,
       systemPrompt: node.systemPrompt,
-      toolKeys: node.toolKeys,
+      tools: node.tools,
     })),
     edges: graph.connections.map(edge => ({
       sourceId: edge.sourceNodeId,

@@ -40,7 +40,7 @@ export interface AgentInfoResponse {
   healthy: boolean;
   supervisor: boolean;
   runtime: AgentRuntime;
-  toolKeys: string[];
+  tools: string[];
   systemPrompt: string;
 }
 
@@ -62,8 +62,8 @@ export interface BuiltinPipelineTemplateResponse {
   name: string;
   description: string;
   agentTypes: string[];
-  shortTopic: string;
-  briefPrompt: string;
+  topic: string;
+  brief: string;
   nameAliases: string[];
 }
 
@@ -73,9 +73,9 @@ export interface PipelineTemplateResponse {
   name: string;
   description: string;
   agentTypes: string[];
-  shortTopic: string;
-  briefPrompt: string;
-  sourceTemplateId: string | null;
+  topic: string;
+  brief: string;
+  builtinTemplateId: string | null;
   enabled: boolean;
   createdAt: string;
   updatedAt: string;
@@ -86,9 +86,9 @@ export interface PipelineTemplate {
   name: string;
   description: string;
   agentTypes: string[];
-  shortTopic: string;
-  briefPrompt: string;
-  sourceTemplateId: string | null;
+  topic: string;
+  brief: string;
+  builtinTemplateId: string | null;
   enabled: boolean;
   createdAt: Instant;
   updatedAt: Instant;
@@ -107,16 +107,16 @@ export interface CreatePipelineTemplateRequest {
   name: string;
   description?: string;
   agentTypes: string[];
-  shortTopic?: string;
-  briefPrompt: string;
+  topic?: string;
+  brief: string;
 }
 
 export interface UpdatePipelineTemplateRequest {
   name: string;
   description?: string;
   agentTypes: string[];
-  shortTopic?: string;
-  briefPrompt: string;
+  topic?: string;
+  brief: string;
 }
 
 @Service()

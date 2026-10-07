@@ -227,13 +227,13 @@ public class PipelineOrchestrationService {
                                       AgentDefinition worker =
                                           registry.requireAgent(
                                               subtask.getAgentType(), ownerKey, language);
-                                      String result =
+                                      String answer =
                                           workerInvoker.invokeAgent(
                                               worker, subtask.getInstruction());
                                       return "### "
                                           + subtask.getAgentType().getValue()
                                           + '\n'
-                                          + result
+                                          + answer
                                           + "\n\n";
                                     },
                                     pool))

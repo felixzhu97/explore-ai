@@ -211,11 +211,11 @@ public class MetricsService {
     return points.stream().map(p -> new SeriesPoint(p.getDay(), p.getValue())).toList();
   }
 
-  private Optional<Instant> parseInstant(String raw) {
-    if (raw == null || raw.isBlank()) {
+  private Optional<Instant> parseInstant(String text) {
+    if (text == null || text.isBlank()) {
       return Optional.empty();
     }
-    return Optional.of(Instant.parse(raw));
+    return Optional.of(Instant.parse(text));
   }
 
   private String toNullIfBlank(String value) {

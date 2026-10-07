@@ -45,15 +45,15 @@ interface ApplyableTemplate {
   name: string;
   description: string;
   agentTypes: string[];
-  shortTopic: string;
-  briefPrompt: string;
+  topic: string;
+  brief: string;
   /** When set, edits persist to this saved pipeline template. */
   savedTemplateId?: string;
 }
 
 const DEFAULT_BRIEF = 'Follow the configured agent pipeline for the user task.';
 
-type NodeDraft = Pick<PipelineNode, 'name' | 'description' | 'systemPrompt' | 'toolKeys'>;
+type NodeDraft = Pick<PipelineNode, 'name' | 'description' | 'systemPrompt' | 'tools'>;
 
 @Component({
   selector: 'app-pipelines-canvas',
@@ -99,11 +99,11 @@ export class PipelinesCanvasComponent implements OnInit {
     name: '',
     description: '',
     systemPrompt: '',
-    toolKeys: [],
+    tools: [],
   });
 
   protected readonly nodeForm = form(this.#nodeDraft);
-  readonly availableToolKeys = ['web', 'weather', 'datetime', 'document'] as const;
+  readonly availableTools = ['web', 'weather', 'datetime', 'document'] as const;
 
   /** One-shot agent picker for the current workflow — not a persistent Agents catalog. */
   readonly showAgentPicker = signal(false);
@@ -207,12 +207,12 @@ export class PipelinesCanvasComponent implements OnInit {
 
   /** Tells whether the node draft includes the tool. */
   isEditToolSelected(toolKey: string): boolean {
-    return this.#nodeDraft().toolKeys.includes(toolKey);
+    return this.#nodeDraft().tools.includes(toolKey);
   }
 
   /** Adds or removes the tool in the node draft. */
   toggleEditTool(toolKey: string): void {
-    this.nodeForm.toolKeys().value.update(current => (current.includes(toolKey)
+    this.nodeForm.tools().value.update(current => (current.includes(toolKey)
       ? current.filter(key => key !== toolKey)
       : [...current, toolKey]));
   }
@@ -228,7 +228,7 @@ export class PipelinesCanvasComponent implements OnInit {
       name: textOr(draft.name.trim(), 'Agent'),
       description: draft.description.trim(),
       systemPrompt: draft.systemPrompt.trim(),
-      toolKeys: [...draft.toolKeys],
+      tools: [...draft.tools],
     };
     this.nodes.update(list => list.map((node) => {
       if (node.id !== nodeId) {
@@ -292,8 +292,8 @@ export class PipelinesCanvasComponent implements OnInit {
       name: template.name,
       description: template.description,
       agentTypes: template.agentTypes,
-      shortTopic: template.shortTopic,
-      briefPrompt: template.briefPrompt,
+      topic: template.topic,
+      brief: template.brief,
     }, 'use');
   }
 
@@ -304,8 +304,8 @@ export class PipelinesCanvasComponent implements OnInit {
       name: template.name,
       description: template.description,
       agentTypes: template.agentTypes,
-      shortTopic: template.shortTopic,
-      briefPrompt: template.briefPrompt,
+      topic: template.topic,
+      brief: template.brief,
     }, 'edit');
   }
 
@@ -339,8 +339,8 @@ export class PipelinesCanvasComponent implements OnInit {
       name: template.name,
       description: template.description,
       agentTypes: template.agentTypes,
-      shortTopic: template.shortTopic,
-      briefPrompt: template.briefPrompt,
+      topic: template.topic,
+      brief: template.brief,
       savedTemplateId: template.id,
     }, 'use');
   }
@@ -352,8 +352,8 @@ export class PipelinesCanvasComponent implements OnInit {
       name: template.name,
       description: template.description,
       agentTypes: template.agentTypes,
-      shortTopic: template.shortTopic,
-      briefPrompt: template.briefPrompt,
+      topic: template.topic,
+      brief: template.brief,
       savedTemplateId: template.id,
     }, 'edit');
   }
@@ -445,7 +445,7 @@ export class PipelinesCanvasComponent implements OnInit {
       name: node.name,
       description: node.description,
       systemPrompt: node.systemPrompt,
-      toolKeys: [...node.toolKeys],
+      tools: [...node.tools],
     });
   }
 
@@ -468,7 +468,7 @@ export class PipelinesCanvasComponent implements OnInit {
 
   /** Tells whether the template is already in the library. */
   isSaved(template: BuiltinPipelineTemplateResponse): boolean {
-    return this.savedTemplates().some(item => item.sourceTemplateId === template.id);
+    return this.savedTemplates().some(item => item.builtinTemplateId === template.id);
   }
 
   #applyTemplate(template: ApplyableTemplate, mode: 'edit' | 'use'): void {
@@ -486,12 +486,12 @@ export class PipelinesCanvasComponent implements OnInit {
     this.connections.set(result.graph.connections);
     this.workspaceMode.set(mode);
     this.activeTemplateName.set(template.name);
-    this.#activeBrief = textOr(template.briefPrompt, DEFAULT_BRIEF);
+    this.#activeBrief = textOr(template.brief, DEFAULT_BRIEF);
     this.editingTemplateId.set(template.savedTemplateId ?? null);
     this.isDraft.set(false);
     this.#emitGraph();
     this.validationCleared.emit();
-    const defaultTask = template.shortTopic.trim();
+    const defaultTask = template.topic.trim();
     if (defaultTask !== '') {
       this.task.set(defaultTask);
     }
@@ -560,8 +560,8 @@ export class PipelinesCanvasComponent implements OnInit {
       name,
       description: '',
       agentTypes,
-      shortTopic: this.task().trim(),
-      briefPrompt: textOr(this.#activeBrief.trim(), DEFAULT_BRIEF),
+      topic: this.task().trim(),
+      brief: textOr(this.#activeBrief.trim(), DEFAULT_BRIEF),
     };
   }
 
@@ -597,7 +597,7 @@ export class PipelinesCanvasComponent implements OnInit {
         name: agent.name,
         description: agent.description,
         systemPrompt: agent.systemPrompt,
-        toolKeys: [...agent.toolKeys],
+        tools: [...agent.tools],
         position,
       },
     ]);

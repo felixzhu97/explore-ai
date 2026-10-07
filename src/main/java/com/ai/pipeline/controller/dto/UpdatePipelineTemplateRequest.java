@@ -9,5 +9,5 @@ public record UpdatePipelineTemplateRequest(
     @NotBlank @Size(max = 120) String name,
     @Size(max = 500) String description,
     @NotEmpty List<String> agentTypes,
-    @Size(max = 200) String shortTopic,
-    @NotBlank String briefPrompt) {}
+    @Size(max = 200) String topic,
+    @NotBlank String brief) {}

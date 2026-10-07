@@ -145,11 +145,11 @@ public class ClasspathGoldenSuiteLoader implements GoldenSuiteRepository {
     throw new IllegalArgumentException("ideal must be a string or string array");
   }
 
-  private static GoldenEvalCategory parseCategory(String raw) {
-    if (raw == null || raw.isBlank()) {
+  private static GoldenEvalCategory parseCategory(String text) {
+    if (text == null || text.isBlank()) {
       return GoldenEvalCategory.CHAT;
     }
-    return GoldenEvalCategory.valueOf(raw.trim().toUpperCase(Locale.ROOT));
+    return GoldenEvalCategory.valueOf(text.trim().toUpperCase(Locale.ROOT));
   }
 
   private static List<String> readStringList(JsonNode node) {

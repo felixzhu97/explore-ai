@@ -21,19 +21,19 @@ import { hasText } from '../shared/presence';
 const TOOL_KEYS = ['web', 'weather', 'datetime', 'document'] as const;
 
 interface AgentDraft {
-  typeKey: string;
+  agentType: string;
   name: string;
   description: string;
   systemPrompt: string;
-  toolKeys: string[];
+  tools: string[];
 }
 
 const EMPTY_DRAFT: AgentDraft = {
-  typeKey: '',
+  agentType: '',
   name: '',
   description: '',
   systemPrompt: '',
-  toolKeys: [],
+  tools: [],
 };
 
 @Component({
@@ -53,17 +53,17 @@ export class AgentsPageComponent implements OnInit {
 
   readonly showForm = signal(false);
   readonly editingId = signal<string | null>(null);
-  readonly isFormTypeKeyLocked = signal(false);
+  readonly isFormAgentTypeLocked = signal(false);
   readonly #draft = signal<AgentDraft>(EMPTY_DRAFT);
 
   protected readonly draftForm = form(this.#draft, (path) => {
-    disabled(path.typeKey, { when: () => this.isFormTypeKeyLocked() });
-    requiredText(path.typeKey, () => !hasText(this.editingId()));
+    disabled(path.agentType, { when: () => this.isFormAgentTypeLocked() });
+    requiredText(path.agentType, () => !hasText(this.editingId()));
     requiredText(path.name);
     requiredText(path.systemPrompt);
   });
 
-  readonly availableToolKeys = TOOL_KEYS;
+  readonly availableTools = TOOL_KEYS;
   readonly isSaving = signal(false);
 
   readonly isLoading = signal(true);
@@ -81,19 +81,19 @@ export class AgentsPageComponent implements OnInit {
   /** Opens the create form with an empty draft. */
   startCreate(): void {
     this.editingId.set(null);
-    this.isFormTypeKeyLocked.set(false);
+    this.isFormAgentTypeLocked.set(false);
     this.#draft.set(EMPTY_DRAFT);
     this.showForm.set(true);
   }
 
   /** Tells whether the draft includes the tool. */
   isToolSelected(toolKey: string): boolean {
-    return this.#draft().toolKeys.includes(toolKey);
+    return this.#draft().tools.includes(toolKey);
   }
 
   /** Adds or removes the tool in the draft. */
   toggleTool(toolKey: string): void {
-    this.draftForm.toolKeys().value.update(current => (current.includes(toolKey)
+    this.draftForm.tools().value.update(current => (current.includes(toolKey)
       ? current.filter(key => key !== toolKey)
       : [...current, toolKey]));
   }
@@ -105,19 +105,19 @@ export class AgentsPageComponent implements OnInit {
       return;
     }
     const draft = this.#draft();
-    const typeKey = draft.typeKey.trim().toLowerCase();
+    const agentType = draft.agentType.trim().toLowerCase();
     const request: UpdateCustomAgentRequest = {
       name: draft.name.trim(),
       description: draft.description.trim(),
       systemPrompt: draft.systemPrompt.trim(),
-      toolKeys: [...draft.toolKeys],
+      tools: [...draft.tools],
     };
     this.isSaving.set(true);
     this.error.set(null);
     const id = this.editingId();
     const request$ = hasText(id)
       ? this.#agentsApi.updateAgent(id, request)
-      : this.#agentsApi.createAgent({ ...request, typeKey });
+      : this.#agentsApi.createAgent({ ...request, agentType });
     request$.subscribe({
       next: () => {
         this.isSaving.set(false);
@@ -146,13 +146,13 @@ export class AgentsPageComponent implements OnInit {
       return;
     }
     this.editingId.set(null);
-    this.isFormTypeKeyLocked.set(true);
+    this.isFormAgentTypeLocked.set(true);
     this.#draft.set({
-      typeKey: agent.type,
+      agentType: agent.type,
       name: agent.name,
       description: agent.description,
       systemPrompt: agent.systemPrompt,
-      toolKeys: [...agent.toolKeys],
+      tools: [...agent.tools],
     });
     this.showForm.set(true);
   }
@@ -160,13 +160,13 @@ export class AgentsPageComponent implements OnInit {
   /** Opens the form to edit a custom agent. */
   startEditCustomAgent(agent: CustomAgent): void {
     this.editingId.set(agent.id);
-    this.isFormTypeKeyLocked.set(true);
+    this.isFormAgentTypeLocked.set(true);
     this.#draft.set({
-      typeKey: agent.typeKey,
+      agentType: agent.agentType,
       name: agent.name,
       description: agent.description,
       systemPrompt: agent.systemPrompt,
-      toolKeys: [...agent.toolKeys],
+      tools: [...agent.tools],
     });
     this.showForm.set(true);
   }
@@ -212,7 +212,7 @@ export class AgentsPageComponent implements OnInit {
   }
 
   /** Finds the custom agent for the agent type. */
-  findCustomAgentForType(typeKey: string): CustomAgent | undefined {
-    return this.customAgents().find(item => item.typeKey === typeKey);
+  findCustomAgentForType(agentType: string): CustomAgent | undefined {
+    return this.customAgents().find(item => item.agentType === agentType);
   }
 }

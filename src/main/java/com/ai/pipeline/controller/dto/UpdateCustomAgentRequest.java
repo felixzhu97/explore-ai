@@ -8,4 +8,4 @@ public record UpdateCustomAgentRequest(
     @NotBlank @Size(max = 120) String name,
     @Size(max = 500) String description,
     @NotBlank String systemPrompt,
-    List<String> toolKeys) {}
+    List<String> tools) {}

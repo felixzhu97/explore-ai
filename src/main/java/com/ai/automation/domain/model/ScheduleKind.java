@@ -6,10 +6,10 @@ public enum ScheduleKind {
   ONCE;
 
   /** Parses a schedule kind case-insensitively, defaulting to {@code CRON} when blank. */
-  public static ScheduleKind parseKind(String raw) {
-    if (raw == null || raw.isBlank()) {
+  public static ScheduleKind parseKind(String text) {
+    if (text == null || text.isBlank()) {
       return CRON;
     }
-    return ScheduleKind.valueOf(raw.trim().toUpperCase());
+    return ScheduleKind.valueOf(text.trim().toUpperCase());
   }
 }

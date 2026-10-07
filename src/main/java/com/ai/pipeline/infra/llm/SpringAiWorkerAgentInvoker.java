@@ -59,7 +59,7 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
   }
 
   private boolean usesTools(AgentDefinition agent) {
-    return agent.getToolKeys() != null && !agent.getToolKeys().isEmpty();
+    return agent.getTools() != null && !agent.getTools().isEmpty();
   }
 
   private ChatClient.ChatClientRequestSpec buildBasePrompt(AgentDefinition agent, String task) {
@@ -72,29 +72,29 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
 
     agentSkillsRuntime.findSkillToolCallback().ifPresent(spec::toolCallbacks);
 
-    Object[] tools = resolveTools(agent.getToolKeys());
+    Object[] tools = resolveTools(agent.getTools());
     if (tools.length > 0) {
       return spec.tools(tools);
     }
     return spec;
   }
 
-  private Object[] resolveTools(List<String> toolKeys) {
-    if (toolKeys == null || toolKeys.isEmpty()) {
+  private Object[] resolveTools(List<String> names) {
+    if (names == null || names.isEmpty()) {
       return new Object[0];
     }
-    List<Object> tools = new ArrayList<>();
-    for (String key : toolKeys) {
-      switch (key) {
-        case "web" -> tools.add(webSearchTool);
-        case "weather" -> tools.add(weatherTool);
-        case "datetime" -> tools.add(dateTimeTool);
-        case "document" -> tools.add(documentSearchTool);
+    List<Object> callbacks = new ArrayList<>();
+    for (String name : names) {
+      switch (name) {
+        case "web" -> callbacks.add(webSearchTool);
+        case "weather" -> callbacks.add(weatherTool);
+        case "datetime" -> callbacks.add(dateTimeTool);
+        case "document" -> callbacks.add(documentSearchTool);
         default -> {
           // ignore unknown keys (already validated for library saves)
         }
       }
     }
-    return tools.toArray();
+    return callbacks.toArray();
   }
 }

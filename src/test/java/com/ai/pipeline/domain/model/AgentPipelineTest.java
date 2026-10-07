@@ -103,7 +103,7 @@ class AgentPipelineTest {
 
     assertEquals("Custom Research", node.getName());
     assertEquals("Custom prompt", node.getSystemPrompt());
-    assertEquals(List.of("web_search"), node.getToolKeys());
+    assertEquals(List.of("web_search"), node.getTools());
     assertEquals("Custom prompt", node.buildDefinition().getSystemPrompt());
   }
 

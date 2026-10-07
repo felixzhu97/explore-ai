@@ -9,8 +9,8 @@ const builtin: BuiltinPipelineTemplateResponse = {
   name: 'Research',
   description: 'Research flow',
   agentTypes: ['researcher', 'writer'],
-  shortTopic: 'topic',
-  briefPrompt: 'brief',
+  topic: 'topic',
+  brief: 'brief',
   nameAliases: [],
 };
 
@@ -19,9 +19,9 @@ const saved: PipelineTemplate = {
   name: builtin.name,
   description: builtin.description,
   agentTypes: builtin.agentTypes,
-  shortTopic: builtin.shortTopic,
-  briefPrompt: builtin.briefPrompt,
-  sourceTemplateId: 'research',
+  topic: builtin.topic,
+  brief: builtin.brief,
+  builtinTemplateId: 'research',
   enabled: false,
   createdAt: Instant.parse('2026-01-01T00:00:00Z'),
   updatedAt: Instant.parse('2026-01-01T00:00:00Z'),

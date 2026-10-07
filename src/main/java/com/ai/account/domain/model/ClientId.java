@@ -21,12 +21,12 @@ public class ClientId {
   }
 
   /** Parses a Client Identity value, rejecting anything that is not a UUID. */
-  public static ClientId parseId(String raw) {
-    return new ClientId(raw);
+  public static ClientId parseId(String text) {
+    return new ClientId(text);
   }
 
-  /** Tells whether the raw value is a valid client id. */
-  public static boolean isValid(String raw) {
-    return raw != null && UUID_SHAPE.matcher(raw.trim()).matches();
+  /** Tells whether the text value is a valid client id. */
+  public static boolean isValid(String text) {
+    return text != null && UUID_SHAPE.matcher(text.trim()).matches();
   }
 }

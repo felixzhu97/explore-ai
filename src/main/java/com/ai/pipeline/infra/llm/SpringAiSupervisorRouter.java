@@ -59,7 +59,7 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
                 """
             .formatted(catalog, userMessage, converter.getFormat());
 
-    String raw =
+    String text =
         chatClientProvider
             .createBareStateless(TextChatOptions.createDefaultOptions())
             .prompt()
@@ -73,7 +73,7 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
             .call()
             .content();
 
-    RoutingDecisionResponse decision = converter.convert(raw);
+    RoutingDecisionResponse decision = converter.convert(text);
     return toPlan(decision, allowed, workers.getFirst().getType());
   }
 
@@ -105,8 +105,8 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
     return new RoutingPlan(primary, reason, subtasks);
   }
 
-  private AgentType normalizeWorker(String raw, Set<String> allowed, AgentType fallback) {
-    String normalized = raw.trim().toLowerCase(Locale.ROOT);
+  private AgentType normalizeWorker(String text, Set<String> allowed, AgentType fallback) {
+    String normalized = text.trim().toLowerCase(Locale.ROOT);
     if ("supervisor".equals(normalized) || !allowed.contains(normalized)) {
       return fallback;
     }

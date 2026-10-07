@@ -6,11 +6,11 @@ import java.util.List;
 
 public record CustomAgentResponse(
     String id,
-    String typeKey,
+    String agentType,
     String name,
     String description,
     String systemPrompt,
-    List<String> toolKeys,
+    List<String> tools,
     boolean enabled,
     Instant createdAt,
     Instant updatedAt) {
@@ -18,11 +18,11 @@ public record CustomAgentResponse(
   public static CustomAgentResponse createResponse(CustomAgent agent) {
     return new CustomAgentResponse(
         agent.getId().toString(),
-        agent.getTypeKey(),
+        agent.getAgentType(),
         agent.getName(),
         agent.getDescription(),
         agent.getSystemPrompt(),
-        List.copyOf(agent.getToolKeys()),
+        List.copyOf(agent.getTools()),
         agent.isEnabled(),
         agent.getCreatedAt(),
         agent.getUpdatedAt());

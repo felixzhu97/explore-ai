@@ -8,7 +8,7 @@ public enum EmailDeliveryStatus {
   FAILED;
 
   /** Parses a delivery status, ignoring case. */
-  public static EmailDeliveryStatus parseStatus(String raw) {
-    return EmailDeliveryStatus.valueOf(raw.trim().toUpperCase());
+  public static EmailDeliveryStatus parseStatus(String text) {
+    return EmailDeliveryStatus.valueOf(text.trim().toUpperCase());
   }
 }

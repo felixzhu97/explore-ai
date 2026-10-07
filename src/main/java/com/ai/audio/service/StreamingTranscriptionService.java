@@ -36,42 +36,41 @@ public class StreamingTranscriptionService {
   }
 
   /** Start a new transcription session. */
-  public void startSession(WebSocketSession rawSession) {
+  public void startSession(WebSocketSession socket) {
     WebSocketSession session =
-        new ConcurrentWebSocketSessionDecorator(rawSession, SEND_TIME_LIMIT_MS, BUFFER_SIZE_LIMIT);
-    sessions.put(rawSession.getId(), new SessionState(UUID.randomUUID().toString(), session));
+        new ConcurrentWebSocketSessionDecorator(socket, SEND_TIME_LIMIT_MS, BUFFER_SIZE_LIMIT);
+    sessions.put(socket.getId(), new SessionState(UUID.randomUUID().toString(), session));
   }
 
   /** Handle incoming WebSocket message from client. */
-  public void handleMessage(WebSocketSession rawSession, String payload) {
-    SessionState state = sessions.get(rawSession.getId());
+  public void handleMessage(WebSocketSession socket, String message) {
+    SessionState state = sessions.get(socket.getId());
     if (state == null) {
       return;
     }
 
-    String messageType = extractMessageType(payload);
+    String messageType = extractMessageType(message);
     switch (messageType) {
       case "audio" ->
-          transcriptionExecutor.execute(
-              () -> processAudioChunk(rawSession.getId(), state, payload));
-      case "commit" -> transcriptionExecutor.execute(() -> commitTurn(rawSession.getId(), state));
-      case "stop" -> transcriptionExecutor.execute(() -> closeSession(rawSession.getId(), state));
+          transcriptionExecutor.execute(() -> processAudioChunk(socket.getId(), state, message));
+      case "commit" -> transcriptionExecutor.execute(() -> commitTurn(socket.getId(), state));
+      case "stop" -> transcriptionExecutor.execute(() -> closeSession(socket.getId(), state));
       default ->
           transcriptionGateway.sendError(state.session, "Unsupported message type: " + messageType);
     }
   }
 
   /** Clean up session resources after connection is closed. */
-  public void endSession(WebSocketSession rawSession) {
-    sessions.remove(rawSession.getId());
+  public void endSession(WebSocketSession socket) {
+    sessions.remove(socket.getId());
   }
 
-  private void processAudioChunk(String sessionId, SessionState state, String payload) {
+  private void processAudioChunk(String sessionId, SessionState state, String message) {
     synchronized (state) {
       if (!sessions.containsKey(sessionId)) {
         return;
       }
-      transcriptionGateway.streamAudioChunk(state.session, state.transcript, payload);
+      transcriptionGateway.streamAudioChunk(state.session, state.transcript, message);
     }
   }
 
@@ -94,10 +93,10 @@ public class StreamingTranscriptionService {
     }
   }
 
-  private String extractMessageType(String payload) {
+  private String extractMessageType(String message) {
     try {
-      Map<String, String> message = objectMapper.readValue(payload, new TypeReference<>() {});
-      return message.getOrDefault("type", "");
+      Map<String, String> fields = objectMapper.readValue(message, new TypeReference<>() {});
+      return fields.getOrDefault("type", "");
     } catch (Exception e) {
       return "";
     }

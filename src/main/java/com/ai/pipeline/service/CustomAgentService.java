@@ -26,14 +26,14 @@ public class CustomAgentService {
   /** Saves a new agent definition in the owner's library. */
   public CustomAgent createAgent(
       String ownerKey,
-      String typeKey,
+      String agentType,
       String name,
       String description,
       String systemPrompt,
-      List<String> toolKeys) {
+      List<String> tools) {
     CustomAgent agent =
-        CustomAgent.createAgent(ownerKey, typeKey, name, description, systemPrompt, toolKeys);
-    assertTypeAvailable(ownerKey, agent.getTypeKey(), null);
+        CustomAgent.createAgent(ownerKey, agentType, name, description, systemPrompt, tools);
+    assertTypeAvailable(ownerKey, agent.getAgentType(), null);
     return repository.save(agent);
   }
 
@@ -44,9 +44,9 @@ public class CustomAgentService {
       String name,
       String description,
       String systemPrompt,
-      List<String> toolKeys) {
+      List<String> tools) {
     CustomAgent agent = findOwned(ownerKey, id);
-    agent.update(name, description, systemPrompt, toolKeys);
+    agent.update(name, description, systemPrompt, tools);
     return repository.save(agent);
   }
 
@@ -72,11 +72,11 @@ public class CustomAgentService {
                     "SAVED_AGENT_NOT_FOUND", "Custom agent not found: " + id));
   }
 
-  private void assertTypeAvailable(String ownerKey, String typeKey, CustomAgentId excludeId) {
-    if (repository.existsByOwnerKeyAndTypeKeyIgnoringId(
-        OwnerKey.parseKey(ownerKey), typeKey, excludeId)) {
+  private void assertTypeAvailable(String ownerKey, String agentType, CustomAgentId excludeId) {
+    if (repository.existsByOwnerKeyAndAgentTypeIgnoringId(
+        OwnerKey.parseKey(ownerKey), agentType, excludeId)) {
       throw DomainException.createConflictError(
-          "SAVED_AGENT_TYPE_CONFLICT", "Agent type key already exists: " + typeKey);
+          "SAVED_AGENT_TYPE_CONFLICT", "Agent type key already exists: " + agentType);
     }
   }
 }

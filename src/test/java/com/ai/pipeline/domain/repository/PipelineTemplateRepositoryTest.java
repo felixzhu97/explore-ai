@@ -37,7 +37,7 @@ class PipelineTemplateRepositoryTest extends AbstractDataJpaTest {
 
     assertThat(reloaded.getName()).isEqualTo("Research flow");
     assertThat(reloaded.getAgentTypes()).containsExactly("researcher", "writer");
-    assertThat(reloaded.getBriefPrompt()).isEqualTo("Summarize recent AI news");
+    assertThat(reloaded.getBrief()).isEqualTo("Summarize recent AI news");
     assertThat(repository.findByIdAndOwnerKey(template.getId(), OTHER)).isEmpty();
   }
 }

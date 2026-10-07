@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Builtin agent definitions from multilingual classpath templates, merged with client-owned library
- * definitions (same typeKey overrides builtin).
+ * definitions (same agentType overrides builtin).
  */
 @Component
 @RequiredArgsConstructor
@@ -88,7 +88,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
       byType.put(builtin.getType().getValue(), builtin);
     }
     for (CustomAgent saved : listLibraryAgents(ownerKey)) {
-      byType.put(saved.getTypeKey(), saved.buildAgentDefinition());
+      byType.put(saved.getAgentType(), saved.buildAgentDefinition());
     }
     return List.copyOf(byType.values());
   }
@@ -112,7 +112,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
         .map(CustomAgent::buildAgentDefinition)
         .or(
             () ->
-                AgentTemplateCatalog.findByTypeKey(type.getValue(), language)
+                AgentTemplateCatalog.findByAgentType(type.getValue(), language)
                     .map(this::toDefinition));
   }
 
@@ -138,11 +138,11 @@ public class CatalogAgentRegistry implements AgentRegistry {
         ClasspathPromptLoader.joinSections(
             template.systemPrompt(), promptTemplates.getSharedStyleInstructions());
     return AgentDefinition.createDefinition(
-        AgentType.createType(template.typeKey()),
+        AgentType.createType(template.agentType()),
         template.name(),
         template.description(),
         prompt,
-        template.toolKeys() == null ? List.of() : template.toolKeys(),
+        template.tools() == null ? List.of() : template.tools(),
         AgentDefinition.RUNTIME_SINGLE);
   }
 }

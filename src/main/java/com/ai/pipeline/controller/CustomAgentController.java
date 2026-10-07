@@ -49,11 +49,11 @@ public class CustomAgentController {
             CustomAgentResponse.createResponse(
                 customAgentService.createAgent(
                     ownerKey,
-                    body.typeKey(),
+                    body.agentType(),
                     body.name(),
                     body.description(),
                     body.systemPrompt(),
-                    body.toolKeys())));
+                    body.tools())));
   }
 
   /** Updates a custom agent. */
@@ -65,7 +65,7 @@ public class CustomAgentController {
     String ownerKey = ownerContext.requireValue(request);
     return CustomAgentResponse.createResponse(
         customAgentService.updateAgent(
-            ownerKey, id, body.name(), body.description(), body.systemPrompt(), body.toolKeys()));
+            ownerKey, id, body.name(), body.description(), body.systemPrompt(), body.tools()));
   }
 
   /** Turns a custom agent on or off. */

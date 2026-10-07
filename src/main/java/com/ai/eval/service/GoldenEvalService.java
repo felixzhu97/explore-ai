@@ -96,15 +96,15 @@ public class GoldenEvalService {
   private GeneratedAnswer generateAnswer(GoldenEvalCase evalCase, Map<String, String> fixtureIds) {
     if (evalCase.getCategory() == GoldenEvalCategory.RAG) {
       List<String> documentIds = resolveDocumentIds(evalCase, fixtureIds);
-      RagChatResult result =
+      RagChatResult answer =
           ragChatService.chatWithDocuments(
               evalCase.getUserText(), documentIds, 5, null, GoldenRagFixtureSeeder.OWNER_KEY);
       List<String> sources =
-          result.sources().stream()
+          answer.sources().stream()
               .map(SourceCitation::getContent)
               .filter(text -> text != null && !text.isBlank())
               .toList();
-      return new GeneratedAnswer(result.response(), sources);
+      return new GeneratedAnswer(answer.response(), sources);
     }
 
     TextChatOptions options =

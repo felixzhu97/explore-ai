@@ -150,8 +150,8 @@ public class VisionChatService {
     return null;
   }
 
-  private boolean isBase64(String str) {
-    return !str.isEmpty() && str.matches("^[A-Za-z0-9+/=]+$") && str.length() % 4 == 0;
+  private boolean isBase64(String text) {
+    return !text.isEmpty() && text.matches("^[A-Za-z0-9+/=]+$") && text.length() % 4 == 0;
   }
 
   private String buildPrompt(String question, String context) {

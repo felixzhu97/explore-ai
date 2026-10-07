@@ -409,11 +409,11 @@ export class AutomationsPageComponent implements OnInit {
     if (template === undefined) {
       return '';
     }
-    const topic = template.shortTopic.trim();
+    const topic = template.topic.trim();
     if (topic !== '') {
       return topic;
     }
-    return template.briefPrompt.trim();
+    return template.brief.trim();
   }
 
   #isGenericPlaceholder(brief: string): boolean {

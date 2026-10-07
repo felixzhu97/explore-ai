@@ -7,5 +7,5 @@ public record BuiltinPipelineTemplate(
     String name,
     String description,
     List<String> agentTypes,
-    String shortTopic,
-    String briefPrompt) {}
+    String topic,
+    String brief) {}

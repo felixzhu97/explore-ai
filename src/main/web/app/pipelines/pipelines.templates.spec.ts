@@ -13,7 +13,7 @@ const catalog: AgentInfoResponse[] = [
     healthy: true,
     supervisor: true,
     runtime: 'single',
-    toolKeys: [],
+    tools: [],
     systemPrompt: '',
   },
   {
@@ -23,7 +23,7 @@ const catalog: AgentInfoResponse[] = [
     healthy: true,
     supervisor: false,
     runtime: 'single',
-    toolKeys: [],
+    tools: [],
     systemPrompt: '',
   },
   {
@@ -33,7 +33,7 @@ const catalog: AgentInfoResponse[] = [
     healthy: true,
     supervisor: false,
     runtime: 'single',
-    toolKeys: [],
+    tools: [],
     systemPrompt: '',
   },
   {
@@ -43,7 +43,7 @@ const catalog: AgentInfoResponse[] = [
     healthy: true,
     supervisor: false,
     runtime: 'single',
-    toolKeys: [],
+    tools: [],
     systemPrompt: '',
   },
   {
@@ -53,7 +53,7 @@ const catalog: AgentInfoResponse[] = [
     healthy: true,
     supervisor: false,
     runtime: 'single',
-    toolKeys: [],
+    tools: [],
     systemPrompt: '',
   },
 ];

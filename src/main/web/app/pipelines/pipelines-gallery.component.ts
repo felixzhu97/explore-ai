@@ -30,6 +30,6 @@ export class PipelinesGalleryComponent {
 
   /** Tells whether the template is already in the library. */
   isSaved(template: BuiltinPipelineTemplateResponse): boolean {
-    return this.savedTemplates().some(item => item.sourceTemplateId === template.id);
+    return this.savedTemplates().some(item => item.builtinTemplateId === template.id);
   }
 }

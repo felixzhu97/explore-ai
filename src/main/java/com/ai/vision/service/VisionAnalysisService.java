@@ -75,7 +75,7 @@ public class VisionAnalysisService {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
-      var result = captioner.captionImage(image);
+      var caption = captioner.captionImage(image);
       long processingTimeMs = Latency.measureSince(startedAt).getMillis();
       captionTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
@@ -86,7 +86,7 @@ public class VisionAnalysisService {
           null,
           null,
           null);
-      return new CaptionResponse(result.getText(), processingTimeMs);
+      return new CaptionResponse(caption.getText(), processingTimeMs);
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
           AiCapability.VISION,
@@ -138,7 +138,7 @@ public class VisionAnalysisService {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
-      var result = ocrEngine.extractText(image);
+      var extraction = ocrEngine.extractText(image);
       long processingTimeMs = Latency.measureSince(startedAt).getMillis();
       ocrTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
       invocationRecorder.recordSuccess(
@@ -149,7 +149,7 @@ public class VisionAnalysisService {
           null,
           null,
           null);
-      return new OcrResponse(result.getText(), processingTimeMs);
+      return new OcrResponse(extraction.getText(), processingTimeMs);
     } catch (RuntimeException ex) {
       invocationRecorder.recordError(
           AiCapability.VISION,

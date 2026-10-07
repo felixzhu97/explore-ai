@@ -57,7 +57,7 @@ public class RagApplicationService {
   /** Retrieves the chunks that match the query. */
   public RetrievalResult retrieveContext(
       String query, List<DocumentId> documentIds, int topK, String ownerKey) {
-    var result = searchService.retrieveDocuments(query, documentIds, topK, ownerKey);
-    return new RetrievalResult(result.context(), result.sources(), query);
+    var retrieval = searchService.retrieveDocuments(query, documentIds, topK, ownerKey);
+    return new RetrievalResult(retrieval.context(), retrieval.sources(), query);
   }
 }

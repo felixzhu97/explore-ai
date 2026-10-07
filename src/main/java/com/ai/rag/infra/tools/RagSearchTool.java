@@ -50,15 +50,15 @@ public class RagSearchTool implements DocumentSearchTool {
               ? documentIds.stream().map(DocumentId::parseId).collect(Collectors.toList())
               : null;
 
-      var result =
+      var retrieval =
           ragApplicationService.retrieveContext(
               query, documentIdList, DEFAULT_TOP_K, ownerKey.get());
 
-      if (result.sources().isEmpty()) {
+      if (retrieval.sources().isEmpty()) {
         return "没有找到与您查询相关的文档内容。请尝试不同的搜索关键词。";
       }
 
-      return "找到以下相关文档片段：\n\n" + formatSources(result.sources());
+      return "找到以下相关文档片段：\n\n" + formatSources(retrieval.sources());
     } catch (IllegalArgumentException e) {
       return "文档ID格式无效，请提供有效的UUID格式的文档ID。";
     } catch (Exception e) {

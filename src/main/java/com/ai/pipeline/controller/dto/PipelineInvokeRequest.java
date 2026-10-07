@@ -25,7 +25,7 @@ public record PipelineInvokeRequest(
       String name,
       String description,
       String systemPrompt,
-      List<String> toolKeys) {}
+      List<String> tools) {}
 
   /** A directed edge between two pipeline nodes. */
   public record PipelineEdgeRequest(@NotBlank String sourceId, @NotBlank String targetId) {}

@@ -5,8 +5,8 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public record CreateCustomAgentRequest(
-    @NotBlank @Size(max = 64) String typeKey,
+    @NotBlank @Size(max = 64) String agentType,
     @NotBlank @Size(max = 120) String name,
     @Size(max = 500) String description,
     @NotBlank String systemPrompt,
-    List<String> toolKeys) {}
+    List<String> tools) {}

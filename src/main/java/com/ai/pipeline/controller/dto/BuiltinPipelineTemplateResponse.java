@@ -9,8 +9,8 @@ public record BuiltinPipelineTemplateResponse(
     String name,
     String description,
     List<String> agentTypes,
-    String shortTopic,
-    String briefPrompt,
+    String topic,
+    String brief,
     List<String> nameAliases) {
   /** Builds a response from a built-in template, adding its names across all languages. */
   public static BuiltinPipelineTemplateResponse createResponse(BuiltinPipelineTemplate template) {
@@ -19,8 +19,8 @@ public record BuiltinPipelineTemplateResponse(
         template.name(),
         template.description(),
         template.agentTypes(),
-        template.shortTopic(),
-        template.briefPrompt(),
+        template.topic(),
+        template.brief(),
         List.copyOf(PipelineTemplateCatalog.listNamesForTemplate(template.id())));
   }
 }

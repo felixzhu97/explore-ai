@@ -8,11 +8,11 @@ import { I18nService } from '../i18n';
 
 export interface CustomAgentResponse {
   id: string;
-  typeKey: string;
+  agentType: string;
   name: string;
   description: string;
   systemPrompt: string;
-  toolKeys: string[];
+  tools: string[];
   enabled: boolean;
   createdAt: string;
   updatedAt: string;
@@ -20,11 +20,11 @@ export interface CustomAgentResponse {
 
 export interface CustomAgent {
   id: string;
-  typeKey: string;
+  agentType: string;
   name: string;
   description: string;
   systemPrompt: string;
-  toolKeys: string[];
+  tools: string[];
   enabled: boolean;
   createdAt: Instant;
   updatedAt: Instant;
@@ -40,18 +40,18 @@ export function toCustomAgent(response: CustomAgentResponse): CustomAgent {
 }
 
 export interface CreateCustomAgentRequest {
-  typeKey: string;
+  agentType: string;
   name: string;
   description?: string;
   systemPrompt: string;
-  toolKeys?: string[];
+  tools?: string[];
 }
 
 export interface UpdateCustomAgentRequest {
   name: string;
   description?: string;
   systemPrompt: string;
-  toolKeys?: string[];
+  tools?: string[];
 }
 
 @Service()
