@@ -7,8 +7,8 @@
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
   "
 >
-  <changeSet author="explore-ai" id="0.1-001-documents" dbms="h2">
-    <createTable tableName="document">
+  <changeSet author="explore-ai" id="0.1-001-rag-document" dbms="h2">
+    <createTable tableName="rag_document">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -23,6 +23,9 @@
       <column name="status" type="${string.type}(50)" defaultValue="UPLOADING">
         <constraints nullable="false"/>
       </column>
+      <column name="chunk_count" type="INT" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
       <column name="version" type="BIGINT" defaultValueNumeric="0">
         <constraints nullable="false"/>
       </column>
@@ -33,10 +36,10 @@
         <constraints nullable="false"/>
       </column>
     </createTable>
-    <createIndex indexName="idx_document_status" tableName="document">
+    <createIndex indexName="idx_rag_document_status" tableName="rag_document">
       <column name="status"/>
     </createIndex>
-    <createIndex indexName="idx_document_owner_key" tableName="document">
+    <createIndex indexName="idx_rag_document_owner_key" tableName="rag_document">
       <column name="owner_key"/>
     </createIndex>
   </changeSet>
@@ -68,7 +71,7 @@
       baseTableName="document_chunks"
       baseColumnNames="document_id"
       constraintName="fk_document_chunks_document_id"
-      referencedTableName="document"
+      referencedTableName="rag_document"
       referencedColumnNames="id"
       onDelete="CASCADE"/>
     <createIndex indexName="idx_document_chunks_document_id" tableName="document_chunks">
@@ -80,7 +83,6 @@
   </changeSet>
 
   <changeSet author="explore-ai" id="0.1-003-chat-sessions" dbms="h2">
-    <validCheckSum>any</validCheckSum>
     <createTable tableName="chat_session">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
@@ -110,20 +112,35 @@
   </changeSet>
 
   <changeSet author="explore-ai" id="0.1-004-spring-ai-chat-memory" dbms="h2">
-    <validCheckSum>any</validCheckSum>
-    <sql>
-      CREATE TABLE IF NOT EXISTS SPRING_AI_CHAT_MEMORY (
-          conversation_id VARCHAR(64) NOT NULL,
-          content LONGVARCHAR NOT NULL,
-          type VARCHAR(10) NOT NULL,
-          timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-          sequence_id BIGINT NOT NULL
-      );
-      CREATE INDEX IF NOT EXISTS SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_TIMESTAMP_IDX
-          ON SPRING_AI_CHAT_MEMORY(conversation_id, timestamp DESC);
-      CREATE INDEX IF NOT EXISTS SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_SEQUENCE_ID_IDX
-          ON SPRING_AI_CHAT_MEMORY(conversation_id, sequence_id);
-    </sql>
+    <createTable tableName="SPRING_AI_CHAT_MEMORY">
+      <column name="conversation_id" type="${string.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="content" type="LONGVARCHAR">
+        <constraints nullable="false"/>
+      </column>
+      <column name="type" type="${string.type}(10)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="timestamp" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="sequence_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createIndex
+      indexName="SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_TIMESTAMP_IDX"
+      tableName="SPRING_AI_CHAT_MEMORY">
+      <column name="conversation_id"/>
+      <column name="timestamp" descending="true"/>
+    </createIndex>
+    <createIndex
+      indexName="SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_SEQUENCE_ID_IDX"
+      tableName="SPRING_AI_CHAT_MEMORY">
+      <column name="conversation_id"/>
+      <column name="sequence_id"/>
+    </createIndex>
   </changeSet>
 
   <changeSet author="explore-ai" id="0.1-005-chat-web-sources" dbms="h2">
@@ -242,8 +259,8 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="explore-ai" id="0.1-008-workflow-templates" dbms="h2">
-    <createTable tableName="saved_workflow_template">
+  <changeSet author="explore-ai" id="0.1-008-pipeline-template" dbms="h2">
+    <createTable tableName="pipeline_template">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -276,16 +293,16 @@
       </column>
     </createTable>
     <addUniqueConstraint
-      tableName="saved_workflow_template"
+      tableName="pipeline_template"
       columnNames="owner_key, name"
-      constraintName="uk_saved_workflow_template_owner_key_name"/>
-    <createIndex indexName="idx_saved_workflow_template_owner_key" tableName="saved_workflow_template">
+      constraintName="uk_pipeline_template_owner_key_name"/>
+    <createIndex indexName="idx_pipeline_template_owner_key" tableName="pipeline_template">
       <column name="owner_key"/>
     </createIndex>
   </changeSet>
 
-  <changeSet author="explore-ai" id="0.1-009-pipeline-agents" dbms="h2">
-    <createTable tableName="saved_agent_definition">
+  <changeSet author="explore-ai" id="0.1-009-saved-agent" dbms="h2">
+    <createTable tableName="saved_agent">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
@@ -319,10 +336,10 @@
       </column>
     </createTable>
     <addUniqueConstraint
-      tableName="saved_agent_definition"
+      tableName="saved_agent"
       columnNames="owner_key, type_key"
-      constraintName="uk_saved_agent_definition_owner_key_type_key"/>
-    <createIndex indexName="idx_saved_agent_definition_owner_key" tableName="saved_agent_definition">
+      constraintName="uk_saved_agent_owner_key_type_key"/>
+    <createIndex indexName="idx_saved_agent_owner_key" tableName="saved_agent">
       <column name="owner_key"/>
     </createIndex>
   </changeSet>
@@ -351,7 +368,7 @@
       <column name="action_type" type="${string.type}(40)">
         <constraints nullable="false"/>
       </column>
-      <column name="workflow_template_id" type="${uuid.type}">
+      <column name="pipeline_template_id" type="${uuid.type}">
         <constraints nullable="false"/>
       </column>
       <column name="recipient_email" type="${string.type}(320)">
@@ -425,6 +442,7 @@
         <constraints nullable="false"/>
       </column>
       <column name="email" type="${string.type}(320)"/>
+      <column name="display_name" type="${string.type}(255)"/>
       <column name="linked_client_id" type="${string.type}(64)"/>
       <column name="version" type="BIGINT" defaultValueNumeric="0">
         <constraints nullable="false"/>
@@ -440,104 +458,9 @@
       tableName="account_user"
       columnNames="provider, subject"
       constraintName="uk_account_user_provider_subject"/>
-    <createIndex indexName="idx_account_user_linked_client_id" tableName="account_user">
-      <column name="linked_client_id"/>
-    </createIndex>
-  </changeSet>
-
-  <!-- Databases created before 0.1-003 declared owner_key NOT NULL still hold ownerless rows. -->
-  <changeSet author="explore-ai" id="0.1-012-chat-session-owner-key-backfill" dbms="h2">
-    <update tableName="chat_session">
-      <column name="owner_key" value="c:legacy-orphan"/>
-      <where>owner_key IS NULL</where>
-    </update>
-    <addNotNullConstraint
-      tableName="chat_session"
-      columnName="owner_key"
-      columnDataType="${string.type}(80)"/>
-  </changeSet>
-
-  <changeSet author="explore-ai" id="0.1-013-rename-rag-document" dbms="h2">
-    <renameTable oldTableName="document" newTableName="rag_document"/>
-    <sql>ALTER INDEX idx_document_status RENAME TO idx_rag_document_status</sql>
-    <sql>ALTER INDEX idx_document_owner_key RENAME TO idx_rag_document_owner_key</sql>
-  </changeSet>
-
-  <changeSet author="explore-ai" id="0.1-014-rename-pipeline-template" dbms="h2">
-    <renameTable oldTableName="saved_workflow_template" newTableName="pipeline_template"/>
-    <sql>
-      ALTER TABLE pipeline_template RENAME CONSTRAINT uk_saved_workflow_template_owner_key_name
-      TO uk_pipeline_template_owner_key_name
-    </sql>
-    <sql>
-      ALTER INDEX idx_saved_workflow_template_owner_key RENAME TO idx_pipeline_template_owner_key
-    </sql>
-  </changeSet>
-
-  <changeSet author="explore-ai" id="0.1-015-rename-saved-agent" dbms="h2">
-    <renameTable oldTableName="saved_agent_definition" newTableName="saved_agent"/>
-    <sql>
-      ALTER TABLE saved_agent RENAME CONSTRAINT uk_saved_agent_definition_owner_key_type_key
-      TO uk_saved_agent_owner_key_type_key
-    </sql>
-    <sql>ALTER INDEX idx_saved_agent_definition_owner_key RENAME TO idx_saved_agent_owner_key</sql>
-  </changeSet>
-
-  <changeSet author="explore-ai" id="0.1-016-rename-automation-pipeline-template-id" dbms="h2">
-    <renameColumn
-      tableName="automation_schedule"
-      oldColumnName="workflow_template_id"
-      newColumnName="pipeline_template_id"
-      columnDataType="${uuid.type}"/>
-  </changeSet>
-
-  <changeSet author="explore-ai" id="0.1-017-rename-automation-action-type" dbms="h2">
-    <update tableName="automation_schedule">
-      <column name="action_type" value="RUN_PIPELINE_TEMPLATE"/>
-      <where>action_type = 'RUN_SAVED_WORKFLOW'</where>
-    </update>
-  </changeSet>
-
-  <!-- Keeps the most recently updated account on a browser that two accounts had linked. -->
-  <changeSet author="explore-ai" id="0.1-018-account-user-unique-linked-client" dbms="h2">
-    <sql>
-      UPDATE account_user a SET linked_client_id = NULL
-      WHERE a.linked_client_id IS NOT NULL
-        AND EXISTS (
-          SELECT 1 FROM account_user b
-          WHERE b.linked_client_id = a.linked_client_id
-            AND (b.updated_at &gt; a.updated_at OR (b.updated_at = a.updated_at AND b.id &gt; a.id)))
-    </sql>
-    <dropIndex indexName="idx_account_user_linked_client_id" tableName="account_user"/>
     <addUniqueConstraint
       tableName="account_user"
       columnNames="linked_client_id"
       constraintName="uk_account_user_linked_client_id"/>
-  </changeSet>
-
-  <!-- Stores the chunk count on the document so listing no longer counts chunks per request. -->
-  <changeSet author="explore-ai" id="0.1-019-rag-document-chunk-count" dbms="h2">
-    <addColumn tableName="rag_document">
-      <column name="chunk_count" type="INT" defaultValueNumeric="0">
-        <constraints nullable="false"/>
-      </column>
-    </addColumn>
-    <sql>
-      UPDATE rag_document d SET chunk_count =
-        (SELECT COUNT(*) FROM document_chunks c WHERE c.document_id = d.id)
-    </sql>
-  </changeSet>
-
-  <!--
-    GitHub logins or full names used to land in email when the address was private. They are
-    cleared rather than copied: the next GitHub sign-in sets display_name from the login only.
-  -->
-  <changeSet author="explore-ai" id="0.1-020-account-user-display-name" dbms="h2">
-    <addColumn tableName="account_user">
-      <column name="display_name" type="${string.type}(255)"/>
-    </addColumn>
-    <sql>
-      UPDATE account_user SET email = NULL WHERE email IS NOT NULL AND email NOT LIKE '%@%'
-    </sql>
   </changeSet>
 </databaseChangeLog>
