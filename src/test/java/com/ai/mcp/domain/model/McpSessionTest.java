@@ -16,7 +16,7 @@ class McpSessionTest {
     McpSession session = McpSession.open("server-1", 3);
 
     assertThat(session.isActive()).isTrue();
-    assertThat(session.toolCount()).isEqualTo(3);
+    assertThat(session.getToolCount()).isEqualTo(3);
   }
 
   @Test

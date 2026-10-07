@@ -123,16 +123,6 @@ public class ChatSession extends AbstractOwnerAwareEntity<ChatSessionId> {
     return messages.size();
   }
 
-  /** Counts the user messages. */
-  public int getUserMessageCount() {
-    return (int) messages.stream().filter(ChatMessage::isFromUser).count();
-  }
-
-  /** Counts the assistant messages. */
-  public int getAssistantMessageCount() {
-    return (int) messages.stream().filter(ChatMessage::isFromAssistant).count();
-  }
-
   /** Returns the message that opened the conversation, if the user has written one. */
   public Optional<ChatMessage> firstUserMessage() {
     return messages.stream().filter(ChatMessage::isFromUser).findFirst();
@@ -143,25 +133,9 @@ public class ChatSession extends AbstractOwnerAwareEntity<ChatSessionId> {
     return messages.stream().filter(ChatMessage::isFromAssistant).reduce((first, last) -> last);
   }
 
-  /** Returns an unmodifiable view of the last {@code count} messages, or empty if non-positive. */
-  public List<ChatMessage> getRecentMessages(int count) {
-    if (count <= 0) {
-      return Collections.emptyList();
-    }
-    int size = messages.size();
-    int start = Math.max(0, size - count);
-    return Collections.unmodifiableList(messages.subList(start, size));
-  }
-
   /** Tells whether the session has no messages. */
   public boolean isEmpty() {
     return messages.isEmpty();
-  }
-
-  /** Removes all messages. */
-  public void clearMessages() {
-    messages.clear();
-    updateLastActivity();
   }
 
   /** Replaces the transient messages with the stored conversation without recording activity. */

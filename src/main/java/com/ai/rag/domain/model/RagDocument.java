@@ -1,13 +1,13 @@
 package com.ai.rag.domain.model;
 
 import com.ai.common.domain.model.AbstractOwnerAwareEntity;
+import com.ai.common.domain.model.DomainStrings;
 import com.ai.common.domain.model.OwnerKey;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotNull;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -69,32 +69,12 @@ public class RagDocument extends AbstractOwnerAwareEntity<DocumentId> {
         DocumentId.generate(), title, fileName, fileSize, DocumentStatus.PROCESSING, 0, ownerKey);
   }
 
-  /** Restores a stored document. */
-  public static RagDocument restore(
-      DocumentId id,
-      String title,
-      String fileName,
-      Long fileSize,
-      DocumentStatus status,
-      int chunkCount,
-      Instant createdAt,
-      Instant updatedAt,
-      String ownerKey) {
-    RagDocument document =
-        new RagDocument(id, title, fileName, fileSize, status, chunkCount, ownerKey);
-    document.createdAt = createdAt;
-    document.updatedAt = updatedAt;
-    return document;
-  }
-
   private static String resolveTitle(String title, String fileName) {
     String resolved =
         title != null && !title.isBlank()
             ? title.trim()
             : fileName != null && !fileName.isBlank() ? fileName.trim() : UNTITLED;
-    return resolved.length() > MAX_TITLE_LENGTH
-        ? resolved.substring(0, MAX_TITLE_LENGTH)
-        : resolved;
+    return DomainStrings.truncate(resolved, MAX_TITLE_LENGTH);
   }
 
   /** Marks ingestion done with the number of chunks stored. */
@@ -131,14 +111,6 @@ public class RagDocument extends AbstractOwnerAwareEntity<DocumentId> {
       metadata.put(FILE_NAME_METADATA_KEY, fileName);
     }
     return DocumentChunk.create(ChunkId.generate(), getId(), ownerKey, content, index, metadata);
-  }
-
-  /** Changes the title unless the document is already READY. */
-  public void updateTitle(String newTitle) {
-    if (status == DocumentStatus.READY) {
-      throw new IllegalStateException("Cannot update title of ready document");
-    }
-    this.title = resolveTitle(newTitle, fileName);
   }
 
   @Override

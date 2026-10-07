@@ -315,25 +315,25 @@ class PipelineOrchestrationServiceTest {
 
     @Override
     public Flux<String> invokeStream(AgentDefinition agent, String task) {
-      lastAgentType = agent.type().value();
-      lastAgentName = agent.name();
-      lastSystemPrompt = agent.systemPrompt();
-      lastToolKeys = agent.toolKeys();
+      lastAgentType = agent.getType().value();
+      lastAgentName = agent.getName();
+      lastSystemPrompt = agent.getSystemPrompt();
+      lastToolKeys = agent.getToolKeys();
       lastTask = task;
       invokeCount.incrementAndGet();
-      streamOrder.add(agent.type().value());
+      streamOrder.add(agent.getType().value());
       return Flux.just("worker-reply");
     }
 
     @Override
     public String invoke(AgentDefinition agent, String task) {
-      lastAgentType = agent.type().value();
-      lastAgentName = agent.name();
-      lastSystemPrompt = agent.systemPrompt();
-      lastToolKeys = agent.toolKeys();
+      lastAgentType = agent.getType().value();
+      lastAgentName = agent.getName();
+      lastSystemPrompt = agent.getSystemPrompt();
+      lastToolKeys = agent.getToolKeys();
       lastTask = task;
       invokeCount.incrementAndGet();
-      return "worker-reply for " + agent.type().value();
+      return "worker-reply for " + agent.getType().value();
     }
   }
 
@@ -342,8 +342,8 @@ class PipelineOrchestrationServiceTest {
 
     @Override
     public Flux<String> invokeStream(AgentDefinition agent, String task) {
-      streamOrder.add(agent.type().value());
-      return Flux.just("worker-reply-" + agent.type().value())
+      streamOrder.add(agent.getType().value());
+      return Flux.just("worker-reply-" + agent.getType().value())
           .delayElements(java.time.Duration.ofMillis(120));
     }
 

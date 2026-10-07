@@ -1,6 +1,7 @@
 package com.ai.automation.domain.model;
 
 import com.ai.common.domain.model.AbstractOwnerAwareImmutable;
+import com.ai.common.domain.model.DomainStrings;
 import com.ai.common.domain.model.OwnerKey;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -76,7 +77,7 @@ public class AutomationRun extends AbstractOwnerAwareImmutable<RunId> {
   public void succeed(String resultExcerpt, EmailDeliveryStatus emailStatus) {
     requireRunning();
     this.status = RunStatus.SUCCESS;
-    this.resultExcerpt = truncate(resultExcerpt);
+    this.resultExcerpt = DomainStrings.truncate(resultExcerpt, MAX_RESULT_EXCERPT);
     this.emailStatus = Objects.requireNonNull(emailStatus, "emailStatus");
     this.finishedAt = Instant.now();
     this.errorMessage = null;
@@ -106,21 +107,10 @@ public class AutomationRun extends AbstractOwnerAwareImmutable<RunId> {
     }
   }
 
-  private static String truncate(String value) {
-    if (value == null) {
-      return null;
-    }
-    if (value.length() <= MAX_RESULT_EXCERPT) {
-      return value;
-    }
-    return value.substring(0, MAX_RESULT_EXCERPT);
-  }
-
   private static String truncateMessage(String value) {
     if (value == null || value.isBlank()) {
       return "unknown error";
     }
-    String trimmed = value.trim();
-    return trimmed.length() > 1000 ? trimmed.substring(0, 1000) : trimmed;
+    return DomainStrings.truncate(value.trim(), 1000);
   }
 }

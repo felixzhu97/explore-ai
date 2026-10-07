@@ -2,11 +2,15 @@ package com.ai.chat.domain.model;
 
 import java.time.Instant;
 import java.util.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 /** Immutable chat message; who wrote it is a {@link ChatMessageType}. */
+@Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public final class ChatMessage {
 
-  private final MessageId id;
+  @EqualsAndHashCode.Include private final MessageId id;
   private final String text;
   private final ChatMessageType messageType;
   private final Instant timestamp;
@@ -41,26 +45,6 @@ public final class ChatMessage {
     return new ChatMessage(id, text, messageType, timestamp);
   }
 
-  /** Returns the message id. */
-  public MessageId getId() {
-    return id;
-  }
-
-  /** Returns the message text. */
-  public String getText() {
-    return text;
-  }
-
-  /** Returns who wrote the message. */
-  public ChatMessageType getMessageType() {
-    return messageType;
-  }
-
-  /** Returns when the message was created. */
-  public Instant getTimestamp() {
-    return timestamp;
-  }
-
   /** Tells whether the user sent the message. */
   public boolean isFromUser() {
     return messageType == ChatMessageType.USER;
@@ -69,28 +53,6 @@ public final class ChatMessage {
   /** Tells whether the assistant sent the message. */
   public boolean isFromAssistant() {
     return messageType == ChatMessageType.ASSISTANT;
-  }
-
-  /** Returns a copy of the message with new text. */
-  public ChatMessage withText(String newText) {
-    return new ChatMessage(this.id, newText, this.messageType, this.timestamp);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    ChatMessage that = (ChatMessage) o;
-    return Objects.equals(id, that.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id);
   }
 
   @Override

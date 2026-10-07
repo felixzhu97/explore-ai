@@ -38,10 +38,10 @@ public record TextAnalysisResponse(
   /** Maps a domain {@link TextAnalysis} to the API response DTO. */
   public static TextAnalysisResponse fromDomain(TextAnalysis analysis) {
     return new TextAnalysisResponse(
-        analysis.summary(),
-        SentimentLabel.fromDomain(analysis.sentiment()),
-        analysis.keyPoints(),
-        analysis.entities(),
-        analysis.language());
+        analysis.getSummary(),
+        SentimentLabel.fromDomain(analysis.getSentiment()),
+        analysis.getKeyPoints(),
+        analysis.getEntities(),
+        analysis.getLanguage());
   }
 }

@@ -68,7 +68,7 @@ class DomainHealthGatewayTest {
         .isEqualTo(new AgentsHealth(ModuleStatus.DEGRADED, 0, 0));
 
     AgentDefinition unhealthy = mock(AgentDefinition.class);
-    when(unhealthy.healthy()).thenReturn(false);
+    when(unhealthy.isHealthy()).thenReturn(false);
     when(pipelineService.listAgents(isNull(), eq("en"))).thenReturn(List.of(unhealthy));
 
     assertThat(gateway.checkAgentsHealth())

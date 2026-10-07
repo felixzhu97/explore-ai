@@ -4,12 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
-import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -54,17 +52,7 @@ class RagDocumentJpaTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should store owner key when persisting partitioned document")
   void shouldStoreOwnerKeyWhenPersistingPartitionedDocument() {
-    RagDocument document =
-        RagDocument.restore(
-            DocumentId.generate(),
-            "Owned",
-            "owned.pdf",
-            512L,
-            DocumentStatus.READY,
-            1,
-            Instant.parse("2026-07-01T00:00:00Z"),
-            Instant.parse("2026-07-02T00:00:00Z"),
-            OWNER_KEY);
+    RagDocument document = ready("Owned", "owned.pdf", 512L);
 
     repository.saveAndFlush(document);
     em.clear();
@@ -77,28 +65,8 @@ class RagDocumentJpaTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should list documents by owner ordered by created at descending")
   void shouldListDocumentsByOwnerOrderedByCreatedAtDescending() {
-    RagDocument older =
-        RagDocument.restore(
-            DocumentId.generate(),
-            "Older",
-            "older.pdf",
-            100L,
-            DocumentStatus.READY,
-            1,
-            Instant.parse("2026-01-01T00:00:00Z"),
-            Instant.parse("2026-01-02T00:00:00Z"),
-            OWNER_KEY);
-    RagDocument newer =
-        RagDocument.restore(
-            DocumentId.generate(),
-            "Newer",
-            "newer.pdf",
-            200L,
-            DocumentStatus.READY,
-            1,
-            Instant.parse("2026-06-01T00:00:00Z"),
-            Instant.parse("2026-06-02T00:00:00Z"),
-            OWNER_KEY);
+    RagDocument older = ready("Older", "older.pdf", 100L);
+    RagDocument newer = ready("Newer", "newer.pdf", 200L);
     repository.saveAndFlush(older);
     repository.saveAndFlush(newer);
     em.clear();
@@ -137,5 +105,11 @@ class RagDocumentJpaTest extends AbstractDataJpaTest {
     adapter.deleteByIdAndOwnerKey(document.getId().getValue(), OWNER_KEY);
     em.flush();
     assertThat(repository.existsById(document.getId())).isFalse();
+  }
+
+  private static RagDocument ready(String title, String fileName, long fileSize) {
+    RagDocument document = RagDocument.startIngestion(title, fileName, fileSize, OWNER_KEY);
+    document.completeIngestion(1);
+    return document;
   }
 }

@@ -94,7 +94,6 @@ class ChatSessionTest {
       assertThat(message.isFromUser()).isTrue();
       assertThat(message.getText()).isEqualTo("Hello");
       assertThat(session.getMessages()).hasSize(1);
-      assertThat(session.getUserMessageCount()).isEqualTo(1);
     }
 
     @Test
@@ -124,7 +123,6 @@ class ChatSessionTest {
       assertThat(message.isFromAssistant()).isTrue();
       assertThat(message.getText()).isEqualTo("Hello");
       assertThat(session.getMessages()).hasSize(1);
-      assertThat(session.getAssistantMessageCount()).isEqualTo(1);
     }
   }
 
@@ -175,71 +173,6 @@ class ChatSessionTest {
   }
 
   @Nested
-  @DisplayName("getRecentMessages()")
-  class GetRecentMessages {
-
-    @Test
-    @DisplayName("should return recent messages")
-    void shouldReturnRecentMessages() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-      for (int i = 1; i <= 5; i++) {
-        session.addUserMessage("Message " + i);
-      }
-
-      var recent = session.getRecentMessages(3);
-
-      assertThat(recent).hasSize(3);
-      assertThat(recent.get(0).getText()).isEqualTo("Message 3");
-      assertThat(recent.get(2).getText()).isEqualTo("Message 5");
-    }
-
-    @Test
-    @DisplayName("should return all messages when count exceeds size")
-    void shouldReturnAllMessagesWhenCountExceedsSize() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-      session.addUserMessage("One");
-      session.addUserMessage("Two");
-
-      var recent = session.getRecentMessages(10);
-
-      assertThat(recent).hasSize(2);
-    }
-
-    @Test
-    @DisplayName("should return empty list for zero count")
-    void shouldReturnEmptyListForZeroCount() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-      session.addUserMessage("Hello");
-
-      var recent = session.getRecentMessages(0);
-
-      assertThat(recent).isEmpty();
-    }
-
-    @Test
-    @DisplayName("should return empty list for negative count")
-    void shouldReturnEmptyListForNegativeCount() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-
-      var recent = session.getRecentMessages(-1);
-
-      assertThat(recent).isEmpty();
-    }
-
-    @Test
-    @DisplayName("should return unmodifiable list")
-    void shouldReturnUnmodifiableList() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-      session.addUserMessage("Hello");
-
-      var recent = session.getRecentMessages(10);
-
-      assertThatThrownBy(() -> recent.add(ChatMessage.createUserMessage("New")))
-          .isInstanceOf(UnsupportedOperationException.class);
-    }
-  }
-
-  @Nested
   @DisplayName("isEmpty()")
   class IsEmpty {
 
@@ -258,36 +191,6 @@ class ChatSessionTest {
       session.addUserMessage("Hello");
 
       assertThat(session.isEmpty()).isFalse();
-    }
-  }
-
-  @Nested
-  @DisplayName("clearMessages()")
-  class ClearMessages {
-
-    @Test
-    @DisplayName("should clear all messages")
-    void shouldClearAllMessages() {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-      session.addUserMessage("Hello");
-      session.addAssistantMessage("Hi");
-
-      session.clearMessages();
-
-      assertThat(session.isEmpty()).isTrue();
-    }
-
-    @Test
-    @DisplayName("should update lastActivityAt")
-    void shouldUpdateLastActivityAt() throws InterruptedException {
-      ChatSession session = ChatSession.create("Test", "c:client-a");
-      session.addUserMessage("Hello");
-      Instant beforeClear = session.getLastActivityAt();
-
-      Thread.sleep(10);
-      session.clearMessages();
-
-      assertThat(session.getLastActivityAt()).isAfter(beforeClear);
     }
   }
 

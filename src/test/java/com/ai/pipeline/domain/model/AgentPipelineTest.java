@@ -102,7 +102,7 @@ class AgentPipelineTest {
     assertEquals("Custom Research", node.name());
     assertEquals("Custom prompt", node.systemPrompt());
     assertEquals(List.of("web_search"), node.toolKeys());
-    assertEquals("Custom prompt", node.toDefinition().systemPrompt());
+    assertEquals("Custom prompt", node.toDefinition().getSystemPrompt());
   }
 
   @Test
@@ -114,8 +114,8 @@ class AgentPipelineTest {
     AgentDefinition definition = node.toDefinition(builtin("research"));
 
     assertFalse(node.hasOwnPrompt());
-    assertEquals("Scout", definition.name());
-    assertEquals("You are research.", definition.systemPrompt());
+    assertEquals("Scout", definition.getName());
+    assertEquals("You are research.", definition.getSystemPrompt());
   }
 
   @Test
@@ -125,7 +125,7 @@ class AgentPipelineTest {
         new AgentPipeline.PipelineNode(
             "n0", AgentType.of("research"), "Scout", "", "Only cite sources.", List.of());
 
-    assertEquals("Only cite sources.", node.toDefinition(builtin("research")).systemPrompt());
+    assertEquals("Only cite sources.", node.toDefinition(builtin("research")).getSystemPrompt());
   }
 
   private static AgentDefinition builtin(String type) {

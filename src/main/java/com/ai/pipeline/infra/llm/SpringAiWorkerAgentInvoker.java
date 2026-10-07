@@ -59,19 +59,19 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
   }
 
   private boolean usesTools(AgentDefinition agent) {
-    return agent.toolKeys() != null && !agent.toolKeys().isEmpty();
+    return agent.getToolKeys() != null && !agent.getToolKeys().isEmpty();
   }
 
   private ChatClient.ChatClientRequestSpec buildBasePrompt(AgentDefinition agent, String task) {
     // BARE avoids factory-wide tool defaults; attach only this worker's tools below.
     ChatClient client =
         chatClientProvider.create(TextChatOptions.defaults(), ChatClientProfile.BARE, null);
-    String systemPrompt = agentSkillsRuntime.augmentSystemPrompt(agent.systemPrompt());
+    String systemPrompt = agentSkillsRuntime.augmentSystemPrompt(agent.getSystemPrompt());
     ChatClient.ChatClientRequestSpec spec = client.prompt().system(systemPrompt).user(task);
 
     agentSkillsRuntime.findSkillToolCallback().ifPresent(spec::toolCallbacks);
 
-    Object[] tools = resolveTools(agent.toolKeys());
+    Object[] tools = resolveTools(agent.getToolKeys());
     if (tools.length > 0) {
       return spec.tools(tools);
     }

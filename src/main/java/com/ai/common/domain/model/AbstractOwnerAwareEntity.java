@@ -47,10 +47,4 @@ public abstract class AbstractOwnerAwareEntity<IdT extends AbstractEmbeddable>
   public String getOwnerKeyValue() {
     return ownerKey.value();
   }
-
-  /** Moves a guest row to the signed-in account that now owns it. */
-  public void transferTo(OwnerKey accountOwnerKey) {
-    ownerKey.requireMergeableInto(accountOwnerKey);
-    this.ownerKey = accountOwnerKey;
-  }
 }

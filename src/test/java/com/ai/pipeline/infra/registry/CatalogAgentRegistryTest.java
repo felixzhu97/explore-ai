@@ -36,7 +36,7 @@ class CatalogAgentRegistryTest {
 
   @Test
   void shouldOverrideBuiltinWithEnabledClientDefinition() {
-    String typeKey = registry.listWorkers("c:client-a", "en").getFirst().type().value();
+    String typeKey = registry.listWorkers("c:client-a", "en").getFirst().getType().value();
     savedAgents.save(
         SavedAgent.create(
             "c:client-a",
@@ -49,22 +49,22 @@ class CatalogAgentRegistryTest {
     Optional<AgentDefinition> found =
         registry.findByType(AgentType.of(typeKey), "c:client-a", "en");
     assertThat(found).isPresent();
-    assertThat(found.get().name()).isEqualTo("Override Name");
-    assertThat(found.get().systemPrompt()).isEqualTo("You are an override.");
+    assertThat(found.get().getName()).isEqualTo("Override Name");
+    assertThat(found.get().getSystemPrompt()).isEqualTo("You are an override.");
 
     assertThat(registry.listAll("c:client-a", "en"))
         .anySatisfy(
             agent -> {
-              if (agent.type().value().equals(typeKey)) {
-                assertThat(agent.name()).isEqualTo("Override Name");
+              if (agent.getType().value().equals(typeKey)) {
+                assertThat(agent.getName()).isEqualTo("Override Name");
               }
             });
   }
 
   @Test
   void shouldIgnoreDisabledClientDefinition() {
-    String typeKey = registry.listWorkers("c:client-a", "en").getFirst().type().value();
-    String builtinName = registry.require(AgentType.of(typeKey), "c:client-a", "en").name();
+    String typeKey = registry.listWorkers("c:client-a", "en").getFirst().getType().value();
+    String builtinName = registry.require(AgentType.of(typeKey), "c:client-a", "en").getName();
     SavedAgent disabled =
         SavedAgent.create(
             "c:client-a", typeKey, "Disabled Override", "d", "Disabled prompt", List.of());
@@ -72,8 +72,8 @@ class CatalogAgentRegistryTest {
     savedAgents.save(disabled);
 
     AgentDefinition effective = registry.require(AgentType.of(typeKey), "c:client-a", "en");
-    assertThat(effective.name()).isEqualTo(builtinName);
-    assertThat(effective.name()).isNotEqualTo("Disabled Override");
+    assertThat(effective.getName()).isEqualTo(builtinName);
+    assertThat(effective.getName()).isNotEqualTo("Disabled Override");
   }
 
   @Test
@@ -85,8 +85,8 @@ class CatalogAgentRegistryTest {
     assertThat(registry.listAll("c:client-a", "en"))
         .anySatisfy(
             agent -> {
-              assertThat(agent.type().value()).isEqualTo("custom_writer");
-              assertThat(agent.name()).isEqualTo("Writer");
+              assertThat(agent.getType().value()).isEqualTo("custom_writer");
+              assertThat(agent.getName()).isEqualTo("Writer");
             });
     assertThat(registry.findByType(AgentType.of("custom_writer"), "other-client", "en")).isEmpty();
   }
@@ -95,12 +95,14 @@ class CatalogAgentRegistryTest {
   @DisplayName("should keep built-in order and append saved agents with new types last")
   void shouldKeepBuiltInOrderAndAppendSavedAgentsWithNewTypesLast() {
     List<String> builtinTypes =
-        registry.listBuiltins("en").stream().map(agent -> agent.type().value()).toList();
+        registry.listBuiltins("en").stream().map(agent -> agent.getType().value()).toList();
     savedAgents.save(
         SavedAgent.create("c:client-a", "legal", "Legal", "", "Check contracts.", List.of()));
 
     List<String> allTypes =
-        registry.listAll("c:client-a", "en").stream().map(agent -> agent.type().value()).toList();
+        registry.listAll("c:client-a", "en").stream()
+            .map(agent -> agent.getType().value())
+            .toList();
 
     assertThat(allTypes.subList(0, builtinTypes.size())).isEqualTo(builtinTypes);
     assertThat(allTypes.getLast()).isEqualTo("legal");
@@ -113,7 +115,7 @@ class CatalogAgentRegistryTest {
         SavedAgent.create("c:client-a", "legal", "Legal", "", "Check contracts.", List.of()));
 
     assertThat(registry.findByType(AgentType.of(" Legal "), "c:client-a", "en"))
-        .map(AgentDefinition::name)
+        .map(AgentDefinition::getName)
         .contains("Legal");
   }
 

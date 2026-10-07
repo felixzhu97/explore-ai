@@ -15,21 +15,21 @@ public class McpSessionRegistry {
   /** Opens and stores a session for the server. */
   public McpSession registerSession(String serverName, int toolCount) {
     McpSession session = McpSession.open(serverName, toolCount);
-    sessions.put(session.id(), session);
+    sessions.put(session.getId(), session);
     return session;
   }
 
   /** Finds a session by server name. */
   public Optional<McpSession> findByServerName(String serverName) {
     return sessions.values().stream()
-        .filter(session -> session.serverName().equals(serverName))
+        .filter(session -> session.getServerName().equals(serverName))
         .findFirst();
   }
 
   /** Finds an active session by server name. */
   public Optional<McpSession> findActiveByServerName(String serverName) {
     return sessions.values().stream()
-        .filter(session -> session.serverName().equals(serverName) && session.isActive())
+        .filter(session -> session.getServerName().equals(serverName) && session.isActive())
         .findFirst();
   }
 

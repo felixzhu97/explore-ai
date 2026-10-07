@@ -32,11 +32,11 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
     }
 
     Set<String> allowed =
-        workers.stream().map(w -> w.type().value()).collect(Collectors.toUnmodifiableSet());
+        workers.stream().map(w -> w.getType().value()).collect(Collectors.toUnmodifiableSet());
 
     String catalog =
         workers.stream()
-            .map(w -> "- " + w.type().value() + ": " + w.description())
+            .map(w -> "- " + w.getType().value() + ": " + w.getDescription())
             .collect(Collectors.joining("\n"));
 
     BeanOutputConverter<RoutingDecisionResponse> converter =
@@ -74,7 +74,7 @@ public class SpringAiSupervisorRouter implements SupervisorRouter {
             .content();
 
     RoutingDecisionResponse decision = converter.convert(raw);
-    return toPlan(decision, allowed, workers.getFirst().type());
+    return toPlan(decision, allowed, workers.getFirst().getType());
   }
 
   private RoutingPlan toPlan(
