@@ -2,30 +2,35 @@ package com.ai.chat.domain.repository;
 
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.model.ChatSessionId;
+import com.ai.common.domain.model.OwnerKey;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.repository.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-/** Chat session repository interface. */
-public interface ChatSessionRepository {
-  /** Finds a session by id. */
+/** Repository of chat session metadata; the messages live in chat memory. */
+public interface ChatSessionRepository extends Repository<ChatSession, ChatSessionId> {
+
+  /** Finds a session by id regardless of owner, for background work on a known session. */
   Optional<ChatSession> findById(ChatSessionId id);
 
   /** Finds the owner's session by id. */
-  Optional<ChatSession> findByIdAndOwnerKey(ChatSessionId id, String ownerKey);
+  Optional<ChatSession> findByIdAndOwnerKey(ChatSessionId id, OwnerKey ownerKey);
 
-  /** Lists the owner's sessions. */
-  List<ChatSession> findByOwnerKey(String ownerKey);
+  /** Lists the owner's sessions, most recently active first. */
+  List<ChatSession> findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey ownerKey);
 
-  /** Lists sessions with no activity since the cutoff. */
-  List<ChatSession> findInactiveSince(Instant cutoff);
+  /** Lists every owner's sessions with no activity since the cutoff, oldest first. */
+  List<ChatSession> findAllByLastActivityAtBeforeOrderByLastActivityAtAsc(Instant cutoff);
 
-  /** Tells whether a session with the id exists. */
-  boolean exists(ChatSessionId id);
+  /** Tells whether any owner has a session with the id. */
+  boolean existsById(ChatSessionId id);
 
   /** Saves the session. */
-  void save(ChatSession session);
+  ChatSession save(ChatSession session);
 
   /** Deletes the session. */
-  void delete(ChatSessionId id);
+  @Transactional
+  void deleteById(ChatSessionId id);
 }

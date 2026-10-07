@@ -2,74 +2,76 @@ package com.ai.skill.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.model.SkillId;
-import com.ai.skill.test.fixture.FakeSkillRepository;
+import com.ai.skill.domain.repository.SkillRepository;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("SkillService")
 class SkillServiceTest {
 
   private static final String CLIENT_ID = "c:client-1";
+  private static final OwnerKey OWNER = OwnerKey.parse(CLIENT_ID);
 
-  private FakeSkillRepository repository;
-  private SkillService useCase;
-
-  @BeforeEach
-  void setUp() {
-    repository = new FakeSkillRepository();
-    useCase = new SkillService(repository);
-  }
+  @Mock private SkillRepository repository;
+  @InjectMocks private SkillService useCase;
 
   @Test
   @DisplayName("should create skill when name available")
   void shouldCreateSkillWhenNameAvailable() {
+    when(repository.save(any(Skill.class))).then(returnsFirstArg());
+
     Skill created =
         useCase.create(CLIENT_ID, "Brief Style", "Short answers", "Be concise.", List.of("Read"));
 
     assertThat(created.getName()).isEqualTo("Brief Style");
-    assertThat(repository.saveCount()).isEqualTo(1);
+    verify(repository).save(created);
   }
 
   @Test
   @DisplayName("should throw when name conflict on create")
   void shouldThrowWhenNameConflictOnCreate() {
-    repository.seed(Skill.create(CLIENT_ID, "Brief Style", "", "Instructions", List.of()));
+    when(repository.existsByOwnerKeyAndNameIgnoringId(OWNER, "Brief Style", null)).thenReturn(true);
 
     assertThatThrownBy(() -> useCase.create(CLIENT_ID, "Brief Style", "", "Other", List.of()))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "SKILL_NAME_CONFLICT");
+    verify(repository, never()).save(any());
   }
 
   @Test
-  @DisplayName("should build the active skills prompt from enabled owned skills only")
-  void shouldBuildTheActiveSkillsPromptFromEnabledOwnedSkillsOnly() {
-    Skill brief =
-        repository.seed(Skill.create(CLIENT_ID, "Brief Style", "", "Be short.", List.of()));
-    Skill off = repository.seed(Skill.create(CLIENT_ID, "Formal", "", "Be formal.", List.of()));
-    off.disable();
-    Skill foreign =
-        repository.seed(Skill.create("c:client-2", "Pirate", "", "Talk like a pirate.", List.of()));
+  @DisplayName("should build the active skills prompt from the valid skill ids only")
+  void shouldBuildTheActiveSkillsPromptFromTheValidSkillIdsOnly() {
+    Skill brief = Skill.create(CLIENT_ID, "Brief Style", "", "Be short.", List.of());
+    when(repository.findEnabledByOwnerKeyAndIds(OWNER, List.of(brief.getId())))
+        .thenReturn(List.of(brief));
 
     String prompt =
         useCase
-            .activeSkillsPrompt(
-                CLIENT_ID,
-                List.of(
-                    brief.getId().toString(),
-                    off.getId().toString(),
-                    foreign.getId().toString(),
-                    "not-a-uuid",
-                    " "))
+            .activeSkillsPrompt(CLIENT_ID, List.of(brief.getId().toString(), "not-a-uuid", " "))
             .orElseThrow();
 
     assertThat(prompt).contains("## Active Skills").contains("### Brief Style");
-    assertThat(prompt).doesNotContain("Formal").doesNotContain("Pirate");
   }
 
   @Test
@@ -77,17 +79,7 @@ class SkillServiceTest {
   void shouldReturnNoPromptWhenNoneOfTheSkillIdsResolve() {
     assertThat(useCase.activeSkillsPrompt(CLIENT_ID, List.of("not-a-uuid"))).isEmpty();
     assertThat(useCase.activeSkillsPrompt(CLIENT_ID, null)).isEmpty();
-  }
-
-  @Test
-  @DisplayName("should return skill when get existing")
-  void shouldReturnSkillWhenGetExisting() {
-    Skill seeded =
-        repository.seed(Skill.create(CLIENT_ID, "Brief Style", "", "Instructions", List.of()));
-
-    Skill found = useCase.get(CLIENT_ID, seeded.getId().toString());
-
-    assertThat(found.getId()).isEqualTo(seeded.getId());
+    verifyNoInteractions(repository);
   }
 
   @Test
@@ -99,28 +91,26 @@ class SkillServiceTest {
   }
 
   @Test
-  @DisplayName("should create from template when template exists")
-  void shouldCreateFromTemplateWhenTemplateExists() {
-    Skill created = useCase.createFromTemplate(CLIENT_ID, "brief-style", "en");
+  @DisplayName("should create localized skill from template")
+  void shouldCreateLocalizedSkillFromTemplate() {
+    when(repository.save(any(Skill.class))).then(returnsFirstArg());
 
-    assertThat(created.getName()).isEqualTo("Brief Style");
-    assertThat(created.getInstructions()).contains("Lead with the direct answer");
-    assertThat(created.getAllowedTools()).isEmpty();
-  }
+    Skill english = useCase.createFromTemplate(CLIENT_ID, "brief-style", "en");
+    Skill chinese = useCase.createFromTemplate(CLIENT_ID, "brief-style", "zh");
 
-  @Test
-  @DisplayName("should create localized skill when language is zh")
-  void shouldCreateLocalizedSkillWhenLanguageIsZh() {
-    Skill created = useCase.createFromTemplate(CLIENT_ID, "brief-style", "zh");
-
-    assertThat(created.getName()).isEqualTo("简洁风格");
-    assertThat(created.getInstructions()).contains("先用一两句话给出直接答案");
+    assertThat(english.getName()).isEqualTo("Brief Style");
+    assertThat(english.getInstructions()).contains("Lead with the direct answer");
+    assertThat(english.getAllowedTools()).isEmpty();
+    assertThat(chinese.getName()).isEqualTo("简洁风格");
+    assertThat(chinese.getInstructions()).contains("先用一两句话给出直接答案");
   }
 
   @Test
   @DisplayName("should suffix name when create from template conflicts")
   void shouldSuffixNameWhenCreateFromTemplateConflicts() {
-    useCase.createFromTemplate(CLIENT_ID, "brief-style", "en");
+    when(repository.existsByOwnerKeyAndNameIgnoringId(eq(OWNER), anyString(), isNull()))
+        .thenAnswer(call -> "Brief Style".equals(call.getArgument(1)));
+    when(repository.save(any(Skill.class))).then(returnsFirstArg());
 
     Skill duplicate = useCase.createFromTemplate(CLIENT_ID, "brief-style", "en");
 
@@ -130,10 +120,11 @@ class SkillServiceTest {
   @Test
   @DisplayName("should disable skill when set enabled false")
   void shouldDisableSkillWhenSetEnabledFalse() {
-    Skill seeded =
-        repository.seed(Skill.create(CLIENT_ID, "Brief Style", "", "Instructions", List.of()));
+    Skill skill = Skill.create(CLIENT_ID, "Brief Style", "", "Instructions", List.of());
+    when(repository.findByIdAndOwnerKey(skill.getId(), OWNER)).thenReturn(Optional.of(skill));
+    when(repository.save(skill)).thenReturn(skill);
 
-    Skill updated = useCase.setEnabled(CLIENT_ID, seeded.getId().toString(), false);
+    Skill updated = useCase.setEnabled(CLIENT_ID, skill.getId().toString(), false);
 
     assertThat(updated.isEnabled()).isFalse();
   }

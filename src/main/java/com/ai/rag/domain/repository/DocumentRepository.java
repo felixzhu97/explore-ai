@@ -1,34 +1,26 @@
 package com.ai.rag.domain.repository;
 
+import com.ai.common.domain.model.OwnerKey;
+import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.RagDocument;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+import org.springframework.data.repository.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Document repository port - defines the contract for document persistence. This interface belongs
- * to the domain layer and is implemented by adapters.
- */
-public interface DocumentRepository {
-
-  /** Finds a document by its ID. */
-  Optional<RagDocument> findById(UUID id);
-
-  /** Retrieves all documents. */
-  List<RagDocument> findAll();
-
-  /** Lists all documents of the owner. */
-  List<RagDocument> findAllByOwnerKey(String ownerKey);
+/** Repository of uploaded documents, partitioned by owner. */
+public interface DocumentRepository extends Repository<RagDocument, DocumentId> {
 
   /** Finds the owner's document by id. */
-  Optional<RagDocument> findByIdAndOwnerKey(java.util.UUID id, String ownerKey);
+  Optional<RagDocument> findByIdAndOwnerKey(DocumentId id, OwnerKey ownerKey);
 
-  /** Saves a document and returns the saved entity. */
+  /** Lists the owner's documents, newest first. */
+  List<RagDocument> findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey ownerKey);
+
+  /** Saves the document and returns the stored copy. */
   RagDocument save(RagDocument document);
 
   /** Deletes the owner's document by id. */
-  void deleteByIdAndOwnerKey(java.util.UUID id, String ownerKey);
-
-  /** Deletes a document by its ID. */
-  void delete(UUID id);
+  @Transactional
+  void deleteByIdAndOwnerKey(DocumentId id, OwnerKey ownerKey);
 }

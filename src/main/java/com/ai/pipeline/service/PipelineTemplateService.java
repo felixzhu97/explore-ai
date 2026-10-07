@@ -1,6 +1,7 @@
 package com.ai.pipeline.service;
 
 import com.ai.common.domain.model.DomainStrings;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.model.PipelineTemplateId;
@@ -8,9 +9,11 @@ import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Manages a client's saved pipeline templates, including copies of built-in catalog templates. */
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PipelineTemplateService {
 
@@ -23,7 +26,7 @@ public class PipelineTemplateService {
 
   /** Lists the owner's saved pipelines. */
   public List<PipelineTemplate> listLibrary(String ownerKey) {
-    return repository.findAllByOwnerKey(ownerKey);
+    return repository.findAllByOwnerKeyOrderByNameAsc(OwnerKey.parse(ownerKey));
   }
 
   /** Copies a built-in template into the owner's library. */
@@ -83,7 +86,7 @@ public class PipelineTemplateService {
   /** Deletes the owner's saved pipeline. */
   public void delete(String ownerKey, String id) {
     findOwned(ownerKey, id);
-    repository.deleteByIdAndOwnerKey(PipelineTemplateId.of(id), ownerKey);
+    repository.deleteByIdAndOwnerKey(PipelineTemplateId.of(id), OwnerKey.parse(ownerKey));
   }
 
   /** Returns the owner's saved pipeline. */
@@ -93,7 +96,7 @@ public class PipelineTemplateService {
 
   private PipelineTemplate findOwned(String ownerKey, String id) {
     return repository
-        .findByIdAndOwnerKey(PipelineTemplateId.of(id), ownerKey)
+        .findByIdAndOwnerKey(PipelineTemplateId.of(id), OwnerKey.parse(ownerKey))
         .orElseThrow(
             () ->
                 DomainException.notFound(
@@ -102,7 +105,8 @@ public class PipelineTemplateService {
 
   private void assertNameAvailable(String ownerKey, String name, PipelineTemplateId excludeId) {
     String normalized = DomainStrings.normalizeName(name);
-    if (repository.existsByOwnerKeyAndNameIgnoringId(ownerKey, normalized, excludeId)) {
+    if (repository.existsByOwnerKeyAndNameIgnoringId(
+        OwnerKey.parse(ownerKey), normalized, excludeId)) {
       throw DomainException.conflict(
           "PIPELINE_TEMPLATE_NAME_CONFLICT",
           "Pipeline template name already exists: " + normalized);
@@ -110,8 +114,9 @@ public class PipelineTemplateService {
   }
 
   private String findNextAvailableName(String ownerKey, String baseName) {
+    OwnerKey owner = OwnerKey.parse(ownerKey);
     return DomainStrings.copyNameCandidates(baseName, DomainStrings.DEFAULT_NAME_MAX)
-        .filter(name -> !repository.existsByOwnerKeyAndNameIgnoringId(ownerKey, name, null))
+        .filter(name -> !repository.existsByOwnerKeyAndNameIgnoringId(owner, name, null))
         .findFirst()
         .orElseGet(
             () ->

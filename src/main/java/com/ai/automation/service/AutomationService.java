@@ -8,6 +8,7 @@ import com.ai.automation.domain.model.ScheduleTiming;
 import com.ai.automation.domain.repository.AutomationRunRepository;
 import com.ai.automation.domain.repository.AutomationScheduleRepository;
 import com.ai.automation.infra.config.AutomationProperties;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.model.PipelineTemplateId;
@@ -16,6 +17,7 @@ import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,14 +34,15 @@ public class AutomationService {
 
   /** Lists the owner's schedules. */
   public List<AutomationSchedule> list(String ownerKey) {
-    return scheduleRepository.findAllByOwnerKey(ownerKey);
+    return scheduleRepository.findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey.parse(ownerKey));
   }
 
   /** Lists recent runs of the owner's schedule, capped at 100. */
   public List<AutomationRun> listRuns(String ownerKey, String scheduleId, int limit) {
     requireOwned(ownerKey, scheduleId);
     int capped = Math.min(Math.max(limit, 1), 100);
-    return runRepository.findByScheduleIdAndOwnerKey(ScheduleId.of(scheduleId), ownerKey, capped);
+    return runRepository.findAllByScheduleIdAndOwnerKeyOrderByStartedAtDesc(
+        ScheduleId.of(scheduleId), OwnerKey.parse(ownerKey), Limit.of(capped));
   }
 
   /** Creates a schedule for the owner and arms its first run. */
@@ -54,7 +57,8 @@ public class AutomationService {
       String pipelineTemplateId,
       String recipientEmail,
       String brief) {
-    if (scheduleRepository.countByOwnerKey(ownerKey) >= properties.getMaxSchedulesPerClient()) {
+    if (scheduleRepository.countByOwnerKey(OwnerKey.parse(ownerKey))
+        >= properties.getMaxSchedulesPerClient()) {
       throw DomainException.limitExceeded(
           "AUTOMATION_LIMIT_EXCEEDED",
           "Schedule limit reached (" + properties.getMaxSchedulesPerClient() + ")");
@@ -119,12 +123,12 @@ public class AutomationService {
   @Transactional
   public void delete(String ownerKey, String scheduleId) {
     requireOwned(ownerKey, scheduleId);
-    scheduleRepository.deleteByIdAndOwnerKey(ScheduleId.of(scheduleId), ownerKey);
+    scheduleRepository.deleteByIdAndOwnerKey(ScheduleId.of(scheduleId), OwnerKey.parse(ownerKey));
   }
 
   private AutomationSchedule requireOwned(String ownerKey, String scheduleId) {
     return scheduleRepository
-        .findByIdAndOwnerKey(ScheduleId.of(scheduleId), ownerKey)
+        .findByIdAndOwnerKey(ScheduleId.of(scheduleId), OwnerKey.parse(ownerKey))
         .orElseThrow(
             () ->
                 DomainException.notFound(
@@ -134,7 +138,7 @@ public class AutomationService {
 
   private void requireWorkflow(String ownerKey, String pipelineTemplateId) {
     pipelineTemplateRepository
-        .findByIdAndOwnerKey(PipelineTemplateId.of(pipelineTemplateId), ownerKey)
+        .findByIdAndOwnerKey(PipelineTemplateId.of(pipelineTemplateId), OwnerKey.parse(ownerKey))
         .filter(PipelineTemplate::isRunnable)
         .orElseThrow(
             () ->

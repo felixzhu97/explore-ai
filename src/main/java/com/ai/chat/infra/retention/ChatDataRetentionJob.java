@@ -33,7 +33,8 @@ public class ChatDataRetentionJob {
       return;
     }
     Instant cutoff = Instant.now().minus(properties.getSessionMaxAge());
-    List<ChatSession> expired = sessionRepository.findInactiveSince(cutoff);
+    List<ChatSession> expired =
+        sessionRepository.findAllByLastActivityAtBeforeOrderByLastActivityAtAsc(cutoff);
     sessionEraser.eraseAll(expired);
     invocationEventRepository.deleteOlderThan(cutoff);
   }

@@ -2,7 +2,6 @@ package com.ai.automation.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -30,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Limit;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,7 +72,7 @@ class DueAutomationRunnerTest {
             "Do the work",
             Instant.now());
     ReflectionTestUtils.setField(schedule, "nextRunAt", past);
-    when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
+    when(scheduleRepository.findDue(any(), any(Limit.class))).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(eq(schedule.getId()), eq(past), any())).thenReturn(true);
     when(dailyUsageQuotaService.tryConsume(OwnerKey.parse("c:client-1"))).thenReturn(true);
     when(pipelineGateway.runSavedTemplate(anyString(), anyString(), anyString(), anyString()))
@@ -102,7 +102,7 @@ class DueAutomationRunnerTest {
             "Do the work",
             Instant.now());
     ReflectionTestUtils.setField(schedule, "nextRunAt", past);
-    when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
+    when(scheduleRepository.findDue(any(), any(Limit.class))).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(any(ScheduleId.class), eq(past), any())).thenReturn(true);
     when(dailyUsageQuotaService.tryConsume(OwnerKey.parse("c:client-1"))).thenReturn(false);
 
@@ -129,7 +129,7 @@ class DueAutomationRunnerTest {
             Instant.now().plusSeconds(120),
             Instant.now());
     ReflectionTestUtils.setField(schedule, "nextRunAt", past);
-    when(scheduleRepository.findDue(any(), anyInt())).thenReturn(List.of(schedule));
+    when(scheduleRepository.findDue(any(), any(Limit.class))).thenReturn(List.of(schedule));
     when(scheduleRepository.claim(eq(schedule.getId()), eq(past), any())).thenReturn(true);
     when(dailyUsageQuotaService.tryConsume(OwnerKey.parse("c:client-1"))).thenReturn(true);
     when(pipelineGateway.runSavedTemplate(anyString(), anyString(), anyString(), anyString()))

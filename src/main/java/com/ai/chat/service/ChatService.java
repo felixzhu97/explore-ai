@@ -66,7 +66,9 @@ public class ChatService {
 
   /** Returns the client's sessions, most recently active first. */
   public List<ChatSession> listSessions(String ownerKey) {
-    return repository.findByOwnerKey(ownerKey).stream().map(this::withStoredMessages).toList();
+    return repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parse(ownerKey)).stream()
+        .map(this::withStoredMessages)
+        .toList();
   }
 
   /**
@@ -76,7 +78,7 @@ public class ChatService {
   public SessionHistory findSessionHistoryWithSources(String sessionId, String ownerKey) {
     ChatSession session =
         repository
-            .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
+            .findByIdAndOwnerKey(ChatSessionId.of(sessionId), OwnerKey.parse(ownerKey))
             .map(this::withStoredMessages)
             .orElseThrow(() -> DomainException.notFound("SESSION_NOT_FOUND", "Session not found"));
     return new SessionHistory(
@@ -107,7 +109,7 @@ public class ChatService {
   public void deleteSession(String sessionId, String ownerKey) {
     ChatSession session =
         repository
-            .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
+            .findByIdAndOwnerKey(ChatSessionId.of(sessionId), OwnerKey.parse(ownerKey))
             .orElseThrow(() -> DomainException.notFound("SESSION_NOT_FOUND", "Session not found"));
     sessionEraser.eraseAll(List.of(session));
   }
@@ -249,13 +251,14 @@ public class ChatService {
   /** Returns the session when it belongs to the client. */
   public Optional<ChatSession> getSession(String sessionId, String ownerKey) {
     return repository
-        .findByIdAndOwnerKey(ChatSessionId.of(sessionId), ownerKey)
+        .findByIdAndOwnerKey(ChatSessionId.of(sessionId), OwnerKey.parse(ownerKey))
         .map(this::withStoredMessages);
   }
 
   /** Deletes every session owned by the client. */
   public void deleteAllSessions(String ownerKey) {
-    List<ChatSession> sessions = repository.findByOwnerKey(ownerKey);
+    List<ChatSession> sessions =
+        repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parse(ownerKey));
     sessionEraser.eraseAll(sessions);
   }
 
@@ -445,7 +448,8 @@ public class ChatService {
   }
 
   private ChatSession getOrCreateDefaultSession(String ownerKey) {
-    List<ChatSession> sessions = repository.findByOwnerKey(ownerKey);
+    List<ChatSession> sessions =
+        repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parse(ownerKey));
     if (sessions.isEmpty()) {
       ChatSession newSession = ChatSession.startDefault(ownerKey);
       repository.save(newSession);
@@ -456,11 +460,11 @@ public class ChatService {
 
   private ChatSession loadOrCreateSession(String sessionId, String ownerKey) {
     ChatSessionId id = ChatSessionId.of(sessionId);
-    Optional<ChatSession> owned = repository.findByIdAndOwnerKey(id, ownerKey);
+    Optional<ChatSession> owned = repository.findByIdAndOwnerKey(id, OwnerKey.parse(ownerKey));
     if (owned.isPresent()) {
       return owned.get();
     }
-    if (repository.exists(id)) {
+    if (repository.existsById(id)) {
       throw DomainException.notFound("SESSION_NOT_FOUND", "Session not found");
     }
     ChatSession session = ChatSession.startWithId(id, ownerKey);

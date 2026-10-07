@@ -1,5 +1,6 @@
 package com.ai.rag.service;
 
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentId;
@@ -97,21 +98,22 @@ public class DocumentUploadService {
   /** Lists all documents of the owner. */
   @Transactional(readOnly = true)
   public List<RagDocument> listAll(String ownerKey) {
-    return documentRepository.findAllByOwnerKey(ownerKey);
+    return documentRepository.findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey.parse(ownerKey));
   }
 
   /** Deletes the owner's document and all its chunks; throws if the document is not found. */
   @Transactional
   public void delete(UUID documentId, String ownerKey) {
+    OwnerKey owner = OwnerKey.parse(ownerKey);
     RagDocument document =
         documentRepository
-            .findByIdAndOwnerKey(documentId, ownerKey)
+            .findByIdAndOwnerKey(DocumentId.of(documentId), owner)
             .orElseThrow(
                 () ->
                     DomainException.notFound(
                         "DOCUMENT_NOT_FOUND", "Document not found: " + documentId));
     chunkRepository.deleteChunksByDocumentId(document.getId());
-    documentRepository.deleteByIdAndOwnerKey(documentId, ownerKey);
+    documentRepository.deleteByIdAndOwnerKey(document.getId(), owner);
   }
 
   private void recordFailure(RagDocument document, RuntimeException cause) {
