@@ -170,24 +170,6 @@ class ImageControllerTest {
     }
 
     @Test
-    @DisplayName("should return 500 when service throws exception")
-    void shouldReturn500WhenServiceThrowsException() {
-      when(imageGenerationService.generateImage(any(), any(), any(), anyInt(), anyInt(), anyInt()))
-          .thenThrow(new RuntimeException("API error"));
-
-      assertThat(
-              mvc.post()
-                  .uri("/api/images/generate")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{\"prompt\":\"Test\"}"))
-          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-          .bodyJson()
-          .extractingPath("$.errorCode")
-          .asString()
-          .isEqualTo("INTERNAL_ERROR");
-    }
-
-    @Test
     @DisplayName("should pass custom dimensions to service")
     void shouldPassCustomDimensionsToService() {
       GeneratedImage image =

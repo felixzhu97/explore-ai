@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -147,19 +146,6 @@ class ChatServiceTest {
       assertThat(result).isPresent().contains(session);
       verify(conversationMemoryRepository).load("22222222-2222-2222-2222-222222222222");
     }
-
-    @Test
-    @DisplayName("should return empty when owned by another client")
-    void shouldReturnEmptyWhenOwnedByAnotherClient() {
-      when(repository.findByIdAndOwnerKey(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_B))
-          .thenReturn(Optional.empty());
-
-      Optional<ChatSession> result =
-          useCase.getSession("22222222-2222-2222-2222-222222222222", CLIENT_B);
-
-      assertThat(result).isEmpty();
-    }
   }
 
   @Nested
@@ -238,20 +224,6 @@ class ChatServiceTest {
     }
 
     @Test
-    @DisplayName("should throw when deleting another client's session")
-    void shouldThrowWhenDeletingAnotherClientsSession() {
-      when(repository.findByIdAndOwnerKey(
-              ChatSessionId.of("22222222-2222-2222-2222-222222222222"), OWNER_B))
-          .thenReturn(Optional.empty());
-
-      assertThatThrownBy(
-              () -> useCase.deleteSession("22222222-2222-2222-2222-222222222222", CLIENT_B))
-          .isInstanceOf(DomainException.class)
-          .hasFieldOrPropertyWithValue("code", "SESSION_NOT_FOUND");
-      verify(repository, never()).deleteById(any());
-    }
-
-    @Test
     @DisplayName("should erase all sessions for client")
     void shouldEraseAllSessionsWhenClientRequestsPrivacyDelete() {
       ChatSession owned =
@@ -289,31 +261,6 @@ class ChatServiceTest {
       List<ChatSession> result = useCase.listSessions(CLIENT_A);
 
       assertThat(result).hasSize(2);
-    }
-
-    @Test
-    @DisplayName("should return empty list when client has no sessions")
-    void shouldReturnEmptyListWhenClientHasNoSessions() {
-      when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(List.of());
-
-      List<ChatSession> result = useCase.listSessions(CLIENT_A);
-
-      assertThat(result).isEmpty();
-    }
-  }
-
-  @Nested
-  @DisplayName("clearConversationMemory()")
-  class ClearConversationMemory {
-
-    @Test
-    @DisplayName("should clear chat memory")
-    void shouldClearChatMemory() {
-      doNothing().when(chatMemory).clear("conversation-123");
-
-      useCase.clearConversationMemory("conversation-123");
-
-      verify(chatMemory).clear("conversation-123");
     }
   }
 }

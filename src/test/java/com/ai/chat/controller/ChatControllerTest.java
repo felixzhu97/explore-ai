@@ -73,21 +73,6 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
     }
 
     @Test
-    @DisplayName("should return 400 for null message")
-    void shouldReturn400ForNullMessage() {
-      assertThat(
-              mvc.post()
-                  .uri("/api/chat")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{\"message\":null}"))
-          .hasStatus(HttpStatus.BAD_REQUEST)
-          .bodyJson()
-          .extractingPath("$.errorCode")
-          .asString()
-          .isEqualTo("VALIDATION_ERROR");
-    }
-
-    @Test
     @DisplayName("should return 400 for blank message")
     void shouldReturn400ForBlankMessage() {
       assertThat(

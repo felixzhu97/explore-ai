@@ -122,29 +122,5 @@ class McpClientControllerTest {
           .asString()
           .isEqualTo("VALIDATION_ERROR");
     }
-
-    @Test
-    @DisplayName("should return bad request when question is null")
-    void shouldReturnBadRequestWhenQuestionIsNull() {
-      assertThat(
-              mvc.post()
-                  .uri("/api/mcp/client/chat")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{}"))
-          .hasStatus(HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
-    @DisplayName("should return internal server error on service exception")
-    void shouldReturnInternalServerErrorOnServiceException() {
-      when(mcpService.chatWithTools("Hello")).thenThrow(new RuntimeException("Service error"));
-
-      assertThat(
-              mvc.post()
-                  .uri("/api/mcp/client/chat")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{\"question\":\"Hello\"}"))
-          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
   }
 }

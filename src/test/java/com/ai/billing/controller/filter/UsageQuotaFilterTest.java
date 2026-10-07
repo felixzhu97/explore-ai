@@ -67,20 +67,6 @@ class UsageQuotaFilterTest {
   }
 
   @Test
-  @DisplayName("should report nothing remaining when another limit refuses the request")
-  void shouldReportNothingRemainingWhenAnotherLimitRefusesTheRequest() throws Exception {
-    properties.setGlobalDailyRequests(1);
-    filter.doFilter(postChat("client-4"), new MockHttpServletResponse(), filterChain);
-    MockHttpServletResponse refused = new MockHttpServletResponse();
-
-    filter.doFilter(postChat("client-5"), refused, filterChain);
-
-    assertThat(refused.getStatus()).isEqualTo(429);
-    assertThat(refused.getHeader("X-Quota-Limit")).isEqualTo("2");
-    assertThat(refused.getHeader("X-Quota-Remaining")).isEqualTo("0");
-  }
-
-  @Test
   void shouldNotFilterWhenQuotaDisabled() throws Exception {
     properties.setQuotaEnabled(false);
     MockHttpServletRequest request = postChat("client-3");

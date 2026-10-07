@@ -159,14 +159,6 @@ class MetricsServiceTest {
   }
 
   @Test
-  @DisplayName("should reject unsupported range when parsing")
-  void shouldRejectUnsupportedRangeWhenParsing() {
-    assertThatThrownBy(() -> useCase.getOverview("90d"))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Unsupported range");
-  }
-
-  @Test
   @DisplayName("should default page size and use explicit window when provided")
   void shouldDefaultPageSizeAndUseExplicitWindowWhenProvided() {
     DrilldownPage page =

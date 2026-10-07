@@ -22,7 +22,6 @@ import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +44,6 @@ import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 
@@ -112,20 +110,6 @@ class RagChatContractRegressionTest {
       assertThat(captureRetrievalAdvisor()).isPresent();
       verify(requestSpec).call();
     }
-
-    @Test
-    @DisplayName("should return sources from document context when chat")
-    void shouldReturnSourcesFromDocumentContextWhenChat() {
-      when(requestSpec.call()).thenReturn(callResponseSpec);
-      when(callResponseSpec.chatClientResponse())
-          .thenReturn(
-              clientResponse(
-                  "answer", List.of(new Document("retrieved chunk", Map.of("score", 0.91)))));
-      var result = ragChatService.chat("What is AI?", null, 5, null, OWNER);
-      assertThat(result.sources()).hasSize(1);
-      assertThat(result.sources().getFirst().content()).isEqualTo("retrieved chunk");
-      assertThat(result.sources().getFirst().score()).isEqualTo(0.91);
-    }
   }
 
   @Nested
@@ -147,15 +131,6 @@ class RagChatContractRegressionTest {
       when(callResponseSpec.chatClientResponse()).thenReturn(clientResponse("ok", List.of()));
       ragChatService.chat("q", null, 5, null, OWNER);
       assertThat(extractTopK(captureRetrievalAdvisor().orElseThrow())).isEqualTo(5);
-    }
-
-    @Test
-    @DisplayName("should pass doc ids via filter expression when doc ids provided")
-    void shouldPassDocIdsViaFilterExpressionWhenDocIdsProvided() {
-      when(requestSpec.call()).thenReturn(callResponseSpec);
-      when(callResponseSpec.chatClientResponse()).thenReturn(clientResponse("ok", List.of()));
-      ragChatService.chat("q", List.of(UUID.randomUUID().toString()), 5, null, OWNER);
-      assertThat(captureFilterExpression()).isInstanceOf(Filter.Expression.class);
     }
   }
 

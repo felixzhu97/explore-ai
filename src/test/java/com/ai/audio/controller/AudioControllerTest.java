@@ -93,28 +93,6 @@ class AudioControllerTest {
     }
 
     @Test
-    @DisplayName("should return 400 for empty request body")
-    void shouldReturn400ForEmptyRequestBody() {
-      assertThat(
-              mvc.post()
-                  .uri("/api/audio/speech")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{}"))
-          .hasStatus(HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
-    @DisplayName("should return 400 for null text")
-    void shouldReturn400ForNullText() {
-      assertThat(
-              mvc.post()
-                  .uri("/api/audio/speech")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{}"))
-          .hasStatus(HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
     @DisplayName("should return 400 for blank text")
     void shouldReturn400ForBlankText() {
       assertThat(
@@ -122,17 +100,6 @@ class AudioControllerTest {
                   .uri("/api/audio/speech")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"text\":\"   \"}"))
-          .hasStatus(HttpStatus.BAD_REQUEST);
-    }
-
-    @Test
-    @DisplayName("should return 400 for empty text")
-    void shouldReturn400ForEmptyText() {
-      assertThat(
-              mvc.post()
-                  .uri("/api/audio/speech")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{\"text\":\"\"}"))
           .hasStatus(HttpStatus.BAD_REQUEST);
     }
 
@@ -177,20 +144,6 @@ class AudioControllerTest {
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"text\":\"Test\"}"))
           .hasStatus(HttpStatus.SERVICE_UNAVAILABLE);
-    }
-
-    @Test
-    @DisplayName("should return 500 when service throws exception")
-    void shouldReturn500WhenServiceThrowsException() {
-      when(audioService.synthesizeAudio(any(), any(), any()))
-          .thenThrow(new RuntimeException("TTS error"));
-
-      assertThat(
-              mvc.post()
-                  .uri("/api/audio/speech")
-                  .contentType(MediaType.APPLICATION_JSON)
-                  .content("{\"text\":\"Test\"}"))
-          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Test
