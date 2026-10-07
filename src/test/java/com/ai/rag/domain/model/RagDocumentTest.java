@@ -171,9 +171,9 @@ class RagDocumentTest {
       assertThat(chunk.getChunkIndex()).isEqualTo(2);
       assertThat(chunk.getMetadata())
           .containsEntry("page", 4)
-          .containsEntry(ChunkMetadataKeys.TITLE, TEST_TITLE)
-          .containsEntry(ChunkMetadataKeys.FILE_NAME, TEST_FILE_NAME)
-          .doesNotContainKey(ChunkMetadataKeys.OWNER_KEY);
+          .containsEntry("title", TEST_TITLE)
+          .containsEntry("fileName", TEST_FILE_NAME)
+          .doesNotContainKey("ownerKey");
     }
 
     @Test
@@ -183,7 +183,7 @@ class RagDocumentTest {
 
       DocumentChunk chunk = doc.newChunk(0, "text", Map.of());
 
-      assertThat(chunk.getMetadata()).doesNotContainKey(ChunkMetadataKeys.FILE_NAME);
+      assertThat(chunk.getMetadata()).doesNotContainKey("fileName");
     }
   }
 

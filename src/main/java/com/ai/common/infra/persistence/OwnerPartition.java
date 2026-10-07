@@ -1,4 +1,4 @@
-package com.ai.common.domain.model;
+package com.ai.common.infra.persistence;
 
 /** Names of the Hibernate filter that scopes owner-keyed aggregates to one Owner Key. */
 public final class OwnerPartition {

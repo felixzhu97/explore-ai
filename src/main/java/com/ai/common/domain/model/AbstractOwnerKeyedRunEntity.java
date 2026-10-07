@@ -13,7 +13,7 @@ import org.hibernate.annotations.Filter;
 
 /** Run record base partitioned by owner_key. */
 @MappedSuperclass
-@Filter(name = OwnerPartition.FILTER_NAME)
+@Filter(name = "ownerPartition")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractOwnerKeyedRunEntity<IdT extends AbstractUuidId>

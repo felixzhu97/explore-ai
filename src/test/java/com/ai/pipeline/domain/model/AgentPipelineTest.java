@@ -1,6 +1,7 @@
 package com.ai.pipeline.domain.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -102,5 +103,38 @@ class AgentPipelineTest {
     assertEquals("Custom prompt", node.systemPrompt());
     assertEquals(List.of("web_search"), node.toolKeys());
     assertEquals("Custom prompt", node.toDefinition().systemPrompt());
+  }
+
+  @Test
+  @DisplayName("should use the catalog prompt when a pipeline node has no prompt of its own")
+  void shouldUseTheCatalogPromptWhenAPipelineNodeHasNoPromptOfItsOwn() {
+    AgentPipeline.PipelineNode node =
+        new AgentPipeline.PipelineNode("n0", AgentType.of("research"), "Scout", "", "", List.of());
+
+    AgentDefinition definition = node.toDefinition(builtin("research"));
+
+    assertFalse(node.hasOwnPrompt());
+    assertEquals("Scout", definition.name());
+    assertEquals("You are research.", definition.systemPrompt());
+  }
+
+  @Test
+  @DisplayName("should keep the node prompt when a pipeline node has its own prompt")
+  void shouldKeepTheNodePromptWhenAPipelineNodeHasItsOwnPrompt() {
+    AgentPipeline.PipelineNode node =
+        new AgentPipeline.PipelineNode(
+            "n0", AgentType.of("research"), "Scout", "", "Only cite sources.", List.of());
+
+    assertEquals("Only cite sources.", node.toDefinition(builtin("research")).systemPrompt());
+  }
+
+  private static AgentDefinition builtin(String type) {
+    return AgentDefinition.create(
+        AgentType.of(type),
+        "Builtin " + type,
+        "",
+        "You are " + type + ".",
+        List.of(),
+        AgentDefinition.RUNTIME_SINGLE);
   }
 }

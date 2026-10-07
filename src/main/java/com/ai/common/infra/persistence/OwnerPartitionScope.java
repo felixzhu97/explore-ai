@@ -2,7 +2,6 @@ package com.ai.common.infra.persistence;
 
 import com.ai.common.domain.model.AbstractOwnerKeyedEntity;
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.common.domain.model.OwnerPartition;
 import jakarta.persistence.EntityManager;
 import java.util.Objects;
 import java.util.Optional;

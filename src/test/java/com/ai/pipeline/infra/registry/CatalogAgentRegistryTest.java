@@ -91,6 +91,32 @@ class CatalogAgentRegistryTest {
     assertThat(registry.findByType(AgentType.of("custom_writer"), "other-client", "en")).isEmpty();
   }
 
+  @Test
+  @DisplayName("should keep built-in order and append saved agents with new types last")
+  void shouldKeepBuiltInOrderAndAppendSavedAgentsWithNewTypesLast() {
+    List<String> builtinTypes =
+        registry.listBuiltins("en").stream().map(agent -> agent.type().value()).toList();
+    savedAgents.save(
+        SavedAgent.create("c:client-a", "legal", "Legal", "", "Check contracts.", List.of()));
+
+    List<String> allTypes =
+        registry.listAll("c:client-a", "en").stream().map(agent -> agent.type().value()).toList();
+
+    assertThat(allTypes.subList(0, builtinTypes.size())).isEqualTo(builtinTypes);
+    assertThat(allTypes.getLast()).isEqualTo("legal");
+  }
+
+  @Test
+  @DisplayName("should find a saved agent whatever the case of the requested type")
+  void shouldFindASavedAgentWhateverTheCaseOfTheRequestedType() {
+    savedAgents.save(
+        SavedAgent.create("c:client-a", "legal", "Legal", "", "Check contracts.", List.of()));
+
+    assertThat(registry.findByType(AgentType.of(" Legal "), "c:client-a", "en"))
+        .map(AgentDefinition::name)
+        .contains("Legal");
+  }
+
   private static final class InMemorySavedAgentRepository implements SavedAgentRepository {
     private final List<SavedAgent> agents = new ArrayList<>();
 
