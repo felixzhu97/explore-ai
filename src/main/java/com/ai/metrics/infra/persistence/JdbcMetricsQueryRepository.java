@@ -1,9 +1,9 @@
 package com.ai.metrics.infra.persistence;
 
+import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.InvocationStats;
+import com.ai.metrics.domain.model.LatencyStats;
 import com.ai.metrics.domain.repository.MetricsQueryRepository;
-import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.InvocationStats;
-import com.ai.metrics.domain.vo.LatencyStats;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

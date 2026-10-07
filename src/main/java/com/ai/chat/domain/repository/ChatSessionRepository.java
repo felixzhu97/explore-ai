@@ -1,7 +1,7 @@
 package com.ai.chat.domain.repository;
 
 import com.ai.chat.domain.model.ChatSession;
-import com.ai.chat.domain.vo.ChatSessionId;
+import com.ai.chat.domain.model.ChatSessionId;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

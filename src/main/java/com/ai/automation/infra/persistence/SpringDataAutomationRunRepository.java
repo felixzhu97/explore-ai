@@ -1,8 +1,8 @@
 package com.ai.automation.infra.persistence;
 
 import com.ai.automation.domain.model.AutomationRun;
-import com.ai.automation.domain.vo.RunId;
-import com.ai.automation.domain.vo.ScheduleId;
+import com.ai.automation.domain.model.RunId;
+import com.ai.automation.domain.model.ScheduleId;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

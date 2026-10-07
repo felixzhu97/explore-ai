@@ -3,7 +3,7 @@ package com.ai.chat.controller;
 import com.ai.account.controller.OwnerContext;
 import com.ai.account.service.OwnerErasureService;
 import com.ai.common.controller.ClientIdentityCookieFactory;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

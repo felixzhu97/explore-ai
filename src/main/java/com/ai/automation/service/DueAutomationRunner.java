@@ -2,12 +2,12 @@ package com.ai.automation.service;
 
 import com.ai.automation.domain.model.AutomationRun;
 import com.ai.automation.domain.model.AutomationSchedule;
+import com.ai.automation.domain.model.EmailDeliveryStatus;
 import com.ai.automation.domain.repository.AutomationRunRepository;
 import com.ai.automation.domain.repository.AutomationScheduleRepository;
 import com.ai.automation.domain.repository.EmailGateway;
 import com.ai.automation.domain.repository.PipelineGateway;
 import com.ai.automation.domain.service.CronSchedule;
-import com.ai.automation.domain.vo.EmailDeliveryStatus;
 import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.billing.service.DailyUsageQuotaService;
 import java.time.Instant;

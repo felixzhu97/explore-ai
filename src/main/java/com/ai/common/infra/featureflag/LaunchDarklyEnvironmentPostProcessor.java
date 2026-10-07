@@ -1,6 +1,6 @@
 package com.ai.common.infra.featureflag;
 
-import com.ai.common.domain.vo.ModuleFlag;
+import com.ai.common.domain.model.ModuleFlag;
 import com.launchdarkly.sdk.LDContext;
 import com.launchdarkly.sdk.server.LDClient;
 import java.io.IOException;

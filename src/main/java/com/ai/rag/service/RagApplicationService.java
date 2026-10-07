@@ -1,8 +1,8 @@
 package com.ai.rag.service;
 
+import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.model.SourceDocument;
-import com.ai.rag.domain.vo.DocumentId;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

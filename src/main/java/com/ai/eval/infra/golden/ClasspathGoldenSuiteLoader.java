@@ -1,8 +1,8 @@
 package com.ai.eval.infra.golden;
 
 import com.ai.eval.domain.model.GoldenEvalCase;
+import com.ai.eval.domain.model.GoldenEvalDomain;
 import com.ai.eval.domain.repository.GoldenSuiteRepository;
-import com.ai.eval.domain.vo.GoldenEvalDomain;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;

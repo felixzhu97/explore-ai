@@ -1,10 +1,10 @@
 package com.ai.pipeline.infra.persistence;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.pipeline.domain.model.SavedAgent;
+import com.ai.pipeline.domain.model.SavedAgentId;
 import com.ai.pipeline.domain.repository.SavedAgentRepository;
-import com.ai.pipeline.domain.vo.SavedAgentId;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

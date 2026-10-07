@@ -1,9 +1,9 @@
 package com.ai.account.service;
 
 import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.model.ContactEmail;
+import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.account.domain.repository.AccountUserRepository;
-import com.ai.account.domain.vo.ContactEmail;
-import com.ai.account.domain.vo.ExternalIdentity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;

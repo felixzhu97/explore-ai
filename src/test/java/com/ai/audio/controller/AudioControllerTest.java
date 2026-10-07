@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.ai.audio.domain.model.SynthesizedAudio;
-import com.ai.audio.domain.vo.VoiceInfo;
+import com.ai.audio.domain.model.VoiceInfo;
 import com.ai.audio.service.AudioService;
 import com.ai.common.exception.DomainException;
 import com.ai.testsupport.SliceWebMvcTest;

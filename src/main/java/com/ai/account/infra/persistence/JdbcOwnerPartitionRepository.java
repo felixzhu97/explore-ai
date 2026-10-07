@@ -1,7 +1,7 @@
 package com.ai.account.infra.persistence;
 
 import com.ai.account.domain.repository.OwnerPartitionRepository;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

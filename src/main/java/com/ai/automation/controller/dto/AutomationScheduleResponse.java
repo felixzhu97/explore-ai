@@ -1,8 +1,8 @@
 package com.ai.automation.controller.dto;
 
+import com.ai.automation.domain.model.AutomationActionType;
 import com.ai.automation.domain.model.AutomationSchedule;
-import com.ai.automation.domain.vo.AutomationActionType;
-import com.ai.automation.domain.vo.ScheduleKind;
+import com.ai.automation.domain.model.ScheduleKind;
 import java.time.Instant;
 
 public record AutomationScheduleResponse(

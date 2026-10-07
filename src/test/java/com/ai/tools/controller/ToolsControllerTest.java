@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.OwnerKeyFixtures;
 import com.ai.testsupport.SliceWebMvcTest;

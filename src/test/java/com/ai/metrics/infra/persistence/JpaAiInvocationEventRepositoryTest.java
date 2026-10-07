@@ -11,13 +11,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
+import com.ai.metrics.domain.model.AiDomain;
 import com.ai.metrics.domain.model.AiInvocationEvent;
+import com.ai.metrics.domain.model.InvocationOutcome;
+import com.ai.metrics.domain.model.Latency;
+import com.ai.metrics.domain.model.TokenUsage;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
-import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.InvocationOutcome;
-import com.ai.metrics.domain.vo.Latency;
-import com.ai.metrics.domain.vo.TokenUsage;
 import jakarta.persistence.EntityManager;
 import java.sql.ResultSet;
 import java.time.Instant;

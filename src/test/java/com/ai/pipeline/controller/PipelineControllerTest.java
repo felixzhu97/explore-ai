@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.AgentDefinition;
-import com.ai.pipeline.domain.vo.AgentType;
+import com.ai.pipeline.domain.model.AgentType;
 import com.ai.pipeline.service.PipelineService;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
 import com.ai.testsupport.ClientIdentityRequestPostProcessor;

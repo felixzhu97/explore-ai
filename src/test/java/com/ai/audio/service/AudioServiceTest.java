@@ -6,11 +6,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.ai.audio.domain.model.SpeechText;
 import com.ai.audio.domain.model.SynthesizedAudio;
+import com.ai.audio.domain.model.VoiceSelection;
 import com.ai.audio.domain.repository.TextToSpeechGateway;
 import com.ai.audio.domain.repository.TtsConfiguration;
-import com.ai.audio.domain.vo.SpeechText;
-import com.ai.audio.domain.vo.VoiceSelection;
 import com.ai.common.exception.DomainException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

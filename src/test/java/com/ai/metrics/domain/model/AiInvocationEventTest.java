@@ -3,12 +3,7 @@ package com.ai.metrics.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.common.domain.vo.OwnerKey;
-import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.ErrorSummary;
-import com.ai.metrics.domain.vo.InvocationOutcome;
-import com.ai.metrics.domain.vo.Latency;
-import com.ai.metrics.domain.vo.TokenUsage;
+import com.ai.common.domain.model.OwnerKey;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

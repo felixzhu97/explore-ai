@@ -2,10 +2,7 @@ package com.ai.account.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.account.domain.vo.ClientId;
-import com.ai.account.domain.vo.ContactEmail;
-import com.ai.account.domain.vo.ExternalIdentity;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

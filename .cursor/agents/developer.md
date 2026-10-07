@@ -19,11 +19,11 @@ is_background: true
 **包结构**：
 ```
 com.ai.{module}
-├── domain/model/        # 领域模型
-├── domain/vo/          # 值对象
-├── application/usecase/ # 用例
-├── infrastructure/      # 基础设施
-└── web/               # Controller
+├── controller/          # Controller 与 DTO
+├── service/             # 应用服务（编排）
+├── domain/model/        # 实体、值对象、聚合根、领域事件
+├── domain/repository/   # Repository / Gateway 接口
+└── infra/               # 基础设施
 ```
 
 **关键规范**：

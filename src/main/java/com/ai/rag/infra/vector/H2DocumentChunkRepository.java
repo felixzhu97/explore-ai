@@ -1,10 +1,10 @@
 package com.ai.rag.infra.vector;
 
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.model.DocumentId;
+import com.ai.rag.domain.model.ScoredChunk;
 import com.ai.rag.domain.repository.DocumentChunkRepository;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
-import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.domain.vo.ScoredChunk;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;

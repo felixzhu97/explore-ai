@@ -1,9 +1,9 @@
 package com.ai.audio.infra.tts;
 
+import com.ai.audio.domain.model.SpeechText;
 import com.ai.audio.domain.model.SynthesizedAudio;
+import com.ai.audio.domain.model.VoiceSelection;
 import com.ai.audio.domain.repository.TextToSpeechGateway;
-import com.ai.audio.domain.vo.SpeechText;
-import com.ai.audio.domain.vo.VoiceSelection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.audio.tts.TextToSpeechModel;
 import org.springframework.ai.audio.tts.TextToSpeechPrompt;

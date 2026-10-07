@@ -1,14 +1,14 @@
 package com.ai.rag.service;
 
 import com.ai.chat.domain.service.LanguageDetectionService;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
+import com.ai.metrics.domain.model.AiDomain;
 import com.ai.metrics.domain.model.AiInvocationEvent;
-import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.Latency;
+import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.rag.domain.model.ChunkMetadataKeys;
 import com.ai.rag.domain.model.SourceDocument;

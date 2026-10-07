@@ -1,8 +1,5 @@
 package com.ai.common.domain.model;
 
-import com.ai.common.domain.vo.AbstractUuidId;
-import com.ai.common.domain.vo.OwnerKey;
-import com.ai.common.domain.vo.OwnerKeyAttributeConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.MappedSuperclass;

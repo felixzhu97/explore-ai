@@ -1,7 +1,7 @@
 package com.ai.billing.service;
 
-import com.ai.billing.domain.vo.Plan;
-import com.ai.billing.domain.vo.QuotaPolicy;
+import com.ai.billing.domain.model.Plan;
+import com.ai.billing.domain.model.QuotaPolicy;
 import com.ai.billing.infra.config.BillingProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

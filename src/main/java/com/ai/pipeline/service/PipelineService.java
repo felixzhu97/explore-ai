@@ -2,8 +2,8 @@ package com.ai.pipeline.service;
 
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentPipeline;
+import com.ai.pipeline.domain.model.AgentType;
 import com.ai.pipeline.domain.repository.AgentRegistry;
-import com.ai.pipeline.domain.vo.AgentType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.codec.ServerSentEvent;

@@ -1,6 +1,5 @@
 package com.ai.eval.domain.model;
 
-import com.ai.eval.domain.vo.GoldenEvalDomain;
 import java.util.List;
 
 /** One OpenAI Evals-style golden case (input + ideal + metadata). */

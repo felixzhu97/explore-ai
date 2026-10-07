@@ -1,6 +1,6 @@
 package com.ai.common.controller.filter;
 
-import com.ai.common.domain.vo.ModuleFlag;
+import com.ai.common.domain.model.ModuleFlag;
 import com.ai.common.service.featureflag.FeatureFlagService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

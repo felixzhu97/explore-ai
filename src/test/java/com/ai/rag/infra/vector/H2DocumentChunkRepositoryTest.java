@@ -9,11 +9,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
+import com.ai.rag.domain.model.ChunkId;
 import com.ai.rag.domain.model.DocumentChunk;
-import com.ai.rag.domain.vo.ChunkId;
-import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.domain.vo.ScoredChunk;
+import com.ai.rag.domain.model.DocumentId;
+import com.ai.rag.domain.model.ScoredChunk;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -1,10 +1,10 @@
 package com.ai.rag.infra.storage;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
+import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.RagDocument;
 import com.ai.rag.domain.repository.DocumentRepository;
-import com.ai.rag.domain.vo.DocumentId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

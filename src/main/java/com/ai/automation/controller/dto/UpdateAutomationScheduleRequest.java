@@ -1,6 +1,6 @@
 package com.ai.automation.controller.dto;
 
-import com.ai.automation.domain.vo.ScheduleKind;
+import com.ai.automation.domain.model.ScheduleKind;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

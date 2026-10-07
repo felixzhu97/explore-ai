@@ -4,7 +4,7 @@ import com.ai.account.controller.OwnerContext;
 import com.ai.common.domain.tool.DocumentSearchTool;
 import com.ai.common.infra.llm.ToolEventChannel;
 import com.ai.rag.domain.model.ChunkMetadataKeys;
-import com.ai.rag.domain.vo.DocumentId;
+import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.service.RagApplicationService;
 import java.util.List;
 import java.util.Optional;

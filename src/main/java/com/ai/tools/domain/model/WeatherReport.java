@@ -1,7 +1,5 @@
 package com.ai.tools.domain.model;
 
-import com.ai.tools.domain.vo.WeatherForecast;
-import com.ai.tools.domain.vo.WeatherQuery;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 

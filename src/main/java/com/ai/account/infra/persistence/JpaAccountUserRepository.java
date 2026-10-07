@@ -1,9 +1,9 @@
 package com.ai.account.infra.persistence;
 
 import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.model.ClientId;
+import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.account.domain.repository.AccountUserRepository;
-import com.ai.account.domain.vo.ClientId;
-import com.ai.account.domain.vo.ExternalIdentity;
 import jakarta.persistence.EntityManager;
 import java.util.Map;
 import java.util.Optional;

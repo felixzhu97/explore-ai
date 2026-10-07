@@ -3,8 +3,8 @@ package com.ai.mcp.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.ai.mcp.domain.model.McpServerConnection;
 import com.ai.mcp.domain.model.McpToolDefinition;
-import com.ai.mcp.domain.vo.McpServerConnection;
 import com.ai.mcp.service.McpService;
 import com.ai.testsupport.SliceWebMvcTest;
 import java.util.List;

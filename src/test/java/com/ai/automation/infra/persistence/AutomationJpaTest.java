@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.within;
 
 import com.ai.automation.domain.model.AutomationRun;
 import com.ai.automation.domain.model.AutomationSchedule;
-import com.ai.automation.domain.vo.EmailDeliveryStatus;
-import com.ai.automation.domain.vo.RunStatus;
-import com.ai.automation.domain.vo.ScheduleId;
+import com.ai.automation.domain.model.EmailDeliveryStatus;
+import com.ai.automation.domain.model.RunStatus;
+import com.ai.automation.domain.model.ScheduleId;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;

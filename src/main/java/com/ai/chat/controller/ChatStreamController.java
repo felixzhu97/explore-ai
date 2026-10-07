@@ -6,7 +6,7 @@ import com.ai.chat.controller.dto.ChatStreamRequest;
 import com.ai.chat.controller.dto.ModelsListResponse;
 import com.ai.chat.controller.dto.ProviderInfoResponse;
 import com.ai.chat.domain.model.ChatMessage;
-import com.ai.chat.domain.vo.MessageId;
+import com.ai.chat.domain.model.MessageId;
 import com.ai.chat.service.ChatService;
 import com.ai.chat.service.TextProviderCatalog;
 import com.ai.common.service.llm.TextChatOptions;

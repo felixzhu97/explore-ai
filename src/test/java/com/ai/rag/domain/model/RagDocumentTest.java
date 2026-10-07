@@ -3,8 +3,7 @@ package com.ai.rag.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.common.domain.vo.OwnerKey;
-import com.ai.rag.domain.vo.DocumentId;
+import com.ai.common.domain.model.OwnerKey;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;

@@ -2,7 +2,7 @@ package com.ai.skill.domain.repository;
 
 import com.ai.common.domain.repository.OwnerScopedRepository;
 import com.ai.skill.domain.model.Skill;
-import com.ai.skill.domain.vo.SkillId;
+import com.ai.skill.domain.model.SkillId;
 import java.util.List;
 
 /** Owner-scoped repository for skills, including lookup of enabled skills by id. */

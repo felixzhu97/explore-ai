@@ -2,7 +2,7 @@ package com.ai.account.service;
 
 import com.ai.account.domain.model.AccountUser;
 import com.ai.account.domain.repository.OwnerPartitionRepository;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

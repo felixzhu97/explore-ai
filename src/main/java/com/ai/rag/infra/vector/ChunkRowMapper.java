@@ -1,9 +1,9 @@
 package com.ai.rag.infra.vector;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
+import com.ai.rag.domain.model.ChunkId;
 import com.ai.rag.domain.model.DocumentChunk;
-import com.ai.rag.domain.vo.ChunkId;
-import com.ai.rag.domain.vo.DocumentId;
+import com.ai.rag.domain.model.DocumentId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

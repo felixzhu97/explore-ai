@@ -6,8 +6,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.audio.domain.vo.SpeechText;
-import com.ai.audio.domain.vo.VoiceSelection;
+import com.ai.audio.domain.model.SpeechText;
+import com.ai.audio.domain.model.VoiceSelection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

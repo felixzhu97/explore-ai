@@ -1,7 +1,7 @@
 package com.ai.account.infra.oauth;
 
 import com.ai.account.domain.model.AccountUser;
-import com.ai.account.domain.vo.ClientId;
+import com.ai.account.domain.model.ClientId;
 import com.ai.account.infra.config.OAuthSpaProperties;
 import com.ai.account.service.AccountService;
 import com.ai.account.service.OAuthSignIn;

@@ -731,7 +731,7 @@ Chinese equivalents to avoid in technical docs:
 ```
 1. Identify new concept or terminology ambiguity
 2. Update this glossary (add or revise entry under the owning business domain)
-3. Update domain model (entity / vo / enum)
+3. Update domain model (entity / value object / domain event)
 4. Update API / frontend i18n
 5. Reference glossary changes in PR
 ```

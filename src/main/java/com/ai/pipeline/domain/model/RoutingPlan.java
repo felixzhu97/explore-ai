@@ -1,6 +1,5 @@
 package com.ai.pipeline.domain.model;
 
-import com.ai.pipeline.domain.vo.AgentType;
 import java.util.List;
 import java.util.Objects;
 

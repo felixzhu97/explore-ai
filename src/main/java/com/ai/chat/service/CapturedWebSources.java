@@ -1,6 +1,6 @@
 package com.ai.chat.service;
 
-import com.ai.chat.domain.vo.WebSource;
+import com.ai.chat.domain.model.WebSource;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;

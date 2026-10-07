@@ -1,8 +1,8 @@
 package com.ai.metrics.infra.health;
 
+import com.ai.metrics.domain.model.ModuleStatus;
 import com.ai.metrics.domain.repository.McpHealthProbe;
 import com.ai.metrics.domain.repository.MetricsHealthGateway;
-import com.ai.metrics.domain.vo.ModuleStatus;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.service.PipelineService;
 import java.util.List;

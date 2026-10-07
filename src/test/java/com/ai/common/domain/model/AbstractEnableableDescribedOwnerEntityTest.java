@@ -2,7 +2,6 @@ package com.ai.common.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.common.domain.vo.AbstractUuidId;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;

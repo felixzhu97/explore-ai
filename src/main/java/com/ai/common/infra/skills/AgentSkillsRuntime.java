@@ -1,6 +1,6 @@
 package com.ai.common.infra.skills;
 
-import com.ai.common.domain.vo.AgentSkill;
+import com.ai.common.domain.model.AgentSkill;
 import com.ai.common.infra.config.AgentSkillsProperties;
 import java.util.List;
 import java.util.Optional;

@@ -1,16 +1,16 @@
 package com.ai.tools.service;
 
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.domain.tool.DocumentSearchTool;
 import com.ai.common.domain.tool.WebSearchTool;
-import com.ai.common.domain.vo.OwnerKey;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.Latency;
+import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.service.AiInvocationRecorder;
+import com.ai.tools.domain.model.WeatherForecast;
+import com.ai.tools.domain.model.WeatherQuery;
 import com.ai.tools.domain.model.WeatherReport;
-import com.ai.tools.domain.vo.WeatherForecast;
-import com.ai.tools.domain.vo.WeatherQuery;
 import com.ai.tools.infra.tools.WeatherTools;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

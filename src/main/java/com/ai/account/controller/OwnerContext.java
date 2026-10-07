@@ -2,7 +2,7 @@ package com.ai.account.controller;
 
 import com.ai.account.service.CurrentOwnerResolver;
 import com.ai.common.controller.ClientIdentity;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;

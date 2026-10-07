@@ -1,8 +1,8 @@
 package com.ai.metrics.domain.repository;
 
+import com.ai.metrics.domain.model.AiDomain;
 import com.ai.metrics.domain.model.AiInvocationEvent;
-import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.InvocationOutcome;
+import com.ai.metrics.domain.model.InvocationOutcome;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;

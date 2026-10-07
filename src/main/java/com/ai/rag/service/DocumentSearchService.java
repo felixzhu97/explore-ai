@@ -1,11 +1,11 @@
 package com.ai.rag.service;
 
+import com.ai.rag.domain.model.DocumentId;
+import com.ai.rag.domain.model.ScoredChunk;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
-import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.domain.vo.ScoredChunk;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;

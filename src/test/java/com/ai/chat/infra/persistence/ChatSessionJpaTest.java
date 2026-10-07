@@ -3,7 +3,7 @@ package com.ai.chat.infra.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.chat.domain.model.ChatSession;
-import com.ai.chat.domain.vo.ChatSessionId;
+import com.ai.chat.domain.model.ChatSessionId;
 import com.ai.common.infra.persistence.OwnerPartitionScope;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.ai.testsupport.JpaTestPackages;

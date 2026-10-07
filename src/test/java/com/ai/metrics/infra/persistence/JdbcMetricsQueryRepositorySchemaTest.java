@@ -3,8 +3,8 @@ package com.ai.metrics.infra.persistence;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
+import com.ai.metrics.domain.model.AiDomain;
 import com.ai.metrics.domain.repository.MetricsQueryRepository.TimePoint;
-import com.ai.metrics.domain.vo.AiDomain;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;

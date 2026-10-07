@@ -1,6 +1,5 @@
 package com.ai.chat.domain.model;
 
-import com.ai.chat.domain.vo.MessageId;
 import java.time.Instant;
 import java.util.Objects;
 

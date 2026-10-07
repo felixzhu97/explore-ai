@@ -1,9 +1,9 @@
 package com.ai.textanalysis.service;
 
+import com.ai.textanalysis.domain.model.AnalysisText;
+import com.ai.textanalysis.domain.model.LanguageHint;
 import com.ai.textanalysis.domain.model.TextAnalysis;
 import com.ai.textanalysis.domain.repository.TextAnalysisGateway;
-import com.ai.textanalysis.domain.vo.AnalysisText;
-import com.ai.textanalysis.domain.vo.LanguageHint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

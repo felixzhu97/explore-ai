@@ -1,11 +1,7 @@
 package com.ai.automation.domain.model;
 
-import com.ai.automation.domain.vo.EmailDeliveryStatus;
-import com.ai.automation.domain.vo.RunId;
-import com.ai.automation.domain.vo.RunStatus;
-import com.ai.automation.domain.vo.ScheduleId;
 import com.ai.common.domain.model.AbstractOwnerKeyedRunEntity;
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;

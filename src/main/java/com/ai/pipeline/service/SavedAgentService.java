@@ -2,8 +2,8 @@ package com.ai.pipeline.service;
 
 import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.SavedAgent;
+import com.ai.pipeline.domain.model.SavedAgentId;
 import com.ai.pipeline.domain.repository.SavedAgentRepository;
-import com.ai.pipeline.domain.vo.SavedAgentId;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

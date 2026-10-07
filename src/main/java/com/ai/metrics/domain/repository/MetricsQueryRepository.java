@@ -1,8 +1,8 @@
 package com.ai.metrics.domain.repository;
 
-import com.ai.metrics.domain.vo.AiDomain;
-import com.ai.metrics.domain.vo.InvocationStats;
-import com.ai.metrics.domain.vo.LatencyStats;
+import com.ai.metrics.domain.model.AiDomain;
+import com.ai.metrics.domain.model.InvocationStats;
+import com.ai.metrics.domain.model.LatencyStats;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;

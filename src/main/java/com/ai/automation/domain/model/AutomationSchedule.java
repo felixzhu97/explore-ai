@@ -1,12 +1,9 @@
 package com.ai.automation.domain.model;
 
 import com.ai.automation.domain.service.CronSchedule;
-import com.ai.automation.domain.vo.AutomationActionType;
-import com.ai.automation.domain.vo.ScheduleId;
-import com.ai.automation.domain.vo.ScheduleTiming;
 import com.ai.common.domain.model.AbstractEnableableNamedOwnerEntity;
-import com.ai.common.domain.vo.DomainStrings;
-import com.ai.pipeline.domain.vo.PipelineTemplateId;
+import com.ai.common.domain.model.DomainStrings;
+import com.ai.pipeline.domain.model.PipelineTemplateId;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;

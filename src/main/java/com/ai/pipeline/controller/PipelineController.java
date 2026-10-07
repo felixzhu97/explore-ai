@@ -8,7 +8,7 @@ import com.ai.pipeline.controller.dto.AgentInvokeRequest;
 import com.ai.pipeline.controller.dto.PipelineInvokeRequest;
 import com.ai.pipeline.controller.dto.PipelineModuleHealthResponse;
 import com.ai.pipeline.domain.model.AgentPipeline;
-import com.ai.pipeline.domain.vo.AgentType;
+import com.ai.pipeline.domain.model.AgentType;
 import com.ai.pipeline.service.PipelineService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

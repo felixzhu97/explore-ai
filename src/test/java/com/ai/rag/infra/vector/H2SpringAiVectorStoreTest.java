@@ -9,13 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
+import com.ai.rag.domain.model.ChunkId;
 import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.model.DocumentId;
+import com.ai.rag.domain.model.ScoredChunk;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
-import com.ai.rag.domain.vo.ChunkId;
-import com.ai.rag.domain.vo.DocumentId;
-import com.ai.rag.domain.vo.ScoredChunk;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;

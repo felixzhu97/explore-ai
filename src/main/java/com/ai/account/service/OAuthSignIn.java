@@ -1,7 +1,7 @@
 package com.ai.account.service;
 
-import com.ai.account.domain.vo.ContactEmail;
-import com.ai.account.domain.vo.ExternalIdentity;
+import com.ai.account.domain.model.ContactEmail;
+import com.ai.account.domain.model.ExternalIdentity;
 import java.util.Objects;
 import java.util.Optional;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;

@@ -2,7 +2,6 @@ package com.ai.pipeline.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.pipeline.domain.vo.AgentType;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package com.ai.account.domain.repository;
 
-import com.ai.common.domain.vo.OwnerKey;
+import com.ai.common.domain.model.OwnerKey;
 
 /** Repository that reassigns or erases every row belonging to an owner partition. */
 public interface OwnerPartitionRepository {

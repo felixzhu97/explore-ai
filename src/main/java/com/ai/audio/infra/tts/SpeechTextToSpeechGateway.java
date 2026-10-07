@@ -1,9 +1,9 @@
 package com.ai.audio.infra.tts;
 
+import com.ai.audio.domain.model.SpeechText;
 import com.ai.audio.domain.model.SynthesizedAudio;
+import com.ai.audio.domain.model.VoiceSelection;
 import com.ai.audio.domain.repository.TextToSpeechGateway;
-import com.ai.audio.domain.vo.SpeechText;
-import com.ai.audio.domain.vo.VoiceSelection;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;

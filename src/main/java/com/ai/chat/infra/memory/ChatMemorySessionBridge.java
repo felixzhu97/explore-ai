@@ -2,8 +2,8 @@ package com.ai.chat.infra.memory;
 
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatMessageType;
+import com.ai.chat.domain.model.MessageId;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
-import com.ai.chat.domain.vo.MessageId;
 import com.ai.common.infra.llm.ToolCallMarkupFilter;
 import java.time.Instant;
 import java.util.List;

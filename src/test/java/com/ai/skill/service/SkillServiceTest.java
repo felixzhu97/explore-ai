@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ai.common.exception.DomainException;
 import com.ai.skill.domain.model.Skill;
-import com.ai.skill.domain.vo.SkillId;
+import com.ai.skill.domain.model.SkillId;
 import com.ai.skill.test.fixture.FakeSkillRepository;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

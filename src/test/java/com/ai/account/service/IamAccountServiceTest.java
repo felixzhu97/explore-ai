@@ -6,9 +6,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.ai.account.domain.model.AccountUser;
+import com.ai.account.domain.model.ContactEmail;
+import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.account.domain.repository.AccountUserRepository;
-import com.ai.account.domain.vo.ContactEmail;
-import com.ai.account.domain.vo.ExternalIdentity;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;

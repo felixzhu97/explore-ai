@@ -1,9 +1,8 @@
 package com.ai.skill.domain.model;
 
 import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
-import com.ai.common.domain.vo.DomainStrings;
-import com.ai.common.domain.vo.StringListJsonAttributeConverter;
-import com.ai.skill.domain.vo.SkillId;
+import com.ai.common.domain.model.DomainStrings;
+import com.ai.common.domain.model.StringListJsonAttributeConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;

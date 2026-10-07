@@ -1,8 +1,8 @@
 package com.ai.automation.controller.dto;
 
 import com.ai.automation.domain.model.AutomationRun;
-import com.ai.automation.domain.vo.EmailDeliveryStatus;
-import com.ai.automation.domain.vo.RunStatus;
+import com.ai.automation.domain.model.EmailDeliveryStatus;
+import com.ai.automation.domain.model.RunStatus;
 import java.time.Instant;
 
 public record AutomationRunResponse(
