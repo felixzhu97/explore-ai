@@ -18,14 +18,14 @@ public record EvaluationResponse(
     Boolean factualityPassed,
     List<String> evaluatorFeedback) {
   /** Maps a domain evaluation result to the response, rounding scores to two decimals. */
-  public static EvaluationResponse from(ChatEvaluationResult result) {
+  public static EvaluationResponse createResponse(ChatEvaluationResult result) {
     return new EvaluationResponse(
-        round(result.getCoherenceScore()),
-        round(result.getRelevanceScore()),
-        round(result.getHelpfulnessScore()),
-        result.isFactualityAvailable() ? round(result.getFactualityScore()) : null,
+        roundScore(result.getCoherenceScore()),
+        roundScore(result.getRelevanceScore()),
+        roundScore(result.getHelpfulnessScore()),
+        result.isFactualityAvailable() ? roundScore(result.getFactualityScore()) : null,
         result.isFactualityAvailable(),
-        round(result.getOverallScore()),
+        roundScore(result.getOverallScore()),
         result.isHasSafetyIssues(),
         result.getSafetyFlags(),
         result.getSuggestions(),
@@ -34,7 +34,7 @@ public record EvaluationResponse(
         result.getEvaluatorFeedback());
   }
 
-  private static double round(double score) {
+  private static double roundScore(double score) {
     return Math.round(score * 100.0) / 100.0;
   }
 }

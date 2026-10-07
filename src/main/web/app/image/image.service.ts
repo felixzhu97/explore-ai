@@ -137,12 +137,12 @@ export class ImageService {
   openZoom(): void {
     const image = this.generatedImage();
     if (hasText(image)) {
-      this.#imageZoom.open(image);
+      this.#imageZoom.openZoom(image);
     }
   }
 
   /** Generates an image from the prompt. */
-  generate(): void {
+  generateImage(): void {
     if (this.prompt().trim() === '' || this.isGenerating()) {
       return;
     }
@@ -185,7 +185,7 @@ export class ImageService {
   }
 
   /** Downloads the generated image. */
-  download(): void {
+  downloadImage(): void {
     const image = this.generatedImage();
     if (!hasText(image)) {
       return;

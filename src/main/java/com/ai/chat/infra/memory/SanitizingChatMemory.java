@@ -51,7 +51,7 @@ public final class SanitizingChatMemory implements ChatMemory {
         cleaned.add(message);
         continue;
       }
-      String sanitized = ToolCallMarkupFilter.sanitize(text);
+      String sanitized = ToolCallMarkupFilter.stripToolMarkup(text);
       if (sanitized.isBlank()) {
         continue;
       }

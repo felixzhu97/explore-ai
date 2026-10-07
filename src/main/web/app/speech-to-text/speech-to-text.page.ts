@@ -34,17 +34,17 @@ export class SpeechToTextPageComponent implements OnDestroy {
   });
 
   ngOnDestroy(): void {
-    this.speechToText.disconnect();
+    this.speechToText.disconnectStream();
   }
 
   /** Connects to the transcription socket. */
   connect(): void {
-    this.speechToText.connect();
+    this.speechToText.connectStream();
   }
 
   /** Disconnects from the transcription socket. */
   disconnect(): void {
-    this.speechToText.disconnect();
+    this.speechToText.disconnectStream();
   }
 
   /** Asks the server to stop transcribing. */

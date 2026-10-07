@@ -15,7 +15,7 @@ public record AutomationRunResponse(
     String resultExcerpt,
     EmailDeliveryStatus emailStatus) {
   /** Builds a response from an automation run record. */
-  public static AutomationRunResponse from(AutomationRun run) {
+  public static AutomationRunResponse createResponse(AutomationRun run) {
     return new AutomationRunResponse(
         run.getId().toString(),
         run.getScheduleId().toString(),

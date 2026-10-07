@@ -15,12 +15,12 @@ public enum AgentRuntime {
   }
 
   @JsonValue
-  public String value() {
+  public String getValue() {
     return value;
   }
 
   /** Maps the normalized runtime of an agent definition; rejects unknown runtimes. */
-  public static AgentRuntime from(String raw) {
+  public static AgentRuntime createResponse(String raw) {
     return Arrays.stream(values())
         .filter(runtime -> runtime.value.equals(raw))
         .findFirst()

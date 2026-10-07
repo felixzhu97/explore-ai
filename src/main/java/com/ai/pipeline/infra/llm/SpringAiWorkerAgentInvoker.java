@@ -36,7 +36,7 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
   public Flux<String> invokeStream(AgentDefinition agent, String task) {
     // Tool-calling models often stream tool markup as plain text; block for tool loop.
     if (usesTools(agent)) {
-      return Mono.fromCallable(() -> invoke(agent, task))
+      return Mono.fromCallable(() -> invokeAgent(agent, task))
           .subscribeOn(Schedulers.boundedElastic())
           .flatMapMany(
               answer -> {
@@ -48,14 +48,14 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
     }
     return buildBasePrompt(agent, task).stream()
         .content()
-        .map(ToolCallMarkupFilter::sanitize)
+        .map(ToolCallMarkupFilter::stripToolMarkup)
         .filter(chunk -> chunk != null && !chunk.isEmpty());
   }
 
   @Override
-  public String invoke(AgentDefinition agent, String task) {
+  public String invokeAgent(AgentDefinition agent, String task) {
     String content = buildBasePrompt(agent, task).call().content();
-    return ToolCallMarkupFilter.sanitize(content == null ? "" : content);
+    return ToolCallMarkupFilter.stripToolMarkup(content == null ? "" : content);
   }
 
   private boolean usesTools(AgentDefinition agent) {
@@ -65,7 +65,8 @@ public class SpringAiWorkerAgentInvoker implements WorkerAgentInvoker {
   private ChatClient.ChatClientRequestSpec buildBasePrompt(AgentDefinition agent, String task) {
     // BARE avoids factory-wide tool defaults; attach only this worker's tools below.
     ChatClient client =
-        chatClientProvider.create(TextChatOptions.defaults(), ChatClientProfile.BARE, null);
+        chatClientProvider.create(
+            TextChatOptions.createDefaultOptions(), ChatClientProfile.BARE, null);
     String systemPrompt = agentSkillsRuntime.augmentSystemPrompt(agent.getSystemPrompt());
     ChatClient.ChatClientRequestSpec spec = client.prompt().system(systemPrompt).user(task);
 

@@ -75,7 +75,7 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
       clientId = existing;
     } else {
       clientId = cookieFactory.generateClientId();
-      response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.issue(clientId).toString());
+      response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.issueCookie(clientId).toString());
     }
     request.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, clientId);
     filterChain.doFilter(request, response);

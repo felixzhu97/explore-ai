@@ -30,7 +30,7 @@ class ChatClientFactoryMcpMergeTest {
   @DisplayName("should build client when mcp callbacks absent")
   void shouldBuildClientWhenMcpCallbacksAbsent() {
     ChatClientFactory factory = factoryWithMcp(null);
-    assertThatCode(() -> factory.createStateless(TextChatOptions.defaults()))
+    assertThatCode(() -> factory.createStateless(TextChatOptions.createDefaultOptions()))
         .doesNotThrowAnyException();
   }
 
@@ -39,7 +39,8 @@ class ChatClientFactoryMcpMergeTest {
   void shouldBuildClientWhenMcpCallbacksPresent() {
     ToolCallback mcp = namedTool("fetch", "fetched");
     ChatClientFactory factory = factoryWithMcp(new ToolCallback[] {mcp});
-    assertThatCode(() -> factory.createStateless(TextChatOptions.of("openai", null, true)))
+    assertThatCode(
+            () -> factory.createStateless(TextChatOptions.createOptions("openai", null, true)))
         .doesNotThrowAnyException();
   }
 
@@ -48,7 +49,8 @@ class ChatClientFactoryMcpMergeTest {
   void shouldPreferLocalToolWhenMcpNameCollides() {
     ToolCallback duplicateWeather = namedTool("getWeather", "mcp-weather");
     ChatClientFactory factory = factoryWithMcp(new ToolCallback[] {duplicateWeather});
-    assertThatCode(() -> factory.createStateless(TextChatOptions.of("openai", null, true)))
+    assertThatCode(
+            () -> factory.createStateless(TextChatOptions.createOptions("openai", null, true)))
         .doesNotThrowAnyException();
   }
 
@@ -69,7 +71,7 @@ class ChatClientFactoryMcpMergeTest {
   private static ChatClientFactory factoryWithMcp(ToolCallback[] mcp) {
     ChatModelResolver resolver = mock(ChatModelResolver.class);
     ChatModel chatModel = mock(ChatModel.class);
-    when(resolver.resolve(any()))
+    when(resolver.resolveModel(any()))
         .thenReturn(
             new ResolvedChatModel(chatModel, OpenAiChatOptions.builder().model("test"), "openai"));
 

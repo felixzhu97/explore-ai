@@ -31,7 +31,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
   private final CustomAgentRepository customAgentRepository;
 
   /** Test helper: fixed in-memory catalog (not a Spring bean). */
-  public static AgentRegistry fixed(List<AgentDefinition> definitions) {
+  public static AgentRegistry createFixedRegistry(List<AgentDefinition> definitions) {
     Map<String, AgentDefinition> map = new LinkedHashMap<>();
     for (AgentDefinition definition : definitions) {
       map.put(definition.getType().getValue(), definition);
@@ -70,7 +70,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
         return findByType(type, ownerKey, language)
             .orElseThrow(
                 () ->
-                    DomainException.notFound(
+                    DomainException.createNotFoundError(
                         "AGENT_NOT_FOUND", "Unknown agent type: " + type.getValue()));
       }
     };
@@ -87,7 +87,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
     for (AgentDefinition builtin : listBuiltins(language)) {
       byType.put(builtin.getType().getValue(), builtin);
     }
-    for (CustomAgent saved : library(ownerKey)) {
+    for (CustomAgent saved : listLibraryAgents(ownerKey)) {
       byType.put(saved.getTypeKey(), saved.buildAgentDefinition());
     }
     return List.copyOf(byType.values());
@@ -106,7 +106,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
 
   @Override
   public Optional<AgentDefinition> findByType(AgentType type, String ownerKey, String language) {
-    return library(ownerKey).stream()
+    return listLibraryAgents(ownerKey).stream()
         .filter(saved -> saved.hasAgentType(type))
         .findFirst()
         .map(CustomAgent::buildAgentDefinition)
@@ -121,11 +121,11 @@ public class CatalogAgentRegistry implements AgentRegistry {
     return findByType(type, ownerKey, language)
         .orElseThrow(
             () ->
-                DomainException.notFound(
+                DomainException.createNotFoundError(
                     "AGENT_NOT_FOUND", "Unknown agent type: " + type.getValue()));
   }
 
-  private List<CustomAgent> library(String ownerKey) {
+  private List<CustomAgent> listLibraryAgents(String ownerKey) {
     if (ownerKey == null || ownerKey.isBlank()) {
       return List.of();
     }

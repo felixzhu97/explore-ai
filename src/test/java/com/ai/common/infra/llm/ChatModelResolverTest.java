@@ -53,7 +53,8 @@ class ChatModelResolverTest {
   void shouldResolveOpenAiWithDefaultModel() {
     when(providerCatalog.isProviderAvailable("openai")).thenReturn(true);
 
-    ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("openai", null));
+    ResolvedChatModel resolved =
+        resolver.resolveModel(TextChatOptions.createOptions("openai", null));
 
     assertThat(resolved.provider()).isEqualTo("openai");
     assertThat(resolved.chatModel()).isSameAs(openAiChatModel);
@@ -65,7 +66,10 @@ class ChatModelResolverTest {
   void shouldRejectWhenProviderUnavailable() {
     when(providerCatalog.isProviderAvailable("anthropic")).thenReturn(false);
 
-    assertThatThrownBy(() -> resolver.resolve(TextChatOptions.of("anthropic", "claude-sonnet-5")))
+    assertThatThrownBy(
+            () ->
+                resolver.resolveModel(
+                    TextChatOptions.createOptions("anthropic", "claude-sonnet-5")))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("not configured");
   }
@@ -76,7 +80,8 @@ class ChatModelResolverTest {
     when(providerCatalog.isProviderAvailable("ollama")).thenReturn(true);
     when(ollamaChatModel.getIfAvailable()).thenReturn(null);
 
-    assertThatThrownBy(() -> resolver.resolve(TextChatOptions.of("ollama", "qwen3.5:35b")))
+    assertThatThrownBy(
+            () -> resolver.resolveModel(TextChatOptions.createOptions("ollama", "qwen3.5:35b")))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Ollama");
   }
@@ -87,7 +92,10 @@ class ChatModelResolverTest {
     when(providerCatalog.isProviderAvailable("anthropic")).thenReturn(true);
     when(anthropicChatModel.getIfAvailable()).thenReturn(null);
 
-    assertThatThrownBy(() -> resolver.resolve(TextChatOptions.of("anthropic", "claude-sonnet-5")))
+    assertThatThrownBy(
+            () ->
+                resolver.resolveModel(
+                    TextChatOptions.createOptions("anthropic", "claude-sonnet-5")))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Anthropic");
   }
@@ -98,7 +106,8 @@ class ChatModelResolverTest {
     when(providerCatalog.isProviderAvailable("openai")).thenReturn(true);
     when(providerCatalog.isModelAllowed("openai", "deepseek-v4-pro")).thenReturn(true);
 
-    ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("openai", "deepseek-v4-pro"));
+    ResolvedChatModel resolved =
+        resolver.resolveModel(TextChatOptions.createOptions("openai", "deepseek-v4-pro"));
 
     assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-pro");
   }
@@ -109,7 +118,8 @@ class ChatModelResolverTest {
     when(providerCatalog.isProviderAvailable("openai")).thenReturn(true);
     when(providerCatalog.isModelAllowed("openai", "gpt-premium-xl")).thenReturn(false);
 
-    assertThatThrownBy(() -> resolver.resolve(TextChatOptions.of("openai", "gpt-premium-xl")))
+    assertThatThrownBy(
+            () -> resolver.resolveModel(TextChatOptions.createOptions("openai", "gpt-premium-xl")))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("not available");
   }
@@ -120,7 +130,7 @@ class ChatModelResolverTest {
     when(providerCatalog.isProviderAvailable("openai")).thenReturn(true);
 
     ResolvedChatModel resolved =
-        resolver.resolve(TextChatOptions.of("openai", "deepseek-v4-flash"));
+        resolver.resolveModel(TextChatOptions.createOptions("openai", "deepseek-v4-flash"));
 
     assertThat(resolved.optionsBuilder().build().getModel()).isEqualTo("deepseek-v4-flash");
   }
@@ -131,7 +141,8 @@ class ChatModelResolverTest {
     when(providerCatalog.isProviderAvailable("ollama")).thenReturn(true);
     when(ollamaChatModel.getIfAvailable()).thenReturn(ollamaBean);
 
-    ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("ollama", null));
+    ResolvedChatModel resolved =
+        resolver.resolveModel(TextChatOptions.createOptions("ollama", null));
 
     assertThat(resolved.provider()).isEqualTo("ollama");
     assertThat(resolved.chatModel()).isSameAs(ollamaBean);
@@ -144,7 +155,8 @@ class ChatModelResolverTest {
     when(providerCatalog.isProviderAvailable("anthropic")).thenReturn(true);
     when(anthropicChatModel.getIfAvailable()).thenReturn(anthropicBean);
 
-    ResolvedChatModel resolved = resolver.resolve(TextChatOptions.of("anthropic", null));
+    ResolvedChatModel resolved =
+        resolver.resolveModel(TextChatOptions.createOptions("anthropic", null));
 
     assertThat(resolved.provider()).isEqualTo("anthropic");
     assertThat(resolved.chatModel()).isSameAs(anthropicBean);

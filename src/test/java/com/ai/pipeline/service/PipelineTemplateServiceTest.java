@@ -41,7 +41,7 @@ class PipelineTemplateServiceTest {
     when(repository.save(any(PipelineTemplate.class))).then(returnsFirstArg());
 
     PipelineTemplate created =
-        useCase.create(
+        useCase.createTemplate(
             CLIENT_ID, "My flow", "desc", List.of("research", "analyst"), "topic", "brief", null);
 
     assertThat(created.getName()).isEqualTo("My flow");
@@ -55,7 +55,9 @@ class PipelineTemplateServiceTest {
     when(repository.existsByOwnerKeyAndNameIgnoringId(OWNER, "My flow", null)).thenReturn(true);
 
     assertThatThrownBy(
-            () -> useCase.create(CLIENT_ID, "My flow", "", List.of("analyst"), "", "other", null))
+            () ->
+                useCase.createTemplate(
+                    CLIENT_ID, "My flow", "", List.of("analyst"), "", "other", null))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "PIPELINE_TEMPLATE_NAME_CONFLICT");
     verify(repository, never()).save(any());
@@ -64,7 +66,8 @@ class PipelineTemplateServiceTest {
   @Test
   @DisplayName("should throw when get missing")
   void shouldThrowWhenGetMissing() {
-    assertThatThrownBy(() -> useCase.get(CLIENT_ID, PipelineTemplateId.generateId().toString()))
+    assertThatThrownBy(
+            () -> useCase.getTemplate(CLIENT_ID, PipelineTemplateId.generateId().toString()))
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "PIPELINE_TEMPLATE_NOT_FOUND");
   }

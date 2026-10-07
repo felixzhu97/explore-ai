@@ -43,13 +43,13 @@ class ChatQualityEvaluatorTest {
   @Test
   @DisplayName("should skip factuality when referenceDocuments is empty")
   void shouldSkipFactualityWhenNoReferenceDocuments() {
-    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+    when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(
             new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
     stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
 
     ChatEvaluationResult result =
-        evaluator.evaluate(
+        evaluator.evaluateChat(
             "What is the capital of France?", "Paris is the capital of France.", List.of());
 
     assertThat(result.isFactualityAvailable()).isFalse();
@@ -61,14 +61,14 @@ class ChatQualityEvaluatorTest {
   @Test
   @DisplayName("should evaluate factuality when referenceDocuments provided")
   void shouldEvaluateFactualityWhenReferenceDocumentsProvided() {
-    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+    when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(
             new OfficialGateResult(
                 true, true, true, 1.0, 1.0, List.of("relevancy: PASS", "factuality: PASS"), true));
     stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
 
     ChatEvaluationResult result =
-        evaluator.evaluate(
+        evaluator.evaluateChat(
             "What is the capital of France?",
             "Paris is the capital of France.",
             List.of("France is a country in Europe. Its capital is Paris."));
@@ -82,12 +82,12 @@ class ChatQualityEvaluatorTest {
   @Test
   @DisplayName("should use fallback when LLM judge returns null")
   void shouldUseFallbackWhenLlmJudgeReturnsNull() {
-    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+    when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(
             new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
     stubLlmJudge(null);
 
-    ChatEvaluationResult result = evaluator.evaluate("Hello", "Hi there", List.of());
+    ChatEvaluationResult result = evaluator.evaluateChat("Hello", "Hi there", List.of());
 
     assertThat(result.getCoherenceScore()).isZero();
     assertThat(result.getHelpfulnessScore()).isZero();
@@ -97,12 +97,12 @@ class ChatQualityEvaluatorTest {
   @Test
   @DisplayName("should use default safety concern when blank")
   void shouldUseDefaultSafetyConcernWhenBlank() {
-    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+    when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(
             new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
     stubLlmJudge(new LlmEvaluationResponse(0.8, 0.8, true, "", ""));
 
-    ChatEvaluationResult result = evaluator.evaluate("Hello", "Harmful reply", List.of());
+    ChatEvaluationResult result = evaluator.evaluateChat("Hello", "Harmful reply", List.of());
 
     assertThat(result.isHasSafetyIssues()).isTrue();
     assertThat(result.getSafetyFlags()).containsExactly("Safety issue detected");
@@ -111,12 +111,12 @@ class ChatQualityEvaluatorTest {
   @Test
   @DisplayName("should include factuality in overall score when available")
   void shouldIncludeFactualityInOverallScoreWhenAvailable() {
-    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+    when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(new OfficialGateResult(true, true, true, 1.0, 1.0, List.of(), true));
     stubLlmJudge(new LlmEvaluationResponse(0.8, 0.8, false, "", ""));
 
     ChatEvaluationResult result =
-        evaluator.evaluate("Question", "Answer", List.of("Reference context"));
+        evaluator.evaluateChat("Question", "Answer", List.of("Reference context"));
 
     assertThat(result.getOverallScore()).isEqualTo(0.9);
   }
@@ -124,13 +124,13 @@ class ChatQualityEvaluatorTest {
   @Test
   @DisplayName("should suggest relevance fix when relevancy fails")
   void shouldSuggestRelevanceFixWhenRelevancyFails() {
-    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+    when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(
             new OfficialGateResult(
                 false, null, false, 0.0, null, List.of("relevancy: FAIL"), false));
     stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
 
-    ChatEvaluationResult result = evaluator.evaluate("Q", "unrelated", List.of());
+    ChatEvaluationResult result = evaluator.evaluateChat("Q", "unrelated", List.of());
 
     assertThat(result.isRelevancyPassed()).isFalse();
     assertThat(result.getSuggestions())

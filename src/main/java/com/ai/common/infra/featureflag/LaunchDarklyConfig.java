@@ -36,7 +36,7 @@ public class LaunchDarklyConfig {
 
   /** Closes the LaunchDarkly client. */
   @PreDestroy
-  public void shutdown() throws IOException {
+  public void shutdownClient() throws IOException {
     if (ldClient != null) {
       ldClient.close();
     }

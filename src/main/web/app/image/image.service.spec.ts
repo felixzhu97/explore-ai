@@ -10,10 +10,10 @@ import { DEFAULT_IMAGE_SIZES, ImageService } from './image.service';
 describe('ImageService', () => {
   let service: ImageService;
   let httpMock: HttpTestingController;
-  let imageZoom: { open: ReturnType<typeof vi.fn> };
+  let imageZoom: { openZoom: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    imageZoom = { open: vi.fn() };
+    imageZoom = { openZoom: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -60,13 +60,13 @@ describe('ImageService', () => {
 
   it('should not generate with empty prompt', () => {
     service.setPrompt('   ');
-    service.generate();
+    service.generateImage();
     httpMock.expectNone('/api/images/generate');
   });
 
   it('should generate image from url response', async () => {
     service.setPrompt('A sunset');
-    service.generate();
+    service.generateImage();
 
     const request = httpMock.expectOne('/api/images/generate');
     expect(request.request.body).toEqual(expect.objectContaining({
@@ -84,7 +84,7 @@ describe('ImageService', () => {
 
   it('should generate image from base64 response', async () => {
     service.setPrompt('A mountain');
-    service.generate();
+    service.generateImage();
     httpMock.expectOne('/api/images/generate').flush({ imageBase64: 'abc123', status: 'ok' });
 
     await vi.waitFor(() => {
@@ -94,7 +94,7 @@ describe('ImageService', () => {
 
   it('should set error on generation failure', async () => {
     service.setPrompt('Fail case');
-    service.generate();
+    service.generateImage();
     httpMock.expectOne('/api/images/generate').flush(
       {
         message: 'Image provider not configured',
@@ -112,7 +112,7 @@ describe('ImageService', () => {
 
   it('should open zoom dialog when image is generated', async () => {
     service.setPrompt('Zoom test');
-    service.generate();
+    service.generateImage();
     httpMock.expectOne('/api/images/generate').flush({
       imageUrl: 'https://example.com/z.png',
       status: 'ok',
@@ -120,6 +120,6 @@ describe('ImageService', () => {
     await vi.waitFor(() => expect(service.generatedImage()).toBeTruthy());
 
     service.openZoom();
-    expect(imageZoom.open).toHaveBeenCalledWith('https://example.com/z.png');
+    expect(imageZoom.openZoom).toHaveBeenCalledWith('https://example.com/z.png');
   });
 });

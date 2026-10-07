@@ -43,7 +43,7 @@ public class PipelineController {
     String language = resolveLanguage(lang, request);
     List<AgentInfoResponse> agents =
         pipelineService.listAgents(ownerKey, language).stream()
-            .map(AgentInfoResponse::from)
+            .map(AgentInfoResponse::createResponse)
             .toList();
     return ResponseEntity.ok(agents);
   }
@@ -63,7 +63,7 @@ public class PipelineController {
       HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return ResponseEntity.ok(
-        AgentInfoResponse.from(
+        AgentInfoResponse.createResponse(
             pipelineService.getHealth(agentType, ownerKey, resolveLanguage(lang, request))));
   }
 
@@ -75,7 +75,7 @@ public class PipelineController {
       HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return ResponseEntity.ok(
-        AgentHealthResponse.from(
+        AgentHealthResponse.createResponse(
             pipelineService.getHealth(agentType, ownerKey, resolveLanguage(lang, request))));
   }
 

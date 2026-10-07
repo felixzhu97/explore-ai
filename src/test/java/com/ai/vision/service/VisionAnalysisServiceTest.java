@@ -79,7 +79,7 @@ class VisionAnalysisServiceTest {
     when(detector.detectObjects(any(BufferedImage.class)))
         .thenReturn(List.of(new Detection("cat", 0.91, 1, 2, 3, 4)));
 
-    var response = useCase.detect(pngFile("photo.png"), OWNER);
+    var response = useCase.detectObjects(pngFile("photo.png"), OWNER);
 
     assertThat(response.detections()).hasSize(1);
     assertThat(response.detections().getFirst().className()).isEqualTo("cat");

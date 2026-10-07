@@ -14,7 +14,7 @@ public enum AccountMode {
   }
 
   @JsonValue
-  public String value() {
+  public String getValue() {
     return value;
   }
 }

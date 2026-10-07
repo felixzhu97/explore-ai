@@ -32,13 +32,13 @@ public class WorkflowService {
   }
 
   /** Sends the input to the best route. */
-  public RoutingResult route(String input, Map<String, String> routes) {
-    return routingWorkflow.route(input, routes);
+  public RoutingResult routeTask(String input, Map<String, String> routes) {
+    return routingWorkflow.routeTask(input, routes);
   }
 
   /** Runs the orchestrator-workers workflow. */
   public OrchestratorWorkersResult runOrchestratorWorkers(String task) {
-    return orchestratorWorkersWorkflow.process(task);
+    return orchestratorWorkersWorkflow.processTask(task);
   }
 
   /** Runs the evaluator-optimizer workflow. */

@@ -20,7 +20,7 @@ class LocalizedRagPromptBuilderTest {
     @Test
     @DisplayName("should return no context message when context null")
     void shouldReturnNoContextMessageWhenContextNull() {
-      String prompt = builder.build("What is AI?", null, "en");
+      String prompt = builder.buildPrompt("What is AI?", null, "en");
 
       assertThat(prompt).contains("I don't have relevant documents");
     }
@@ -28,7 +28,7 @@ class LocalizedRagPromptBuilderTest {
     @Test
     @DisplayName("should return no context message when context blank")
     void shouldReturnNoContextMessageWhenContextBlank() {
-      String prompt = builder.build("What is AI?", "   ", "en");
+      String prompt = builder.buildPrompt("What is AI?", "   ", "en");
 
       assertThat(prompt).contains("I don't have relevant documents");
     }
@@ -36,7 +36,7 @@ class LocalizedRagPromptBuilderTest {
     @Test
     @DisplayName("should build english prompt with shared style when context present")
     void shouldBuildEnglishPromptWithSharedStyleWhenContextPresent() {
-      String prompt = builder.build("What is AI?", "AI is Artificial Intelligence", "en");
+      String prompt = builder.buildPrompt("What is AI?", "AI is Artificial Intelligence", "en");
 
       assertThat(prompt).contains("AI is Artificial Intelligence");
       assertThat(prompt).contains("What is AI?");
@@ -49,7 +49,7 @@ class LocalizedRagPromptBuilderTest {
     @Test
     @DisplayName("should build chinese prompt when language zh")
     void shouldBuildChinesePromptWhenLanguageZh() {
-      String prompt = builder.build("什么是AI?", "AI是人工智能", "zh");
+      String prompt = builder.buildPrompt("什么是AI?", "AI是人工智能", "zh");
 
       assertThat(prompt).contains("AI是人工智能");
       assertThat(prompt).contains("什么是AI?");
@@ -60,7 +60,7 @@ class LocalizedRagPromptBuilderTest {
     @Test
     @DisplayName("should build japanese prompt when language ja")
     void shouldBuildJapanesePromptWhenLanguageJa() {
-      String prompt = builder.build("AIとは何ですか？", "AIは人工知能です", "ja");
+      String prompt = builder.buildPrompt("AIとは何ですか？", "AIは人工知能です", "ja");
 
       assertThat(prompt).contains("AIは人工知能です");
       assertThat(prompt).contains("AIとは何ですか？");
@@ -70,7 +70,7 @@ class LocalizedRagPromptBuilderTest {
     @Test
     @DisplayName("should use english template when language unknown")
     void shouldUseEnglishTemplateWhenLanguageUnknown() {
-      String prompt = builder.build("Question", "Context", "unknown");
+      String prompt = builder.buildPrompt("Question", "Context", "unknown");
 
       assertThat(prompt).contains("Context");
       assertThat(prompt).contains("Question");
@@ -80,7 +80,7 @@ class LocalizedRagPromptBuilderTest {
     @Test
     @DisplayName("should include formatting guidelines when chinese prompt")
     void shouldIncludeFormattingGuidelinesWhenChinesePrompt() {
-      String prompt = builder.build("问题", "上下文", "zh");
+      String prompt = builder.buildPrompt("问题", "上下文", "zh");
 
       assertThat(prompt).contains("**粗体**");
       assertThat(prompt).contains("*斜体*");
@@ -92,7 +92,7 @@ class LocalizedRagPromptBuilderTest {
     @Test
     @DisplayName("should detect language when build without explicit code")
     void shouldDetectLanguageWhenBuildWithoutExplicitCode() {
-      String prompt = builder.build("你好，请介绍一下文档", "文档内容");
+      String prompt = builder.buildPrompt("你好，请介绍一下文档", "文档内容");
 
       assertThat(prompt).contains("文档内容");
       assertThat(prompt).contains("中文回答");
@@ -106,19 +106,19 @@ class LocalizedRagPromptBuilderTest {
     @Test
     @DisplayName("should return chinese message when zh")
     void shouldReturnChineseMessageWhenZh() {
-      assertThat(builder.build("?", null, "zh")).contains("文档").contains("上传");
+      assertThat(builder.buildPrompt("?", null, "zh")).contains("文档").contains("上传");
     }
 
     @Test
     @DisplayName("should return japanese message when ja")
     void shouldReturnJapaneseMessageWhenJa() {
-      assertThat(builder.build("?", null, "ja")).contains("ドキュメント").contains("アップロード");
+      assertThat(builder.buildPrompt("?", null, "ja")).contains("ドキュメント").contains("アップロード");
     }
 
     @Test
     @DisplayName("should return english message when en")
     void shouldReturnEnglishMessageWhenEn() {
-      assertThat(builder.build("?", null, "en")).contains("documents").contains("upload");
+      assertThat(builder.buildPrompt("?", null, "en")).contains("documents").contains("upload");
     }
   }
 }

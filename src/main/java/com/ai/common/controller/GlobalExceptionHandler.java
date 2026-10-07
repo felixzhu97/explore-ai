@@ -28,8 +28,8 @@ public class GlobalExceptionHandler {
   /** Returns the status for the kind of domain error, with its code in the body. */
   @ExceptionHandler(DomainException.class)
   public ResponseEntity<ErrorResponse> handleDomainError(DomainException e) {
-    return ResponseEntity.status(statusOf(e.kind()))
-        .body(ErrorResponse.of(e.getMessage(), e.code()));
+    return ResponseEntity.status(statusOf(e.getKind()))
+        .body(ErrorResponse.createResponse(e.getMessage(), e.getCode()));
   }
 
   /** Returns 401 when the request has no Client Identity. */
@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleClientIdentityRequired(
       ClientIdentityRequiredException e) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-        .body(ErrorResponse.of("Client identity required", "CLIENT_IDENTITY_REQUIRED"));
+        .body(ErrorResponse.createResponse("Client identity required", "CLIENT_IDENTITY_REQUIRED"));
   }
 
   /** Returns 400 with the invalid request body fields. */
@@ -47,7 +47,8 @@ public class GlobalExceptionHandler {
         e.getBindingResult().getFieldErrors().stream()
             .map(error -> error.getField() + ": " + error.getDefaultMessage())
             .collect(Collectors.joining(", "));
-    return ResponseEntity.badRequest().body(ErrorResponse.of(message, "VALIDATION_ERROR"));
+    return ResponseEntity.badRequest()
+        .body(ErrorResponse.createResponse(message, "VALIDATION_ERROR"));
   }
 
   /** Returns 400 with the invalid request parameters. */
@@ -65,13 +66,15 @@ public class GlobalExceptionHandler {
                                     + ": "
                                     + error.getDefaultMessage()))
             .collect(Collectors.joining(", "));
-    return ResponseEntity.badRequest().body(ErrorResponse.of(message, "VALIDATION_ERROR"));
+    return ResponseEntity.badRequest()
+        .body(ErrorResponse.createResponse(message, "VALIDATION_ERROR"));
   }
 
   /** Returns 400 for an invalid argument. */
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
-    return ResponseEntity.badRequest().body(ErrorResponse.of(e.getMessage(), "BAD_REQUEST"));
+    return ResponseEntity.badRequest()
+        .body(ErrorResponse.createResponse(e.getMessage(), "BAD_REQUEST"));
   }
 
   /** Returns 413 when an upload is too large. */
@@ -81,7 +84,7 @@ public class GlobalExceptionHandler {
     String limit = formatUploadLimit(e.getMaxUploadSize());
     return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
         .body(
-            ErrorResponse.of(
+            ErrorResponse.createResponse(
                 "Uploaded file exceeds the maximum allowed size of " + limit, "FILE_TOO_LARGE"));
   }
 
@@ -90,7 +93,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleDataAccessError(DataAccessException e) {
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
         .body(
-            ErrorResponse.of(
+            ErrorResponse.createResponse(
                 "Chat memory storage is temporarily unavailable", "CHAT_MEMORY_ERROR"));
   }
 
@@ -98,7 +101,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(NoResourceFoundException.class)
   public ResponseEntity<ErrorResponse> handleNoResourceFound(NoResourceFoundException e) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ErrorResponse.of("No endpoint at " + e.getResourcePath(), "NOT_FOUND"));
+        .body(ErrorResponse.createResponse("No endpoint at " + e.getResourcePath(), "NOT_FOUND"));
   }
 
   /** Returns 405 with the allowed methods. */
@@ -111,7 +114,8 @@ public class GlobalExceptionHandler {
       builder.allow(supported.toArray(HttpMethod[]::new));
     }
     return builder.body(
-        ErrorResponse.of("Method " + e.getMethod() + " is not supported", "METHOD_NOT_ALLOWED"));
+        ErrorResponse.createResponse(
+            "Method " + e.getMethod() + " is not supported", "METHOD_NOT_ALLOWED"));
   }
 
   /** Returns 415 for an unsupported content type. */
@@ -120,7 +124,7 @@ public class GlobalExceptionHandler {
       HttpMediaTypeNotSupportedException e) {
     return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
         .body(
-            ErrorResponse.of(
+            ErrorResponse.createResponse(
                 "Content type " + e.getContentType() + " is not supported",
                 "UNSUPPORTED_MEDIA_TYPE"));
   }
@@ -129,7 +133,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ErrorResponse> handleMessageNotReadable(HttpMessageNotReadableException e) {
     return ResponseEntity.badRequest()
-        .body(ErrorResponse.of("Request body is missing or malformed", "BAD_REQUEST"));
+        .body(ErrorResponse.createResponse("Request body is missing or malformed", "BAD_REQUEST"));
   }
 
   /** Returns 400 when a required parameter is missing. */
@@ -138,7 +142,7 @@ public class GlobalExceptionHandler {
       MissingServletRequestParameterException e) {
     return ResponseEntity.badRequest()
         .body(
-            ErrorResponse.of(
+            ErrorResponse.createResponse(
                 "Required parameter '" + e.getParameterName() + "' is missing", "BAD_REQUEST"));
   }
 
@@ -148,7 +152,7 @@ public class GlobalExceptionHandler {
       MethodArgumentTypeMismatchException e) {
     return ResponseEntity.badRequest()
         .body(
-            ErrorResponse.of(
+            ErrorResponse.createResponse(
                 "Parameter '" + e.getName() + "' has an invalid value", "BAD_REQUEST"));
   }
 
@@ -156,7 +160,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleGenericException(Exception e) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body(ErrorResponse.of("An unexpected error occurred", "INTERNAL_ERROR"));
+        .body(ErrorResponse.createResponse("An unexpected error occurred", "INTERNAL_ERROR"));
   }
 
   /** Maps each kind of domain error to its HTTP status. */

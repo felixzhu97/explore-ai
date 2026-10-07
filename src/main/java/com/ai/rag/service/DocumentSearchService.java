@@ -27,7 +27,7 @@ public class DocumentSearchService {
    * Embeds the query and returns the owner's chunks above the score threshold as context and
    * sources.
    */
-  public RetrievalResult retrieve(
+  public RetrievalResult retrieveDocuments(
       String query, List<DocumentId> documentIds, int topK, String ownerKey) {
     float[] queryEmbedding = embeddingRepository.embedText(query);
     int effectiveTopK = topK > 0 ? topK : retrievalSettings.getTopK();

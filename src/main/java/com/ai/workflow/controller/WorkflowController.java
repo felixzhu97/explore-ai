@@ -44,8 +44,9 @@ public class WorkflowController {
 
   /** Runs the routing workflow. */
   @PostMapping("/route")
-  public ResponseEntity<RoutingResult> route(@Valid @RequestBody RoutingWorkflowRequest request) {
-    return ResponseEntity.ok(workflowService.route(request.input(), request.routes()));
+  public ResponseEntity<RoutingResult> routeTask(
+      @Valid @RequestBody RoutingWorkflowRequest request) {
+    return ResponseEntity.ok(workflowService.routeTask(request.input(), request.routes()));
   }
 
   /** Runs the orchestrator-workers workflow. */

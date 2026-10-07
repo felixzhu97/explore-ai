@@ -95,7 +95,7 @@ class RagChatContractRegressionTest {
     when(callResponseSpec.chatClientResponse())
         .thenReturn(clientResponse("answer", List.of(new Document("ctx", Map.of("score", 0.8)))));
 
-    ragChatService.chat("What is AI?", null, 10, null, OWNER);
+    ragChatService.chatWithDocuments("What is AI?", null, 10, null, OWNER);
 
     assertThat(extractTopK(captureRetrievalAdvisor().orElseThrow())).isEqualTo(10);
   }

@@ -7,7 +7,7 @@ public record McpInventoryResponse(
     ModuleStatus status, long registeredTools, long connectedServers) {
 
   /** Maps MCP health to a response. */
-  public static McpInventoryResponse from(McpHealth health) {
+  public static McpInventoryResponse createResponse(McpHealth health) {
     return new McpInventoryResponse(
         health.getStatus(), health.getRegisteredTools(), health.getConnectedServers());
   }

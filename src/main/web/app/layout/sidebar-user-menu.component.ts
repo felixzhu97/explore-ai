@@ -304,7 +304,7 @@ export class SidebarUserMenuComponent {
   onItemClick(): void {
     this.#closeSubmenus();
     this.isMenuOpen.set(false);
-    this.#sidebar.close();
+    this.#sidebar.closeSidebar();
   }
 
   /** Pins or unpins the language submenu. */

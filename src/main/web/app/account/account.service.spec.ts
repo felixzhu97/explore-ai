@@ -44,7 +44,7 @@ describe('AccountService', () => {
   });
 
   it('should load anonymous account when me succeeds', () => {
-    service.load();
+    service.loadAccount();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'anonymous',
       clientId: 'c1',
@@ -77,7 +77,7 @@ describe('AccountService', () => {
   });
 
   it('should reset chat owner scope when logout succeeds', () => {
-    service.logout();
+    service.logoutAccount();
     http.expectOne(`${API_BASE_URL}/account/logout`).flush(null, { status: 204, statusText: 'No Content' });
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'anonymous',

@@ -220,8 +220,8 @@ export class AutomationsPageComponent implements OnInit {
     this.isSaving.set(true);
     const editingId = this.editingId();
     const request$ = hasText(editingId)
-      ? this.#automationsApi.update(editingId, request)
-      : this.#automationsApi.create(request);
+      ? this.#automationsApi.updateAutomation(editingId, request)
+      : this.#automationsApi.createAutomation(request);
     request$.subscribe({
       next: () => {
         this.isSaving.set(false);
@@ -349,7 +349,7 @@ export class AutomationsPageComponent implements OnInit {
     if (!confirm(this.i18n.t().automations.deleteConfirm)) {
       return;
     }
-    this.#automationsApi.delete(schedule.id).subscribe({
+    this.#automationsApi.deleteAutomation(schedule.id).subscribe({
       next: () => this.reload(),
       error: () => {
         this.#notifications.showError(this.i18n.t().automations.errors.deleteFailed);
@@ -365,7 +365,7 @@ export class AutomationsPageComponent implements OnInit {
       next: templates => this.templates.set(templates),
       error: () => this.templates.set([]),
     });
-    this.#automationsApi.list().subscribe({
+    this.#automationsApi.listAutomations().subscribe({
       next: (schedules) => {
         this.schedules.set(schedules);
         this.isLoading.set(false);

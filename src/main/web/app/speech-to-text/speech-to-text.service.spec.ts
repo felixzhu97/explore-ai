@@ -56,7 +56,7 @@ describe('SpeechToTextService', () => {
   it('should connect to transcription websocket when connect called', () => {
     const service = new SpeechToTextService();
 
-    service.connect();
+    service.connectStream();
 
     const socket = latestSocket();
     expect(socket.url).toBe('ws://localhost:9000/ws/audio/transcribe');
@@ -138,7 +138,7 @@ describe('SpeechToTextService', () => {
 
 function connectService(): SpeechToTextService {
   const service = new SpeechToTextService();
-  service.connect();
+  service.connectStream();
   latestSocket().open();
   return service;
 }

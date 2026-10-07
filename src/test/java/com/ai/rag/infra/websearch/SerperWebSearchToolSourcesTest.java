@@ -21,7 +21,7 @@ class SerperWebSearchToolSourcesTest {
 
   @AfterEach
   void tearDown() {
-    ToolEventChannel.close(CHANNEL);
+    ToolEventChannel.closeChannel(CHANNEL);
     ToolEventChannel.clearCurrentSessionId();
   }
 
@@ -47,7 +47,7 @@ class SerperWebSearchToolSourcesTest {
                         """,
                 MediaType.APPLICATION_JSON));
 
-    var sink = ToolEventChannel.open(CHANNEL);
+    var sink = ToolEventChannel.openChannel(CHANNEL);
     List<String> events = new ArrayList<>();
     sink.asFlux().subscribe(events::add);
 
@@ -63,6 +63,6 @@ class SerperWebSearchToolSourcesTest {
                     .contains("weather beijing")
                     .contains("https://example.com"));
     server.verify();
-    ToolEventChannel.close(CHANNEL);
+    ToolEventChannel.closeChannel(CHANNEL);
   }
 }

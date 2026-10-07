@@ -13,18 +13,18 @@ public enum MetricsCapability {
   WORKFLOW;
 
   @JsonValue
-  public String value() {
+  public String getValue() {
     return aiCapability().getValue();
   }
 
   /** Maps a capability to its API value. */
-  public static MetricsCapability from(AiCapability capability) {
+  public static MetricsCapability createResponse(AiCapability capability) {
     return valueOf(capability.name());
   }
 
   /** Maps a capability value such as {@code chat}; rejects unknown capabilities. */
   public static MetricsCapability fromValue(String raw) {
-    return from(AiCapability.parseCapability(raw));
+    return createResponse(AiCapability.parseCapability(raw));
   }
 
   private AiCapability aiCapability() {

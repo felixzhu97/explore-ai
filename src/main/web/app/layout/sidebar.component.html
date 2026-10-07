@@ -55,7 +55,7 @@
           md:hidden
         "
         [attr.aria-label]="i18n.t().sidebar.closeMenu"
-        (click)="sidebar.close()"
+        (click)="sidebar.closeSidebar()"
       >
         ✕
       </button>
@@ -293,6 +293,6 @@
   [class.opacity-100]="sidebar.isMobileOpen()"
   [class.pointer-events-auto]="sidebar.isMobileOpen()"
   [attr.aria-label]="i18n.t().sidebar.closeOverlay"
-  (click)="sidebar.close()"
-  (keydown.escape)="sidebar.close()"
+  (click)="sidebar.closeSidebar()"
+  (keydown.escape)="sidebar.closeSidebar()"
 ></div>

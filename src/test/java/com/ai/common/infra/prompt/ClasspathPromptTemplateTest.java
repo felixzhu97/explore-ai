@@ -13,7 +13,8 @@ class ClasspathPromptTemplateTest {
   @Test
   @DisplayName("should render placeholder when single variable")
   void shouldRenderPlaceholderWhenSingleVariable() {
-    String rendered = ClasspathPromptTemplate.render("Hello {name}", Map.of("name", "world"));
+    String rendered =
+        ClasspathPromptTemplate.renderTemplate("Hello {name}", Map.of("name", "world"));
 
     assertThat(rendered).isEqualTo("Hello world");
   }
@@ -40,10 +41,11 @@ class ClasspathPromptTemplateTest {
   @Test
   @DisplayName("should load static fragment without rendering when json braces present")
   void shouldLoadStaticFragmentWithoutRenderingWhenJsonBracesPresent() {
-    String fragment = ClasspathPromptTemplate.load("chat/a2ui-chart.st");
+    String fragment = ClasspathPromptTemplate.loadTemplate("chat/a2ui-chart.st");
 
     assertThat(fragment).contains("\"version\": \"v0.9\"");
-    assertThatCode(() -> ClasspathPromptTemplate.render("Task: {text}", Map.of("text", "sample")))
+    assertThatCode(
+            () -> ClasspathPromptTemplate.renderTemplate("Task: {text}", Map.of("text", "sample")))
         .doesNotThrowAnyException();
   }
 }

@@ -67,7 +67,7 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
         OrtSession.SessionOptions options = new OrtSession.SessionOptions();
         loadedVision = loadedEnvironment.createSession(visionPath.toString(), options);
         loadedDecoder = loadedEnvironment.createSession(decoderPath.toString(), options);
-        loadedVocabulary = BlipVocabulary.load(tokenizerPath);
+        loadedVocabulary = BlipVocabulary.loadVocabulary(tokenizerPath);
         modelAvailable = true;
       } catch (IOException | OrtException ex) {
         closeQuietly(loadedVision);
@@ -89,16 +89,16 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
   public CaptionResult captionImage(BufferedImage image) {
     ensureAvailable();
     try {
-      float[] pixelValues = BlipImagePreprocessor.preprocess(image);
+      float[] pixelValues = BlipImagePreprocessor.preprocessImage(image);
       EncoderOutput encoderOutput = runVisionEncoder(pixelValues);
       List<Long> tokenIds = generateCaption(encoderOutput);
-      String caption = vocabulary.decode(tokenIds);
+      String caption = vocabulary.decodeTokens(tokenIds);
       if (caption.isBlank()) {
         caption = "Unable to generate caption";
       }
       return new CaptionResult(caption);
     } catch (OrtException ex) {
-      throw DomainException.unavailable(
+      throw DomainException.createUnavailableError(
           "VISION_PROVIDER_UNAVAILABLE", "Caption generation failed: " + ex.getMessage());
     }
   }
@@ -210,7 +210,7 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
 
   private void ensureAvailable() {
     if (!available) {
-      throw DomainException.unavailable(
+      throw DomainException.createUnavailableError(
           "VISION_PROVIDER_UNAVAILABLE",
           "BLIP captioner is not available. Provide ONNX models and tokenizer at "
               + properties.getCaption().getVisionOnnx());

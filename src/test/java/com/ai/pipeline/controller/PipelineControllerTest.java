@@ -55,7 +55,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
   void shouldReturn404WhenHealthUnknown() {
     when(pipelineService.getHealth(eq("missing"), eq(ownerKey()), anyString()))
         .thenThrow(
-            DomainException.notFound(
+            DomainException.createNotFoundError(
                 "AGENT_NOT_FOUND",
                 "Unknown agent type: " + AgentType.createType("missing").getValue()));
 
@@ -85,7 +85,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
   void shouldReturn404WhenGetAgentUnknown() {
     when(pipelineService.getHealth(eq("missing"), eq(ownerKey()), anyString()))
         .thenThrow(
-            DomainException.notFound(
+            DomainException.createNotFoundError(
                 "AGENT_NOT_FOUND",
                 "Unknown agent type: " + AgentType.createType("missing").getValue()));
 

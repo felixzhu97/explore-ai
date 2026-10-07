@@ -34,7 +34,7 @@ public class ChatController {
   /** Reports that the chat API is up. */
   @GetMapping("/health")
   public ResponseEntity<HealthResponse> getHealth() {
-    return ResponseEntity.ok(HealthResponse.up());
+    return ResponseEntity.ok(HealthResponse.createUpResponse());
   }
 
   /** Lists the owner's chat sessions. */
@@ -42,7 +42,7 @@ public class ChatController {
   public ResponseEntity<List<SessionResponse>> getAllSessions(HttpServletRequest httpRequest) {
     List<SessionResponse> sessions =
         chatService.listSessions(ownerContext.requireValue(httpRequest)).stream()
-            .map(SessionResponse::from)
+            .map(SessionResponse::createResponse)
             .toList();
     return ResponseEntity.ok(sessions);
   }
@@ -53,7 +53,7 @@ public class ChatController {
       @PathVariable String sessionId, HttpServletRequest httpRequest) {
     return chatService
         .getSession(sessionId, ownerContext.requireValue(httpRequest))
-        .map(session -> ResponseEntity.ok(SessionResponse.from(session)))
+        .map(session -> ResponseEntity.ok(SessionResponse.createResponse(session)))
         .orElse(ResponseEntity.notFound().build());
   }
 
@@ -68,26 +68,28 @@ public class ChatController {
         history.messages().stream()
             .map(
                 message ->
-                    MessageInfoResponse.from(
+                    MessageInfoResponse.createResponse(
                         message,
-                        history.sourcesFor(message).stream().map(WebSourceResponse::from).toList()))
+                        history.findSources(message).stream()
+                            .map(WebSourceResponse::createResponse)
+                            .toList()))
             .toList();
     return ResponseEntity.ok(messages);
   }
 
   /** Sends a chat message and returns the reply. */
   @PostMapping
-  public ResponseEntity<ChatResponse> chat(
+  public ResponseEntity<ChatResponse> sendMessage(
       @Valid @RequestBody ChatRequest request, HttpServletRequest httpRequest) {
     String ownerKey = ownerContext.requireValue(httpRequest);
     String response;
     if (request.sessionId() != null && !request.sessionId().isBlank()) {
-      response = chatService.chatWithSession(request.sessionId(), request.message(), ownerKey);
+      response = chatService.sendMessage(request.sessionId(), request.message(), ownerKey);
     } else {
-      response = chatService.chatWithSession(request.message(), ownerKey);
+      response = chatService.sendMessage(request.message(), ownerKey);
     }
 
-    return ResponseEntity.ok(ChatResponse.of(response));
+    return ResponseEntity.ok(ChatResponse.createResponse(response));
   }
 
   /** Creates a chat session. */
@@ -97,7 +99,7 @@ public class ChatController {
       HttpServletRequest httpRequest) {
     String title = body == null ? null : body.title();
     var session = chatService.createSession(title, ownerContext.requireValue(httpRequest));
-    return ResponseEntity.ok(SessionResponse.from(session));
+    return ResponseEntity.ok(SessionResponse.createResponse(session));
   }
 
   /** Deletes a chat session. */

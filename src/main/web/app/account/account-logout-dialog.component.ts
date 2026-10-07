@@ -90,7 +90,7 @@ export class AccountLogoutDialogComponent {
   /** Closes the dialog and signs out. */
   confirmLogout(): void {
     this.#dialogRef.close();
-    this.#account.logout();
+    this.#account.logoutAccount();
   }
 
   /** Closes the dialog without signing out. */

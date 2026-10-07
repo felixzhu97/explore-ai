@@ -11,10 +11,10 @@ public class WeatherForecast {
 
   public WeatherForecast(WeatherQuery query, int days) {
     if (query == null) {
-      throw DomainException.invalid("INVALID_WEATHER_QUERY", "Query must not be null");
+      throw DomainException.createInvalidError("INVALID_WEATHER_QUERY", "Query must not be null");
     }
     if (days < 1 || days > 7) {
-      throw DomainException.invalid(
+      throw DomainException.createInvalidError(
           "INVALID_WEATHER_QUERY", "Forecast days must be between 1 and 7");
     }
     this.query = query;

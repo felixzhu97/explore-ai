@@ -40,7 +40,7 @@ public class PipelineTemplateController {
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
     String language = resolveLanguage(lang, request);
     return pipelineTemplateService.listTemplates(language).stream()
-        .map(BuiltinPipelineTemplateResponse::from)
+        .map(BuiltinPipelineTemplateResponse::createResponse)
         .toList();
   }
 
@@ -49,7 +49,7 @@ public class PipelineTemplateController {
   public List<PipelineTemplateResponse> listLibrary(HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return pipelineTemplateService.listLibrary(ownerKey).stream()
-        .map(PipelineTemplateResponse::from)
+        .map(PipelineTemplateResponse::createResponse)
         .toList();
   }
 
@@ -63,19 +63,19 @@ public class PipelineTemplateController {
     String language = resolveLanguage(lang, request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
-            PipelineTemplateResponse.from(
+            PipelineTemplateResponse.createResponse(
                 pipelineTemplateService.createFromTemplate(ownerKey, body.templateId(), language)));
   }
 
   /** Saves a new pipeline. */
   @PostMapping("/templates")
-  public ResponseEntity<PipelineTemplateResponse> create(
+  public ResponseEntity<PipelineTemplateResponse> createTemplate(
       @Valid @RequestBody CreatePipelineTemplateRequest body, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
-            PipelineTemplateResponse.from(
-                pipelineTemplateService.create(
+            PipelineTemplateResponse.createResponse(
+                pipelineTemplateService.createTemplate(
                     ownerKey,
                     body.name(),
                     body.description(),
@@ -87,13 +87,13 @@ public class PipelineTemplateController {
 
   /** Updates a saved pipeline. */
   @PutMapping("/templates/{id}")
-  public PipelineTemplateResponse update(
+  public PipelineTemplateResponse updateTemplate(
       @PathVariable String id,
       @Valid @RequestBody UpdatePipelineTemplateRequest body,
       HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    return PipelineTemplateResponse.from(
-        pipelineTemplateService.update(
+    return PipelineTemplateResponse.createResponse(
+        pipelineTemplateService.updateTemplate(
             ownerKey,
             id,
             body.name(),
@@ -110,15 +110,15 @@ public class PipelineTemplateController {
       @Valid @RequestBody SetPipelineTemplateEnabledRequest body,
       HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    return PipelineTemplateResponse.from(
+    return PipelineTemplateResponse.createResponse(
         pipelineTemplateService.setEnabled(ownerKey, id, body.enabled()));
   }
 
   /** Deletes a saved pipeline. */
   @DeleteMapping("/templates/{id}")
-  public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
+  public ResponseEntity<Void> deleteTemplate(@PathVariable String id, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    pipelineTemplateService.delete(ownerKey, id);
+    pipelineTemplateService.deleteTemplate(ownerKey, id);
     return ResponseEntity.noContent().build();
   }
 

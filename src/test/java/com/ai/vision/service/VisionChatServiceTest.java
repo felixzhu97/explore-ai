@@ -66,7 +66,7 @@ class VisionChatServiceTest {
                 "context chunk",
                 List.of(new SourceCitation("source text", 0.9, Map.of())),
                 "question"));
-    when(localizedRagPromptBuilder.build(anyString(), anyString())).thenReturn("prompt");
+    when(localizedRagPromptBuilder.buildPrompt(anyString(), anyString())).thenReturn("prompt");
     when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
     when(chatClient.prompt()).thenReturn(requestSpec);
     when(requestSpec.user(any(Consumer.class))).thenReturn(requestSpec);
@@ -91,7 +91,7 @@ class VisionChatServiceTest {
   void shouldEmitErrorEventWhenStreamFails() {
     when(ragApplicationService.retrieveContext(anyString(), any(), any(Integer.class), eq(OWNER)))
         .thenReturn(new RagApplicationService.RetrievalResult("context", List.of(), "question"));
-    when(localizedRagPromptBuilder.build(anyString(), anyString())).thenReturn("prompt");
+    when(localizedRagPromptBuilder.buildPrompt(anyString(), anyString())).thenReturn("prompt");
     when(chatClientProvider.createStateless(any(TextChatOptions.class))).thenReturn(chatClient);
     when(chatClient.prompt()).thenReturn(requestSpec);
     when(requestSpec.user(any(Consumer.class))).thenReturn(requestSpec);

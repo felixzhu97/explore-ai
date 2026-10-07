@@ -14,7 +14,7 @@ public record SkillResponse(
     Instant createdAt,
     Instant updatedAt) {
   /** Maps a {@code Skill} aggregate to its API response. */
-  public static SkillResponse from(Skill skill) {
+  public static SkillResponse createResponse(Skill skill) {
     return new SkillResponse(
         skill.getId().toString(),
         skill.getName(),

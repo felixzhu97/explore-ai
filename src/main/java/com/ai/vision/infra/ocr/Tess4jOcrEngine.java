@@ -38,7 +38,7 @@ public class Tess4jOcrEngine implements OcrEngine {
       String text = tesseract.doOCR(image);
       return new OcrResult(text == null ? "" : text.trim());
     } catch (TesseractException ex) {
-      throw DomainException.failed("OCR_FAILED", "OCR extraction failed", ex);
+      throw DomainException.createFailedError("OCR_FAILED", "OCR extraction failed", ex);
     }
   }
 
@@ -49,7 +49,7 @@ public class Tess4jOcrEngine implements OcrEngine {
 
   private void ensureAvailable() {
     if (!available) {
-      throw DomainException.unavailable(
+      throw DomainException.createUnavailableError(
           "VISION_PROVIDER_UNAVAILABLE",
           "Tesseract OCR is not available. Install tesseract and provide tessdata at "
               + properties.getOcr().getTessdataPath());

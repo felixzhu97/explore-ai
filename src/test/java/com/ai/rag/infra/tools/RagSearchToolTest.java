@@ -45,13 +45,13 @@ class RagSearchToolTest {
   @BeforeEach
   void setUp() {
     ragSearchTool = new RagSearchTool(ragApplicationService, ownerContext);
-    ToolEventChannel.open(CHANNEL);
+    ToolEventChannel.openChannel(CHANNEL);
     ToolEventChannel.bindOwnerKey(CHANNEL, OWNER_KEY);
   }
 
   @AfterEach
   void closeChannel() {
-    ToolEventChannel.close(CHANNEL);
+    ToolEventChannel.closeChannel(CHANNEL);
   }
 
   @Nested
@@ -144,7 +144,7 @@ class RagSearchToolTest {
     @Test
     @DisplayName("should refuse to search documents when owner is unknown")
     void shouldRefuseToSearchDocumentsWhenOwnerIsUnknown() {
-      ToolEventChannel.close(CHANNEL);
+      ToolEventChannel.closeChannel(CHANNEL);
 
       String result = ragSearchTool.searchDocuments("test", null);
 
@@ -177,7 +177,7 @@ class RagSearchToolTest {
     @Test
     @DisplayName("should refuse to list documents when owner is unknown")
     void shouldRefuseToListDocumentsWhenOwnerIsUnknown() {
-      ToolEventChannel.close(CHANNEL);
+      ToolEventChannel.closeChannel(CHANNEL);
 
       String result = ragSearchTool.listDocuments();
 

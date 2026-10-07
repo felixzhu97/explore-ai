@@ -30,7 +30,7 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 class ToolCallLoopGuardAdvisorTest {
 
   private static final ToolCallLoopGuardAdvisor ADVISOR =
-      ToolCallLoopGuardAdvisor.builder().build();
+      ToolCallLoopGuardAdvisor.createBuilder().build();
 
   @Test
   void shouldDisableToolsWhenSearchWebAlreadyRan() {

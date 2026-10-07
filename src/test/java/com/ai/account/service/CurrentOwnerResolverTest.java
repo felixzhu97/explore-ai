@@ -44,7 +44,7 @@ class CurrentOwnerResolverTest {
     when(accountRepository.findByLinkedClientId(ClientId.parseId(CLIENT_ID)))
         .thenReturn(Optional.empty());
 
-    OwnerKey key = resolver.resolve(CLIENT_ID, null);
+    OwnerKey key = resolver.resolveOwner(CLIENT_ID, null);
 
     assertThat(key).isEqualTo(OwnerKey.createClientKey(CLIENT_ID));
   }
@@ -57,7 +57,7 @@ class CurrentOwnerResolverTest {
         .thenReturn(Optional.of(account));
 
     OwnerKey key =
-        resolver.resolve(
+        resolver.resolveOwner(
             CLIENT_ID,
             new AnonymousAuthenticationToken(
                 "key", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
@@ -68,7 +68,7 @@ class CurrentOwnerResolverTest {
   @Test
   @DisplayName("should stay a guest without a lookup when the client id is not a UUID")
   void shouldStayAGuestWithoutALookupWhenTheClientIdIsNotAUuid() {
-    OwnerKey key = resolver.resolve("cid-legacy", null);
+    OwnerKey key = resolver.resolveOwner("cid-legacy", null);
 
     assertThat(key).isEqualTo(OwnerKey.createClientKey("cid-legacy"));
     verifyNoInteractions(accountRepository);
@@ -88,7 +88,7 @@ class CurrentOwnerResolverTest {
         new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), idToken);
     OAuth2AuthenticationToken auth = new OAuth2AuthenticationToken(oidcUser, List.of(), "google");
 
-    OwnerKey key = resolver.resolve(CLIENT_ID, auth);
+    OwnerKey key = resolver.resolveOwner(CLIENT_ID, auth);
 
     assertThat(key).isEqualTo(account.createOwnerKey());
   }
@@ -101,7 +101,7 @@ class CurrentOwnerResolverTest {
     when(iamAccountService.signIn(jwt)).thenReturn(account);
 
     OwnerKey key =
-        resolver.resolve(
+        resolver.resolveOwner(
             CLIENT_ID,
             new JwtAuthenticationToken(jwt, AuthorityUtils.createAuthorityList("ROLE_USER")));
 

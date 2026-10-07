@@ -56,7 +56,7 @@ public class ToolService {
     long startedAt = System.nanoTime();
     try {
       ChatClient chatClient =
-          chatClientProvider.createStateless(TextChatOptions.of("openai", null, true));
+          chatClientProvider.createStateless(TextChatOptions.createOptions("openai", null, true));
       String content = chatClient.prompt().user(question).call().content();
       invocationRecorder.recordSuccess(
           AiCapability.TOOLS,

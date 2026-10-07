@@ -34,7 +34,7 @@ class EvalControllerTest {
   @Test
   @DisplayName("should accept evaluation request and return scores")
   void shouldAcceptEvaluationRequest() {
-    when(evaluator.evaluate(anyString(), anyString(), any()))
+    when(evaluator.evaluateChat(anyString(), anyString(), any()))
         .thenReturn(
             ChatEvaluationResult.builder()
                 .coherenceScore(0.9)
@@ -88,7 +88,7 @@ class EvalControllerTest {
   @Test
   @DisplayName("should detect low-quality responses")
   void shouldDetectLowQualityResponses() {
-    when(evaluator.evaluate(anyString(), anyString(), any()))
+    when(evaluator.evaluateChat(anyString(), anyString(), any()))
         .thenReturn(
             ChatEvaluationResult.builder()
                 .coherenceScore(0.6)
@@ -139,7 +139,7 @@ class EvalControllerTest {
   @Test
   @DisplayName("should report safety issues when detected")
   void shouldReportSafetyIssues() {
-    when(evaluator.evaluate(anyString(), anyString(), any()))
+    when(evaluator.evaluateChat(anyString(), anyString(), any()))
         .thenReturn(
             ChatEvaluationResult.builder()
                 .coherenceScore(0.5)

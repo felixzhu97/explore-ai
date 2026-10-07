@@ -36,9 +36,9 @@ public class SkillController {
 
   /** Lists the owner's skills. */
   @GetMapping
-  public List<SkillResponse> list(HttpServletRequest request) {
+  public List<SkillResponse> listSkills(HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    return skillService.list(ownerKey).stream().map(SkillResponse::from).toList();
+    return skillService.listSkills(ownerKey).stream().map(SkillResponse::createResponse).toList();
   }
 
   /** Lists the built-in skill templates. */
@@ -46,25 +46,27 @@ public class SkillController {
   public List<SkillTemplateResponse> listTemplates(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
     String language = resolveLanguage(lang, request);
-    return skillService.listTemplates(language).stream().map(SkillTemplateResponse::from).toList();
+    return skillService.listTemplates(language).stream()
+        .map(SkillTemplateResponse::createResponse)
+        .toList();
   }
 
   /** Returns one skill. */
   @GetMapping("/{id}")
-  public SkillResponse get(@PathVariable String id, HttpServletRequest request) {
+  public SkillResponse getSkill(@PathVariable String id, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    return SkillResponse.from(skillService.get(ownerKey, id));
+    return SkillResponse.createResponse(skillService.getSkill(ownerKey, id));
   }
 
   /** Creates a skill. */
   @PostMapping
-  public ResponseEntity<SkillResponse> create(
+  public ResponseEntity<SkillResponse> createSkill(
       @Valid @RequestBody CreateSkillRequest body, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
-            SkillResponse.from(
-                skillService.create(
+            SkillResponse.createResponse(
+                skillService.createSkill(
                     ownerKey,
                     body.name(),
                     body.description(),
@@ -82,19 +84,19 @@ public class SkillController {
     String language = resolveLanguage(lang, request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
-            SkillResponse.from(
+            SkillResponse.createResponse(
                 skillService.createFromTemplate(ownerKey, body.templateId(), language)));
   }
 
   /** Updates a skill. */
   @PutMapping("/{id}")
-  public SkillResponse update(
+  public SkillResponse updateSkill(
       @PathVariable String id,
       @Valid @RequestBody UpdateSkillRequest body,
       HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    return SkillResponse.from(
-        skillService.update(
+    return SkillResponse.createResponse(
+        skillService.updateSkill(
             ownerKey,
             id,
             body.name(),
@@ -110,14 +112,14 @@ public class SkillController {
       @Valid @RequestBody SetSkillEnabledRequest body,
       HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    return SkillResponse.from(skillService.setEnabled(ownerKey, id, body.enabled()));
+    return SkillResponse.createResponse(skillService.setEnabled(ownerKey, id, body.enabled()));
   }
 
   /** Deletes a skill. */
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
+  public ResponseEntity<Void> deleteSkill(@PathVariable String id, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    skillService.delete(ownerKey, id);
+    skillService.deleteSkill(ownerKey, id);
     return ResponseEntity.noContent().build();
   }
 

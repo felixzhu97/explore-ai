@@ -11,10 +11,10 @@ import { VisionService } from './vision.service';
 describe('VisionService', () => {
   let service: VisionService;
   let httpMock: HttpTestingController;
-  let imageZoom: { open: ReturnType<typeof vi.fn> };
+  let imageZoom: { openZoom: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    imageZoom = { open: vi.fn() };
+    imageZoom = { openZoom: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -86,7 +86,7 @@ describe('VisionService', () => {
     service.processFile(file);
     await vi.waitFor(() => expect(service.currentState().file).toBe(file));
 
-    service.analyze();
+    service.analyzeImage();
 
     const request = httpMock.expectOne('/api/vision/caption');
     expect(request.request.method).toBe('POST');
@@ -104,7 +104,7 @@ describe('VisionService', () => {
     service.processFile(file);
     await vi.waitFor(() => expect(service.currentState().file).toBe(file));
 
-    service.analyze();
+    service.analyzeImage();
 
     httpMock.expectOne('/api/vision/caption').flush(
       { message: 'Vision provider unavailable', errorCode: 'VISION_PROVIDER_UNAVAILABLE', timestamp: '2026-01-01T00:00:00Z' },
@@ -119,6 +119,6 @@ describe('VisionService', () => {
 
   it('should open zoom dialog via image zoom service', () => {
     service.openZoom('data:image/png;base64,abc');
-    expect(imageZoom.open).toHaveBeenCalledWith('data:image/png;base64,abc', expect.any(String));
+    expect(imageZoom.openZoom).toHaveBeenCalledWith('data:image/png;base64,abc', expect.any(String));
   });
 });

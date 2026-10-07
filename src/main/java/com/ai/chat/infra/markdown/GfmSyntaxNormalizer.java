@@ -20,7 +20,7 @@ public class GfmSyntaxNormalizer {
   private static final Pattern CODE_BLOCK = Pattern.compile("(?s)```.*?```|~~~.*?~~~");
 
   /** Fixes list, heading, and rule spacing in Markdown while leaving code blocks untouched. */
-  public String normalize(String content) {
+  public String normalizeMarkdown(String content) {
     if (content == null || content.isBlank()) {
       return content;
     }

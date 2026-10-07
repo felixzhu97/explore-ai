@@ -13,7 +13,7 @@
     [isGenerating]="imageGen.isGenerating()"
     (promptChange)="imageGen.setPrompt($event)"
     (sizeSelected)="imageGen.setSize($event)"
-    (generateRequested)="imageGen.generate()"
+    (generateRequested)="imageGen.generateImage()"
   />
 
   <div class="flex min-h-0 flex-col gap-3">
@@ -28,7 +28,7 @@
     >
       @if (imageGen.hasGeneratedImage()) {
         <div previewActions class="flex justify-center border-t border-black/8 pt-3">
-          <button type="button" z-button zType="outline" (click)="imageGen.download()">
+          <button type="button" z-button zType="outline" (click)="imageGen.downloadImage()">
             {{ i18n.t().generate.image.download }}
           </button>
         </div>

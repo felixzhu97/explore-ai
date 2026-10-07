@@ -98,7 +98,7 @@ public class ChatClientFactory implements ChatClientProvider {
       boolean withDefaults,
       boolean withTools,
       String channelId) {
-    final ResolvedChatModel resolved = chatModelResolver.resolve(options);
+    final ResolvedChatModel resolved = chatModelResolver.resolveModel(options);
     List<Advisor> advisors = new ArrayList<>();
     if (withMemory) {
       advisors.add(MessageChatMemoryAdvisor.builder(chatMemory).build());
@@ -143,7 +143,7 @@ public class ChatClientFactory implements ChatClientProvider {
           .toolIndex(toolSearchIndex)
           .build();
     }
-    return ToolCallLoopGuardAdvisor.builder().toolCallingManager(manager).build();
+    return ToolCallLoopGuardAdvisor.createBuilder().toolCallingManager(manager).build();
   }
 
   /** Tells whether tool search is on. */

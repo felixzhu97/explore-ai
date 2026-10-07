@@ -60,7 +60,8 @@ class DocumentSearchServiceTest {
                 scored("AI stands for Artificial Intelligence", 0.9),
                 scored("Machine learning is a subset of AI", 0.8)));
 
-    DocumentSearchService.RetrievalResult result = service.retrieve("What is AI?", null, 5, OWNER);
+    DocumentSearchService.RetrievalResult result =
+        service.retrieveDocuments("What is AI?", null, 5, OWNER);
 
     assertThat(result.context())
         .contains("AI stands for Artificial Intelligence")
@@ -76,7 +77,7 @@ class DocumentSearchServiceTest {
         .thenReturn(List.of(scored("filtered content", 0.7)));
 
     DocumentSearchService.RetrievalResult result =
-        service.retrieve("test query", List.of(docId), 5, OWNER);
+        service.retrieveDocuments("test query", List.of(docId), 5, OWNER);
 
     assertThat(result.sources()).hasSize(1);
   }
@@ -84,7 +85,7 @@ class DocumentSearchServiceTest {
   @Test
   @DisplayName("should use the default topK when none is given")
   void shouldUseTheDefaultTopKWhenNoneIsGiven() {
-    service.retrieve("test", List.of(), 0, OWNER);
+    service.retrieveDocuments("test", List.of(), 0, OWNER);
 
     verify(chunkSearchRepository).searchChunks(QUERY_EMBEDDING, 5, OWNER, List.of());
   }
@@ -92,7 +93,7 @@ class DocumentSearchServiceTest {
   @Test
   @DisplayName("should use the given topK when it is positive")
   void shouldUseTheGivenTopKWhenItIsPositive() {
-    service.retrieve("test", null, 10, OWNER);
+    service.retrieveDocuments("test", null, 10, OWNER);
 
     verify(chunkSearchRepository).searchChunks(QUERY_EMBEDDING, 10, OWNER, List.of());
   }
@@ -103,7 +104,8 @@ class DocumentSearchServiceTest {
     when(chunkSearchRepository.searchChunks(any(), anyInt(), any(), any()))
         .thenReturn(List.of(scored("low", 0.2), scored("high", 0.9), scored("medium", 0.5)));
 
-    DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
+    DocumentSearchService.RetrievalResult result =
+        service.retrieveDocuments("test", null, 5, OWNER);
 
     assertThat(result.sources())
         .extracting(SourceCitation::getScore)
@@ -118,7 +120,8 @@ class DocumentSearchServiceTest {
     when(chunkSearchRepository.searchChunks(any(), anyInt(), any(), any()))
         .thenReturn(List.of(scored("kept", 0.5), scored("dropped", 0.49)));
 
-    DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
+    DocumentSearchService.RetrievalResult result =
+        service.retrieveDocuments("test", null, 5, OWNER);
 
     assertThat(result.sources()).extracting(SourceCitation::getContent).containsExactly("kept");
     assertThat(result.context()).isEqualTo("kept");
@@ -131,7 +134,7 @@ class DocumentSearchServiceTest {
         .thenReturn(List.of());
 
     DocumentSearchService.RetrievalResult result =
-        service.retrieve("nonexistent topic", null, 5, OWNER);
+        service.retrieveDocuments("nonexistent topic", null, 5, OWNER);
 
     assertThat(result.context()).isEmpty();
     assertThat(result.sources()).isEmpty();
@@ -144,7 +147,8 @@ class DocumentSearchServiceTest {
     when(chunkSearchRepository.searchChunks(QUERY_EMBEDDING, 5, OWNER, List.of()))
         .thenReturn(List.of(scored(longContent, 0.8)));
 
-    DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
+    DocumentSearchService.RetrievalResult result =
+        service.retrieveDocuments("test", null, 5, OWNER);
 
     assertThat(result.sources().get(0).getContent()).hasSize(503).endsWith("...");
     assertThat(result.context()).isEqualTo(longContent);
@@ -157,7 +161,8 @@ class DocumentSearchServiceTest {
     when(chunkSearchRepository.searchChunks(QUERY_EMBEDDING, 5, OWNER, List.of()))
         .thenReturn(List.of(new ScoredChunk(chunk("Content", metadata), 0.8)));
 
-    DocumentSearchService.RetrievalResult result = service.retrieve("test", null, 5, OWNER);
+    DocumentSearchService.RetrievalResult result =
+        service.retrieveDocuments("test", null, 5, OWNER);
 
     assertThat(result.sources().get(0).getMetadata())
         .containsEntry("title", "Test Doc")

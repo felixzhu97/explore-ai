@@ -55,7 +55,7 @@ export class AccountService {
   readonly showLogout = computed(() => this.#accountState()?.mode === 'authenticated');
 
   /** Loads the current account unless a load is already running. */
-  load(): void {
+  loadAccount(): void {
     if (this.#isLoadingState()) {
       return;
     }
@@ -76,8 +76,8 @@ export class AccountService {
   }
 
   /** Loads the current account again. */
-  reload(): void {
-    this.load();
+  reloadAccount(): void {
+    this.loadAccount();
   }
 
   /**
@@ -102,15 +102,15 @@ export class AccountService {
   }
 
   /** Signs out and reloads the account. */
-  logout(): void {
+  logoutAccount(): void {
     this.#http.post<void>(`${API_BASE_URL}/account/logout`, {}).subscribe({
       next: () => {
-        this.reload();
+        this.reloadAccount();
         this.#chat.resetForOwnerChange();
         this.#notifications.showSuccess(this.#i18n.t().account.logoutSuccess);
       },
       error: () => {
-        this.reload();
+        this.reloadAccount();
         this.#chat.resetForOwnerChange();
         this.#notifications.showError(this.#i18n.t().account.errors.logoutFailed);
       },
@@ -134,7 +134,7 @@ export class AccountService {
     const login = params.get('login');
     if (!hasText(login)) {
       if (!this.#isLoadedState()) {
-        this.load();
+        this.loadAccount();
       }
       return;
     }
@@ -144,7 +144,7 @@ export class AccountService {
     const cleanUrl = query !== '' ? `${path}?${query}` : path;
     void this.#router.navigateByUrl(cleanUrl, { replaceUrl: true });
 
-    this.reload();
+    this.reloadAccount();
     this.#chat.resetForOwnerChange();
 
     if (login === 'success') {

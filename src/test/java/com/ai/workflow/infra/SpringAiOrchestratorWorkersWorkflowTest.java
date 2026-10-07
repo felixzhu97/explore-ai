@@ -60,7 +60,7 @@ class SpringAiOrchestratorWorkersWorkflowTest {
               };
             });
 
-    OrchestratorWorkersResult result = workflow.process("Write a product blurb");
+    OrchestratorWorkersResult result = workflow.processTask("Write a product blurb");
 
     assertThat(result.getAnalysis()).isEqualTo("two styles");
     assertThat(result.getTasks()).hasSize(2);

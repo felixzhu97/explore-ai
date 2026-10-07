@@ -11,7 +11,7 @@ public class WeatherQuery {
 
   public WeatherQuery(String city, String normalizedCity) {
     if (city == null || city.isBlank()) {
-      throw DomainException.invalid("INVALID_WEATHER_QUERY", "City must not be blank");
+      throw DomainException.createInvalidError("INVALID_WEATHER_QUERY", "City must not be blank");
     }
     city = city.trim();
     normalizedCity = city.toLowerCase();

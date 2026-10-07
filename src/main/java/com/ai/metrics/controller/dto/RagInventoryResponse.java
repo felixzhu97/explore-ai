@@ -13,7 +13,7 @@ public record RagInventoryResponse(
     implements CapabilityInventoryResponse {
 
   /** Maps the knowledge base inventory read from the metrics store. */
-  public static RagInventoryResponse from(RagInventory inventory) {
+  public static RagInventoryResponse createResponse(RagInventory inventory) {
     return new RagInventoryResponse(
         inventory.getDocumentCount(),
         inventory.getDocumentsByStatus(),

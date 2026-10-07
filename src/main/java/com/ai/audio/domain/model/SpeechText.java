@@ -12,11 +12,12 @@ public class SpeechText {
 
   public SpeechText(String value) {
     if (value == null || value.isBlank()) {
-      throw DomainException.invalid("INVALID_SPEECH_TEXT", "Speech text must not be blank");
+      throw DomainException.createInvalidError(
+          "INVALID_SPEECH_TEXT", "Speech text must not be blank");
     }
     value = value.trim();
     if (value.length() > MAX_LENGTH) {
-      throw DomainException.invalid(
+      throw DomainException.createInvalidError(
           "INVALID_SPEECH_TEXT", "Speech text exceeds maximum length of " + MAX_LENGTH);
     }
     this.value = value;

@@ -12,5 +12,5 @@ public interface RoutingWorkflow {
    * @param input content to classify and process
    * @param routes route name → specialized system/user prompt
    */
-  RoutingResult route(String input, Map<String, String> routes);
+  RoutingResult routeTask(String input, Map<String, String> routes);
 }

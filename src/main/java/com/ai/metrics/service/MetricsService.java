@@ -36,7 +36,7 @@ public class MetricsService {
    * Returns cross-capability request, error, latency, token, and inventory totals for the range.
    */
   public MetricsOverview getOverview(String range) {
-    RangeWindow window = RangeWindow.endingNow(range);
+    RangeWindow window = RangeWindow.createWindowEndingNow(range);
     Instant activeSince = window.to().minus(24, ChronoUnit.HOURS);
 
     InvocationStats stats =
@@ -73,7 +73,7 @@ public class MetricsService {
 
   /** Returns the named chart series, optionally filtered by capability, over the given range. */
   public SeriesSnapshot getSeries(String name, String capabilityRaw, String range) {
-    RangeWindow window = RangeWindow.endingNow(range);
+    RangeWindow window = RangeWindow.createWindowEndingNow(range);
     Optional<AiCapability> capability = AiCapability.findCapability(capabilityRaw);
     String seriesName = name == null ? "" : name.trim().toLowerCase(Locale.ROOT);
 
@@ -141,7 +141,7 @@ public class MetricsService {
     int safeSize = size <= 0 ? 20 : size;
     int safePage = Math.max(0, page);
     if (fromInstant.isEmpty() && toInstant.isEmpty() && (day == null || day.isBlank())) {
-      RangeWindow window = RangeWindow.endingNow(range);
+      RangeWindow window = RangeWindow.createWindowEndingNow(range);
       fromInstant = Optional.of(window.from());
       toInstant = Optional.of(window.to());
     }
@@ -168,7 +168,7 @@ public class MetricsService {
    */
   public MetricsCapabilitySnapshot getCapability(String capabilityRaw, String range) {
     AiCapability capability = AiCapability.parseCapability(capabilityRaw);
-    RangeWindow window = RangeWindow.endingNow(range);
+    RangeWindow window = RangeWindow.createWindowEndingNow(range);
     Optional<AiCapability> filter = Optional.of(capability);
 
     InvocationStats stats =
@@ -223,7 +223,7 @@ public class MetricsService {
   }
 
   private record RangeWindow(String range, Instant from, Instant to) {
-    static RangeWindow endingNow(String range) {
+    static RangeWindow createWindowEndingNow(String range) {
       MetricsWindow window = MetricsWindow.parseWindow(range);
       Instant now = Instant.now();
       return new RangeWindow(window.getRange(), window.from(now), now);

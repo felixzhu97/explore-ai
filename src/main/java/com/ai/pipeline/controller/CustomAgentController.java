@@ -35,19 +35,19 @@ public class CustomAgentController {
   public List<CustomAgentResponse> listLibrary(HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return customAgentService.listLibrary(ownerKey).stream()
-        .map(CustomAgentResponse::from)
+        .map(CustomAgentResponse::createResponse)
         .toList();
   }
 
   /** Saves a new agent. */
   @PostMapping
-  public ResponseEntity<CustomAgentResponse> create(
+  public ResponseEntity<CustomAgentResponse> createAgent(
       @Valid @RequestBody CreateCustomAgentRequest body, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
-            CustomAgentResponse.from(
-                customAgentService.create(
+            CustomAgentResponse.createResponse(
+                customAgentService.createAgent(
                     ownerKey,
                     body.typeKey(),
                     body.name(),
@@ -58,13 +58,13 @@ public class CustomAgentController {
 
   /** Updates a custom agent. */
   @PutMapping("/{id}")
-  public CustomAgentResponse update(
+  public CustomAgentResponse updateAgent(
       @PathVariable String id,
       @Valid @RequestBody UpdateCustomAgentRequest body,
       HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    return CustomAgentResponse.from(
-        customAgentService.update(
+    return CustomAgentResponse.createResponse(
+        customAgentService.updateAgent(
             ownerKey, id, body.name(), body.description(), body.systemPrompt(), body.toolKeys()));
   }
 
@@ -75,14 +75,15 @@ public class CustomAgentController {
       @Valid @RequestBody SetCustomAgentEnabledRequest body,
       HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    return CustomAgentResponse.from(customAgentService.setEnabled(ownerKey, id, body.enabled()));
+    return CustomAgentResponse.createResponse(
+        customAgentService.setEnabled(ownerKey, id, body.enabled()));
   }
 
   /** Deletes a custom agent. */
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> delete(@PathVariable String id, HttpServletRequest request) {
+  public ResponseEntity<Void> deleteAgent(@PathVariable String id, HttpServletRequest request) {
     String ownerKey = ownerContext.requireValue(request);
-    customAgentService.delete(ownerKey, id);
+    customAgentService.deleteAgent(ownerKey, id);
     return ResponseEntity.noContent().build();
   }
 }

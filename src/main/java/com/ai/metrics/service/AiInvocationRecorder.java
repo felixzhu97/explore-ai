@@ -20,7 +20,7 @@ public class AiInvocationRecorder {
   private final MeterRegistry meterRegistry;
 
   /** Persists the event and updates Micrometer meters; failures are swallowed, never thrown. */
-  public void record(AiInvocationEvent event) {
+  public void recordInvocation(AiInvocationEvent event) {
     try {
       eventRepository.save(event);
       meterRegistry
@@ -54,7 +54,7 @@ public class AiInvocationRecorder {
       String provider,
       String model,
       String sessionId) {
-    record(
+    recordInvocation(
         AiInvocationEvent.createSucceededEvent(capability, operation, latency, owner)
             .provider(provider)
             .model(model)
@@ -72,7 +72,7 @@ public class AiInvocationRecorder {
       String model,
       String sessionId,
       Throwable error) {
-    record(
+    recordInvocation(
         AiInvocationEvent.createFailedEvent(
                 capability, operation, latency, owner, ErrorSummary.createSummary(error))
             .provider(provider)

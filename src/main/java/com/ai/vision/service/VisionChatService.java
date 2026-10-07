@@ -155,6 +155,6 @@ public class VisionChatService {
   }
 
   private String buildPrompt(String question, String context) {
-    return localizedRagPromptBuilder.build(question, context);
+    return localizedRagPromptBuilder.buildPrompt(question, context);
   }
 }

@@ -19,7 +19,7 @@ public record OAuthSignIn(ExternalIdentity identity, ContactEmail email, String 
   }
 
   /** Reads the sign-in from an OAuth session, or empty for guests and unknown principals. */
-  public static Optional<OAuthSignIn> from(Authentication authentication) {
+  public static Optional<OAuthSignIn> createSignIn(Authentication authentication) {
     if (!(authentication instanceof OAuth2AuthenticationToken token)
         || !token.isAuthenticated()
         || authentication instanceof AnonymousAuthenticationToken) {

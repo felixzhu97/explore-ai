@@ -24,7 +24,7 @@ public class CustomAgentService {
   }
 
   /** Saves a new agent definition in the owner's library. */
-  public CustomAgent create(
+  public CustomAgent createAgent(
       String ownerKey,
       String typeKey,
       String name,
@@ -38,7 +38,7 @@ public class CustomAgentService {
   }
 
   /** Updates the owner's custom agent. */
-  public CustomAgent update(
+  public CustomAgent updateAgent(
       String ownerKey,
       String id,
       String name,
@@ -58,7 +58,7 @@ public class CustomAgentService {
   }
 
   /** Deletes the owner's custom agent. */
-  public void delete(String ownerKey, String id) {
+  public void deleteAgent(String ownerKey, String id) {
     findOwned(ownerKey, id);
     repository.deleteByIdAndOwnerKey(CustomAgentId.parseId(id), OwnerKey.parseKey(ownerKey));
   }
@@ -68,13 +68,14 @@ public class CustomAgentService {
         .findByIdAndOwnerKey(CustomAgentId.parseId(id), OwnerKey.parseKey(ownerKey))
         .orElseThrow(
             () ->
-                DomainException.notFound("SAVED_AGENT_NOT_FOUND", "Custom agent not found: " + id));
+                DomainException.createNotFoundError(
+                    "SAVED_AGENT_NOT_FOUND", "Custom agent not found: " + id));
   }
 
   private void assertTypeAvailable(String ownerKey, String typeKey, CustomAgentId excludeId) {
     if (repository.existsByOwnerKeyAndTypeKeyIgnoringId(
         OwnerKey.parseKey(ownerKey), typeKey, excludeId)) {
-      throw DomainException.conflict(
+      throw DomainException.createConflictError(
           "SAVED_AGENT_TYPE_CONFLICT", "Agent type key already exists: " + typeKey);
     }
   }

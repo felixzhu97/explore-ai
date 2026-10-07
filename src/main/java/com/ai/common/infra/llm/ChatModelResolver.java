@@ -45,7 +45,7 @@ public class ChatModelResolver {
   }
 
   /** Resolves the chat model for the options, rejecting providers that are not configured. */
-  public ResolvedChatModel resolve(TextChatOptions options) {
+  public ResolvedChatModel resolveModel(TextChatOptions options) {
     String provider = options.provider();
     if (!providerCatalog.isProviderAvailable(provider)) {
       throw new IllegalArgumentException(

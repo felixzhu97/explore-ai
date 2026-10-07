@@ -17,7 +17,7 @@ class SkillSystemPromptBuilderTest {
         Skill.createSkill(
             "c:client-1", "Brief Style", "Short answers only.", "Lead with the answer.", List.of());
 
-    String prompt = SkillSystemPromptBuilder.build(List.of(skill));
+    String prompt = SkillSystemPromptBuilder.buildPrompt(List.of(skill));
 
     assertThat(prompt).contains("## Active Skills");
     assertThat(prompt).contains("follow the skills");
@@ -38,7 +38,7 @@ class SkillSystemPromptBuilderTest {
   @Test
   @DisplayName("should return null when skills empty")
   void shouldReturnNullWhenSkillsEmpty() {
-    assertThat(SkillSystemPromptBuilder.build(List.of())).isNull();
-    assertThat(SkillSystemPromptBuilder.build(null)).isNull();
+    assertThat(SkillSystemPromptBuilder.buildPrompt(List.of())).isNull();
+    assertThat(SkillSystemPromptBuilder.buildPrompt(null)).isNull();
   }
 }

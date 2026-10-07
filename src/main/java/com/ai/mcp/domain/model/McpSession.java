@@ -29,7 +29,8 @@ public class McpSession {
   /** Marks the session closed, rejecting a second close. */
   public void close() {
     if (status == McpSessionStatus.CLOSED) {
-      throw DomainException.invalid("INVALID_MCP_SESSION", "Session already closed: " + id);
+      throw DomainException.createInvalidError(
+          "INVALID_MCP_SESSION", "Session already closed: " + id);
     }
     status = McpSessionStatus.CLOSED;
   }
@@ -41,7 +42,8 @@ public class McpSession {
 
   private static String validateServerName(String serverName) {
     if (serverName == null || serverName.isBlank()) {
-      throw DomainException.invalid("INVALID_MCP_SESSION", "Server name must not be blank");
+      throw DomainException.createInvalidError(
+          "INVALID_MCP_SESSION", "Server name must not be blank");
     }
     return serverName.trim();
   }

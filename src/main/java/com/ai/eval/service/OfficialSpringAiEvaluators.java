@@ -30,7 +30,7 @@ public class OfficialSpringAiEvaluators {
   private final FactCheckingEvaluator factCheckingEvaluator;
 
   /** Checks relevancy, plus fact-checking when context is given, and combines a pass gate. */
-  public OfficialGateResult evaluate(
+  public OfficialGateResult evaluateChat(
       String userText, String responseContent, List<String> contextTexts) {
     List<Document> documents = toDocuments(contextTexts);
     boolean hasContext = !documents.isEmpty();
@@ -38,7 +38,7 @@ public class OfficialSpringAiEvaluators {
     EvaluationResponse relevancy =
         relevancyEvaluator.evaluate(new EvaluationRequest(userText, documents, responseContent));
     boolean relevancyPassed = relevancy.isPass();
-    double relevanceScore = scoreFrom(relevancy);
+    double relevanceScore = extractScore(relevancy);
 
     List<String> feedback = new ArrayList<>();
     appendFeedback(feedback, "relevancy", relevancy);
@@ -50,7 +50,7 @@ public class OfficialSpringAiEvaluators {
           factCheckingEvaluator.evaluate(
               new EvaluationRequest(userText, documents, responseContent));
       factualityPassed = factuality.isPass();
-      factualityScore = scoreFrom(factuality);
+      factualityScore = extractScore(factuality);
       appendFeedback(feedback, "factuality", factuality);
     }
 
@@ -65,7 +65,7 @@ public class OfficialSpringAiEvaluators {
         passed);
   }
 
-  private static double scoreFrom(EvaluationResponse response) {
+  private static double extractScore(EvaluationResponse response) {
     if (response.getScore() > 0f) {
       return Math.max(0d, Math.min(1d, response.getScore()));
     }

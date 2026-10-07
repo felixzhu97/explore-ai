@@ -55,8 +55,7 @@ public class StreamingTranscriptionService {
           transcriptionExecutor.execute(
               () -> processAudioChunk(rawSession.getId(), state, payload));
       case "commit" -> transcriptionExecutor.execute(() -> commitTurn(rawSession.getId(), state));
-      case "stop" ->
-          transcriptionExecutor.execute(() -> finalizeAndClose(rawSession.getId(), state));
+      case "stop" -> transcriptionExecutor.execute(() -> closeSession(rawSession.getId(), state));
       default ->
           transcriptionGateway.sendError(state.session, "Unsupported message type: " + messageType);
     }
@@ -85,7 +84,7 @@ public class StreamingTranscriptionService {
     }
   }
 
-  private void finalizeAndClose(String sessionId, SessionState state) {
+  private void closeSession(String sessionId, SessionState state) {
     synchronized (state) {
       if (sessions.remove(sessionId) == null) {
         return;

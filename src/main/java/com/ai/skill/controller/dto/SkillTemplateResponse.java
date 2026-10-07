@@ -12,7 +12,7 @@ public record SkillTemplateResponse(
     List<String> allowedTools,
     List<String> nameAliases) {
   /** Maps a template to its response, including its localized names across all languages. */
-  public static SkillTemplateResponse from(SkillTemplate template) {
+  public static SkillTemplateResponse createResponse(SkillTemplate template) {
     return new SkillTemplateResponse(
         template.id(),
         template.name(),

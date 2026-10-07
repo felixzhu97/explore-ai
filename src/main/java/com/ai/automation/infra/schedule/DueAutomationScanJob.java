@@ -18,7 +18,7 @@ public class DueAutomationScanJob {
 
   /** Runs the schedules that are due, when scanning is enabled. */
   @Scheduled(fixedDelayString = "${app.automation.scan-fixed-delay-ms:60000}")
-  public void scan() {
+  public void scanDueSchedules() {
     if (!properties.isScanEnabled()) {
       return;
     }

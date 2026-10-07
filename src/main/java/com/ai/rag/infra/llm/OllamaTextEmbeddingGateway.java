@@ -41,7 +41,7 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
       // Extract embedding from response
       List<org.springframework.ai.embedding.Embedding> embeddings = response.getResults();
       if (embeddings == null || embeddings.isEmpty()) {
-        throw DomainException.failed(
+        throw DomainException.createFailedError(
             "RAG_SERVICE_ERROR", "Empty embedding response from Ollama API");
       }
 
@@ -54,7 +54,7 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
     } catch (DomainException e) {
       throw e;
     } catch (Exception e) {
-      throw DomainException.failed(
+      throw DomainException.createFailedError(
           "RAG_SERVICE_ERROR", "Embedding generation failed: " + e.getMessage(), e);
     }
   }
@@ -69,7 +69,7 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
       return embeddings.stream().map(e -> convertToFloatArray(e.getOutput())).toList();
 
     } catch (Exception e) {
-      throw DomainException.failed(
+      throw DomainException.createFailedError(
           "RAG_SERVICE_ERROR", "Batch embedding generation failed: " + e.getMessage(), e);
     }
   }
@@ -98,7 +98,7 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
       }
       return result;
     }
-    throw DomainException.failed(
+    throw DomainException.createFailedError(
         "RAG_SERVICE_ERROR", "Unsupported embedding output type: " + output.getClass());
   }
 }

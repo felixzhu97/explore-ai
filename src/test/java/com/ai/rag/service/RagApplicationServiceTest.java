@@ -41,7 +41,7 @@ class RagApplicationServiceTest {
   @DisplayName("should return the retrieved context with its sources and the query")
   void shouldReturnTheRetrievedContextWithItsSourcesAndTheQuery() {
     SourceCitation source = new SourceCitation("source text", 0.95, Map.of());
-    when(searchService.retrieve("test query", null, 5, OWNER))
+    when(searchService.retrieveDocuments("test query", null, 5, OWNER))
         .thenReturn(new DocumentSearchService.RetrievalResult("context", List.of(source)));
 
     RagApplicationService.RetrievalResult result =

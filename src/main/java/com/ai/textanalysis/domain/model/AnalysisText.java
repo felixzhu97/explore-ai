@@ -28,11 +28,12 @@ public class AnalysisText {
 
   public AnalysisText(String value) {
     if (value == null || value.isBlank()) {
-      throw DomainException.invalid("INVALID_ANALYSIS_TEXT", "Analysis text must not be blank");
+      throw DomainException.createInvalidError(
+          "INVALID_ANALYSIS_TEXT", "Analysis text must not be blank");
     }
     value = value.trim();
     if (value.length() > MAX_LENGTH) {
-      throw DomainException.invalid(
+      throw DomainException.createInvalidError(
           "INVALID_ANALYSIS_TEXT", "Analysis text exceeds maximum length of " + MAX_LENGTH);
     }
     this.value = value;

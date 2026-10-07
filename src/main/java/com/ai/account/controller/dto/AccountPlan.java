@@ -15,12 +15,12 @@ public enum AccountPlan {
   }
 
   @JsonValue
-  public String value() {
+  public String getValue() {
     return value;
   }
 
   /** Maps the active billing plan. */
-  public static AccountPlan from(Plan plan) {
+  public static AccountPlan createResponse(Plan plan) {
     return plan == Plan.PRO ? PRO : FREE;
   }
 }

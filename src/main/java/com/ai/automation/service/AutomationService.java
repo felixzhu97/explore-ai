@@ -33,7 +33,7 @@ public class AutomationService {
   private final AutomationProperties properties;
 
   /** Lists the owner's schedules. */
-  public List<AutomationSchedule> list(String ownerKey) {
+  public List<AutomationSchedule> listSchedules(String ownerKey) {
     return scheduleRepository.findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey.parseKey(ownerKey));
   }
 
@@ -47,7 +47,7 @@ public class AutomationService {
 
   /** Creates a schedule for the owner and arms its first run. */
   @Transactional
-  public AutomationSchedule create(
+  public AutomationSchedule createSchedule(
       String ownerKey,
       String name,
       ScheduleKind scheduleKind,
@@ -59,7 +59,7 @@ public class AutomationService {
       String brief) {
     if (scheduleRepository.countByOwnerKey(OwnerKey.parseKey(ownerKey))
         >= properties.getMaxSchedulesPerClient()) {
-      throw DomainException.limitExceeded(
+      throw DomainException.createLimitExceededError(
           "AUTOMATION_LIMIT_EXCEEDED",
           "Schedule limit reached (" + properties.getMaxSchedulesPerClient() + ")");
     }
@@ -83,7 +83,7 @@ public class AutomationService {
 
   /** Replaces the owner's schedule settings and re-arms its next run. */
   @Transactional
-  public AutomationSchedule update(
+  public AutomationSchedule updateSchedule(
       String ownerKey,
       String scheduleId,
       String name,
@@ -121,7 +121,7 @@ public class AutomationService {
 
   /** Deletes the owner's schedule. */
   @Transactional
-  public void delete(String ownerKey, String scheduleId) {
+  public void deleteSchedule(String ownerKey, String scheduleId) {
     requireOwned(ownerKey, scheduleId);
     scheduleRepository.deleteByIdAndOwnerKey(
         ScheduleId.parseId(scheduleId), OwnerKey.parseKey(ownerKey));
@@ -132,7 +132,7 @@ public class AutomationService {
         .findByIdAndOwnerKey(ScheduleId.parseId(scheduleId), OwnerKey.parseKey(ownerKey))
         .orElseThrow(
             () ->
-                DomainException.notFound(
+                DomainException.createNotFoundError(
                     "AUTOMATION_SCHEDULE_NOT_FOUND",
                     "Automation schedule not found: " + scheduleId));
   }
@@ -144,7 +144,7 @@ public class AutomationService {
         .filter(PipelineTemplate::isRunnable)
         .orElseThrow(
             () ->
-                DomainException.notFound(
+                DomainException.createNotFoundError(
                     "PIPELINE_TEMPLATE_NOT_FOUND",
                     "Pipeline template not found: " + pipelineTemplateId));
   }

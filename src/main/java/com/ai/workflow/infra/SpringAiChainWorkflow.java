@@ -60,7 +60,7 @@ public class SpringAiChainWorkflow implements ChainWorkflow {
       String input = "{%s}\n {%s}".formatted(prompt, response);
       response =
           chatClientProvider
-              .createBareStateless(TextChatOptions.defaults())
+              .createBareStateless(TextChatOptions.createDefaultOptions())
               .prompt()
               .user(input)
               .call()

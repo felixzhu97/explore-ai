@@ -45,14 +45,14 @@ public class AccountService {
   public AccountMeResponse getCurrentAccount(String clientId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof JwtAuthenticationToken jwtAuth) {
-      return authenticated(clientId, iamAccountService.signIn(jwtAuth.getToken()));
+      return createAuthenticatedContext(clientId, iamAccountService.signIn(jwtAuth.getToken()));
     }
-    Optional<OAuthSignIn> signIn = OAuthSignIn.from(authentication);
+    Optional<OAuthSignIn> signIn = OAuthSignIn.createSignIn(authentication);
     if (signIn.isPresent()) {
       return accountRepository
           .findByIdentity(signIn.get().identity())
-          .map(account -> authenticated(clientId, account))
-          .orElseGet(() -> authenticated(clientId, signIn.get()));
+          .map(account -> createAuthenticatedContext(clientId, account))
+          .orElseGet(() -> createAuthenticatedContext(clientId, signIn.get()));
     }
 
     // Session may be missing after a host mismatch; Client Identity link still proves login.
@@ -60,7 +60,7 @@ public class AccountService {
       Optional<Account> byClient =
           accountRepository.findByLinkedClientId(ClientId.parseId(clientId));
       if (byClient.isPresent()) {
-        return authenticated(clientId, byClient.get());
+        return createAuthenticatedContext(clientId, byClient.get());
       }
     }
 
@@ -70,7 +70,7 @@ public class AccountService {
         null,
         null,
         null,
-        AccountPlan.from(billingPlanService.currentPlan()),
+        AccountPlan.createResponse(billingPlanService.currentPlan()),
         isLoginAvailable(),
         loginProviders());
   }
@@ -131,23 +131,23 @@ public class AccountService {
     return List.copyOf(providers);
   }
 
-  private AccountMeResponse authenticated(String clientId, Account account) {
-    return authenticated(
+  private AccountMeResponse createAuthenticatedContext(String clientId, Account account) {
+    return createAuthenticatedContext(
         clientId,
         account.getId().toString(),
         account.getEmail(),
         account.findDisplayLabel().orElse(null));
   }
 
-  private AccountMeResponse authenticated(String clientId, OAuthSignIn signIn) {
-    return authenticated(
+  private AccountMeResponse createAuthenticatedContext(String clientId, OAuthSignIn signIn) {
+    return createAuthenticatedContext(
         clientId,
         signIn.identity().getSubject(),
         signIn.email(),
         signIn.displayLabel().orElse(null));
   }
 
-  private AccountMeResponse authenticated(
+  private AccountMeResponse createAuthenticatedContext(
       String clientId, String userId, ContactEmail email, String displayName) {
     return new AccountMeResponse(
         AccountMode.AUTHENTICATED,
@@ -155,7 +155,7 @@ public class AccountService {
         userId,
         email == null ? null : email.getValue(),
         displayName,
-        AccountPlan.from(billingPlanService.currentPlan()),
+        AccountPlan.createResponse(billingPlanService.currentPlan()),
         isLoginAvailable(),
         loginProviders());
   }

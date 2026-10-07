@@ -47,7 +47,7 @@ class PipelineOrchestrationServiceTest {
   @BeforeEach
   void setUp() {
     var registry =
-        CatalogAgentRegistry.fixed(
+        CatalogAgentRegistry.createFixedRegistry(
             List.of(
                 AgentDefinition.createDefinition(
                     AgentType.createSupervisorType(), "Supervisor", "coords", "sys"),
@@ -131,7 +131,7 @@ class PipelineOrchestrationServiceTest {
                     new RoutingPlan.Subtask(AgentType.createType("aiops"), "check anomalies")));
     useCase =
         new PipelineOrchestrationService(
-            CatalogAgentRegistry.fixed(
+            CatalogAgentRegistry.createFixedRegistry(
                 List.of(
                     AgentDefinition.createDefinition(
                         AgentType.createSupervisorType(), "Supervisor", "coords", "sys"),
@@ -160,7 +160,7 @@ class PipelineOrchestrationServiceTest {
         };
     useCase =
         new PipelineOrchestrationService(
-            CatalogAgentRegistry.fixed(
+            CatalogAgentRegistry.createFixedRegistry(
                 List.of(
                     AgentDefinition.createDefinition(
                         AgentType.createSupervisorType(), "Supervisor", "coords", "sys"),
@@ -257,7 +257,7 @@ class PipelineOrchestrationServiceTest {
     DelayedRecordingInvoker delayed = new DelayedRecordingInvoker();
     useCase =
         new PipelineOrchestrationService(
-            CatalogAgentRegistry.fixed(
+            CatalogAgentRegistry.createFixedRegistry(
                 List.of(
                     AgentDefinition.createDefinition(
                         AgentType.createSupervisorType(), "Supervisor", "coords", "sys"),
@@ -338,7 +338,7 @@ class PipelineOrchestrationServiceTest {
     }
 
     @Override
-    public String invoke(AgentDefinition agent, String task) {
+    public String invokeAgent(AgentDefinition agent, String task) {
       lastAgentType = agent.getType().getValue();
       lastAgentName = agent.getName();
       lastSystemPrompt = agent.getSystemPrompt();
@@ -360,7 +360,7 @@ class PipelineOrchestrationServiceTest {
     }
 
     @Override
-    public String invoke(AgentDefinition agent, String task) {
+    public String invokeAgent(AgentDefinition agent, String task) {
       return invokeStream(agent, task).blockFirst();
     }
   }

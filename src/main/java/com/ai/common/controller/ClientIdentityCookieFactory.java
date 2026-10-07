@@ -20,7 +20,7 @@ public class ClientIdentityCookieFactory {
   }
 
   /** Creates an HttpOnly cookie carrying the client id with the configured lifetime and flags. */
-  public ResponseCookie issue(String clientId) {
+  public ResponseCookie issueCookie(String clientId) {
     return ResponseCookie.from(properties.getCookieName(), clientId)
         .httpOnly(true)
         .path("/")
@@ -31,7 +31,7 @@ public class ClientIdentityCookieFactory {
   }
 
   /** Creates an empty, immediately expiring cookie that removes the client identity. */
-  public ResponseCookie clear() {
+  public ResponseCookie clearCookie() {
     return ResponseCookie.from(properties.getCookieName(), "")
         .httpOnly(true)
         .path("/")

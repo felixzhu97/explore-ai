@@ -64,19 +64,20 @@ public class DailyUsageQuotaService {
       return QuotaDecision.createApproval(policy.getPlan(), shownLimit, shownLimit);
     }
 
-    LocalDate today = today();
+    LocalDate today = currentDate();
     List<Charge> consumed = new ArrayList<>(charges.size());
     for (Charge charge : charges) {
-      if (!consume(charge, today)) {
-        consumed.forEach(done -> release(done.subject(), today));
+      if (!consumeQuota(charge, today)) {
+        consumed.forEach(done -> releaseQuota(done.subject(), today));
         return QuotaDecision.createRefusal(policy.getPlan(), shownLimit);
       }
       consumed.add(charge);
     }
-    return QuotaDecision.createApproval(policy.getPlan(), shownLimit, remaining(shown, today));
+    return QuotaDecision.createApproval(
+        policy.getPlan(), shownLimit, calculateRemaining(shown, today));
   }
 
-  private boolean consume(Charge charge, LocalDate today) {
+  private boolean consumeQuota(Charge charge, LocalDate today) {
     boolean[] granted = {false};
     counters
         .asMap()
@@ -93,16 +94,16 @@ public class DailyUsageQuotaService {
     return granted[0];
   }
 
-  private void release(QuotaSubject subject, LocalDate today) {
+  private void releaseQuota(QuotaSubject subject, LocalDate today) {
     counters.asMap().computeIfPresent(subject.getKey(), (key, usage) -> usage.release(today));
   }
 
-  private int remaining(Charge charge, LocalDate today) {
+  private int calculateRemaining(Charge charge, LocalDate today) {
     DailyUsage usage = counters.getIfPresent(charge.subject().getKey());
     return usage == null ? charge.limit() : usage.calculateRemaining(charge.limit(), today);
   }
 
-  private static LocalDate today() {
+  private static LocalDate currentDate() {
     return LocalDate.now(ZoneOffset.UTC);
   }
 

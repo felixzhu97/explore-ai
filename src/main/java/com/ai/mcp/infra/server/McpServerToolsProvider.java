@@ -73,7 +73,7 @@ public class McpServerToolsProvider {
   public String aiChat(
       @McpToolParam(description = "The message to send to the AI", required = true)
           String message) {
-    return chatService.chat(message);
+    return chatService.sendMessage(message);
   }
 
   /** Returns the value of a supported RAG chunking or retrieval setting by property key. */

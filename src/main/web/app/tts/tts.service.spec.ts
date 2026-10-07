@@ -76,7 +76,7 @@ describe('TtsService', () => {
     const downloadSpy = vi.spyOn(downloadUtils, 'downloadBlob');
     const blob = new Blob(['audio']);
 
-    service.download(blob, 'speech.mp3');
+    service.downloadAudio(blob, 'speech.mp3');
 
     expect(downloadSpy).toHaveBeenCalledWith(blob, 'speech.mp3');
   });

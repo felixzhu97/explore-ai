@@ -15,7 +15,7 @@ public enum LoginProvider {
   }
 
   @JsonValue
-  public String value() {
+  public String getValue() {
     return value;
   }
 }

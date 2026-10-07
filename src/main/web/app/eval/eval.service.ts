@@ -29,7 +29,7 @@ export class EvalService {
   readonly #http = inject(HttpClient);
 
   /** Scores a chat answer. */
-  evaluate(request: EvaluationRequest): Observable<EvaluationResponse> {
+  evaluateChat(request: EvaluationRequest): Observable<EvaluationResponse> {
     return this.#http.post<EvaluationResponse>(`${API_BASE_URL}/eval/chat`, request);
   }
 }

@@ -57,13 +57,13 @@ class GoldenEvalServiceTest {
             List.of());
     when(suiteRepository.loadByCategories(List.of(GoldenEvalCategory.CHAT)))
         .thenReturn(List.of(evalCase));
-    when(chatService.chat(eq("What is Explore AI?"), any(TextChatOptions.class)))
+    when(chatService.sendMessage(eq("What is Explore AI?"), any(TextChatOptions.class)))
         .thenReturn("Explore AI is a demo platform.");
-    when(officialEvaluators.evaluate(anyString(), anyString(), anyList()))
+    when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(
             new OfficialGateResult(true, true, true, 1.0, 1.0, List.of("relevancy: PASS"), true));
 
-    GoldenSuiteReport report = useCase.run(List.of(GoldenEvalCategory.CHAT), List.of());
+    GoldenSuiteReport report = useCase.runSuite(List.of(GoldenEvalCategory.CHAT), List.of());
 
     assertThat(report.getTotal()).isEqualTo(1);
     assertThat(report.getPassed()).isEqualTo(1);
@@ -88,7 +88,7 @@ class GoldenEvalServiceTest {
     when(suiteRepository.loadByCategories(List.of(GoldenEvalCategory.RAG)))
         .thenReturn(List.of(evalCase));
     when(fixtureSeeder.ensureFixtures()).thenReturn(Map.of("overview", "doc-1"));
-    when(ragChatService.chat(
+    when(ragChatService.chatWithDocuments(
             eq("What modules?"),
             eq(List.of("doc-1")),
             eq(5),
@@ -98,14 +98,15 @@ class GoldenEvalServiceTest {
             new RagChatResult(
                 "Chat and RAG",
                 List.of(new SourceCitation("Core modules include Chat and RAG.", 0.9, Map.of()))));
-    when(officialEvaluators.evaluate(eq("What modules?"), eq("Chat and RAG"), anyList()))
+    when(officialEvaluators.evaluateChat(eq("What modules?"), eq("Chat and RAG"), anyList()))
         .thenReturn(new OfficialGateResult(true, true, true, 1.0, 1.0, List.of(), true));
 
-    GoldenSuiteReport report = useCase.run(List.of(GoldenEvalCategory.RAG), null);
+    GoldenSuiteReport report = useCase.runSuite(List.of(GoldenEvalCategory.RAG), null);
 
     assertThat(report.getPassed()).isEqualTo(1);
     verify(ragChatService)
-        .chat("What modules?", List.of("doc-1"), 5, null, GoldenRagFixtureSeeder.OWNER_KEY);
+        .chatWithDocuments(
+            "What modules?", List.of("doc-1"), 5, null, GoldenRagFixtureSeeder.OWNER_KEY);
   }
 
   @Test
@@ -122,14 +123,15 @@ class GoldenEvalServiceTest {
             List.of(),
             List.of());
     when(suiteRepository.loadByCategories(any())).thenReturn(List.of(evalCase));
-    when(chatService.chat(anyString(), any(TextChatOptions.class)))
+    when(chatService.sendMessage(anyString(), any(TextChatOptions.class)))
         .thenThrow(new RuntimeException("provider down"));
 
-    GoldenSuiteReport report = useCase.run(List.of(GoldenEvalCategory.CHAT), List.of("chat-err"));
+    GoldenSuiteReport report =
+        useCase.runSuite(List.of(GoldenEvalCategory.CHAT), List.of("chat-err"));
 
     assertThat(report.getFailed()).isEqualTo(1);
     assertThat(report.getCases().getFirst().isPassed()).isFalse();
     assertThat(report.getCases().getFirst().getGenerationError()).contains("provider down");
-    verify(officialEvaluators, never()).evaluate(anyString(), anyString(), anyList());
+    verify(officialEvaluators, never()).evaluateChat(anyString(), anyString(), anyList());
   }
 }

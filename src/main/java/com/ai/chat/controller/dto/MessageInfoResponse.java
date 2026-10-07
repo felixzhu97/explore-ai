@@ -12,12 +12,13 @@ public record MessageInfoResponse(
     Instant timestamp,
     List<WebSourceResponse> sources) {
   /** Maps a message to a response without web sources. */
-  public static MessageInfoResponse from(ChatMessage message) {
-    return from(message, List.of());
+  public static MessageInfoResponse createResponse(ChatMessage message) {
+    return createResponse(message, List.of());
   }
 
   /** Builds a response from the message, omitting sources when the list is null or empty. */
-  public static MessageInfoResponse from(ChatMessage message, List<WebSourceResponse> sources) {
+  public static MessageInfoResponse createResponse(
+      ChatMessage message, List<WebSourceResponse> sources) {
     List<WebSourceResponse> safeSources =
         sources == null || sources.isEmpty() ? null : List.copyOf(sources);
     return new MessageInfoResponse(

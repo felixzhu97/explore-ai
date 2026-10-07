@@ -52,14 +52,14 @@ class ChatSessionEraserTest {
     ChatSession session =
         ChatSession.restoreSession(
             ChatSessionId.parseId(SESSION_ID), "Old", Instant.now(), "c:client-a");
-    CapturedWebSources.remember(
+    CapturedWebSources.saveSources(
         SESSION_ID, "query", List.of(new WebSource("Spring", "https://spring.io", "Docs")));
     when(invocationEventRepository.deleteBySessionIds(List.of(SESSION_ID))).thenReturn(3);
 
     int metricsDeleted = eraser.eraseAll(List.of(session));
 
     assertThat(metricsDeleted).isEqualTo(3);
-    assertThat(CapturedWebSources.peek(SESSION_ID)).isNull();
+    assertThat(CapturedWebSources.getSources(SESSION_ID)).isNull();
     verify(conversationMemoryRepository).clearMessages(SESSION_ID);
     verify(chatWebSourcesRepository).deleteByConversationId(SESSION_ID);
     verify(sessionRepository).deleteById(ChatSessionId.parseId(SESSION_ID));

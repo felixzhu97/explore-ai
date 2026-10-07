@@ -14,8 +14,8 @@ public final class ClasspathPromptTemplate {
   private ClasspathPromptTemplate() {}
 
   /** Loads a prompt file from the classpath. */
-  public static String load(String relativePath) {
-    return ClasspathPromptLoader.load(relativePath);
+  public static String loadTemplate(String relativePath) {
+    return ClasspathPromptLoader.loadPrompt(relativePath);
   }
 
   /** Joins prompt sections with blank lines. */
@@ -24,13 +24,13 @@ public final class ClasspathPromptTemplate {
   }
 
   /** Fills the template with the variables. */
-  public static String render(String templateText, Map<String, ?> variables) {
+  public static String renderTemplate(String templateText, Map<String, ?> variables) {
     return new PromptTemplate(templateText).render(toObjectMap(variables));
   }
 
   /** Loads a prompt file and fills it with the variables. */
   public static String loadAndRender(String relativePath, Map<String, ?> variables) {
-    return render(load(relativePath), variables);
+    return renderTemplate(loadTemplate(relativePath), variables);
   }
 
   private static Map<String, Object> toObjectMap(Map<String, ?> variables) {

@@ -17,7 +17,7 @@ class YoloNonMaxSuppressionTest {
             new com.ai.vision.domain.model.Detection("person", 0.8, 12, 12, 48, 48),
             new com.ai.vision.domain.model.Detection("car", 0.7, 200, 200, 60, 40));
 
-    var kept = YoloNonMaxSuppression.apply(candidates, 0.45f);
+    var kept = YoloNonMaxSuppression.applySuppression(candidates, 0.45f);
 
     assertThat(kept).hasSize(2);
     assertThat(kept.getFirst().getClassName()).isEqualTo("person");

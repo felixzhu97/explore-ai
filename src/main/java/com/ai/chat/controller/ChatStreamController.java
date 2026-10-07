@@ -47,7 +47,7 @@ public class ChatStreamController {
     var models = providerCatalog.listModels(provider);
     String resolvedProvider =
         provider == null || provider.isBlank() ? "openai" : provider.toLowerCase();
-    return ModelsListResponse.of(resolvedProvider, models);
+    return ModelsListResponse.createResponse(resolvedProvider, models);
   }
 
   /** Streams the chat reply as server-sent events. */
@@ -79,13 +79,13 @@ public class ChatStreamController {
   private TextChatOptions buildChatOptions(
       ChatStreamRequest request, HttpServletRequest httpRequest) {
     TextChatOptions baseOptions =
-        TextChatOptions.of(request.provider(), request.model(), request.toolsEnabled());
+        TextChatOptions.createOptions(request.provider(), request.model(), request.toolsEnabled());
     List<String> skillIds = request.skillIds();
     if (skillIds == null || skillIds.isEmpty()) {
       return baseOptions;
     }
     return skillService
-        .activeSkillsPrompt(ownerContext.requireValue(httpRequest), skillIds)
+        .buildSkillsPrompt(ownerContext.requireValue(httpRequest), skillIds)
         .map(baseOptions::withSkillSystemPrompt)
         .orElse(baseOptions);
   }

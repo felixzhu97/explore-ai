@@ -24,19 +24,19 @@ public class RagApplicationService {
   /** Uploads a text document. */
   public DocumentUploadService.UploadResult uploadDocument(
       String title, String fileName, String content, String ownerKey) {
-    return uploadService.upload(title, fileName, content, ownerKey);
+    return uploadService.uploadDocument(title, fileName, content, ownerKey);
   }
 
   /** Uploads a multipart file. */
   public DocumentUploadService.UploadResult uploadDocument(
       org.springframework.web.multipart.MultipartFile file, String title, String ownerKey) {
-    return uploadService.upload(file, title, ownerKey);
+    return uploadService.uploadDocument(file, title, ownerKey);
   }
 
   /** Uploads a document from bytes. */
-  public DocumentUploadService.UploadResult uploadDocumentFromBytes(
+  public DocumentUploadService.UploadResult uploadDocument(
       String title, String fileName, byte[] fileContent, String ownerKey) {
-    return uploadService.upload(title, fileName, fileContent, ownerKey);
+    return uploadService.uploadDocument(title, fileName, fileContent, ownerKey);
   }
 
   /** Lists the owner's documents. */
@@ -51,13 +51,13 @@ public class RagApplicationService {
 
   /** Deletes the owner's document. */
   public void deleteDocument(UUID documentId, String ownerKey) {
-    uploadService.delete(documentId, ownerKey);
+    uploadService.deleteDocument(documentId, ownerKey);
   }
 
   /** Retrieves the chunks that match the query. */
   public RetrievalResult retrieveContext(
       String query, List<DocumentId> documentIds, int topK, String ownerKey) {
-    var result = searchService.retrieve(query, documentIds, topK, ownerKey);
+    var result = searchService.retrieveDocuments(query, documentIds, topK, ownerKey);
     return new RetrievalResult(result.context(), result.sources(), query);
   }
 }

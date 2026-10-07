@@ -18,14 +18,14 @@ public class SpringAiRoutingWorkflow implements RoutingWorkflow {
   private final ChatClientProvider chatClientProvider;
 
   @Override
-  public RoutingResult route(String input, Map<String, String> routes) {
+  public RoutingResult routeTask(String input, Map<String, String> routes) {
     Objects.requireNonNull(input, "input");
     Objects.requireNonNull(routes, "routes");
     if (routes.isEmpty()) {
       throw new IllegalArgumentException("routes must not be empty");
     }
 
-    RouteClassification classification = classify(input, routes.keySet());
+    RouteClassification classification = classifyRoute(input, routes.keySet());
     String selection = classification.selection();
     String selectedPrompt = routes.get(selection);
     if (selectedPrompt == null) {
@@ -35,7 +35,7 @@ public class SpringAiRoutingWorkflow implements RoutingWorkflow {
 
     String output =
         chatClientProvider
-            .createBareStateless(TextChatOptions.defaults())
+            .createBareStateless(TextChatOptions.createDefaultOptions())
             .prompt()
             .user(selectedPrompt + "\nInput: " + input)
             .call()
@@ -44,7 +44,7 @@ public class SpringAiRoutingWorkflow implements RoutingWorkflow {
     return new RoutingResult(selection, classification.reasoning(), output == null ? "" : output);
   }
 
-  private RouteClassification classify(String input, Set<String> availableRoutes) {
+  private RouteClassification classifyRoute(String input, Set<String> availableRoutes) {
     String selectorPrompt =
         """
                 Analyze the input and select the most appropriate support team
@@ -62,7 +62,7 @@ public class SpringAiRoutingWorkflow implements RoutingWorkflow {
 
     RouteClassification classification =
         chatClientProvider
-            .createBareStateless(TextChatOptions.defaults())
+            .createBareStateless(TextChatOptions.createDefaultOptions())
             .prompt()
             .user(selectorPrompt)
             .call()

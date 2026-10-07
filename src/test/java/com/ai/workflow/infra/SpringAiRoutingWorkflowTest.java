@@ -45,7 +45,7 @@ class SpringAiRoutingWorkflowTest {
     when(callResponseSpec.content()).thenReturn("Invoice help answer");
 
     RoutingResult result =
-        workflow.route(
+        workflow.routeTask(
             "I was charged twice",
             Map.of(
                 "billing", "You are a billing specialist.",

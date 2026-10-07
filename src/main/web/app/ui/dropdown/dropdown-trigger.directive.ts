@@ -93,6 +93,6 @@ export class ZardDropdownTriggerDirective implements OnInit {
   }
 
   protected closeDropdown() {
-    this.dropdownService.close();
+    this.dropdownService.closeDropdown();
   }
 }

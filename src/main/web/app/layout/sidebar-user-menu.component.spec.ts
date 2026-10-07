@@ -47,7 +47,7 @@ describe('SidebarUserMenuComponent', () => {
   });
 
   it('should show email when account loaded', async () => {
-    account.load();
+    account.loadAccount();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'authenticated',
       clientId: 'c1',
@@ -65,7 +65,7 @@ describe('SidebarUserMenuComponent', () => {
   });
 
   it('should show the github login when the email is private', async () => {
-    account.load();
+    account.loadAccount();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'authenticated',
       clientId: 'c1',
@@ -83,7 +83,7 @@ describe('SidebarUserMenuComponent', () => {
   });
 
   it('should show signed in when authenticated without email', async () => {
-    account.load();
+    account.loadAccount();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'authenticated',
       clientId: 'c1',
@@ -104,7 +104,7 @@ describe('SidebarUserMenuComponent', () => {
   });
 
   it('should show guest when account request fails', async () => {
-    account.load();
+    account.loadAccount();
     http.expectOne(`${API_BASE_URL}/account/me`).error(new ProgressEvent('error'));
     await fixture.whenStable();
     fixture.detectChanges();
@@ -116,7 +116,7 @@ describe('SidebarUserMenuComponent', () => {
   });
 
   it('should show login when login available and anonymous', async () => {
-    account.load();
+    account.loadAccount();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'anonymous',
       clientId: 'c1',
@@ -134,7 +134,7 @@ describe('SidebarUserMenuComponent', () => {
   });
 
   it('should open login dialog when login clicked', () => {
-    account.load();
+    account.loadAccount();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'anonymous',
       clientId: 'c1',
@@ -151,7 +151,7 @@ describe('SidebarUserMenuComponent', () => {
   });
 
   it('should open logout dialog when logout clicked', async () => {
-    account.load();
+    account.loadAccount();
     http.expectOne(`${API_BASE_URL}/account/me`).flush({
       mode: 'authenticated',
       clientId: 'c1',

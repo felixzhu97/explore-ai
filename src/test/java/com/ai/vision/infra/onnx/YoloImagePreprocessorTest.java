@@ -20,7 +20,7 @@ class YoloImagePreprocessorTest {
       }
     }
 
-    float[] tensor = YoloImagePreprocessor.preprocess(image, 640);
+    float[] tensor = YoloImagePreprocessor.preprocessImage(image, 640);
 
     assertThat(tensor).hasSize(3 * 640 * 640);
     assertThat(tensor[0]).isBetween(0f, 1f);

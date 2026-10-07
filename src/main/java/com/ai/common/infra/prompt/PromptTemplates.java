@@ -18,32 +18,32 @@ public class PromptTemplates {
   private final String afterToolsReminder;
 
   public PromptTemplates() {
-    this.sharedStyle = ClasspathPromptLoader.load("shared/style-minimal.st");
-    String gfm = ClasspathPromptLoader.load("shared/format-gfm.st");
+    this.sharedStyle = ClasspathPromptLoader.loadPrompt("shared/style-minimal.st");
+    String gfm = ClasspathPromptLoader.loadPrompt("shared/format-gfm.st");
     String formatting = ClasspathPromptLoader.joinSections(gfm, sharedStyle);
 
     this.defaultSystemPrompt =
         ClasspathPromptLoader.joinSections(
-            ClasspathPromptLoader.load("chat/system-role.st"),
-            ClasspathPromptLoader.load("chat/tools-policy.st"),
+            ClasspathPromptLoader.loadPrompt("chat/system-role.st"),
+            ClasspathPromptLoader.loadPrompt("chat/tools-policy.st"),
             formatting,
-            ClasspathPromptLoader.load("chat/a2ui-chart.st"),
-            ClasspathPromptLoader.load("chat/mermaid-diagram.st"));
+            ClasspathPromptLoader.loadPrompt("chat/a2ui-chart.st"),
+            ClasspathPromptLoader.loadPrompt("chat/mermaid-diagram.st"));
 
     this.ragSystemPrompt =
         ClasspathPromptLoader.joinSections(
-            ClasspathPromptLoader.load("rag/system-role.st"),
+            ClasspathPromptLoader.loadPrompt("rag/system-role.st"),
             formatting,
-            ClasspathPromptLoader.load("chat/a2ui-chart.st"),
-            ClasspathPromptLoader.load("chat/mermaid-diagram.st"));
+            ClasspathPromptLoader.loadPrompt("chat/a2ui-chart.st"),
+            ClasspathPromptLoader.loadPrompt("chat/mermaid-diagram.st"));
 
     this.summarizationTemplate =
-        new PromptTemplate(ClasspathPromptLoader.load("task/summarization.st"));
+        new PromptTemplate(ClasspathPromptLoader.loadPrompt("task/summarization.st"));
     this.translationTemplate =
-        new PromptTemplate(ClasspathPromptLoader.load("task/translation.st"));
+        new PromptTemplate(ClasspathPromptLoader.loadPrompt("task/translation.st"));
     this.questionAnswerTemplate =
-        new PromptTemplate(ClasspathPromptLoader.load("task/question-answer.st"));
-    this.afterToolsReminder = ClasspathPromptLoader.load("guards/after-tools.st");
+        new PromptTemplate(ClasspathPromptLoader.loadPrompt("task/question-answer.st"));
+    this.afterToolsReminder = ClasspathPromptLoader.loadPrompt("guards/after-tools.st");
   }
 
   /** Returns the shared style instructions. */
@@ -91,7 +91,7 @@ public class PromptTemplates {
 
   /** Loads the system prompt of an agent. */
   public String loadAgentSystemPrompt(String agentKey) {
-    String body = ClasspathPromptLoader.load("agent/" + agentKey + ".st");
+    String body = ClasspathPromptLoader.loadPrompt("agent/" + agentKey + ".st");
     return ClasspathPromptLoader.joinSections(body, sharedStyle);
   }
 }

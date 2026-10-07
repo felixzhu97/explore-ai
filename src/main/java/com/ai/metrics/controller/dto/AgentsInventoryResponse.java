@@ -7,7 +7,7 @@ public record AgentsInventoryResponse(ModuleStatus status, long agentCount, long
     implements CapabilityInventoryResponse {
 
   /** Maps agent health to a response. */
-  public static AgentsInventoryResponse from(AgentsHealth health) {
+  public static AgentsInventoryResponse createResponse(AgentsHealth health) {
     return new AgentsInventoryResponse(
         health.getStatus(), health.getAgentCount(), health.getHealthyAgentCount());
   }

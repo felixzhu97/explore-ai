@@ -91,7 +91,7 @@ class RagChatServiceTest {
     Document sourceDoc = new Document("AI definition", Map.of("score", 0.95));
     stubChatClientResponse(aiResponse, List.of(sourceDoc));
 
-    RagChatResult result = ragChatService.chat(question, null, 5, null, OWNER);
+    RagChatResult result = ragChatService.chatWithDocuments(question, null, 5, null, OWNER);
 
     assertThat(result).isNotNull();
     assertThat(result.response()).isEqualTo(aiResponse);
@@ -107,7 +107,7 @@ class RagChatServiceTest {
     String docId = UUID.randomUUID().toString();
     stubChatClientResponse("response", List.of());
 
-    ragChatService.chat("What is AI?", List.of(docId), 5, null, OWNER);
+    ragChatService.chatWithDocuments("What is AI?", List.of(docId), 5, null, OWNER);
 
     FilterExpressionBuilder b = new FilterExpressionBuilder();
     assertThat(capturedFilter())
@@ -120,7 +120,7 @@ class RagChatServiceTest {
   void shouldFilterByOwnerOnlyWhenDocIdsAreEmpty() {
     stubChatClientResponse("response", List.of());
 
-    ragChatService.chat("q", Collections.emptyList(), 10, null, OWNER);
+    ragChatService.chatWithDocuments("q", Collections.emptyList(), 10, null, OWNER);
 
     assertThat(capturedFilter())
         .isEqualTo(new FilterExpressionBuilder().eq("ownerKey", OWNER).build());
@@ -137,7 +137,7 @@ class RagChatServiceTest {
     when(compressionBuilder.build()).thenReturn(compressionClient);
     stubChatClientResponse("response", List.of());
 
-    ragChatService.chat("follow-up question", null, 5, "session-1", OWNER);
+    ragChatService.chatWithDocuments("follow-up question", null, 5, "session-1", OWNER);
 
     verify(chatClientProvider)
         .create(any(TextChatOptions.class), eq(ChatClientProfile.MEMORY), eq("session-1"));

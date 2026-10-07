@@ -8,7 +8,7 @@ export class SidebarService {
   #mobileResizeHandler: (() => void) | null = null;
 
   /** Opens the sidebar and locks page scroll on mobile. */
-  open() {
+  openSidebar() {
     if (window.innerWidth < 768) {
       this.isCollapsed.set(false);
       this.#lockBodyScroll();
@@ -17,13 +17,13 @@ export class SidebarService {
   }
 
   /** Closes the mobile sidebar and unlocks page scroll. */
-  close() {
+  closeSidebar() {
     this.isMobileOpen.set(false);
     this.#unlockBodyScroll();
   }
 
   /** Opens or closes the mobile sidebar. */
-  toggle() {
+  toggleSidebar() {
     const isMobile = window.innerWidth < 768;
     this.isMobileOpen.update((open) => {
       const next = !open;
@@ -44,7 +44,7 @@ export class SidebarService {
     this.#removeMobileResizeListener();
     this.#mobileResizeHandler = () => {
       if (window.innerWidth >= 768) {
-        this.close();
+        this.closeSidebar();
       }
     };
     window.addEventListener('resize', this.#mobileResizeHandler);

@@ -39,7 +39,7 @@ class PrivacyControllerTest {
   @Test
   @DisplayName("should erase all owner data")
   void shouldEraseAllOwnerDataWhenDeletePrivacySessions() {
-    when(ownerContext.require(any())).thenReturn(OWNER);
+    when(ownerContext.requireOwner(any())).thenReturn(OWNER);
 
     assertThat(
             mvc.delete()

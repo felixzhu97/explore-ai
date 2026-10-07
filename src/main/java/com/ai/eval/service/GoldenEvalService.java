@@ -44,7 +44,7 @@ public class GoldenEvalService {
   private final GoldenRagFixtureSeeder fixtureSeeder;
 
   /** Runs golden cases for the categories, optionally filtered by id, and aggregates a report. */
-  public GoldenSuiteReport run(List<GoldenEvalCategory> categories, List<String> caseIds) {
+  public GoldenSuiteReport runSuite(List<GoldenEvalCategory> categories, List<String> caseIds) {
     List<GoldenEvalCase> cases = suiteRepository.loadByCategories(categories);
     if (caseIds != null && !caseIds.isEmpty()) {
       Set<String> wanted = new LinkedHashSet<>(caseIds);
@@ -65,15 +65,15 @@ public class GoldenEvalService {
 
   private CaseEvalOutcome runOne(GoldenEvalCase evalCase, Map<String, String> fixtureIds) {
     try {
-      GeneratedAnswer generated = generate(evalCase, fixtureIds);
+      GeneratedAnswer generated = generateAnswer(evalCase, fixtureIds);
       List<String> context = resolveContext(evalCase, generated.contextTexts());
       OfficialGateResult gate =
-          officialEvaluators.evaluate(evalCase.getUserText(), generated.answer(), context);
+          officialEvaluators.evaluateChat(evalCase.getUserText(), generated.answer(), context);
       return new CaseEvalOutcome(
           evalCase.getId(),
           evalCase.getCategory(),
           evalCase.getUserText(),
-          truncate(generated.answer()),
+          truncateText(generated.answer()),
           gate.isPassed(),
           gate.isRelevancyPassed(),
           gate.getFactualityPassed(),
@@ -93,11 +93,11 @@ public class GoldenEvalService {
     }
   }
 
-  private GeneratedAnswer generate(GoldenEvalCase evalCase, Map<String, String> fixtureIds) {
+  private GeneratedAnswer generateAnswer(GoldenEvalCase evalCase, Map<String, String> fixtureIds) {
     if (evalCase.getCategory() == GoldenEvalCategory.RAG) {
       List<String> documentIds = resolveDocumentIds(evalCase, fixtureIds);
       RagChatResult result =
-          ragChatService.chat(
+          ragChatService.chatWithDocuments(
               evalCase.getUserText(), documentIds, 5, null, GoldenRagFixtureSeeder.OWNER_KEY);
       List<String> sources =
           result.sources().stream()
@@ -108,8 +108,10 @@ public class GoldenEvalService {
     }
 
     TextChatOptions options =
-        evalCase.isToolsEnabled() ? TextChatOptions.defaults() : TextChatOptions.withoutTools();
-    String answer = chatService.chat(evalCase.getUserText(), options);
+        evalCase.isToolsEnabled()
+            ? TextChatOptions.createDefaultOptions()
+            : TextChatOptions.withoutTools();
+    String answer = chatService.sendMessage(evalCase.getUserText(), options);
     return new GeneratedAnswer(answer == null ? "" : answer, List.of());
   }
 
@@ -142,7 +144,7 @@ public class GoldenEvalService {
     return List.copyOf(context);
   }
 
-  private static String truncate(String answer) {
+  private static String truncateText(String answer) {
     if (answer.length() <= ANSWER_EXCERPT_LIMIT) {
       return answer;
     }

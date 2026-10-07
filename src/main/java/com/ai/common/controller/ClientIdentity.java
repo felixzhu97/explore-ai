@@ -27,7 +27,7 @@ public final class ClientIdentity {
   }
 
   /** Returns the client id stored on the request, throwing when it is missing or blank. */
-  public static String require(HttpServletRequest request) {
+  public static String requireClientId(HttpServletRequest request) {
     Object value = request.getAttribute(REQUEST_ATTRIBUTE);
     if (!(value instanceof String clientId) || clientId.isBlank()) {
       throw new ClientIdentityRequiredException();

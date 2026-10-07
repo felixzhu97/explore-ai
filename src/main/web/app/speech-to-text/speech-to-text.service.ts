@@ -48,8 +48,8 @@ export class SpeechToTextService {
   readonly error = signal<string | null>(null);
 
   /** Opens a new transcription socket. */
-  connect(): void {
-    this.disconnect();
+  connectStream(): void {
+    this.disconnectStream();
     this.connectionState.set('connecting');
     this.error.set(null);
     this.transcript.set('');
@@ -99,7 +99,7 @@ export class SpeechToTextService {
   }
 
   /** Closes the transcription socket. */
-  disconnect(): void {
+  disconnectStream(): void {
     if (this.#socket !== null) {
       this.#socket.close();
       this.#socket = null;

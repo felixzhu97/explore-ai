@@ -45,7 +45,7 @@ export class TtsService {
   }
 
   /** Downloads the audio file. */
-  download(blob: Blob, filename: string): void {
+  downloadAudio(blob: Blob, filename: string): void {
     downloadBlob(blob, filename);
   }
 }
