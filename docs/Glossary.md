@@ -24,6 +24,26 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | Frontend i18n              | Map English preferred terms to localized UI copy                 |
 | Cross-team communication   | Lead with English; add Chinese when needed                       |
 
+### Naming | 命名
+
+Classes (entities, value objects, aggregates, services, DTOs) are nouns for what the thing is. Fields, parameters, and locals are plain nouns for what they hold. Methods are a verb plus a noun: `createId`, `parseId`, `restoreSession`, `calculateRemaining`, `sendMessage`. The same concept uses one word in Java, the database (snake_case), and the web client. Framework names stay as the framework defines them (`save`, `findById`, `Persistable.isNew`, Lombok `getX()`).
+
+| Concept | Canonical name | Also |
+| --- | --- | --- |
+| Owner-saved agent | `CustomAgent` | table `custom_agent`; fields `agentType`, `tools` |
+| Signed-in person | `Account` | table `account` |
+| Who wrote a chat message | `MessageRole` | JSON `user` / `assistant` |
+| Cited chunk | `SourceCitation` | — |
+| Bundled instruction pack | `BundledSkill` | — |
+| Business area that emits metrics | `AiCapability` | column `capability`; `/api/metrics/capabilities/{capability}` |
+| Golden-eval grouping | `GoldenEvalCategory` | — |
+| Simulated weather | `WeatherSimulator` | — |
+| Text read from a file | `ExtractedDocument` | — |
+| Catalog pipeline | `BuiltinPipelineTemplate` | saved field `builtinTemplateId` |
+| Workflow task notes | `brief` | column `brief` |
+| Default task title | `topic` | column `topic` |
+| Document chunk row | `document_chunk` | was `document_chunks` |
+| Web citation row | `chat_web_source` | was `chat_web_sources` |
 
 ---
 
@@ -48,7 +68,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | Generation       | 生成        | —                 | `/generate`             | —                                         | —                             | UI shell for image + TTS              |
 | Account          | 账号        | `com.ai.account`  | —                       | `/api/account`                            | —                             | Guest Client Identity + optional Google/GitHub OAuth; data partitioned by Owner Key |
 | Common           | 横切        | `com.ai.common`   | —                       | —                                         | —                             | Feature flags, filters, shared tools  |
-| Metrics          | AI 指标看板  | `com.ai.metrics`  | `/metrics`              | `/api/metrics`                            | —                             | Overview + domain drill-down          |
+| Metrics          | AI 指标看板  | `com.ai.metrics`  | `/metrics`              | `/api/metrics`                            | —                             | Overview + capability drill-down      |
 
 
 **Frontend route map (canonical)**
@@ -158,7 +178,7 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Quota Decision           | 配额判定 | Outcome of one quota check: allowed, plan, limit, remaining | Value Object   | `QuotaDecision`                              | Single source for the `X-Quota-*` response headers; a refused request reports 0 remaining |
 | Metrics Admin Key        | Metrics 管理密钥 | Shared secret protecting `/api/metrics/**` when configured | Technical         | `MetricsAdminAuthFilter`, `METRICS_ADMIN_API_KEY` | Header `X-Admin-Key`; empty key keeps local Metrics UI open |
 | Account Me               | 当前账号 | Viewer identity: anonymous Client Identity, OAuth Login session, or IAM Bearer JWT | Use Case          | `AccountController` `/api/account/me` | `mode=anonymous\|authenticated`; native clients may omit Client Identity cookie when `Authorization: Bearer` is present |
-| Account User             | 账号用户 | Persisted OAuth / IAM subject; browser sessions may link a Client Identity cookie | Entity            | `AccountUser`, `account_user` | Provider+subject unique; one account per browser; login merges `c:` rows into `u:{id}`; provider `explore-iam` for IAM tokens |
+| Account                  | 账号 | Persisted OAuth / IAM subject; browser sessions may link a Client Identity cookie | Entity            | `Account`, `account` | Provider+subject unique; one account per browser; login merges `c:` rows into `u:{id}`; provider `explore-iam` for IAM tokens |
 | External Identity        | 外部身份 | Normalized sign-in provider + subject pair                | Value Object      | `ExternalIdentity`                           | Same normalization for save and lookup; `unknown` provider rejected |
 | Contact Email            | 联系邮箱 | Validated email address of an account                     | Value Object      | `ContactEmail`                               | Login handles go to `displayName`, never into email |
 | Client ID                | 客户端 ID | UUID carried by the Client Identity cookie                | Value Object      | `ClientId`                                   | Only server-issued UUIDs are accepted |
@@ -167,13 +187,11 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | IAM Module Scope         | IAM 模块范围 | GitHub-style OAuth scope on IAM access tokens gating AI modules when Bearer is present | Concept | `SCOPE_write:ai_chat` … `SCOPE_write:ai_tools` | Guests without JWT stay open; missing scope → 403 |
 | Legal Documents          | 法律文档 | Terms, Privacy Policy, Cookie Policy, Sub-processors pages | UI                | `/policies`, `/policies/<slug>` | Hub via Help → Policies; doc bodies localized (en/zh/ja/fr/es). Distinct from interactive `/privacy` controls. Legacy `/legal` redirects. |
 | Chat Message             | 消息   | Single message within a session                       | Entity            | `ChatMessage`                                 | Immutable; created via factory methods |
-| User Message             | 用户消息 | Message sent by the user                              | Enum / Role       | `ChatMessageType.USER`, role=`user`           | —                                      |
-| Assistant Message        | 助手消息 | Message returned by the AI                            | Enum / Role       | `ChatMessageType.ASSISTANT`, role=`assistant` | —                                      |
+| User Message             | 用户消息 | Message sent by the user                              | Enum / Role       | `MessageRole.USER`, role=`user`               | —                                      |
+| Assistant Message        | 助手消息 | Message returned by the AI                            | Enum / Role       | `MessageRole.ASSISTANT`, role=`assistant`     | —                                      |
 | Chat Session ID          | 会话标识 | Unique identifier of a session                        | Value Object      | `ChatSessionId`                               | —                                      |
 | Message ID               | 消息标识 | Unique identifier of a message                        | Value Object      | `MessageId`                                   | —                                      |
-| Chat Session Status      | 会话状态 | Lifecycle state of a session                          | Enum              | `ChatSessionStatus`                           | ACTIVE, CLOSED                         |
-| Chat Stream              | 流式对话 | Receive AI replies in real time via SSE               | Use Case Behavior | `ChatService.chatStream()`                    | See `docs/api.md`                      |
-| Recent Messages          | 最近消息 | Last N messages in a session for context window       | Domain Behavior   | `ChatSession.getRecentMessages(int)`          | —                                      |
+| Chat Stream              | 流式对话 | Receive AI replies in real time via SSE               | Use Case Behavior | `ChatService.streamChatWithSession()`         | See `docs/developer/api.md`            |
 | Structure Diagram        | 结构图  | Assistant-reply diagram rendered from a Mermaid fence (sequence, class, state, flowchart) | UI Capability | `MermaidDiagramComponent`, `mermaid-fence.ts` | Not a Java entity; plain code fences stay code |
 | Detected Language        | 检测语言 | Language of user input text (`zh`, `ja`, `en` or `default`) | Value Object      | `DetectedLanguage`                            | `DetectedLanguage.of(text)`; used by `LocalizedRagPromptBuilder` |
 
@@ -197,14 +215,14 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | ------------------------ | ------------- | ------------------------------------------------------------- | -------------- | -------------------------------------------------- | ----------------------------------------------- |
 | Agent                    | Agent         | Specialized worker that performs a typed task                 | Entity         | `AgentDefinition`                                  | Builtin catalog seeds palette; invoke may use node snapshot |
 | Agent Type               | Agent 类型      | Canonical type id of an Agent                                 | Value Object   | `AgentType`                                        | e.g. research, weather, analyst, supervisor     |
-| Agent Definition         | Agent 定义      | Name, type, toolKeys, and system prompt                       | Entity         | `AgentDefinition`                                  | Runtime is always `single` on Pipeline workers  |
+| Agent Definition         | Agent 定义      | Name, type, tools, and system prompt                          | Entity         | `AgentDefinition`                                  | Runtime is always `single` on Pipeline workers  |
 | Agent Registry           | Agent 注册表     | Lookup of builtin Agent definitions                          | Repository     | `AgentRegistry`, `CatalogAgentRegistry`            | `?lang=` for display; no client agent library   |
-| Agent Template           | Agent 模版      | Multilingual builtin agent definition (prompt, toolKeys)      | Catalog        | `AgentTemplate`, `agent-templates/{lang}.json`     | Owned by Pipeline application layer             |
+| Agent Template           | Agent 模版      | Multilingual builtin agent definition (prompt, tools)         | Catalog        | `AgentTemplate`, `agent-templates/{lang}.json`     | Owned by Pipeline application layer             |
 | Agent Pipeline           | 工作流流水线     | User-authored multi-agent graph executed in topological order | Aggregate      | `AgentPipeline` (`com.ai.pipeline`)                | Canvas + `POST /api/pipelines/invoke/sse` |
 | Pipeline Node            | 流水线节点         | Graph node with editable agent snapshot                         | Value Object   | `AgentPipeline.PipelineNode`                       | Double-click edit: name / prompt / tools        |
 | Pipeline Edge            | 流水线边          | Directed handoff between nodes                                | Value Object   | `AgentPipeline.PipelineEdge`                       | —                                               |
-| Pipeline Template        | 工作流模版        | Multilingual builtin or owner-saved linear agentTypes + brief | Entity / Catalog | `PipelineTemplateDefinition` (builtin), `PipelineTemplate` (saved, table `pipeline_template`), `pipeline-templates/{lang}.json` | `GET/POST /api/pipelines/templates*`; formerly Workflow Template |
-| Saved Agent              | 已保存 Agent     | Owner-saved agent definition in the agent library             | Entity         | `SavedAgent` (table `saved_agent`)                 | `/api/pipelines/agents`; formerly Saved Agent Definition |
+| Pipeline Template        | 工作流模版        | Multilingual builtin or owner-saved linear agentTypes + brief | Entity / Catalog | `BuiltinPipelineTemplate` (builtin), `PipelineTemplate` (saved, table `pipeline_template`, fields `topic`, `brief`, `builtinTemplateId`), `pipeline-templates/{lang}.json` | `GET/POST /api/pipelines/templates*`; formerly Workflow Template |
+| Custom Agent             | 自定义 Agent     | Owner-saved agent definition in the agent library             | Entity         | `CustomAgent` (table `custom_agent`, fields `agentType`, `tools`) | `/api/pipelines/agents` |
 | Pipeline Service         | Pipeline 服务   | Application entry for list, invoke, supervisor, pipeline      | Application Service | `PipelineService`                             | Passes Owner Key + `lang`                       |
 | Automation Schedule      | 自动化日程        | Client-owned CRON or one-shot schedule + timezone + saved Pipeline Template + recipient email | Aggregate      | `AutomationSchedule`, `ScheduleKind` (`com.ai.automation`) | Due scan; `/api/automations/schedules`; ONCE auto-disables after run |
 | Automation Run           | 自动化运行记录     | One execution attempt with status and email outcome           | Entity         | `AutomationRun`                                    | SUCCESS / FAILED / SKIPPED; finishes exactly once |
@@ -213,13 +231,13 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Email Gateway            | 邮件网关          | Outbound transactional email (Resend HTTP API; optional SMTP); HTML + plain text | Repository     | `EmailGateway` → `ResendEmailGateway` / `SmtpEmailGateway` / `DisabledEmailGateway`; `AutomationMailFormatter` | Prod: Resend (`APP_MAIL_*`); local default sends nothing |
 | Pipeline Orchestration   | 编排服务          | Runs Worker Agents according to a routing or pipeline plan    | Application Service | `PipelineOrchestrationService`                | Prefers node snapshot prompt/tools when present         |
 | Supervisor Router        | Supervisor 路由 | Chooses next Agent / subtasks for a user message              | Application    | `SupervisorRouter`, `SpringAiSupervisorRouter`     | Workers exclude supervisor               |
-| Worker Agent Invoker     | Worker 调用器    | Invokes a single Worker Agent with streaming                  | Application    | `WorkerAgentInvoker`, `SpringAiWorkerAgentInvoker` | Tools from `toolKeys` whitelist                 |
+| Worker Agent Invoker     | Worker 调用器    | Invokes a single Worker Agent with streaming                  | Application    | `WorkerAgentInvoker.invokeAgent`, `SpringAiWorkerAgentInvoker` | Tools from the `tools` whitelist                |
 | Tool Call Markup Filter  | 工具标记过滤器   | Strips DeepSeek DSML tool markup from model text              | Utility        | `ToolCallMarkupFilter`, `SanitizingChatMemory`     | Chat SSE, ChatMemory, Pipeline workers             |
 | Tool Call Loop Guard     | 工具循环守卫     | Allows datetime bridge then forces final answer after search; repairs DSML-only turns | Utility        | `ToolCallLoopGuard`, `ToolCallLoopGuardAdvisor`, `LoopGuardToolCallingManager` | Prevents DSML / phantom fetch after searchWeb   |
 | Routing Plan             | 路由计划          | Planned subtasks for Supervisor orchestration                 | Value Object   | `RoutingPlan`                                      | —                                               |
 | Agent Handoff            | Agent 交接      | Transfer marking delegation from one Agent to another         | Stream Event   | `agent_handoff`                                    | Frontend stage boundaries                       |
 | Agent Prompt Catalog     | Agent 提示词目录   | **Superseded** — builtins from `agent-templates/{lang}.json` via `AgentTemplateCatalog` | — | Historical `prompts/agent/*.st` optional reference | Authority: Pipeline `AgentTemplateCatalog` |
-| Agent Skill              | Agent 技能      | Reusable SKILL.md instruction pack for pipeline workers | Value Object   | `AgentSkill`, `agent/skills/*/SKILL.md`        | Opt-in via `app.agent-skills`; shared in `com.ai.common`; ≠ user **Skill** |
+| Bundled Skill            | 内置技能      | Reusable SKILL.md instruction pack for pipeline workers | Value Object   | `BundledSkill`, `agent/skills/*/SKILL.md`      | Opt-in via `app.agent-skills`; shared in `com.ai.common`; ≠ user **Skill** |
 | Skill                    | 技能            | User-managed instruction pack stored per client                  | Entity         | `Skill`, `com.ai.skill`                        | CRUD `/skills`; applied via Chat `skillIds`                        |
 | Skill Registry           | 技能仓储        | Persistence for user Skills                                      | Repository     | `SkillRepository` (Spring Data)                 | Scoped by Owner Key                                                |
 | Agent Skills Runtime     | Agent 技能运行时   | Loads controlled skill ids and injects prompt/tool metadata        | Infrastructure | `AgentSkillsRuntime` (`com.ai.common`)         | Default off; used by Pipeline workers         |
@@ -255,12 +273,12 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Document Chunk           | 文档分块     | Smallest retrieval unit after document splitting    | Entity               | `DocumentChunk`                           | Includes embedding vector and its document's Owner Key; created by `RagDocument.newChunk` |
 | Document Ingestion       | 文档导入     | Upload lifecycle: processing, then ready with a chunk count, or failed | Domain Behavior | `RagDocument.startIngestion`, `completeIngestion`, `failIngestion` | Empty files and documents without text are rejected; only READY documents are searchable |
 | Scored Chunk             | 评分分块     | Chunk paired with its similarity to the query       | Value Object         | `ScoredChunk`                             | Similarity computed once per chunk; `meets(threshold)` |
-| Raw Document             | 原始文档     | Normalized document view before ETL processing      | Value Object         | `RawDocument`                             | content + metadata + source                                         |
+| Extracted Document       | 提取文档     | Normalized document view before ETL processing      | Value Object         | `ExtractedDocument`                       | content + metadata + source                                         |
 | Chunking                 | 分块       | Process of splitting document text into chunks      | Application Behavior | `ChunkingDocumentTransformer`             | Spring AI `TokenTextSplitter`; configurable token size              |
 | Embedding                | 嵌入向量     | Vector representation of text for similarity search | Technical            | `OllamaTextEmbeddingGateway`                  | Ollama `qwen3-embedding:0.6b` (1024-d)                              |
 | Retrieval                | 检索       | Find relevant chunks via vector similarity          | Application Behavior | `DocumentSearchService`                   | topK + scoreThreshold; RAG chat uses Spring AI `VectorStore` |
 | Spring AI Vector Store   | Spring AI 向量库 | Spring AI SPI over H2 cosine search for Modular RAG | Infrastructure       | `H2SpringAiVectorStore`                   | Used by `VectorStoreDocumentRetriever`                       |
-| Source Document          | 来源文档     | Retrieved chunk with similarity score               | Value Object         | `SourceDocument`                          | Field `content` in the domain and SSE JSON |
+| Source Citation          | 来源引用     | Retrieved chunk with similarity score               | Value Object         | `SourceCitation`                          | Field `content` in the domain and SSE JSON |
 | Context                  | 上下文      | Retrieved text and sources passed to the LLM        | Application Concept  | `RagApplicationService.retrieveContext()` | Augments the Prompt                                                 |
 | RAG Chat                 | RAG 对话   | Generate AI answers from retrieved context          | Use Case             | `RagChatService`                          | Supports streaming                                                  |
 | Vision Chat              | 视觉问答     | Multimodal RAG Q&A over images in chat stream       | Use Case             | `VisionChatService`                       | Ollama multimodal; not `/api/vision/`*                              |
@@ -269,24 +287,23 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Chunk Size               | 分块大小     | Target tokens per chunk (ETL ingest)                | Config               | `RagProperties.Chunk.size`                | Default: 500 tokens; `TokenTextSplitter`                            |
 | Top K                    | 检索数量     | Maximum number of chunks returned                   | Config               | `RagProperties.Retrieval.topK`            | Default: 5                                                          |
 | Score Threshold          | 分数阈值     | Minimum similarity score for retrieval results      | Config               | `RagProperties.Retrieval.scoreThreshold`  | Default: 0.5                                                        |
-| Document Reader          | 文档读取器    | ETL: reads raw bytes into RawDocument               | Repository           | `DocumentReader`                          | Package: `com.ai.rag.domain.repository`                             |
-| Document Transformer     | 文档转换器    | ETL: transforms RawDocument into chunks             | Repository           | `DocumentTransformer`                     | Package: `com.ai.rag.domain.repository`                             |
-| Document Writer          | 文档写入器    | ETL: persists processed chunks to Vector Store      | Repository           | `DocumentWriter`                          | Package: `com.ai.rag.domain.repository`                             |
+| Document Reader          | 文档读取器    | ETL: reads bytes into an ExtractedDocument          | Repository           | `DocumentReader.readDocument`             | Package: `com.ai.rag.domain.repository`                             |
+| Document Transformer     | 文档转换器    | ETL: splits an ExtractedDocument into chunks        | Repository           | `DocumentTransformer.splitDocument`       | Package: `com.ai.rag.domain.repository`                             |
+| Document Writer          | 文档写入器    | ETL: persists processed chunks to Vector Store      | Repository           | `DocumentWriter.writeChunks`              | Package: `com.ai.rag.domain.repository`                             |
 | RAG ETL Pipeline         | RAG 数据管道 | End-to-end ingest: Reader → Transformer → Writer    | Pipeline             | `DocumentUploadService`                   | Triggered on upload; not a separate bounded context                 |
 
 
 **Document Status State Machine**
 
 ```
-UPLOADING → PROCESSING → READY
-    ↓           ↓
-  FAILED ←──── FAILED
+PROCESSING → READY
+    ↓
+  FAILED
 ```
 
 
 | Preferred Term (English) | 中文  | Meaning                            | Transitions To         |
 | ------------------------ | --- | ---------------------------------- | ---------------------- |
-| UPLOADING                | 上传中 | File is being uploaded             | PROCESSING, FAILED     |
 | PROCESSING               | 处理中 | Chunking and embedding in progress | READY, FAILED          |
 | READY                    | 就绪  | Available for RAG retrieval        | PROCESSING (reprocess) |
 | FAILED                   | 失败  | Processing failed                  | PROCESSING (retry)     |
@@ -426,12 +443,12 @@ Package: `com.ai.metrics`. Route `/metrics` (Work nav). API `/api/metrics`.
 
 | Preferred Term (English) | 中文       | Definition                                                         | Type           | Code Mapping                   | Notes                                      |
 | ------------------------ | -------- | ------------------------------------------------------------------ | -------------- | ------------------------------ | ------------------------------------------ |
-| Metrics                  | AI 指标看板  | Operator view of AI request volume, latency, errors, and domain health | Capability     | `MetricsService`, `/metrics`   | Overview + domain pages                    |
+| Metrics                  | AI 指标看板  | Operator view of AI request volume, latency, errors, and capability health | Capability     | `MetricsService`, `/metrics`   | Overview + capability pages                |
 | AI Invocation Event      | AI 调用事件  | Append-only record of a single AI invocation                       | Entity         | `AiInvocationEvent`            | Table `ai_invocation_events`               |
-| AI Domain                | AI 业务域   | Business domain that emits invocation events                       | Value Object   | `AiDomain`                     | chat / rag / agents / tools / vision / workflow |
+| AI Capability            | AI 能力    | Business capability that emits invocation events                   | Value Object   | `AiCapability`                 | chat / rag / agents / tools / vision / workflow |
 | Invocation Outcome       | 调用结果    | Success or failure of an invocation                                | Value Object   | `InvocationOutcome`            | SUCCESS, FAILURE                           |
 | Metrics Overview         | 指标概览    | Aggregated KPIs and distributions for a time range                 | Application    | `MetricsOverview`              | `GET /api/metrics/overview`                |
-| Metrics Domain Snapshot  | 域指标快照   | Domain-scoped KPIs, series, and top models/operations              | Application    | `MetricsDomainSnapshot`        | `GET /api/metrics/domains/{domain}`        |
+| Metrics Capability Snapshot | 能力指标快照 | Capability-scoped KPIs, series, and top models/operations       | Application    | `MetricsCapabilitySnapshot`    | `GET /api/metrics/capabilities/{capability}` |
 | Metrics Series           | 指标时序    | Named time-bucketed metric series                                  | Application    | `SeriesSnapshot`               | `GET /api/metrics/series`                  |
 | Metrics Drill-down       | 指标下钻    | Filtered page of invocation events                                 | Application    | `DrilldownPage`                | `GET /api/metrics/drilldown`               |
 | AI Invocation Recorder   | AI 调用记录器 | Records invocation events without failing the business path        | Application    | `AiInvocationRecorder`         | Chat / RAG / Agents / Tools / Vision inject |
@@ -471,7 +488,7 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | ------------------------ | ---- | ------------------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------- | ------------------------------------------- |
 | Aggregate Root           | 聚合根  | Root entity within a transaction boundary; external access goes through the root only | Architecture | `ChatSession`, `AgentPipeline`                                | One aggregate per transaction               |
 | Entity                   | 实体   | Domain object with identity and mutable lifecycle                                     | Architecture | `ChatMessage`, `Document`, `AgentDefinition`                  | Distinguished by ID                         |
-| Value Object             | 值对象  | Immutable object compared by value, no standalone identity                            | Architecture | `ChatSessionId`, `DocumentId`, `SourceDocument`, `AgentType`  | Use `record` or factory methods             |
+| Value Object             | 值对象  | Immutable object compared by value, no standalone identity                            | Architecture | `ChatSessionId`, `DocumentId`, `SourceCitation`, `AgentType`  | Lombok `@Value` with `getX()`               |
 | Application Service      | 应用服务 | Application-layer orchestration of domain objects, repositories and gateways          | Architecture | `RagChatService`, `ChatService`, `PipelineService`            | `*Service` in `service/`; no business-rule details |
 | Repository               | 仓储   | Persistence abstraction for an aggregate                                              | Architecture | `ChatSessionRepository`, `DocumentRepository`                 | Interface in `domain/repository`; JPA ones extend Spring Data `Repository`, others are implemented in `infra/` (`Jdbc*`, `H2*`) |
 | Gateway                  | 网关   | Outbound call to an external system (LLM, TTS, embedding, email, MCP)                 | Architecture | `TextToSpeechGateway`, `TextEmbeddingGateway`, `EmailGateway` | Interface in `domain/repository`, impl in `infra/` named by technology |
@@ -494,7 +511,7 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | System Prompt                        | 系统提示词   | Instruction defining AI role and behavior                  | Technical | `PromptTemplates`, `prompts/chat/*.st`        | Composed from classpath fragments   |
 | Prompt Template                      | 提示词模板   | Reusable prompt with placeholders                          | Technical | `classpath:prompts/**`, `ClasspathPromptTemplate` | Spring AI `PromptTemplate` render path |
 | Shared Style Prompt                  | 共享风格提示词 | Minimal high-value style + no decorative emoji             | Technical | `prompts/shared/style-minimal.st`             | Shared by chat / RAG / agents       |
-| Context Window                       | 上下文窗口   | Maximum conversation history included in a request         | Technical | `context length` in `ollama show`; `ChatSession.getRecentMessages()` | See Appendix D **Context Length** |
+| Context Window                       | 上下文窗口   | Maximum conversation history included in a request         | Technical | `context length` in `ollama show`; `ChatSession.getMessages()` | See Appendix D **Context Length** |
 | Token                                | 令牌      | Atomic unit of text for LLM input/output and billing       | Technical | `promptTokens` / `completionTokens` | Industry standard unit; see Appendix D |
 | Temperature                          | 温度      | Sampling parameter controlling output randomness (0–1)     | Technical | `temperature` in `ollama show` / chat options | Lower = more deterministic; with Top-p / Top-k |
 | Retrieval-Augmented Generation (RAG) | 检索增强生成  | Pattern combining retrieval with LLM generation            | Pattern   | `RagChatService`                              | Retrieve → augment → generate       |
@@ -520,11 +537,11 @@ Standard BI / dimensional-analysis vocabulary used by the **Metrics** dashboard.
 | Preferred Term (English)     | 中文      | Definition                                                                 | Type           | Code Mapping                                      | Notes                                              |
 | ---------------------------- | ------- | -------------------------------------------------------------------------- | -------------- | ------------------------------------------------- | -------------------------------------------------- |
 | Business Intelligence (BI)   | 商业智能    | Practice of turning operational events into analyzable metrics and views     | Discipline     | Metrics domain                                    | Product surface: `/metrics`                        |
-| Dashboard                    | 仪表盘     | Single-screen composition of KPIs, charts, and tables for a time range     | UI Concept     | `/metrics`, `MetricsOverviewPage`                 | Overview + domain pages                            |
+| Dashboard                    | 仪表盘     | Single-screen composition of KPIs, charts, and tables for a time range     | UI Concept     | `/metrics`, `MetricsOverviewPage`                 | Overview + capability pages                        |
 | Key Performance Indicator (KPI) | 关键绩效指标 | Small set of headline measures shown for quick health assessment         | Measure        | `requestCount`, `errorRate`, `latencyP50Ms`       | Prefer “KPI cards”, not “stat pills”               |
 | Metric                       | 指标      | Named quantitative measure of a process (count, rate, latency, tokens)     | Concept        | series `name`, `SeriesPoint.value`                | Singular BI sense; product capability is **Metrics** |
 | Measure                      | 度量      | Numeric fact value that can be aggregated                                  | Concept        | `latencyMs`, token counts, `COUNT(*)`             | Kimball “fact” numeric payload                     |
-| Dimension                    | 维度      | Context used to filter or group measures (who / what / when / where)       | Concept        | `AiDomain`, `model`, `day`, `outcome`, `operation` | Drill-down query params                            |
+| Dimension                    | 维度      | Context used to filter or group measures (who / what / when / where)       | Concept        | `AiCapability`, `model`, `day`, `outcome`, `operation` | Drill-down query params                         |
 | Fact Event                   | 事实事件    | Atomic measurable occurrence at a declared grain                           | Concept        | `AiInvocationEvent`                               | One row ≈ one AI invocation                        |
 | Grain                        | 粒度      | Business meaning of one fact row (“one AI invocation”)                     | Concept        | `AiInvocationEvent`                               | Do not mix grains in one aggregate without care    |
 | Aggregation                  | 聚合      | Computing summaries (count, sum, rate, percentile) over facts              | Operation      | `JdbcMetricsQueryRepository`, `MetricsService`    | Overview / domain / series                         |
@@ -532,12 +549,12 @@ Standard BI / dimensional-analysis vocabulary used by the **Metrics** dashboard.
 | Time Bucket                  | 时间分桶    | Discrete period used to group a time series (e.g. calendar day)            | Concept        | SQL `bucket_day`, series `label`                  | H2 alias avoids reserved `day`                     |
 | Time Series                  | 时序      | Ordered sequence of (bucket, measure) points                               | Concept        | `SeriesSnapshot`, `SeriesPoint`                   | `GET /api/metrics/series`                          |
 | Categorical Series           | 分类序列    | Named categories with counts (not time-ordered)                            | Concept        | `NamedCount`, `requestsByDomain`, `modelSeries`   | Domain / model breakdowns                          |
-| Distribution                 | 分布      | How volume or outcomes split across a dimension                            | Concept        | `requestsByDomain`, domain health                 | Overview charts                                    |
+| Distribution                 | 分布      | How volume or outcomes split across a dimension                            | Concept        | `requestsByCapability`, capability health         | Overview charts                                    |
 | Trend                        | 趋势      | Direction of a measure across successive time buckets                      | Concept        | `requestSeries`, `latency_p95` series             | Domain page charts                                 |
 | Filter                       | 筛选      | Constraint that narrows facts before aggregation or listing                | Operation      | drilldown query (`domain`, `day`, `model`, …)     | Combine with dimensions                            |
 | Drill-down                   | 下钻      | Move from summary to finer grain by adding dimension constraints           | Interaction    | `GET /api/metrics/drilldown`, `DrilldownPage`     | Kimball: add grouping / filter context             |
 | Roll-up                      | 上卷      | Move from detail back to a coarser aggregate                               | Interaction    | Overview ← domain ← event table                   | Inverse of drill-down                              |
-| Slice                        | 切片      | Fix one dimension value and analyze the rest                               | Interaction    | domain page `/metrics/{domain}`                   | e.g. fix `AiDomain=chat`                           |
+| Slice                        | 切片      | Fix one dimension value and analyze the rest                               | Interaction    | capability page `/metrics/{capability}`           | e.g. fix `AiCapability=chat`                       |
 | Success Rate                 | 成功率     | Share of invocations with successful outcome                               | KPI            | `successRate`                                     | `1 - errorRate`                                    |
 | Error Rate                   | 错误率     | Share of invocations with failure outcome                                  | KPI            | `errorRate`                                       | From `InvocationOutcome`                           |
 | Request Count                | 请求量     | Number of invocations in the selected time range                           | KPI            | `requestCount`                                    | Primary volume measure                             |
