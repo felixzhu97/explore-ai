@@ -52,7 +52,6 @@ class ChatClientFactoryToolSearchTest {
         new StubWebSearchTool(),
         new StubDateTimeTool(),
         mock(ObjectProvider.class),
-        false,
         toolSearchEnabled);
   }
 

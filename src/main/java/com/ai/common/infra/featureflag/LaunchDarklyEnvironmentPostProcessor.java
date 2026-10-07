@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -18,8 +16,6 @@ import org.springframework.util.StringUtils;
 /** Seeds module flag bootstrap properties from LaunchDarkly or fallbacks before context startup. */
 public class LaunchDarklyEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
-  private static final Logger log =
-      LoggerFactory.getLogger(LaunchDarklyEnvironmentPostProcessor.class);
   private static final LDContext SERVER_CONTEXT = LDContext.builder("explore-ai-server").build();
 
   @Override
@@ -51,12 +47,10 @@ public class LaunchDarklyEnvironmentPostProcessor implements EnvironmentPostProc
         boolean value = client.boolVariation(flag.key(), SERVER_CONTEXT, fallback);
         bootstrap.put(flag.bootstrapProperty(), value);
       }
-      log.info("LaunchDarkly bootstrap flags loaded for startup conditionals");
     } finally {
       try {
         client.close();
-      } catch (IOException closeError) {
-        log.warn("Failed to close LaunchDarkly bootstrap client: {}", closeError.getMessage());
+      } catch (IOException expected) {
       }
     }
     return bootstrap;

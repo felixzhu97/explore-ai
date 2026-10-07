@@ -19,8 +19,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service
 public class DocumentUploadService {
-
-  private static final Logger log = LoggerFactory.getLogger(DocumentUploadService.class);
 
   public record UploadResult(
       DocumentId documentId,
@@ -112,7 +108,6 @@ public class DocumentUploadService {
         documentRepository
             .findByIdAndOwnerKey(documentId, ownerKey)
             .orElseThrow(() -> new DocumentNotFoundException(documentId));
-    log.info("Deleting document {} with {} chunks", documentId, document.getChunkCount());
     chunkRepository.deleteChunksByDocumentId(document.getId());
     documentRepository.deleteByIdAndOwnerKey(documentId, ownerKey);
   }

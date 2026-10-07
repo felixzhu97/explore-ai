@@ -1,6 +1,5 @@
 package com.ai.rag.service;
 
-import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.rag.domain.model.SourceDocument;
 import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
@@ -11,16 +10,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /** Document retrieval service - handles vector search and context building. */
 @Service
 @RequiredArgsConstructor
 public class DocumentSearchService {
-
-  private static final Logger log = LoggerFactory.getLogger(DocumentSearchService.class);
 
   public record RetrievalResult(String context, List<SourceDocument> sources) {}
 
@@ -34,7 +29,6 @@ public class DocumentSearchService {
    */
   public RetrievalResult retrieve(
       String query, List<DocumentId> documentIds, int topK, String ownerKey) {
-    log.info("RAG retrieval for query length={}", LogSanitizer.lengthOf(query));
     float[] queryEmbedding = embeddingRepository.embed(query);
     int effectiveTopK = topK > 0 ? topK : retrievalSettings.getTopK();
     double scoreThreshold = retrievalSettings.getScoreThreshold();
@@ -60,7 +54,6 @@ public class DocumentSearchService {
                         scored.chunk().excerpt(), scored.score(), scored.chunk().getMetadata()))
             .toList();
 
-    log.info("Retrieved {} chunks after score threshold {}", sources.size(), scoreThreshold);
     return new RetrievalResult(context, sources);
   }
 }

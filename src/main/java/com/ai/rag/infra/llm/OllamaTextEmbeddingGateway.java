@@ -3,8 +3,6 @@ package com.ai.rag.infra.llm;
 import com.ai.rag.domain.exception.RagServiceException;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.embedding.EmbeddingResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +15,6 @@ import org.springframework.stereotype.Component;
 @Component
 @ConditionalOnBean(EmbeddingModel.class)
 public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
-
-  private static final Logger log = LoggerFactory.getLogger(OllamaTextEmbeddingGateway.class);
 
   private final EmbeddingModel embeddingModel;
   private final int dimensions;
@@ -35,11 +31,9 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
   public float[] embed(String text) {
     try {
       if (text == null || text.isBlank()) {
-        log.warn("Empty text received for embedding, returning zero vector");
         return new float[dimensions];
       }
 
-      log.debug("Generating embedding for text of length: {}", text.length());
       EmbeddingResponse response =
           embeddingModel.call(
               new org.springframework.ai.embedding.EmbeddingRequest(List.of(text), null));
@@ -54,7 +48,6 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
       Object embeddingOutput = embeddings.get(0).getOutput();
       float[] result = convertToFloatArray(embeddingOutput);
 
-      log.debug("Generated embedding with {} dimensions", result.length);
       return result;
 
     } catch (RagServiceException e) {
@@ -67,7 +60,6 @@ public class OllamaTextEmbeddingGateway implements TextEmbeddingGateway {
   @Override
   public List<float[]> embedBatch(List<String> texts) {
     try {
-      log.debug("Generating batch embeddings for {} texts", texts.size());
       EmbeddingResponse response =
           embeddingModel.call(new org.springframework.ai.embedding.EmbeddingRequest(texts, null));
 

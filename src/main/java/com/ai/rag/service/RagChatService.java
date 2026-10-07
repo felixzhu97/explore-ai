@@ -2,7 +2,6 @@ package com.ai.rag.service;
 
 import com.ai.chat.domain.service.LanguageDetectionService;
 import com.ai.common.domain.vo.OwnerKey;
-import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.StreamTokenEvent;
@@ -21,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ChatClientResponse;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -44,8 +41,6 @@ import reactor.core.publisher.Flux;
 @Service
 @RequiredArgsConstructor
 public class RagChatService {
-
-  private static final Logger log = LoggerFactory.getLogger(RagChatService.class);
 
   private final ChatClientProvider chatClientProvider;
   private final LanguageDetectionService languageDetectionService;
@@ -121,7 +116,6 @@ public class RagChatService {
       String sessionId,
       String ownerKey,
       TextChatOptions options) {
-    log.info("RAG chat request: question length={}", LogSanitizer.lengthOf(question));
     Filter.Expression filter = buildRetrievalFilter(ownerKey, documentIds);
 
     String languageCode = languageDetectionService.detect(question);
@@ -190,7 +184,6 @@ public class RagChatService {
             .sessionId(sessionId)
             .documentId(documentId)
             .build());
-    log.info("RAG chat completed successfully");
   }
 
   private void recordError(String sessionId, String ownerKey, long startedAt, Throwable ex) {
@@ -217,7 +210,6 @@ public class RagChatService {
       String json = objectMapper.writeValueAsString(payload);
       return Flux.just(ServerSentEvent.<String>builder().event("sources").data(json).build());
     } catch (Exception ex) {
-      log.warn("Failed to serialize RAG sources for SSE", ex);
       return Flux.empty();
     }
   }

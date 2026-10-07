@@ -19,8 +19,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -37,8 +35,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class GoldenEvalService {
 
-  private static final Logger log = LoggerFactory.getLogger(GoldenEvalService.class);
-  private static final int ANSWER_LOG_LIMIT = 500;
+  private static final int ANSWER_EXCERPT_LIMIT = 500;
 
   private final GoldenSuiteRepository suiteRepository;
   private final OfficialSpringAiEvaluators officialEvaluators;
@@ -83,7 +80,6 @@ public class GoldenEvalService {
           gate.feedback(),
           null);
     } catch (RuntimeException ex) {
-      log.warn("Golden case {} failed during generation/eval: {}", evalCase.id(), ex.toString());
       return new CaseEvalOutcome(
           evalCase.id(),
           evalCase.domain(),
@@ -147,10 +143,10 @@ public class GoldenEvalService {
   }
 
   private static String truncate(String answer) {
-    if (answer.length() <= ANSWER_LOG_LIMIT) {
+    if (answer.length() <= ANSWER_EXCERPT_LIMIT) {
       return answer;
     }
-    return answer.substring(0, ANSWER_LOG_LIMIT) + "…";
+    return answer.substring(0, ANSWER_EXCERPT_LIMIT) + "…";
   }
 
   private record GeneratedAnswer(String answer, List<String> contextTexts) {}

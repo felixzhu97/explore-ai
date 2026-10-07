@@ -12,8 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -27,8 +25,6 @@ import org.springframework.stereotype.Component;
 @Component
 @ConditionalOnBean(ClientRegistrationRepository.class)
 public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
-  private static final Logger log = LoggerFactory.getLogger(OAuthLoginSuccessHandler.class);
 
   private final AccountService accountService;
   private final OwnerMergeService ownerMergeService;
@@ -56,8 +52,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     if (attribute instanceof String raw && ClientId.isValid(raw) && signIn.isPresent()) {
       AccountUser user = accountService.linkOAuthUser(signIn.get(), ClientId.parse(raw));
       ownerMergeService.mergeGuestIntoAccount(user);
-    } else {
-      log.warn("OAuth success without Client Identity or sign-in identity; session auth only");
     }
 
     SecurityContext context = SecurityContextHolder.createEmptyContext();

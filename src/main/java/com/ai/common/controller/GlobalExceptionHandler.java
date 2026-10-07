@@ -6,7 +6,6 @@ import com.ai.automation.domain.exception.AutomationScheduleNotFoundException;
 import com.ai.chat.domain.exception.ChatSessionNotFoundException;
 import com.ai.common.controller.dto.ErrorResponse;
 import com.ai.common.domain.exception.AiServiceException;
-import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.image.domain.exception.ImageProviderNotConfiguredException;
 import com.ai.image.domain.exception.InvalidImagePromptException;
 import com.ai.pipeline.domain.exception.PipelineTemplateNameConflictException;
@@ -23,8 +22,6 @@ import com.ai.vision.domain.exception.VisionOcrException;
 import com.ai.vision.domain.exception.VisionProviderUnavailableException;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -46,12 +43,9 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
   /** Returns 404 when a chat session does not exist. */
   @ExceptionHandler(ChatSessionNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleSessionNotFound(ChatSessionNotFoundException e) {
-    log.warn("Session not found: {}", LogSanitizer.fingerprint(e.getSessionId()));
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ErrorResponse.of("Session not found", "SESSION_NOT_FOUND"));
   }
@@ -60,7 +54,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ClientIdentityRequiredException.class)
   public ResponseEntity<ErrorResponse> handleClientIdentityRequired(
       ClientIdentityRequiredException e) {
-    log.warn("Client identity missing");
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(ErrorResponse.of("Client identity required", "CLIENT_IDENTITY_REQUIRED"));
   }
@@ -68,7 +61,6 @@ public class GlobalExceptionHandler {
   /** Returns 404 when a skill does not exist. */
   @ExceptionHandler(SkillNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleSkillNotFound(SkillNotFoundException e) {
-    log.warn("Skill not found: {}", e.getSkillId());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ErrorResponse.of(e.getMessage(), "SKILL_NOT_FOUND"));
   }
@@ -76,7 +68,6 @@ public class GlobalExceptionHandler {
   /** Returns 409 when a skill name is already taken. */
   @ExceptionHandler(SkillNameConflictException.class)
   public ResponseEntity<ErrorResponse> handleSkillNameConflict(SkillNameConflictException e) {
-    log.warn("Skill name conflict: {}", e.getName());
     return ResponseEntity.status(HttpStatus.CONFLICT)
         .body(ErrorResponse.of(e.getMessage(), "SKILL_NAME_CONFLICT"));
   }
@@ -85,7 +76,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(PipelineTemplateNotFoundException.class)
   public ResponseEntity<ErrorResponse> handlePipelineTemplateNotFound(
       PipelineTemplateNotFoundException e) {
-    log.warn("Pipeline template not found: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ErrorResponse.of(e.getMessage(), "PIPELINE_TEMPLATE_NOT_FOUND"));
   }
@@ -94,7 +84,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(PipelineTemplateNameConflictException.class)
   public ResponseEntity<ErrorResponse> handlePipelineTemplateNameConflict(
       PipelineTemplateNameConflictException e) {
-    log.warn("Pipeline template name conflict: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.CONFLICT)
         .body(ErrorResponse.of(e.getMessage(), "PIPELINE_TEMPLATE_NAME_CONFLICT"));
   }
@@ -102,7 +91,6 @@ public class GlobalExceptionHandler {
   /** Returns 404 when a saved agent does not exist. */
   @ExceptionHandler(SavedAgentNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleSavedAgentNotFound(SavedAgentNotFoundException e) {
-    log.warn("Saved agent not found: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ErrorResponse.of(e.getMessage(), "SAVED_AGENT_NOT_FOUND"));
   }
@@ -111,7 +99,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(AutomationScheduleNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleAutomationScheduleNotFound(
       AutomationScheduleNotFoundException e) {
-    log.warn("Automation schedule not found: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ErrorResponse.of(e.getMessage(), "AUTOMATION_SCHEDULE_NOT_FOUND"));
   }
@@ -120,7 +107,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(AutomationLimitExceededException.class)
   public ResponseEntity<ErrorResponse> handleAutomationLimitExceeded(
       AutomationLimitExceededException e) {
-    log.warn("Automation limit exceeded: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
         .body(ErrorResponse.of(e.getMessage(), "AUTOMATION_LIMIT_EXCEEDED"));
   }
@@ -129,7 +115,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(SavedAgentTypeConflictException.class)
   public ResponseEntity<ErrorResponse> handleSavedAgentTypeConflict(
       SavedAgentTypeConflictException e) {
-    log.warn("Saved agent type conflict: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.CONFLICT)
         .body(ErrorResponse.of(e.getMessage(), "SAVED_AGENT_TYPE_CONFLICT"));
   }
@@ -137,7 +122,6 @@ public class GlobalExceptionHandler {
   /** Returns 503 when the AI provider fails. */
   @ExceptionHandler(AiServiceException.class)
   public ResponseEntity<ErrorResponse> handleAiServiceError(AiServiceException e) {
-    log.error("AI service error: {}", e.getMessage(), e);
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
         .body(ErrorResponse.of("AI service error: " + e.getMessage(), e.getErrorCode()));
   }
@@ -145,7 +129,6 @@ public class GlobalExceptionHandler {
   /** Returns 404 when a document does not exist. */
   @ExceptionHandler(DocumentNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleDocumentNotFound(DocumentNotFoundException e) {
-    log.warn("Document not found: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ErrorResponse.of(e.getMessage(), "DOCUMENT_NOT_FOUND"));
   }
@@ -153,7 +136,6 @@ public class GlobalExceptionHandler {
   /** Returns 422 when a document cannot be processed. */
   @ExceptionHandler(DocumentProcessingException.class)
   public ResponseEntity<ErrorResponse> handleDocumentProcessing(DocumentProcessingException e) {
-    log.warn("Document processing failed: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
         .body(ErrorResponse.of(e.getMessage(), "DOCUMENT_UNREADABLE"));
   }
@@ -162,7 +144,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(VisionProviderUnavailableException.class)
   public ResponseEntity<ErrorResponse> handleVisionProviderUnavailable(
       VisionProviderUnavailableException e) {
-    log.warn("Vision provider unavailable [{}]: {}", e.getProvider(), e.getMessage());
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
         .body(ErrorResponse.of(e.getMessage(), "VISION_PROVIDER_UNAVAILABLE"));
   }
@@ -170,14 +151,12 @@ public class GlobalExceptionHandler {
   /** Returns 400 for an invalid vision file. */
   @ExceptionHandler(VisionInvalidFileException.class)
   public ResponseEntity<ErrorResponse> handleVisionInvalidFile(VisionInvalidFileException e) {
-    log.warn("Invalid vision input: {}", e.getMessage());
     return ResponseEntity.badRequest().body(ErrorResponse.of(e.getMessage(), "INVALID_FILE"));
   }
 
   /** Returns 500 when OCR fails. */
   @ExceptionHandler(VisionOcrException.class)
   public ResponseEntity<ErrorResponse> handleVisionOcrError(VisionOcrException e) {
-    log.error("OCR failed: {}", e.getMessage(), e);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(ErrorResponse.of(e.getMessage(), "OCR_FAILED"));
   }
@@ -185,7 +164,6 @@ public class GlobalExceptionHandler {
   /** Returns 500 when the RAG service fails. */
   @ExceptionHandler(RagServiceException.class)
   public ResponseEntity<ErrorResponse> handleRagServiceError(RagServiceException e) {
-    log.error("RAG service error: {}", e.getMessage(), e);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(ErrorResponse.of("RAG service error: " + e.getMessage(), "RAG_SERVICE_ERROR"));
   }
@@ -194,7 +172,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ImageProviderNotConfiguredException.class)
   public ResponseEntity<ErrorResponse> handleImageProviderNotConfigured(
       ImageProviderNotConfiguredException e) {
-    log.warn("Image provider not configured: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
         .body(ErrorResponse.of(e.getMessage(), "IMAGE_PROVIDER_NOT_CONFIGURED"));
   }
@@ -202,7 +179,6 @@ public class GlobalExceptionHandler {
   /** Returns 400 for an invalid image prompt. */
   @ExceptionHandler(InvalidImagePromptException.class)
   public ResponseEntity<ErrorResponse> handleInvalidImagePrompt(InvalidImagePromptException e) {
-    log.warn("Invalid image prompt: {}", e.getMessage());
     return ResponseEntity.badRequest()
         .body(ErrorResponse.of(e.getMessage(), "INVALID_IMAGE_PROMPT"));
   }
@@ -211,7 +187,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(TtsProviderNotConfiguredException.class)
   public ResponseEntity<ErrorResponse> handleTtsProviderNotConfigured(
       TtsProviderNotConfiguredException e) {
-    log.warn("TTS provider not configured: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
         .body(ErrorResponse.of(e.getMessage(), "TTS_PROVIDER_NOT_CONFIGURED"));
   }
@@ -223,7 +198,6 @@ public class GlobalExceptionHandler {
         e.getBindingResult().getFieldErrors().stream()
             .map(error -> error.getField() + ": " + error.getDefaultMessage())
             .collect(Collectors.joining(", "));
-    log.warn("Validation error: {}", message);
     return ResponseEntity.badRequest().body(ErrorResponse.of(message, "VALIDATION_ERROR"));
   }
 
@@ -242,14 +216,12 @@ public class GlobalExceptionHandler {
                                     + ": "
                                     + error.getDefaultMessage()))
             .collect(Collectors.joining(", "));
-    log.warn("Validation error: {}", message);
     return ResponseEntity.badRequest().body(ErrorResponse.of(message, "VALIDATION_ERROR"));
   }
 
   /** Returns 400 for an invalid argument. */
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
-    log.warn("Illegal argument: {}", e.getMessage());
     return ResponseEntity.badRequest().body(ErrorResponse.of(e.getMessage(), "BAD_REQUEST"));
   }
 
@@ -257,7 +229,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(MaxUploadSizeExceededException.class)
   public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceeded(
       MaxUploadSizeExceededException e) {
-    log.warn("Upload size exceeded: {}", e.getMessage());
     String limit = formatUploadLimit(e.getMaxUploadSize());
     return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
         .body(
@@ -268,7 +239,6 @@ public class GlobalExceptionHandler {
   /** Returns 503 when the database fails. */
   @ExceptionHandler(DataAccessException.class)
   public ResponseEntity<ErrorResponse> handleDataAccessError(DataAccessException e) {
-    log.error("Database error during chat operation", e);
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
         .body(
             ErrorResponse.of(
@@ -286,7 +256,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
   public ResponseEntity<ErrorResponse> handleMethodNotSupported(
       HttpRequestMethodNotSupportedException e) {
-    log.warn("Method not supported: {}", e.getMethod());
     ResponseEntity.BodyBuilder builder = ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED);
     Set<HttpMethod> supported = e.getSupportedHttpMethods();
     if (supported != null && !supported.isEmpty()) {
@@ -300,7 +269,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
   public ResponseEntity<ErrorResponse> handleMediaTypeNotSupported(
       HttpMediaTypeNotSupportedException e) {
-    log.warn("Media type not supported: {}", e.getContentType());
     return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
         .body(
             ErrorResponse.of(
@@ -311,7 +279,6 @@ public class GlobalExceptionHandler {
   /** Returns 400 when the request body cannot be read. */
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ErrorResponse> handleMessageNotReadable(HttpMessageNotReadableException e) {
-    log.warn("Unreadable request body: {}", e.getMessage());
     return ResponseEntity.badRequest()
         .body(ErrorResponse.of("Request body is missing or malformed", "BAD_REQUEST"));
   }
@@ -320,7 +287,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(MissingServletRequestParameterException.class)
   public ResponseEntity<ErrorResponse> handleMissingParameter(
       MissingServletRequestParameterException e) {
-    log.warn("Missing request parameter: {}", e.getParameterName());
     return ResponseEntity.badRequest()
         .body(
             ErrorResponse.of(
@@ -331,7 +297,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   public ResponseEntity<ErrorResponse> handleArgumentTypeMismatch(
       MethodArgumentTypeMismatchException e) {
-    log.warn("Argument type mismatch: {}", e.getName());
     return ResponseEntity.badRequest()
         .body(
             ErrorResponse.of(
@@ -341,7 +306,6 @@ public class GlobalExceptionHandler {
   /** Returns 500 for any other error. */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleGenericException(Exception e) {
-    log.error("Unexpected error", e);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(ErrorResponse.of("An unexpected error occurred", "INTERNAL_ERROR"));
   }

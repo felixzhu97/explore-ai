@@ -17,8 +17,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -30,8 +28,6 @@ import org.springframework.stereotype.Service;
     havingValue = "true",
     matchIfMissing = false)
 public class OnnxYoloDetector implements ObjectDetector {
-
-  private static final Logger log = LoggerFactory.getLogger(OnnxYoloDetector.class);
 
   private final VisionModelProperties properties;
   private final OrtEnvironment environment;
@@ -51,14 +47,9 @@ public class OnnxYoloDetector implements ObjectDetector {
         loadedSession =
             loadedEnvironment.createSession(modelPath.toString(), new OrtSession.SessionOptions());
         modelAvailable = true;
-        log.info("YOLOv8 detector loaded from {}", modelPath.toAbsolutePath());
-      } else {
-        log.warn("YOLOv8 model not found at {}", modelPath.toAbsolutePath());
       }
-    } catch (OrtException ex) {
-      log.warn("Failed to load YOLOv8 model at {}: {}", modelPath, ex.getMessage());
-    } catch (UnsatisfiedLinkError | NoClassDefFoundError ex) {
-      log.warn("ONNX Runtime native library unavailable: {}", ex.getMessage());
+    } catch (OrtException expected) {
+    } catch (UnsatisfiedLinkError | NoClassDefFoundError expected) {
     }
 
     this.environment = loadedEnvironment;
@@ -104,8 +95,7 @@ public class OnnxYoloDetector implements ObjectDetector {
     }
     try {
       session.close();
-    } catch (OrtException ex) {
-      log.debug("Failed to close YOLO session: {}", ex.getMessage());
+    } catch (OrtException expected) {
     }
   }
 

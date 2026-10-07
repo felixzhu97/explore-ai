@@ -1,8 +1,6 @@
 package com.ai.mcp.infra.config;
 
 import com.ai.mcp.service.McpToolCallbackRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.ObjectProvider;
@@ -22,8 +20,6 @@ import org.springframework.context.annotation.Configuration;
     matchIfMissing = false)
 public class McpClientToolsConfig {
 
-  private static final Logger log = LoggerFactory.getLogger(McpClientToolsConfig.class);
-
   /** Loads the MCP tool callbacks and registers them. */
   @Bean
   @ConditionalOnProperty(
@@ -37,19 +33,15 @@ public class McpClientToolsConfig {
     try {
       ToolCallbackProvider provider = toolCallbackProviders.getIfAvailable();
       if (provider == null) {
-        log.debug("No MCP ToolCallbackProvider; chat will use local tools only");
         return new ToolCallback[0];
       }
       ToolCallback[] callbacks = provider.getToolCallbacks();
       if (callbacks == null || callbacks.length == 0) {
-        log.debug("MCP client has no external tools registered");
         return new ToolCallback[0];
       }
       registry.registerToolCallbacks(callbacks, "external-mcp");
-      log.info("Merged {} MCP tool callback(s) into chat", callbacks.length);
       return callbacks;
     } catch (RuntimeException ex) {
-      log.warn("MCP tool registration failed; chat will use local tools only: {}", ex.getMessage());
       return new ToolCallback[0];
     }
   }

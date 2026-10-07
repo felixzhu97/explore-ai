@@ -13,8 +13,6 @@ import com.ai.billing.service.DailyUsageQuotaService;
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,8 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class DueAutomationRunner {
-
-  private static final Logger log = LoggerFactory.getLogger(DueAutomationRunner.class);
 
   private final AutomationScheduleRepository scheduleRepository;
   private final AutomationRunRepository runRepository;
@@ -65,7 +61,6 @@ public class DueAutomationRunner {
                 "en");
         run.succeed(result, sendResultEmail(schedule, result));
       } catch (Exception ex) {
-        log.warn("Automation schedule={} failed: {}", schedule.getId().value(), ex.getMessage());
         run.failBeforeEmail(ex.getMessage());
       }
     }
@@ -81,7 +76,6 @@ public class DueAutomationRunner {
       emailGateway.send(schedule.resultEmail(formatted.textBody(), formatted.htmlBody()));
       return EmailDeliveryStatus.SENT;
     } catch (Exception ex) {
-      log.warn("Email send failed for schedule={}: {}", schedule.getId().value(), ex.getMessage());
       return EmailDeliveryStatus.FAILED;
     }
   }

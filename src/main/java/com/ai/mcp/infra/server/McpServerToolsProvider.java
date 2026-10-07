@@ -2,13 +2,10 @@ package com.ai.mcp.infra.server;
 
 import com.ai.chat.service.ChatService;
 import com.ai.common.domain.tool.DocumentSearchTool;
-import com.ai.common.infra.logging.LogSanitizer;
 import com.ai.rag.infra.config.RagProperties;
 import com.ai.tools.infra.tools.WeatherTools;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.mcp.annotation.McpResource;
 import org.springframework.ai.mcp.annotation.McpTool;
 import org.springframework.ai.mcp.annotation.McpToolParam;
@@ -25,8 +22,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class McpServerToolsProvider {
 
-  private static final Logger log = LoggerFactory.getLogger(McpServerToolsProvider.class);
-
   private final WeatherTools weatherTools;
   private final DocumentSearchTool documentSearchTool;
   private final ChatService chatService;
@@ -38,7 +33,6 @@ public class McpServerToolsProvider {
   public String getWeather(
       @McpToolParam(description = "The city name to get weather for", required = true)
           String city) {
-    log.info("MCP tool: getWeather called for city: {}", city);
     return weatherTools.getWeather(city);
   }
 
@@ -47,7 +41,6 @@ public class McpServerToolsProvider {
       @McpToolParam(description = "The city name", required = true) String city,
       @McpToolParam(description = "Number of days for forecast (default: 3)", required = false)
           Integer days) {
-    log.info("MCP tool: getForecast called for city: {} with {} days", city, days);
     return weatherTools.getForecast(city, days);
   }
 
@@ -60,7 +53,6 @@ public class McpServerToolsProvider {
               description = "Optional document IDs to filter (comma-separated)",
               required = false)
           String documentIds) {
-    log.info("MCP tool: searchKnowledgeBase called, query length={}", LogSanitizer.lengthOf(query));
 
     List<String> documentIdList = null;
     if (documentIds != null && !documentIds.isBlank()) {
@@ -74,7 +66,6 @@ public class McpServerToolsProvider {
       name = "list_documents",
       description = "List all documents available in the knowledge base")
   public String listDocuments() {
-    log.info("MCP tool: listDocuments called");
     return documentSearchTool.listDocuments();
   }
 
@@ -82,7 +73,6 @@ public class McpServerToolsProvider {
   public String aiChat(
       @McpToolParam(description = "The message to send to the AI", required = true)
           String message) {
-    log.info("MCP tool: aiChat called, message length={}", LogSanitizer.lengthOf(message));
     return chatService.chat(message);
   }
 
@@ -92,7 +82,6 @@ public class McpServerToolsProvider {
       name = "Configuration Resource",
       description = "Access application configuration")
   public String getConfig(String key) {
-    log.info("MCP resource: getConfig called for key: {}", key);
 
     return switch (key) {
       case "app.rag.chunk.size" -> String.valueOf(ragProperties.getChunk().getSize());

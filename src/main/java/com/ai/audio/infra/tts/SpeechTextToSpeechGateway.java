@@ -11,8 +11,6 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
@@ -24,8 +22,6 @@ import org.springframework.web.client.RestClient;
 @Repository
 @ConditionalOnProperty(name = "app.ai.tts.provider", havingValue = "speech", matchIfMissing = true)
 public class SpeechTextToSpeechGateway implements TextToSpeechGateway {
-
-  private static final Logger log = LoggerFactory.getLogger(SpeechTextToSpeechGateway.class);
 
   /** OpenAI TTS catalog voices — not valid Qwen3-TTS speakers. */
   private static final Set<String> OPENAI_VOICES =
@@ -69,19 +65,16 @@ public class SpeechTextToSpeechGateway implements TextToSpeechGateway {
       JsonNode node = objectMapper.readTree(json == null ? "{}" : json);
       String audioUrl = node.path("audio_url").asText("");
       if (audioUrl.isBlank()) {
-        log.warn("speech TTS returned empty audio_url");
         return SynthesizedAudio.empty();
       }
       URI uri = resolveAudioUri(audioUrl);
       byte[] audio = RestClient.create().get().uri(uri).retrieve().body(byte[].class);
       if (audio == null || audio.length == 0) {
-        log.warn("speech TTS audio download empty: {}", uri);
         return SynthesizedAudio.empty();
       }
       String mediaType = audioUrl.endsWith(".wav") ? "audio/wav" : "audio/mpeg";
       return SynthesizedAudio.create(audio, mediaType);
     } catch (Exception e) {
-      log.error("speech TTS failed", e);
       return SynthesizedAudio.empty();
     }
   }

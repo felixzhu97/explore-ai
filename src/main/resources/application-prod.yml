@@ -106,8 +106,6 @@ app:
   vision:
     models-dir: ${VISION_MODELS_DIR:models}
   ai:
-    logging-advisor:
-      enabled: false
     image:
       provider: ${IMAGE_PROVIDER:openai}
       model: ${IMAGE_MODEL:dall-e-3}
@@ -125,9 +123,3 @@ management:
     mail:
       enabled: false
 
-logging:
-  level:
-    com.ai: INFO
-    org.springframework.ai: INFO
-    org.springframework.web: INFO
-    org.hibernate.SQL: WARN

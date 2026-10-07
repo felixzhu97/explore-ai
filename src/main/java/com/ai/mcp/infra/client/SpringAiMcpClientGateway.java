@@ -10,8 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
@@ -25,15 +23,12 @@ import org.springframework.stereotype.Repository;
     matchIfMissing = false)
 public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallbackRegistry {
 
-  private static final Logger log = LoggerFactory.getLogger(SpringAiMcpClientGateway.class);
-
   private final McpSessionRegistry sessionRegistry = new McpSessionRegistry();
   private final Map<String, List<ToolCallback>> serverCallbacks = new ConcurrentHashMap<>();
   private final Map<String, List<McpToolDefinition>> serverTools = new ConcurrentHashMap<>();
 
   @Override
   public void registerToolCallbacks(ToolCallback[] tools, String serverName) {
-    log.info("Registering {} tools from MCP server: {}", tools.length, serverName);
     List<ToolCallback> callbacks = List.of(tools);
     List<McpToolDefinition> definitions = new ArrayList<>();
     for (ToolCallback tool : tools) {
@@ -84,7 +79,6 @@ public class SpringAiMcpClientGateway implements McpClientGateway, McpToolCallba
     serverCallbacks.clear();
     serverTools.clear();
     sessionRegistry.clear();
-    log.info("Cleared all registered MCP tools");
   }
 
   @Override

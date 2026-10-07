@@ -21,8 +21,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
@@ -37,7 +35,6 @@ import org.springframework.stereotype.Service;
     matchIfMissing = false)
 public class OnnxBlipCaptioner implements ImageCaptioner {
 
-  private static final Logger log = LoggerFactory.getLogger(OnnxBlipCaptioner.class);
   private static final long[] PIXEL_SHAPE = {1, 3, 384, 384};
   private static final long DECODER_MIN_BYTES = 600_000_000L;
 
@@ -72,27 +69,13 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
         loadedDecoder = loadedEnvironment.createSession(decoderPath.toString(), options);
         loadedVocabulary = BlipVocabulary.load(tokenizerPath);
         modelAvailable = true;
-        log.info("BLIP captioner loaded from {}", visionPath.toAbsolutePath());
       } catch (IOException | OrtException ex) {
-        log.warn("Failed to load BLIP caption models: {}", ex.getMessage());
         closeQuietly(loadedVision);
         closeQuietly(loadedDecoder);
         loadedVision = null;
         loadedDecoder = null;
-      } catch (UnsatisfiedLinkError | NoClassDefFoundError ex) {
-        log.warn("ONNX Runtime native library unavailable: {}", ex.getMessage());
+      } catch (UnsatisfiedLinkError | NoClassDefFoundError expected) {
       }
-    } else if (Files.exists(decoderPath) && !isCompleteDecoder(decoderPath)) {
-      log.warn(
-          "BLIP decoder download appears incomplete at {} (need >= {} bytes)",
-          decoderPath,
-          DECODER_MIN_BYTES);
-    } else {
-      log.warn(
-          "BLIP caption models not found. vision={}, decoder={}, tokenizer={}",
-          visionPath,
-          decoderPath,
-          tokenizerPath);
     }
 
     this.visionSession = loadedVision;
@@ -256,8 +239,7 @@ public class OnnxBlipCaptioner implements ImageCaptioner {
     }
     try {
       session.close();
-    } catch (OrtException ex) {
-      log.debug("Failed to close ONNX session: {}", ex.getMessage());
+    } catch (OrtException expected) {
     }
   }
 

@@ -11,8 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
 
-  private static final Logger log = LoggerFactory.getLogger(JdbcChatWebSourcesRepository.class);
   private static final TypeReference<List<WebSource>> SOURCES_TYPE = new TypeReference<>() {};
 
   private final JdbcTemplate jdbcTemplate;
@@ -45,7 +42,6 @@ public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
     try {
       sourcesJson = objectMapper.writeValueAsString(sources);
     } catch (JsonProcessingException e) {
-      log.warn("Failed to serialize web sources for conversation {}", conversationId, e);
       return;
     }
     String truncatedQuery =
@@ -96,7 +92,6 @@ public class JdbcChatWebSourcesRepository implements ChatWebSourcesRepository {
       List<WebSource> parsed = objectMapper.readValue(json, SOURCES_TYPE);
       return parsed == null ? List.of() : List.copyOf(parsed);
     } catch (JsonProcessingException e) {
-      log.warn("Failed to parse stored web sources JSON", e);
       return List.of();
     }
   }

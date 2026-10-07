@@ -3,8 +3,6 @@ package com.ai.automation.infra.schedule;
 import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.automation.service.DueAutomationRunner;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -15,8 +13,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DueAutomationScanJob {
 
-  private static final Logger log = LoggerFactory.getLogger(DueAutomationScanJob.class);
-
   private final DueAutomationRunner dueAutomationRunner;
   private final AutomationProperties properties;
 
@@ -26,9 +22,6 @@ public class DueAutomationScanJob {
     if (!properties.isScanEnabled()) {
       return;
     }
-    int executed = dueAutomationRunner.executeDue();
-    if (executed > 0) {
-      log.info("Automation due scan executed={}", executed);
-    }
+    dueAutomationRunner.executeDue();
   }
 }
