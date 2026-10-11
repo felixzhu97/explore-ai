@@ -94,7 +94,11 @@ Run unit tests with `./gradlew test`. Run end-to-end tests with `pnpm e2e`; it s
 
 ## Contributing
 
-Contributions are welcome. Open an issue or pull request on [GitHub](https://github.com/felixzhu97/explore-ai). Keep domain and API names aligned with the [Glossary](docs/Glossary.md) when changing behavior or docs.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Open an issue or pull request on [GitHub](https://github.com/felixzhu97/explore-ai). Keep domain and API names aligned with the [Glossary](docs/Glossary.md) when changing behavior or docs. Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Security
+
+Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
 
 ## Project status
 
