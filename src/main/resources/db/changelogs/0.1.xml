@@ -7,7 +7,7 @@
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
   "
 >
-  <changeSet author="explore-ai" id="0.1-001-rag-document" dbms="h2">
+  <changeSet author="felix.zhu" id="0d1af408-6bf8-5bf7-a2ac-592bac5b3bb4" dbms="h2">
     <createTable tableName="rag_document">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
@@ -44,7 +44,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="explore-ai" id="0.1-002-document-chunks" dbms="h2">
+  <changeSet author="felix.zhu" id="a08afedd-ece9-5848-99e8-e14de9e7f52a" dbms="h2">
     <createTable tableName="document_chunk">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
@@ -82,7 +82,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="explore-ai" id="0.1-003-chat-sessions" dbms="h2">
+  <changeSet author="felix.zhu" id="79e089c1-5533-5fb0-b383-c1bb6bb3afd2" dbms="h2">
     <createTable tableName="chat_session">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
@@ -114,7 +114,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="explore-ai" id="0.1-004-spring-ai-chat-memory" dbms="h2">
+  <changeSet author="felix.zhu" id="85ec1090-f36e-5297-a210-3cc686653977" dbms="h2">
     <createTable tableName="SPRING_AI_CHAT_MEMORY">
       <column name="conversation_id" type="${string.type}(64)">
         <constraints nullable="false"/>
@@ -146,7 +146,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="explore-ai" id="0.1-005-chat-web-sources" dbms="h2">
+  <changeSet author="felix.zhu" id="933a1069-8517-5d29-b5db-47f7dc885767" dbms="h2">
     <createTable tableName="chat_web_source">
       <column name="conversation_id" type="${string.type}(36)">
         <constraints nullable="false"/>
@@ -171,7 +171,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="explore-ai" id="0.1-006-ai-invocation-events" dbms="h2">
+  <changeSet author="felix.zhu" id="69b7a243-a9fd-5404-ac3e-fd2cadf3ff2d" dbms="h2">
     <createTable tableName="ai_invocation_event">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
@@ -227,7 +227,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="explore-ai" id="0.1-007-skills" dbms="h2">
+  <changeSet author="felix.zhu" id="4014d414-5ea0-5495-876c-8c5c22100919" dbms="h2">
     <createTable tableName="skill">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
@@ -265,7 +265,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="explore-ai" id="0.1-008-pipeline-template" dbms="h2">
+  <changeSet author="felix.zhu" id="9bdf4667-4387-52a5-8c17-4ff9842c2849" dbms="h2">
     <createTable tableName="pipeline_template">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
@@ -307,7 +307,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="explore-ai" id="0.1-009-custom-agent" dbms="h2">
+  <changeSet author="felix.zhu" id="97d27590-09b4-571a-8bd6-0ff5fd218e29" dbms="h2">
     <createTable tableName="custom_agent">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
@@ -350,7 +350,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="explore-ai" id="0.1-010-automation" dbms="h2">
+  <changeSet author="felix.zhu" id="003dff0e-58f7-5e0f-875f-a419955b5ec3" dbms="h2">
     <createTable tableName="automation_schedule">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
@@ -439,7 +439,7 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="explore-ai" id="0.1-011-account-users" dbms="h2">
+  <changeSet author="felix.zhu" id="1518a7e4-62d0-5f4b-a937-2ed31977aa4b" dbms="h2">
     <createTable tableName="account">
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
