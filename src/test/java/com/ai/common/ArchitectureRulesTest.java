@@ -37,4 +37,21 @@ class ArchitectureRulesTest {
         .resideInAPackage("com.ai..infra..")
         .check(CLASSES);
   }
+
+  @Test
+  @DisplayName("should keep AI features unaware of metrics when they report invocations")
+  void shouldKeepAiFeaturesUnawareOfMetricsWhenTheyReportInvocations() {
+    ArchRuleDefinition.noClasses()
+        .that()
+        .resideInAnyPackage(
+            "com.ai.chat..",
+            "com.ai.rag..",
+            "com.ai.pipeline..",
+            "com.ai.tools..",
+            "com.ai.vision..")
+        .should()
+        .dependOnClassesThat()
+        .resideInAPackage("com.ai.metrics..")
+        .check(CLASSES);
+  }
 }

@@ -156,7 +156,7 @@ Container_Boundary(mcp_client_domain, "MCP Client Domain") {
 Container_Boundary(metrics_domain, "Metrics Domain") {
     Container(metrics_controller, "MetricsController", "@RestController", "/api/metrics/* (overview, capabilities, series, drilldown)")
     Container(metrics_service, "MetricsService", "Application Service", "概览 / 域快照 / 时序 / 下钻")
-    Container(invocation_recorder, "AiInvocationRecorder", "Application", "业务路径旁路记录调用事件")
+    Container(invocation_recorder, "AiInvocationRecorder", "Application", "监听 AiInvocationCompleted/FailedEvent 记录调用事件")
     Container(ai_invocation_event, "AiInvocationEvent", "Entity", "AI 调用事件")
     Container(jdbc_invocation_repo, "JpaAiInvocationEventRepository", "@Repository", "@Immutable 事件 JPA persist · 下钻 JDBC")
     Container(jdbc_metrics_query, "JdbcMetricsQueryRepository", "@Repository", "聚合查询 JDBC")
