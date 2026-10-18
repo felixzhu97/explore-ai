@@ -10,6 +10,7 @@ participant "ScimSecurityConfig\n@Order(0)" as sec <<java>>
 participant "ScimUserController\n/scim/v2/Users" as ctrl <<java>>
 participant "ScimAccountService" as svc <<java>>
 participant "OwnerErasureService" as erase <<java>>
+participant "Feature handlers\nchat · rag · skill · pipeline\nautomation · metrics" as handlers <<java>>
 database "H2\naccount · owner data" as db <<db>>
 
 iam -> sec: 1. Request + Bearer (client_credentials iam-scim-outbound)
@@ -29,9 +30,10 @@ else Replace / PATCH
 else Delete
   ctrl -> svc: 4c. DELETE /Users/{id}
   svc -> erase: 5c. eraseAllForOwner(OwnerKey)
-  erase -> db: 6c. Delete chats, documents, vectors, skills …
-  svc -> db: 7c. Delete Account
-  ctrl --> iam: 8c. 204
+  erase -> handlers: 6c. publish OwnerErasureRequestedEvent\n(sync, same transaction)
+  handlers -> db: 7c. Each module deletes its own rows\n(ChatSessionsErasedEvent → metrics)
+  svc -> db: 8c. Delete Account
+  ctrl --> iam: 9c. 204
 end
 
 note over iam, db
