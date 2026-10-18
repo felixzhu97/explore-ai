@@ -4,7 +4,7 @@ plugins {
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
     id("jacoco")
-    id("com.diffplug.spotless") version "8.10.2"
+    id("com.diffplug.spotless") version "8.10.4"
 }
 
 group = "com.ai"
@@ -53,9 +53,9 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-rag")
     implementation("org.springframework.ai:spring-ai-vector-store-advisor")
     implementation("org.springframework.ai:spring-ai-starter-model-anthropic")
-    implementation("org.springaicommunity:spring-ai-agent-utils:0.12.0")
+    implementation("org.springaicommunity:spring-ai-agent-utils:0.13.0")
     implementation("org.springframework.ai:spring-ai-tool-search-advisor")
-    implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.17.0")
+    implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.17.3")
     implementation("com.github.ben-manes.caffeine:caffeine")
     implementation("com.unboundid.product.scim2:scim2-sdk-common:6.1.0")
     implementation("com.fasterxml.jackson.core:jackson-databind")
@@ -75,7 +75,7 @@ dependencies {
     runtimeOnly("com.h2database:h2")
 
     // Automation result emails: Markdown → HTML
-    implementation("org.commonmark:commonmark:0.30.0")
+    implementation("org.commonmark:commonmark:0.30.1")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -86,14 +86,14 @@ dependencies {
     testImplementation("org.springframework.ai:spring-ai-test")
     testImplementation("org.hamcrest:hamcrest:3.0")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.0")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.1")
 }
 
 if (!cloudMinimal) {
     dependencies {
         implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
         implementation("org.springframework.ai:spring-ai-starter-mcp-client")
-        implementation("com.microsoft.onnxruntime:onnxruntime:1.30.0")
+        implementation("com.microsoft.onnxruntime:onnxruntime:1.31.0")
         implementation("net.sourceforge.tess4j:tess4j:5.20.0")
     }
 } else {
@@ -101,7 +101,7 @@ if (!cloudMinimal) {
     dependencies {
         compileOnly("org.springframework.ai:spring-ai-starter-mcp-server-webmvc")
         compileOnly("org.springframework.ai:spring-ai-starter-mcp-client")
-        compileOnly("com.microsoft.onnxruntime:onnxruntime:1.30.0")
+        compileOnly("com.microsoft.onnxruntime:onnxruntime:1.31.0")
         compileOnly("net.sourceforge.tess4j:tess4j:5.20.0")
     }
 }
