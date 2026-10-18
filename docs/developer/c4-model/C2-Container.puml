@@ -163,6 +163,16 @@ Container_Boundary(metrics_domain, "Metrics Domain") {
 }
 
 ' ============================================================
+' DOMAIN: SCIM PROVISIONING
+' ============================================================
+Container_Boundary(scim_domain, "SCIM Provisioning Domain") {
+    Container(scim_controller, "ScimUserController", "@RestController", "/scim/v2/Users + discovery\napplication/scim+json · ETag / If-Match")
+    Container(scim_security, "ScimSecurityConfig", "SecurityFilterChain @Order(0)", "Bearer · SCOPE_write:ai_scim · stateless")
+    Container(scim_service, "ScimAccountService", "Application Service", "Provisioned Account CRUD (explore-iam only)\nDELETE → OwnerErasureService")
+    Container(account_repo, "AccountRepository", "Spring Data JPA", "account 表 · userName / active")
+}
+
+' ============================================================
 ' CROSS-CUTTING
 ' ============================================================
 Container_Boundary(crosscut, "Cross-Cutting") {
@@ -187,7 +197,7 @@ Container_Ext(speech_svc, "explore-ml speech", "REST/WebSocket", "Qwen3-ASR + Qw
 Container_Ext(serper_api, "Serper.dev API", "REST API", "Web 搜索", "HTTPS")
 Container_Ext(launchdarkly, "LaunchDarkly", "SaaS", "功能开关", "HTTPS")
 Container_Ext(datadog, "Datadog us5", "SaaS", "APM (javaagent → Agent)", "HTTPS")
-Container_Ext(explore_iam, "Explore IAM", "OIDC Provider", "authorize / token / JWKS :9100", "HTTPS")
+Container_Ext(explore_iam, "Explore IAM", "OIDC Provider + SCIM Client", "authorize / token / JWKS :9100\nSCIM push (iam-scim-outbound)", "HTTPS")
 
 ' ============================================================
 ' RELATIONSHIPS
@@ -201,6 +211,11 @@ Rel(admin, metrics_controller, "AI 指标看板", "HTTP")
 Rel(ios_app, explore_iam, "OIDC + PKCE", "HTTPS :9100")
 Rel(ios_app, backend, "Bearer access_token", "HTTPS :9000")
 Rel(backend, explore_iam, "JWKS / issuer validate", "HTTPS")
+Rel(explore_iam, scim_controller, "Users create / replace / PATCH / delete", "SCIM 2.0 / HTTPS")
+Rel(scim_security, scim_controller, "Guards /scim/v2/**")
+Rel(scim_controller, scim_service, "调用")
+Rel(scim_service, account_repo, "持久化")
+Rel(account_repo, h2_db, "JPA")
 
 Rel(angular_app, chat_controller, "会话 CRUD", "HTTP")
 Rel(angular_app, chat_stream_controller, "流式对话", "SSE")

@@ -48,6 +48,9 @@ journey
         隐私说明与 Cookie: 4: 访客
         擦除本浏览器数据: 4: 访客
         政策中转与法律文档: 4: 访客
+    section 用户同步
+        IAM 预置与停用账号: 4: 平台管理员
+        删除账号即擦除数据: 5: 合规管理员
 ```
 
 ### RAG 与视觉 / 媒体
@@ -105,6 +108,8 @@ journey
 |------|
 | [US-18b](./user-stories/E8-commercial-platform.md#us-18b-可选-oauth-登录与访客模式) 可选 Google/GitHub 登录 + 访客模式 |
 | [C4 Code 领域模型](../developer/c4-model/README.md#code---领域模型) 对齐 `com.ai.*.domain` 的 Entity / VO / Repository 总览（[EXP-356](https://felixzhu.atlassian.net/browse/EXP-356)） |
+| [US-37](./user-stories/E12-scim-provisioning.md#us-37-explore-iam-预置与更新账号) Explore IAM 通过 SCIM 预置与停用账号 |
+| [US-38](./user-stories/E12-scim-provisioning.md#us-38-删除账号时擦除数据) SCIM 删除账号时擦除数据 |
 
 ### 进行中
 
@@ -146,6 +151,7 @@ journey
 | E8 商业化与平台 | [E8-commercial-platform.md](./user-stories/E8-commercial-platform.md) | US-18 – US-22；US-18b/US-18c 已实现 | 进行中（US-18b/US-18c 已实现） |
 | E9 企业与未来 | [E9-enterprise-future.md](./user-stories/E9-enterprise-future.md) | US-23 – US-29；US-27a 已实现 | 规划中（US-27a 已实现） |
 | E10 Skills | [E10-skills.md](./user-stories/E10-skills.md) | US-30 – US-31, US-35 | 已实现 |
+| E12 SCIM 用户同步 | [E12-scim-provisioning.md](./user-stories/E12-scim-provisioning.md) | US-37 – US-38 | 已实现 |
 
 ## 参考
 

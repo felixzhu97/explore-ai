@@ -75,7 +75,7 @@ Environment variables override defaults in `src/main/resources/application.yml`.
 - **`H2_URL`** — optional database URL override
 - **`GOLDEN_EVAL_IT`** — set `true` to enable live Golden Eval integration tests ([guide](docs/developer/golden-eval.md))
 - **`APP_OAUTH_EXPLORE_IAM_ISSUER_URI`** — Explore IAM issuer (default `http://localhost:9100`) for OAuth Login and JWT resource server
-- **`APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER`** — accept IAM `Authorization: Bearer` tokens (default `true`)
+- **`APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER`** — accept IAM `Authorization: Bearer` tokens (default `true`); also enables `/scim/v2/Users`, where Explore IAM provisions, deactivates, and deletes accounts with scope `write:ai_scim` (deleting erases the account's data). Without it, `/scim/v2` denies every request. See [E12 SCIM provisioning](docs/product-owner/user-stories/E12-scim-provisioning.md).
 
 See [`.env.example`](.env.example) for the full list.
 

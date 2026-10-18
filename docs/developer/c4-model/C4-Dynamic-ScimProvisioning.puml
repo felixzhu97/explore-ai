@@ -1,0 +1,43 @@
+@startuml C4-Dynamic-ScimProvisioning
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+
+title Dynamic — SCIM Provisioning from Explore IAM
+
+participant "Explore IAM\nScimTargetClient" as iam <<java>>
+participant "ScimSecurityConfig\n@Order(0)" as sec <<java>>
+participant "ScimUserController\n/scim/v2/Users" as ctrl <<java>>
+participant "ScimAccountService" as svc <<java>>
+participant "OwnerErasureService" as erase <<java>>
+database "H2\naccount · owner data" as db <<db>>
+
+iam -> sec: 1. Request + Bearer (client_credentials iam-scim-outbound)
+sec -> sec: 2. Verify IAM JWT; require SCOPE_write:ai_scim\nelse 401 / 403 SCIM Error
+sec -> ctrl: 3. Authorized
+
+alt Create
+  ctrl -> svc: 4a. POST /Users (externalId = IAM user id, userName, email, displayName)
+  svc -> db: 5a. Identity or userName taken? → 409 uniqueness
+  svc -> db: 6a. Account.createProvisionedAccount
+  ctrl --> iam: 7a. 201 + Location + ETag W/"0"
+else Replace / PATCH
+  ctrl -> svc: 4b. PUT or PATCH /Users/{id} (If-Match)
+  svc -> svc: 5b. Version mismatch → 412\nexternalId change → 400 mutability
+  svc -> db: 6b. replaceProfile · deactivateAccount / reactivateAccount
+  ctrl --> iam: 7b. 200 + ETag
+else Delete
+  ctrl -> svc: 4c. DELETE /Users/{id}
+  svc -> erase: 5c. eraseAllForOwner(OwnerKey)
+  erase -> db: 6c. Delete chats, documents, vectors, skills …
+  svc -> db: 7c. Delete Account
+  ctrl --> iam: 8c. 204
+end
+
+note over iam, db
+  Only explore-iam accounts are visible; filters: userName eq / externalId eq.
+  Deactivated accounts fail requireActive on sign-in (403 ACCOUNT_INACTIVE).
+  Machine tokens (aud contains sub) never create accounts on /api sign-in.
+end note
+
+@enduml
