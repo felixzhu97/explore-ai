@@ -1,12 +1,9 @@
 package com.ai.pipeline.service;
 
+import com.ai.common.domain.event.AiInvocationCompletedEvent;
+import com.ai.common.domain.event.AiInvocationFailedEvent;
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
-import com.ai.metrics.domain.model.AiCapability;
-import com.ai.metrics.domain.model.AiInvocationEvent;
-import com.ai.metrics.domain.model.ErrorSummary;
-import com.ai.metrics.domain.model.Latency;
-import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentPipeline;
 import com.ai.pipeline.domain.model.AgentType;
@@ -19,6 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -33,7 +31,7 @@ public class PipelineOrchestrationService {
   private final AgentRegistry registry;
   private final SupervisorRouter supervisorRouter;
   private final WorkerAgentInvoker workerInvoker;
-  private final AiInvocationRecorder invocationRecorder;
+  private final ApplicationEventPublisher eventPublisher;
 
   /** Lists the agents. */
   public List<AgentDefinition> listAgents(String ownerKey, String language) {
@@ -95,14 +93,27 @@ public class PipelineOrchestrationService {
   /** Records an agent run; a null error means it succeeded. */
   private void recordAgent(
       String agentType, String operation, String ownerKey, long startedAt, Throwable error) {
-    Latency latency = Latency.measureSince(startedAt);
+    long latencyMs = (System.nanoTime() - startedAt) / 1_000_000L;
     OwnerKey owner = OwnerKey.parseKey(ownerKey);
-    AiInvocationEvent.Builder event =
-        error == null
-            ? AiInvocationEvent.createSucceededEvent(AiCapability.AGENTS, operation, latency, owner)
-            : AiInvocationEvent.createFailedEvent(
-                AiCapability.AGENTS, operation, latency, owner, ErrorSummary.createSummary(error));
-    invocationRecorder.recordInvocation(event.agentType(agentType).build());
+    if (error == null) {
+      eventPublisher.publishEvent(
+          new AiInvocationCompletedEvent(
+              "agents", operation, latencyMs, owner, null, null, null, null, agentType));
+      return;
+    }
+    eventPublisher.publishEvent(
+        new AiInvocationFailedEvent(
+            "agents",
+            operation,
+            latencyMs,
+            owner,
+            null,
+            null,
+            null,
+            null,
+            agentType,
+            error.getClass().getSimpleName(),
+            error.getMessage()));
   }
 
   /** Streams a pipeline run as SSE, feeding each node's output into the next node in order. */

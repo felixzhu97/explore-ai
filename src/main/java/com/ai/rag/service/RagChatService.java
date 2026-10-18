@@ -1,15 +1,13 @@
 package com.ai.rag.service;
 
 import com.ai.chat.domain.model.DetectedLanguage;
+import com.ai.common.domain.event.AiInvocationCompletedEvent;
+import com.ai.common.domain.event.AiInvocationFailedEvent;
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.metrics.domain.model.AiCapability;
-import com.ai.metrics.domain.model.AiInvocationEvent;
-import com.ai.metrics.domain.model.Latency;
-import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.rag.domain.model.SourceCitation;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
 import com.ai.rag.infra.vector.ChunkMetadataKeys;
@@ -33,6 +31,7 @@ import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -45,7 +44,7 @@ public class RagChatService {
   private final ChatClientProvider chatClientProvider;
   private final VectorStore vectorStore;
   private final RagRetrievalSettings retrievalSettings;
-  private final AiInvocationRecorder invocationRecorder;
+  private final ApplicationEventPublisher eventPublisher;
   private final ObjectMapper objectMapper;
 
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
@@ -175,29 +174,37 @@ public class RagChatService {
       String ownerKey,
       String documentId,
       long startedAt) {
-    invocationRecorder.recordInvocation(
-        AiInvocationEvent.createSucceededEvent(
-                AiCapability.RAG,
-                "rag.chat",
-                Latency.measureSince(startedAt),
-                OwnerKey.parseKey(ownerKey))
-            .provider(options.provider())
-            .model(options.model())
-            .sessionId(sessionId)
-            .documentId(documentId)
-            .build());
+    eventPublisher.publishEvent(
+        new AiInvocationCompletedEvent(
+            "rag",
+            "rag.chat",
+            elapsedMillis(startedAt),
+            OwnerKey.parseKey(ownerKey),
+            options.provider(),
+            options.model(),
+            sessionId,
+            documentId,
+            null));
   }
 
   private void recordError(String sessionId, String ownerKey, long startedAt, Throwable ex) {
-    invocationRecorder.recordError(
-        AiCapability.RAG,
-        "rag.chat",
-        Latency.measureSince(startedAt),
-        OwnerKey.parseKey(ownerKey),
-        "openai",
-        null,
-        sessionId,
-        ex);
+    eventPublisher.publishEvent(
+        new AiInvocationFailedEvent(
+            "rag",
+            "rag.chat",
+            elapsedMillis(startedAt),
+            OwnerKey.parseKey(ownerKey),
+            "openai",
+            null,
+            sessionId,
+            null,
+            null,
+            ex.getClass().getSimpleName(),
+            ex.getMessage()));
+  }
+
+  private static long elapsedMillis(long startedAt) {
+    return (System.nanoTime() - startedAt) / 1_000_000L;
   }
 
   private Flux<ServerSentEvent<String>> buildSourceEvents(List<SourceCitation> sources) {

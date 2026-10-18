@@ -1,6 +1,7 @@
 package com.ai.metrics.service;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.event.AiInvocationCompletedEvent;
+import com.ai.common.domain.event.AiInvocationFailedEvent;
 import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.ErrorSummary;
@@ -8,10 +9,15 @@ import com.ai.metrics.domain.model.Latency;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-/** Records AI invocation events for metrics dashboards without failing the business path. */
+/**
+ * Records AI invocation events for metrics dashboards from Domain Events, without failing the
+ * business path that published them.
+ */
 @Service
 @RequiredArgsConstructor
 public class AiInvocationRecorder {
@@ -19,9 +25,45 @@ public class AiInvocationRecorder {
   private final AiInvocationEventRepository eventRepository;
   private final MeterRegistry meterRegistry;
 
+  @EventListener
+  void handleAiInvocationCompletedEvent(AiInvocationCompletedEvent event) {
+    recordInvocation(
+        () ->
+            AiInvocationEvent.createSucceededEvent(
+                    AiCapability.parseCapability(event.capability()),
+                    event.operation(),
+                    Latency.createFromMillis(event.latencyMs()),
+                    event.owner())
+                .provider(event.provider())
+                .model(event.model())
+                .sessionId(event.sessionId())
+                .documentId(event.documentId())
+                .agentType(event.agentType())
+                .build());
+  }
+
+  @EventListener
+  void handleAiInvocationFailedEvent(AiInvocationFailedEvent event) {
+    recordInvocation(
+        () ->
+            AiInvocationEvent.createFailedEvent(
+                    AiCapability.parseCapability(event.capability()),
+                    event.operation(),
+                    Latency.createFromMillis(event.latencyMs()),
+                    event.owner(),
+                    ErrorSummary.createSummary(event.errorCode(), event.errorMessage()))
+                .provider(event.provider())
+                .model(event.model())
+                .sessionId(event.sessionId())
+                .documentId(event.documentId())
+                .agentType(event.agentType())
+                .build());
+  }
+
   /** Persists the event and updates Micrometer meters; failures are swallowed, never thrown. */
-  public void recordInvocation(AiInvocationEvent event) {
+  private void recordInvocation(Supplier<AiInvocationEvent> factory) {
     try {
+      AiInvocationEvent event = factory.get();
       eventRepository.save(event);
       meterRegistry
           .counter(
@@ -43,41 +85,5 @@ public class AiInvocationRecorder {
           .record(Duration.ofMillis(event.getLatencyMs()));
     } catch (Exception expected) {
     }
-  }
-
-  /** Records a successful invocation with its latency, provider, model, and session. */
-  public void recordSuccess(
-      AiCapability capability,
-      String operation,
-      Latency latency,
-      OwnerKey owner,
-      String provider,
-      String model,
-      String sessionId) {
-    recordInvocation(
-        AiInvocationEvent.createSucceededEvent(capability, operation, latency, owner)
-            .provider(provider)
-            .model(model)
-            .sessionId(sessionId)
-            .build());
-  }
-
-  /** Records a failed invocation with a normalized summary of the error. */
-  public void recordError(
-      AiCapability capability,
-      String operation,
-      Latency latency,
-      OwnerKey owner,
-      String provider,
-      String model,
-      String sessionId,
-      Throwable error) {
-    recordInvocation(
-        AiInvocationEvent.createFailedEvent(
-                capability, operation, latency, owner, ErrorSummary.createSummary(error))
-            .provider(provider)
-            .model(model)
-            .sessionId(sessionId)
-            .build());
   }
 }

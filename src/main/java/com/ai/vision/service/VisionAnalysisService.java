@@ -1,11 +1,10 @@
 package com.ai.vision.service;
 
 import com.ai.common.controller.dto.HealthStatus;
+import com.ai.common.domain.event.AiInvocationCompletedEvent;
+import com.ai.common.domain.event.AiInvocationFailedEvent;
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
-import com.ai.metrics.domain.model.AiCapability;
-import com.ai.metrics.domain.model.Latency;
-import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.vision.controller.dto.CaptionResponse;
 import com.ai.vision.controller.dto.DetectResponse;
 import com.ai.vision.controller.dto.DetectionResponse;
@@ -24,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,27 +36,30 @@ import org.springframework.web.multipart.MultipartFile;
     matchIfMissing = false)
 public class VisionAnalysisService {
 
+  private static final String VISION = "vision";
+  private static final long NANOS_PER_MILLI = 1_000_000L;
+
   private final ImageCaptioner captioner;
   private final ObjectDetector detector;
   private final OcrEngine ocrEngine;
   private final Timer captionTimer;
   private final Timer detectTimer;
   private final Timer ocrTimer;
-  private final AiInvocationRecorder invocationRecorder;
+  private final ApplicationEventPublisher eventPublisher;
 
   public VisionAnalysisService(
       ImageCaptioner captioner,
       ObjectDetector detector,
       OcrEngine ocrEngine,
       MeterRegistry meterRegistry,
-      AiInvocationRecorder invocationRecorder) {
+      ApplicationEventPublisher eventPublisher) {
     this.captioner = captioner;
     this.detector = detector;
     this.ocrEngine = ocrEngine;
     this.captionTimer = meterRegistry.timer("vision.caption.duration");
     this.detectTimer = meterRegistry.timer("vision.detect.duration");
     this.ocrTimer = meterRegistry.timer("vision.ocr.duration");
-    this.invocationRecorder = invocationRecorder;
+    this.eventPublisher = eventPublisher;
   }
 
   /** Reports each vision provider's status, overall UP only when all three are available. */
@@ -76,27 +79,12 @@ public class VisionAnalysisService {
     long startedAt = System.nanoTime();
     try {
       var caption = captioner.captionImage(image);
-      long processingTimeMs = Latency.measureSince(startedAt).getMillis();
+      long processingTimeMs = elapsedMillis(startedAt);
       captionTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
-      invocationRecorder.recordSuccess(
-          AiCapability.VISION,
-          "vision.caption",
-          Latency.createFromMillis(processingTimeMs),
-          owner,
-          null,
-          null,
-          null);
+      publishCompleted("vision.caption", processingTimeMs, owner);
       return new CaptionResponse(caption.getText(), processingTimeMs);
     } catch (RuntimeException ex) {
-      invocationRecorder.recordError(
-          AiCapability.VISION,
-          "vision.caption",
-          Latency.measureSince(startedAt),
-          owner,
-          null,
-          null,
-          null,
-          ex);
+      publishFailed("vision.caption", elapsedMillis(startedAt), owner, ex);
       throw ex;
     }
   }
@@ -108,27 +96,12 @@ public class VisionAnalysisService {
     try {
       List<DetectionResponse> detections =
           detector.detectObjects(image).stream().map(this::toDto).toList();
-      long processingTimeMs = Latency.measureSince(startedAt).getMillis();
+      long processingTimeMs = elapsedMillis(startedAt);
       detectTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
-      invocationRecorder.recordSuccess(
-          AiCapability.VISION,
-          "vision.detect",
-          Latency.createFromMillis(processingTimeMs),
-          owner,
-          null,
-          null,
-          null);
+      publishCompleted("vision.detect", processingTimeMs, owner);
       return new DetectResponse(detections, processingTimeMs);
     } catch (RuntimeException ex) {
-      invocationRecorder.recordError(
-          AiCapability.VISION,
-          "vision.detect",
-          Latency.measureSince(startedAt),
-          owner,
-          null,
-          null,
-          null,
-          ex);
+      publishFailed("vision.detect", elapsedMillis(startedAt), owner, ex);
       throw ex;
     }
   }
@@ -139,29 +112,40 @@ public class VisionAnalysisService {
     long startedAt = System.nanoTime();
     try {
       var extraction = ocrEngine.extractText(image);
-      long processingTimeMs = Latency.measureSince(startedAt).getMillis();
+      long processingTimeMs = elapsedMillis(startedAt);
       ocrTimer.record(processingTimeMs, TimeUnit.MILLISECONDS);
-      invocationRecorder.recordSuccess(
-          AiCapability.VISION,
-          "vision.ocr",
-          Latency.createFromMillis(processingTimeMs),
-          owner,
-          null,
-          null,
-          null);
+      publishCompleted("vision.ocr", processingTimeMs, owner);
       return new OcrResponse(extraction.getText(), processingTimeMs);
     } catch (RuntimeException ex) {
-      invocationRecorder.recordError(
-          AiCapability.VISION,
-          "vision.ocr",
-          Latency.measureSince(startedAt),
-          owner,
-          null,
-          null,
-          null,
-          ex);
+      publishFailed("vision.ocr", elapsedMillis(startedAt), owner, ex);
       throw ex;
     }
+  }
+
+  private void publishCompleted(String operation, long latencyMs, OwnerKey owner) {
+    eventPublisher.publishEvent(
+        new AiInvocationCompletedEvent(
+            VISION, operation, latencyMs, owner, null, null, null, null, null));
+  }
+
+  private void publishFailed(String operation, long latencyMs, OwnerKey owner, Throwable error) {
+    eventPublisher.publishEvent(
+        new AiInvocationFailedEvent(
+            VISION,
+            operation,
+            latencyMs,
+            owner,
+            null,
+            null,
+            null,
+            null,
+            null,
+            error.getClass().getSimpleName(),
+            error.getMessage()));
+  }
+
+  private static long elapsedMillis(long startedAt) {
+    return (System.nanoTime() - startedAt) / NANOS_PER_MILLI;
   }
 
   private DetectionResponse toDto(Detection detection) {

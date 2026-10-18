@@ -6,6 +6,8 @@ import com.ai.chat.domain.model.ChatSessionId;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
+import com.ai.common.domain.event.AiInvocationCompletedEvent;
+import com.ai.common.domain.event.AiInvocationFailedEvent;
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.common.infra.llm.ToolCallMarkupFilter;
@@ -14,9 +16,6 @@ import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.StreamTokenEvent;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.metrics.domain.model.AiCapability;
-import com.ai.metrics.domain.model.Latency;
-import com.ai.metrics.service.AiInvocationRecorder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +30,7 @@ import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -61,7 +61,7 @@ public class ChatService {
   private final SessionTitleGenerator sessionTitleGenerator;
   private final ChatWebSourcesRepository chatWebSourcesRepository;
   private final PromptTemplates promptTemplates;
-  private final AiInvocationRecorder invocationRecorder;
+  private final ApplicationEventPublisher eventPublisher;
   private final ChatSessionEraser sessionEraser;
 
   /** Returns the client's sessions, most recently active first. */
@@ -120,25 +120,10 @@ public class ChatService {
                 }
                 return content;
               });
-      invocationRecorder.recordSuccess(
-          AiCapability.CHAT,
-          "chat.call",
-          Latency.measureSince(startedAt),
-          OwnerKey.UNOWNED,
-          options.provider(),
-          options.model(),
-          null);
+      publishCompleted("chat.call", startedAt, OwnerKey.UNOWNED, options, null);
       return response;
     } catch (RuntimeException ex) {
-      invocationRecorder.recordError(
-          AiCapability.CHAT,
-          "chat.call",
-          Latency.measureSince(startedAt),
-          OwnerKey.UNOWNED,
-          options.provider(),
-          options.model(),
-          null,
-          ex);
+      publishFailed("chat.call", startedAt, OwnerKey.UNOWNED, options, null, ex);
       throw ex;
     }
   }
@@ -228,13 +213,11 @@ public class ChatService {
                 return Flux.concat(primary, repaired)
                     .doOnComplete(
                         () -> {
-                          invocationRecorder.recordSuccess(
-                              AiCapability.CHAT,
+                          publishCompleted(
                               "chat.stream",
-                              Latency.measureSince(startedAt),
+                              startedAt,
                               OwnerKey.parseKey(ownerKey),
-                              options.provider(),
-                              options.model(),
+                              options,
                               sessionId);
                           Mono.fromRunnable(
                                   () ->
@@ -245,13 +228,11 @@ public class ChatService {
                         })
                     .doOnError(
                         error -> {
-                          invocationRecorder.recordError(
-                              AiCapability.CHAT,
+                          publishFailed(
                               "chat.stream",
-                              Latency.measureSince(startedAt),
+                              startedAt,
                               OwnerKey.parseKey(ownerKey),
-                              options.provider(),
-                              options.model(),
+                              options,
                               sessionId,
                               error);
                         });
@@ -484,5 +465,46 @@ public class ChatService {
 
   private Message toSpringMessage(ChatMessage msg) {
     return msg.isFromUser() ? new UserMessage(msg.getText()) : new AssistantMessage(msg.getText());
+  }
+
+  private void publishCompleted(
+      String operation, long startedAt, OwnerKey owner, TextChatOptions options, String sessionId) {
+    eventPublisher.publishEvent(
+        new AiInvocationCompletedEvent(
+            "chat",
+            operation,
+            elapsedMillis(startedAt),
+            owner,
+            options.provider(),
+            options.model(),
+            sessionId,
+            null,
+            null));
+  }
+
+  private void publishFailed(
+      String operation,
+      long startedAt,
+      OwnerKey owner,
+      TextChatOptions options,
+      String sessionId,
+      Throwable error) {
+    eventPublisher.publishEvent(
+        new AiInvocationFailedEvent(
+            "chat",
+            operation,
+            elapsedMillis(startedAt),
+            owner,
+            options.provider(),
+            options.model(),
+            sessionId,
+            null,
+            null,
+            error.getClass().getSimpleName(),
+            error.getMessage()));
+  }
+
+  private static long elapsedMillis(long startedAt) {
+    return (System.nanoTime() - startedAt) / 1_000_000L;
   }
 }
