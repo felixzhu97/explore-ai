@@ -26,8 +26,12 @@ endlegend
 
 note as N_LAYERS
   controller → service → domain ← infra
-  domain = model (entities, aggregates, value objects, events)
+  domain = model (entities, aggregates, value objects)
+  + event (Domain Event records published by services)
   + repository (persistence and gateway ports) only.
+  Features react to other features' events in
+  @EventListener handleXxxEvent methods, synchronously
+  in the publisher's transaction; no cross-feature injection.
   JPA repositories extend Spring Data Repository<T, ID>;
   owner isolation is an explicit OwnerKey query argument.
   LLM tools and workflows are application ports in service.
@@ -111,6 +115,30 @@ package "Common" as pkg_common_kernel {
     +deleteByIdAndOwnerKey(id, ownerKey)
     +existsByOwnerKeyAndNameIgnoringId(ownerKey, name, excludeId)
   }
+  class AiInvocationCompletedEvent <<DomainEvent>> {
+    +capability: String
+    +operation: String
+    +latencyMs: long
+    +owner: OwnerKey
+    +provider: String
+    +model: String
+    +sessionId: String
+    +documentId: String
+    +agentType: String
+  }
+  class AiInvocationFailedEvent <<DomainEvent>> {
+    +capability: String
+    +operation: String
+    +latencyMs: long
+    +owner: OwnerKey
+    +provider: String
+    +model: String
+    +sessionId: String
+    +documentId: String
+    +agentType: String
+    +errorCode: String
+    +errorMessage: String
+  }
 }
 
 AbstractImmutable <|-- AbstractOwnerAwareImmutable
@@ -179,6 +207,9 @@ package "Chat" as pkg_chat {
   }
   interface ChatWebSourcesRepository <<Repository>> {
     +findByConversationId(conversationId)
+  }
+  class ChatSessionsErasedEvent <<DomainEvent>> {
+    +sessionIds: List<String>
   }
 }
 
@@ -394,6 +425,13 @@ package "Account" as pkg_account {
     +{static} parseId(raw)
     +{static} isValid(raw)
   }
+  class OwnerErasureRequestedEvent <<DomainEvent>> {
+    +ownerKey: OwnerKey
+  }
+  class GuestLinkedToAccountEvent <<DomainEvent>> {
+    +fromOwnerKey: OwnerKey
+    +toOwnerKey: OwnerKey
+  }
   note bottom of Account
     SCIM (planned): IAM pushes Users to /scim/v2/Users.
     externalId = IAM user id = subject of the
@@ -404,6 +442,8 @@ package "Account" as pkg_account {
 }
 
 Account --> ExternalIdentity : identified by
+GuestLinkedToAccountEvent ..> Account : published on link
+OwnerErasureRequestedEvent ..> OwnerKey : erase all rows of
 Account --> ContactEmail
 Account --> ClientId : linked browser
 
@@ -466,7 +506,7 @@ package "MCP" as pkg_mcp {
 
 ' ── metrics ────────────────────────────────────────────────
 package "Metrics" as pkg_metrics {
-  class AiInvocationEvent <<DomainEvent>> {
+  class AiInvocationEvent <<Entity>> {
     @Immutable
     +capability: AiCapability
     +outcome: InvocationOutcome
@@ -561,6 +601,9 @@ AutomationSchedule ..> PipelineTemplate : by id (PipelineTemplateId)
 AiInvocationEvent --> Latency
 AiInvocationEvent --> ErrorSummary
 AiInvocationEvent --> TokenUsage
+AiInvocationCompletedEvent ..> AiInvocationEvent : recorded as
+AiInvocationFailedEvent ..> AiInvocationEvent : recorded as
+ChatSessionsErasedEvent ..> AiInvocationEvent : deletes by session
 PipelineTemplate ..> AgentPipeline : builds linear
 CustomAgent ..> AgentDefinition : overrides builtin
 
