@@ -4,6 +4,7 @@ import com.ai.account.controller.dto.AccountMeResponse;
 import com.ai.account.controller.dto.AccountMode;
 import com.ai.account.controller.dto.AccountPlan;
 import com.ai.account.controller.dto.LoginProvider;
+import com.ai.account.domain.event.GuestLinkedToAccountEvent;
 import com.ai.account.domain.model.Account;
 import com.ai.account.domain.model.ClientId;
 import com.ai.account.domain.model.ContactEmail;
@@ -12,11 +13,13 @@ import com.ai.account.infra.config.OAuthExploreIamProperties;
 import com.ai.account.infra.config.OAuthGithubProperties;
 import com.ai.account.infra.config.OAuthGoogleProperties;
 import com.ai.billing.service.BillingPlanService;
+import com.ai.common.domain.model.OwnerKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -36,6 +39,7 @@ public class AccountService {
   private final AccountRepository accountRepository;
   private final IamAccountService iamAccountService;
   private final BillingPlanService billingPlanService;
+  private final ApplicationEventPublisher eventPublisher;
   private final OAuthGoogleProperties oauthGoogleProperties;
   private final OAuthGithubProperties oauthGithubProperties;
   private final OAuthExploreIamProperties oauthExploreIamProperties;
@@ -75,7 +79,10 @@ public class AccountService {
         loginProviders());
   }
 
-  /** Links the OAuth sign-in to the browser, unlinking any other account, and returns it. */
+  /**
+   * Links the OAuth sign-in to the browser, unlinking any other account, moves the browser's guest
+   * data to the account and returns it.
+   */
   @Transactional
   public Account linkOAuthUser(OAuthSignIn signIn, ClientId clientId) {
     Account account =
@@ -93,7 +100,12 @@ public class AccountService {
               accountRepository.save(previous);
             });
     account.linkBrowser(clientId, signIn.email(), signIn.displayName());
-    return accountRepository.save(account);
+    Account saved = accountRepository.save(account);
+    OwnerKey from = saved.findGuestOwnerKey().orElseThrow();
+    OwnerKey to = saved.createOwnerKey();
+    from.requireMergeableInto(to);
+    eventPublisher.publishEvent(new GuestLinkedToAccountEvent(from, to));
+    return saved;
   }
 
   /** Clears OAuth ↔ Client Identity link so the browser returns to guest mode. */

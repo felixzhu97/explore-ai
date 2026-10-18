@@ -1,5 +1,7 @@
 package com.ai.rag.service;
 
+import com.ai.account.domain.event.GuestLinkedToAccountEvent;
+import com.ai.account.domain.event.OwnerErasureRequestedEvent;
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.rag.domain.model.DocumentChunk;
@@ -19,6 +21,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
@@ -152,5 +155,19 @@ public class DocumentUploadService {
         ready.getStatus(),
         ready.getChunkCount(),
         ready.getCreatedAt());
+  }
+
+  @EventListener
+  @Transactional
+  void handleOwnerErasureRequestedEvent(OwnerErasureRequestedEvent event) {
+    chunkRepository.deleteChunksByOwnerKey(event.ownerKey());
+    documentRepository.deleteAllByOwnerKey(event.ownerKey());
+  }
+
+  @EventListener
+  @Transactional
+  void handleGuestLinkedToAccountEvent(GuestLinkedToAccountEvent event) {
+    chunkRepository.reassignChunkOwner(event.fromOwnerKey(), event.toOwnerKey());
+    documentRepository.reassignOwnerKey(event.fromOwnerKey(), event.toOwnerKey());
   }
 }

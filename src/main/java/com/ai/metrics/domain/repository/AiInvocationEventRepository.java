@@ -1,5 +1,6 @@
 package com.ai.metrics.domain.repository;
 
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.InvocationOutcome;
@@ -18,14 +19,16 @@ public interface AiInvocationEventRepository {
   void save(AiInvocationEvent event);
 
   /** Deletes the events of the sessions and returns the count. */
-  default int deleteBySessionIds(Collection<String> sessionIds) {
-    return 0;
-  }
+  int deleteBySessionIds(Collection<String> sessionIds);
 
   /** Deletes events older than the cutoff and returns the count. */
-  default int deleteOlderThan(Instant cutoff) {
-    return 0;
-  }
+  int deleteOlderThan(Instant cutoff);
+
+  /** Deletes every event of the owner and returns the count. */
+  int deleteByOwnerKey(OwnerKey ownerKey);
+
+  /** Moves every event of one owner to another and returns the count. */
+  int reassignOwnerKey(OwnerKey from, OwnerKey to);
 
   /** Filters and page of a drill-down over invocation events. */
   @Value

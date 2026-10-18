@@ -1,5 +1,6 @@
 package com.ai.rag.infra.vector;
 
+import com.ai.common.domain.model.OwnerKey;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.ScoredChunk;
@@ -74,6 +75,21 @@ public class H2DocumentChunkRepository
   public void deleteChunksByDocumentId(DocumentId documentId) {
     String sql = "DELETE FROM " + TABLE_NAME + " WHERE document_id = ?";
     jdbcTemplate.update(sql, documentId.getValue());
+  }
+
+  @Override
+  @Transactional
+  public void deleteChunksByOwnerKey(OwnerKey ownerKey) {
+    jdbcTemplate.update("DELETE FROM " + TABLE_NAME + " WHERE owner_key = ?", ownerKey.getValue());
+  }
+
+  @Override
+  @Transactional
+  public void reassignChunkOwner(OwnerKey from, OwnerKey to) {
+    jdbcTemplate.update(
+        "UPDATE " + TABLE_NAME + " SET owner_key = ? WHERE owner_key = ?",
+        to.getValue(),
+        from.getValue());
   }
 
   @Override

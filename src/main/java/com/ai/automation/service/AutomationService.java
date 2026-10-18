@@ -1,5 +1,7 @@
 package com.ai.automation.service;
 
+import com.ai.account.domain.event.GuestLinkedToAccountEvent;
+import com.ai.account.domain.event.OwnerErasureRequestedEvent;
 import com.ai.automation.domain.model.AutomationRun;
 import com.ai.automation.domain.model.AutomationSchedule;
 import com.ai.automation.domain.model.ScheduleId;
@@ -17,6 +19,7 @@ import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -147,5 +150,19 @@ public class AutomationService {
                 DomainException.createNotFoundError(
                     "PIPELINE_TEMPLATE_NOT_FOUND",
                     "Pipeline template not found: " + pipelineTemplateId));
+  }
+
+  @EventListener
+  @Transactional
+  void handleOwnerErasureRequestedEvent(OwnerErasureRequestedEvent event) {
+    runRepository.deleteAllByOwnerKey(event.ownerKey());
+    scheduleRepository.deleteAllByOwnerKey(event.ownerKey());
+  }
+
+  @EventListener
+  @Transactional
+  void handleGuestLinkedToAccountEvent(GuestLinkedToAccountEvent event) {
+    runRepository.reassignOwnerKey(event.fromOwnerKey(), event.toOwnerKey());
+    scheduleRepository.reassignOwnerKey(event.fromOwnerKey(), event.toOwnerKey());
   }
 }

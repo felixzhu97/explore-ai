@@ -187,4 +187,20 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
   public int deleteOlderThan(Instant cutoff) {
     return jdbcTemplate.update("DELETE FROM ai_invocation_event WHERE occurred_at < ?", cutoff);
   }
+
+  @Override
+  @Transactional
+  public int deleteByOwnerKey(OwnerKey ownerKey) {
+    return jdbcTemplate.update(
+        "DELETE FROM ai_invocation_event WHERE owner_key = ?", ownerKey.getValue());
+  }
+
+  @Override
+  @Transactional
+  public int reassignOwnerKey(OwnerKey from, OwnerKey to) {
+    return jdbcTemplate.update(
+        "UPDATE ai_invocation_event SET owner_key = ? WHERE owner_key = ?",
+        to.getValue(),
+        from.getValue());
+  }
 }

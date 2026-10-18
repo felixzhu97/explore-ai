@@ -9,7 +9,7 @@ import com.ai.common.domain.model.OwnerKey;
 import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.InvocationOutcome;
-import com.ai.metrics.domain.repository.AiInvocationEventRepository;
+import com.ai.metrics.test.fixture.FakeAiInvocationEventRepository;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,15 +28,10 @@ class AiInvocationRecorderTest {
     List<AiInvocationEvent> saved = new ArrayList<>();
     AiInvocationRecorder recorder =
         new AiInvocationRecorder(
-            new AiInvocationEventRepository() {
+            new FakeAiInvocationEventRepository() {
               @Override
               public void save(AiInvocationEvent event) {
                 saved.add(event);
-              }
-
-              @Override
-              public PageResult findDrilldown(DrilldownQuery query) {
-                return new PageResult(List.of(), 0);
               }
             },
             new SimpleMeterRegistry());
@@ -57,15 +52,10 @@ class AiInvocationRecorderTest {
   void shouldNotThrowWhenRepositoryFailsWhileHandlingAFailedEvent() {
     AiInvocationRecorder recorder =
         new AiInvocationRecorder(
-            new AiInvocationEventRepository() {
+            new FakeAiInvocationEventRepository() {
               @Override
               public void save(AiInvocationEvent event) {
                 throw new IllegalStateException("db down");
-              }
-
-              @Override
-              public PageResult findDrilldown(DrilldownQuery query) {
-                return new PageResult(List.of(), 0);
               }
             },
             new SimpleMeterRegistry());
@@ -94,15 +84,10 @@ class AiInvocationRecorderTest {
     List<AiInvocationEvent> saved = new ArrayList<>();
     AiInvocationRecorder recorder =
         new AiInvocationRecorder(
-            new AiInvocationEventRepository() {
+            new FakeAiInvocationEventRepository() {
               @Override
               public void save(AiInvocationEvent event) {
                 saved.add(event);
-              }
-
-              @Override
-              public PageResult findDrilldown(DrilldownQuery query) {
-                return new PageResult(List.of(), 0);
               }
             },
             new SimpleMeterRegistry());
