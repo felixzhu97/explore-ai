@@ -356,37 +356,51 @@ package "Account" as pkg_account {
   class Account <<Entity>> {
     +provider: String <<NaturalId>>
     +subject: String <<NaturalId>>
+    +userName: String
     +email: ContactEmail
     +displayName: String
+    +active: boolean
     +linkedClientId: ClientId
     --
-    +{static} create(identity, email, displayName)
+    +{static} createAccount(identity, email, displayName)
+    +{static} createProvisionedAccount(identity, userName, email, displayName)
     +getIdentity(): ExternalIdentity
     +linkBrowser(clientId, email, displayName)
     +recordSignIn(email, displayName)
+    +replaceProfile(userName, email, displayName)
+    +deactivateAccount()
+    +reactivateAccount()
+    +isActive(): boolean
     +unlinkBrowser()
     +createOwnerKey()
-    +guestOwnerKey(): Optional
-    +displayLabel(): Optional
+    +findGuestOwnerKey(): Optional
+    +findDisplayLabel(): Optional
   }
   class ExternalIdentity <<ValueObject>> {
     +provider: String
     +subject: String
     --
-    +{static} of(provider, subject)
-    +{static} iam(subject)
+    +{static} createIdentity(provider, subject)
+    +{static} createIamIdentity(subject)
   }
   class ContactEmail <<ValueObject>> {
     +value: String
     --
-    +{static} ofNullable(raw)
+    +{static} parseOptionalEmail(raw)
   }
   class ClientId <<ValueObject>> {
     +value: String (UUID)
     --
-    +{static} parse(raw)
+    +{static} parseId(raw)
     +{static} isValid(raw)
   }
+  note bottom of Account
+    SCIM (planned): IAM pushes Users to /scim/v2/Users.
+    externalId = IAM user id = subject of the
+    explore-iam identity, so first sign-in reuses
+    the Provisioned Account. Inactive accounts
+    cannot sign in; DELETE erases owner data first.
+  end note
 }
 
 Account --> ExternalIdentity : identified by
