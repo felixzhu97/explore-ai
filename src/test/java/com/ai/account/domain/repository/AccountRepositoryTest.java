@@ -10,6 +10,7 @@ import com.ai.testsupport.AbstractDataJpaTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 
 class AccountRepositoryTest extends AbstractDataJpaTest {
 
@@ -49,6 +50,28 @@ class AccountRepositoryTest extends AbstractDataJpaTest {
     flushAndClear();
 
     assertThat(repository.findByLinkedClientId(LINKED_CLIENT)).isEmpty();
+  }
+
+  @Test
+  @DisplayName("should find a provisioned account by user name and page by provider")
+  void shouldFindAProvisionedAccountByUserNameAndPageByProvider() {
+    repository.save(
+        Account.createProvisionedAccount(
+            ExternalIdentity.createIamIdentity("iam-7"), "alice", null, "Alice"));
+    save("github", "gh-7", "dev7@example.com");
+    flushAndClear();
+
+    assertThat(repository.findByProviderAndUserName(ExternalIdentity.EXPLORE_IAM, "alice"))
+        .get()
+        .extracting(Account::getSubject)
+        .isEqualTo("iam-7");
+    assertThat(
+            repository
+                .findByProviderOrderByCreatedAtAsc(
+                    ExternalIdentity.EXPLORE_IAM, PageRequest.of(0, 10))
+                .getContent())
+        .extracting(Account::getUserName)
+        .containsExactly("alice");
   }
 
   private void save(String provider, String subject, String email) {

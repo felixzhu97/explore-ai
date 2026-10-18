@@ -167,6 +167,7 @@ public class GlobalExceptionHandler {
   public static HttpStatus statusOf(DomainException.Kind kind) {
     return switch (kind) {
       case NOT_FOUND -> HttpStatus.NOT_FOUND;
+      case FORBIDDEN -> HttpStatus.FORBIDDEN;
       case CONFLICT -> HttpStatus.CONFLICT;
       case INVALID -> HttpStatus.BAD_REQUEST;
       case LIMIT_EXCEEDED -> HttpStatus.TOO_MANY_REQUESTS;

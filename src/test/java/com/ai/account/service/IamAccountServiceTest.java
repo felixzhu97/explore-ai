@@ -9,6 +9,7 @@ import com.ai.account.domain.model.Account;
 import com.ai.account.domain.model.ContactEmail;
 import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.account.domain.repository.AccountRepository;
+import com.ai.common.exception.DomainException;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -57,6 +58,22 @@ class IamAccountServiceTest {
 
     assertThat(account).isSameAs(existing);
     assertThat(account.getEmail()).isEqualTo(new ContactEmail("new@example.com"));
+  }
+
+  @Test
+  @DisplayName("should refuse the token when the account was deactivated")
+  void shouldRefuseTheTokenWhenTheAccountWasDeactivated() {
+    Account existing =
+        Account.createProvisionedAccount(
+            ExternalIdentity.createIamIdentity("iam-gone"), "gone", null, null);
+    existing.deactivateAccount();
+    when(accountRepository.findByIdentity(ExternalIdentity.createIamIdentity("iam-gone")))
+        .thenReturn(Optional.of(existing));
+
+    assertThatThrownBy(() -> service.signIn(jwt("iam-gone", null)))
+        .isInstanceOfSatisfying(
+            DomainException.class,
+            e -> assertThat(e.getKind()).isEqualTo(DomainException.Kind.FORBIDDEN));
   }
 
   @Test

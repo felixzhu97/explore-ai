@@ -6,6 +6,7 @@ public class DomainException extends RuntimeException {
   /** What went wrong, independent of transport; the API maps each kind to one HTTP status. */
   public enum Kind {
     NOT_FOUND,
+    FORBIDDEN,
     CONFLICT,
     INVALID,
     LIMIT_EXCEEDED,
@@ -30,6 +31,11 @@ public class DomainException extends RuntimeException {
   /** Creates the error for a missing resource. */
   public static DomainException createNotFoundError(String code, String message) {
     return new DomainException(Kind.NOT_FOUND, code, message);
+  }
+
+  /** Creates the error for an actor that is known but not allowed to act. */
+  public static DomainException createForbiddenError(String code, String message) {
+    return new DomainException(Kind.FORBIDDEN, code, message);
   }
 
   /** Creates the error for a name or key that is already taken. */

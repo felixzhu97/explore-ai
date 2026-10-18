@@ -2,6 +2,7 @@ package com.ai.account.domain.model;
 
 import com.ai.common.domain.model.AbstractEntity;
 import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.exception.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -21,6 +22,7 @@ import org.hibernate.annotations.NaturalId;
 public class Account extends AbstractEntity<AccountId> {
 
   static final int MAX_DISPLAY_NAME_LENGTH = 255;
+  static final int MAX_USER_NAME_LENGTH = 256;
 
   @NaturalId
   @NotBlank
@@ -34,6 +36,10 @@ public class Account extends AbstractEntity<AccountId> {
   @Column(nullable = false, length = 255)
   private String subject;
 
+  @Size(max = MAX_USER_NAME_LENGTH)
+  @Column(length = MAX_USER_NAME_LENGTH)
+  private String userName;
+
   @Convert(converter = ContactEmailAttributeConverter.class)
   @Column(length = 320)
   private ContactEmail email;
@@ -45,6 +51,9 @@ public class Account extends AbstractEntity<AccountId> {
   @Convert(converter = ClientIdAttributeConverter.class)
   @Column(length = 64)
   private ClientId linkedClientId;
+
+  @Column(nullable = false)
+  private boolean active = true;
 
   private Account(AccountId id) {
     super(id);
@@ -62,6 +71,17 @@ public class Account extends AbstractEntity<AccountId> {
     return account;
   }
 
+  /**
+   * Creates an account that Explore IAM provisioned over SCIM before the person signs in. The
+   * identity is the one the person will sign in with, so the first sign-in reuses this account.
+   */
+  public static Account createProvisionedAccount(
+      ExternalIdentity identity, String userName, ContactEmail email, String displayName) {
+    Account account = createAccount(identity, email, displayName);
+    account.userName = requireUserName(userName);
+    return account;
+  }
+
   /** Returns the provider and subject this account signs in with. */
   public ExternalIdentity getIdentity() {
     return ExternalIdentity.createIdentity(provider, subject);
@@ -69,13 +89,43 @@ public class Account extends AbstractEntity<AccountId> {
 
   /** Links this account to the browser and refreshes the profile from the provider. */
   public void linkBrowser(ClientId clientId, ContactEmail email, String displayName) {
+    requireActive();
     this.linkedClientId = Objects.requireNonNull(clientId, "clientId");
     applyProfile(email, displayName);
   }
 
   /** Refreshes the profile on a sign-in that does not involve a browser, such as an IAM token. */
   public void recordSignIn(ContactEmail email, String displayName) {
+    requireActive();
     applyProfile(email, displayName);
+  }
+
+  /**
+   * Replaces the provisioned profile with the values Explore IAM sent; values left out are cleared,
+   * as SCIM replace requires.
+   */
+  public void replaceProfile(String userName, ContactEmail email, String displayName) {
+    this.userName = requireUserName(userName);
+    this.email = email;
+    this.displayName = normalizeDisplayName(displayName);
+  }
+
+  /** Stops sign-in and data access; the data stays until the account is deleted. */
+  public void deactivateAccount() {
+    this.active = false;
+    this.linkedClientId = null;
+  }
+
+  /** Allows sign-in and data access again. */
+  public void reactivateAccount() {
+    this.active = true;
+  }
+
+  /** Fails when the account was deactivated. */
+  public void requireActive() {
+    if (!active) {
+      throw DomainException.createForbiddenError("ACCOUNT_INACTIVE", "Account is deactivated");
+    }
   }
 
   /** Clears the browser link so logout returns to guest mode. */
@@ -110,6 +160,17 @@ public class Account extends AbstractEntity<AccountId> {
     if (name != null) {
       this.displayName = name;
     }
+  }
+
+  private static String requireUserName(String userName) {
+    if (userName == null || userName.isBlank()) {
+      throw DomainException.createInvalidError("USER_NAME_REQUIRED", "userName is required");
+    }
+    String trimmed = userName.trim();
+    if (trimmed.length() > MAX_USER_NAME_LENGTH) {
+      throw DomainException.createInvalidError("USER_NAME_TOO_LONG", "userName is too long");
+    }
+    return trimmed;
   }
 
   private static String normalizeDisplayName(String displayName) {
