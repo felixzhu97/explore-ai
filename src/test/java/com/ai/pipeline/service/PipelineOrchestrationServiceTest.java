@@ -1,20 +1,18 @@
 package com.ai.pipeline.service;
 
-import com.ai.metrics.domain.model.AiInvocationEvent;
-import com.ai.metrics.domain.repository.AiInvocationEventRepository;
-import com.ai.metrics.service.AiInvocationRecorder;
+import com.ai.common.domain.event.AiInvocationCompletedEvent;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentPipeline;
 import com.ai.pipeline.domain.model.AgentType;
 import com.ai.pipeline.domain.model.RoutingPlan;
 import com.ai.pipeline.infra.registry.CatalogAgentRegistry;
 import com.ai.testsupport.OwnerKeyFixtures;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -26,22 +24,10 @@ class PipelineOrchestrationServiceTest {
 
   private PipelineOrchestrationService useCase;
   private RecordingInvoker invoker;
-  private final List<AiInvocationEvent> recorded = new ArrayList<>();
+  private final List<Object> recorded = new ArrayList<>();
 
-  private AiInvocationRecorder recorder() {
-    return new AiInvocationRecorder(
-        new AiInvocationEventRepository() {
-          @Override
-          public void save(AiInvocationEvent event) {
-            recorded.add(event);
-          }
-
-          @Override
-          public PageResult findDrilldown(DrilldownQuery query) {
-            return new PageResult(java.util.List.of(), 0);
-          }
-        },
-        new SimpleMeterRegistry());
+  private ApplicationEventPublisher recorder() {
+    return recorded::add;
   }
 
   @BeforeEach
@@ -89,7 +75,7 @@ class PipelineOrchestrationServiceTest {
 
     assert invoker.lastAgentType.equals("aiops");
     assert recorded.size() == 1;
-    assert recorded.getFirst().getOwnerKey().getValue().equals(OWNER);
+    assert ((AiInvocationCompletedEvent) recorded.getFirst()).owner().getValue().equals(OWNER);
   }
 
   @Test

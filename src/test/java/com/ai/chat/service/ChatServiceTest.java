@@ -23,7 +23,6 @@ import com.ai.common.exception.DomainException;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
-import com.ai.metrics.service.AiInvocationRecorder;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +35,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.retry.support.RetryTemplate;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,7 +59,7 @@ class ChatServiceTest {
 
   @Mock private ChatWebSourcesRepository chatWebSourcesRepository;
 
-  @Mock private AiInvocationRecorder invocationRecorder;
+  @Mock private ApplicationEventPublisher eventPublisher;
 
   @Mock private AiInvocationEventRepository invocationEventRepository;
 
@@ -80,7 +80,7 @@ class ChatServiceTest {
             sessionTitleGenerator,
             chatWebSourcesRepository,
             new PromptTemplates(),
-            invocationRecorder,
+            eventPublisher,
             new ChatSessionEraser(
                 repository,
                 conversationMemoryRepository,

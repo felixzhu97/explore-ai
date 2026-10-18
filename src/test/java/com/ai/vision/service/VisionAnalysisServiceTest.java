@@ -2,15 +2,11 @@ package com.ai.vision.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ai.common.domain.event.AiInvocationCompletedEvent;
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.metrics.domain.model.AiCapability;
-import com.ai.metrics.domain.model.Latency;
-import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.vision.domain.model.CaptionResult;
 import com.ai.vision.domain.model.Detection;
 import com.ai.vision.domain.model.OcrResult;
@@ -24,8 +20,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockMultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +39,7 @@ class VisionAnalysisServiceTest {
 
   @Mock private OcrEngine ocrEngine;
 
-  @Mock private AiInvocationRecorder invocationRecorder;
+  @Mock private ApplicationEventPublisher eventPublisher;
 
   private VisionAnalysisService useCase;
 
@@ -49,7 +47,7 @@ class VisionAnalysisServiceTest {
   void setUp() {
     useCase =
         new VisionAnalysisService(
-            captioner, detector, ocrEngine, new SimpleMeterRegistry(), invocationRecorder);
+            captioner, detector, ocrEngine, new SimpleMeterRegistry(), eventPublisher);
   }
 
   @Test
@@ -62,15 +60,11 @@ class VisionAnalysisServiceTest {
 
     assertThat(response.caption()).isEqualTo("A red bicycle");
     assertThat(response.processingTimeMs()).isGreaterThanOrEqualTo(0);
-    verify(invocationRecorder)
-        .recordSuccess(
-            eq(AiCapability.VISION),
-            anyString(),
-            any(Latency.class),
-            eq(OWNER),
-            any(),
-            any(),
-            any());
+    ArgumentCaptor<AiInvocationCompletedEvent> event =
+        ArgumentCaptor.forClass(AiInvocationCompletedEvent.class);
+    verify(eventPublisher).publishEvent(event.capture());
+    assertThat(event.getValue().capability()).isEqualTo("vision");
+    assertThat(event.getValue().owner()).isEqualTo(OWNER);
   }
 
   @Test

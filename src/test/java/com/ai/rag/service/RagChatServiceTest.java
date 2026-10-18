@@ -13,7 +13,6 @@ import static org.mockito.Mockito.when;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.rag.domain.repository.RagRetrievalSettings;
 import com.ai.rag.service.dto.RagChatResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +39,7 @@ import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RagChatService")
@@ -59,7 +59,7 @@ class RagChatServiceTest {
 
   @Mock private RagRetrievalSettings retrievalSettings;
 
-  @Mock private AiInvocationRecorder invocationRecorder;
+  @Mock private ApplicationEventPublisher eventPublisher;
 
   private RagChatService ragChatService;
 
@@ -68,11 +68,7 @@ class RagChatServiceTest {
     when(retrievalSettings.getScoreThreshold()).thenReturn(0.5);
     ragChatService =
         new RagChatService(
-            chatClientProvider,
-            vectorStore,
-            retrievalSettings,
-            invocationRecorder,
-            new ObjectMapper());
+            chatClientProvider, vectorStore, retrievalSettings, eventPublisher, new ObjectMapper());
     when(chatClientProvider.create(any(TextChatOptions.class), any(ChatClientProfile.class), any()))
         .thenReturn(chatClient);
     when(chatClient.prompt()).thenReturn(requestSpec);

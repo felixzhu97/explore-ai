@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
-import com.ai.metrics.service.AiInvocationRecorder;
 import com.ai.rag.infra.config.PropertiesRagRetrievalSettings;
 import com.ai.rag.infra.config.RagProperties;
 import com.ai.rag.service.RagApplicationService;
@@ -41,6 +40,7 @@ import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.codec.ServerSentEvent;
 import reactor.core.publisher.Flux;
 
@@ -61,7 +61,7 @@ class RagChatContractRegressionTest {
   @Mock private ChatClient.CallResponseSpec callResponseSpec;
   @Mock private ChatClient.StreamResponseSpec streamResponseSpec;
   @Mock private VectorStore vectorStore;
-  @Mock private AiInvocationRecorder invocationRecorder;
+  @Mock private ApplicationEventPublisher eventPublisher;
   private RagChatService ragChatService;
 
   @BeforeEach
@@ -71,7 +71,7 @@ class RagChatContractRegressionTest {
             chatClientProvider,
             vectorStore,
             new PropertiesRagRetrievalSettings(new RagProperties()),
-            invocationRecorder,
+            eventPublisher,
             new ObjectMapper());
   }
 
