@@ -18,9 +18,9 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 
 | 文件 | 层级 | 说明 |
 | --- | --- | --- |
-| `C1-Context.puml` | C1 | 系统上下文（含 Explore IAM、AI iOS、LaunchDarkly、Datadog） |
-| `C2-Container.puml` | C2 | 容器图（13 子域 + AI iOS + IAM） |
-| `C3-Component.puml` | C3 | **单图**：Web + iOS + Backend；`IamResourceServerConfig` |
+| `C1-Context.puml` | C1 | 系统上下文（含 Explore IAM OIDC + SCIM、AI iOS、LaunchDarkly、Datadog） |
+| `C2-Container.puml` | C2 | 容器图（13 子域 + SCIM Provisioning + AI iOS + IAM） |
+| `C3-Component.puml` | C3 | **单图**：Web + iOS + Backend；`IamResourceServerConfig`、`ScimSecurityConfig` |
 | `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity 行为 + VO / Repository；按业务域分 package：Domain Kernel、Common、Chat、RAG…） |
 | `C4-Deployment.puml` | Deployment | **单图**：本地（IAM :9100 / AI :9000 / Simulator）+ 生产 |
 | `style-zinc.puml` | Shared | Dynamic 序列图可选样式（Code 领域模型内联白底黑边框） |
@@ -28,6 +28,7 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 | `C4-Dynamic-Rag-Ask.puml` | Dynamic | RAG SSE 问答 |
 | `C4-Dynamic-Chat-Tools.puml` | Dynamic | Chat 工具 SSE + A2UI 图表 |
 | `C4-Dynamic-IamNativeSignIn.puml` | Dynamic | AI iOS PKCE → IAM → Bearer `/api/account/me` → Home |
+| `C4-Dynamic-ScimProvisioning.puml` | Dynamic | Explore IAM → `/scim/v2/Users`（`write:ai_scim`）→ Account 生命周期 + 删除擦除 |
 
 > **Code vs Deployment**：C4 官方第 4 层是 **Code**（类与关系）。本仓 `C4-Deployment.puml` 是部署视图；领域类型总览见 `C4-Code-Domain-Model.puml`。图中 stereotype 表示约定，**没有**共享 Java `Entity`/`AggregateRoot` 基类。
 
@@ -86,6 +87,7 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 | [C4-Dynamic-Rag-Ask.puml](C4-Dynamic-Rag-Ask.puml) | RAG 提问 → 检索 → SSE 流式回答 |
 | [C4-Dynamic-Chat-Tools.puml](C4-Dynamic-Chat-Tools.puml) | Chat 工具调用 → SSE → A2UI 图表 |
 | [C4-Dynamic-IamNativeSignIn.puml](C4-Dynamic-IamNativeSignIn.puml) | AI iOS IAM PKCE 登录 → Bearer me → Home |
+| [C4-Dynamic-ScimProvisioning.puml](C4-Dynamic-ScimProvisioning.puml) | Explore IAM SCIM 推送 → `write:ai_scim` → 创建 / 替换 / 停用 / 删除并擦除 Account |
 
 ![C4-Dynamic-Rag-Ask](png/C4-Dynamic-Rag-Ask.png)
 

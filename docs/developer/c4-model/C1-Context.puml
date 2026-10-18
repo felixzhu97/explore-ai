@@ -13,7 +13,7 @@ System_Boundary(ai_platform, "AI Chat & Agent Platform") {
     System(backend, "AI Platform Backend", "Spring Boot 4.1 / Java 25 / Spring AI 2.0\nGradle :9000 (dev) / Render :8080 (prod)\nOAuth2 Resource Server (IAM JWT)")
 }
 
-System_Ext(explore_iam, "Explore IAM", "OIDC Provider :9100\nDiscovery / authorize / token / JWKS")
+System_Ext(explore_iam, "Explore IAM", "OIDC Provider :9100\nDiscovery / authorize / token / JWKS\nSCIM 2.0 Client (provisioning hub)")
 System_Ext(launchdarkly, "LaunchDarkly", "Feature flags")
 System_Ext(datadog, "Datadog (us5)", "RUM; optional APM")
 System_Ext(deepseek_api, "DeepSeek API", "LLM")
@@ -35,6 +35,7 @@ Rel(frontend, backend, "REST / SSE / WebSocket", "HTTPS")
 Rel(ios_app, explore_iam, "Authorize + token (PKCE)", "HTTPS")
 Rel(ios_app, backend, "API Bearer access_token", "HTTPS :9000")
 Rel(backend, explore_iam, "OIDC discovery / JWKS validate", "HTTPS")
+Rel(explore_iam, backend, "Provision accounts /scim/v2/Users", "SCIM 2.0 / HTTPS")
 
 Rel(frontend, launchdarkly, "Client SDK", "HTTPS")
 Rel(frontend, datadog, "RUM", "HTTPS")
