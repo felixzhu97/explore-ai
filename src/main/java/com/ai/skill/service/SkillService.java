@@ -1,5 +1,7 @@
 package com.ai.skill.service;
 
+import com.ai.account.domain.event.GuestLinkedToAccountEvent;
+import com.ai.account.domain.event.OwnerErasureRequestedEvent;
 import com.ai.common.domain.model.DomainStrings;
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
@@ -10,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -147,5 +150,15 @@ public class SkillService {
       }
     }
     return parsed;
+  }
+
+  @EventListener
+  void handleOwnerErasureRequestedEvent(OwnerErasureRequestedEvent event) {
+    skillRepository.deleteAllByOwnerKey(event.ownerKey());
+  }
+
+  @EventListener
+  void handleGuestLinkedToAccountEvent(GuestLinkedToAccountEvent event) {
+    skillRepository.reassignOwnerKey(event.fromOwnerKey(), event.toOwnerKey());
   }
 }

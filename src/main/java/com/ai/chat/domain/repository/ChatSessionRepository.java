@@ -3,14 +3,15 @@ package com.ai.chat.domain.repository;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.model.ChatSessionId;
 import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.repository.OwnerPartitionedRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.repository.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /** Repository of chat session metadata; the messages live in chat memory. */
-public interface ChatSessionRepository extends Repository<ChatSession, ChatSessionId> {
+public interface ChatSessionRepository
+    extends OwnerPartitionedRepository<ChatSession, ChatSessionId> {
 
   /** Finds a session by id regardless of owner, for background work on a known session. */
   Optional<ChatSession> findById(ChatSessionId id);

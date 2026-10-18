@@ -1,15 +1,16 @@
 package com.ai.pipeline.domain.repository;
 
 import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.repository.OwnerPartitionedRepository;
 import com.ai.pipeline.domain.model.CustomAgent;
 import com.ai.pipeline.domain.model.CustomAgentId;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.repository.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /** Persists custom agents scoped by owner, with type keys unique per owner. */
-public interface CustomAgentRepository extends Repository<CustomAgent, CustomAgentId> {
+public interface CustomAgentRepository
+    extends OwnerPartitionedRepository<CustomAgent, CustomAgentId> {
 
   /** Finds the owner's custom agent by id. */
   Optional<CustomAgent> findByIdAndOwnerKey(CustomAgentId id, OwnerKey ownerKey);

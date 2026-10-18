@@ -9,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ai.chat.domain.event.ChatSessionsErasedEvent;
 import com.ai.chat.domain.model.ChatMessage;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.model.ChatSessionId;
@@ -22,7 +23,6 @@ import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProvider;
-import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +61,6 @@ class ChatServiceTest {
 
   @Mock private ApplicationEventPublisher eventPublisher;
 
-  @Mock private AiInvocationEventRepository invocationEventRepository;
-
   private ChatService useCase;
   private RetryTemplate retryTemplate;
 
@@ -85,7 +83,7 @@ class ChatServiceTest {
                 repository,
                 conversationMemoryRepository,
                 chatWebSourcesRepository,
-                invocationEventRepository));
+                eventPublisher));
   }
 
   @Test
@@ -193,8 +191,8 @@ class ChatServiceTest {
     verify(conversationMemoryRepository).clearMessages("22222222-2222-2222-2222-222222222222");
     verify(chatWebSourcesRepository).deleteByConversationId("22222222-2222-2222-2222-222222222222");
     verify(repository).deleteById(ChatSessionId.parseId("22222222-2222-2222-2222-222222222222"));
-    verify(invocationEventRepository)
-        .deleteBySessionIds(List.of("22222222-2222-2222-2222-222222222222"));
+    verify(eventPublisher)
+        .publishEvent(new ChatSessionsErasedEvent(List.of("22222222-2222-2222-2222-222222222222")));
   }
 
   @Test
@@ -213,8 +211,8 @@ class ChatServiceTest {
     verify(conversationMemoryRepository).clearMessages("22222222-2222-2222-2222-222222222222");
     verify(chatWebSourcesRepository).deleteByConversationId("22222222-2222-2222-2222-222222222222");
     verify(repository).deleteById(ChatSessionId.parseId("22222222-2222-2222-2222-222222222222"));
-    verify(invocationEventRepository)
-        .deleteBySessionIds(List.of("22222222-2222-2222-2222-222222222222"));
+    verify(eventPublisher)
+        .publishEvent(new ChatSessionsErasedEvent(List.of("22222222-2222-2222-2222-222222222222")));
   }
 
   @Test

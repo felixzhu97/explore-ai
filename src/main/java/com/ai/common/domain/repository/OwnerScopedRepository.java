@@ -5,7 +5,6 @@ import com.ai.common.domain.model.OwnerKey;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.NoRepositoryBean;
-import org.springframework.data.repository.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -13,7 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
  * delete takes the owner key, so one owner never sees another owner's rows.
  */
 @NoRepositoryBean
-public interface OwnerScopedRepository<E, I extends AbstractEmbeddable> extends Repository<E, I> {
+public interface OwnerScopedRepository<E, I extends AbstractEmbeddable>
+    extends OwnerPartitionedRepository<E, I> {
 
   /** Finds the owner's entity by id. */
   Optional<E> findByIdAndOwnerKey(I id, OwnerKey ownerKey);

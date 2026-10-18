@@ -3,17 +3,18 @@ package com.ai.automation.domain.repository;
 import com.ai.automation.domain.model.AutomationSchedule;
 import com.ai.automation.domain.model.ScheduleId;
 import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.repository.OwnerPartitionedRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 /** Persists automation schedules and finds and claims those due for execution. */
-public interface AutomationScheduleRepository extends Repository<AutomationSchedule, ScheduleId> {
+public interface AutomationScheduleRepository
+    extends OwnerPartitionedRepository<AutomationSchedule, ScheduleId> {
 
   /** Finds the owner's schedule by id. */
   Optional<AutomationSchedule> findByIdAndOwnerKey(ScheduleId id, OwnerKey ownerKey);

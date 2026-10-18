@@ -1,18 +1,17 @@
 package com.ai.chat.infra.retention;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ai.chat.domain.event.ChatSessionsErasedEvent;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.model.ChatSessionId;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.chat.service.ChatSessionEraser;
-import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ChatDataRetentionJob")
@@ -32,7 +32,7 @@ class ChatDataRetentionJobTest {
 
   @Mock private ChatWebSourcesRepository chatWebSourcesRepository;
 
-  @Mock private AiInvocationEventRepository invocationEventRepository;
+  @Mock private ApplicationEventPublisher eventPublisher;
 
   private DataRetentionProperties properties;
   private ChatDataRetentionJob job;
@@ -50,8 +50,7 @@ class ChatDataRetentionJobTest {
                 sessionRepository,
                 conversationMemoryRepository,
                 chatWebSourcesRepository,
-                invocationEventRepository),
-            invocationEventRepository);
+                eventPublisher));
   }
 
   @Test
@@ -64,7 +63,7 @@ class ChatDataRetentionJobTest {
   }
 
   @Test
-  void shouldPurgeInactiveSessionsAndMetricsWhenEnabled() {
+  void shouldPurgeInactiveSessionsWhenEnabled() {
     ChatSession expired =
         ChatSession.restoreSession(
             ChatSessionId.parseId("33333333-3333-3333-3333-333333333333"),
@@ -73,8 +72,6 @@ class ChatDataRetentionJobTest {
             "c:client-a");
     when(sessionRepository.findAllByLastActivityAtBeforeOrderByLastActivityAtAsc(any()))
         .thenReturn(List.of(expired));
-    when(invocationEventRepository.deleteBySessionIds(anyCollection())).thenReturn(2);
-    when(invocationEventRepository.deleteOlderThan(any())).thenReturn(1);
 
     job.purgeExpiredData();
 
@@ -82,7 +79,7 @@ class ChatDataRetentionJobTest {
     verify(chatWebSourcesRepository).deleteByConversationId("33333333-3333-3333-3333-333333333333");
     verify(sessionRepository)
         .deleteById(ChatSessionId.parseId("33333333-3333-3333-3333-333333333333"));
-    verify(invocationEventRepository)
-        .deleteBySessionIds(List.of("33333333-3333-3333-3333-333333333333"));
+    verify(eventPublisher)
+        .publishEvent(new ChatSessionsErasedEvent(List.of("33333333-3333-3333-3333-333333333333")));
   }
 }

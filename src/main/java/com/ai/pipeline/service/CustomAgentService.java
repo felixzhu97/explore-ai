@@ -1,5 +1,7 @@
 package com.ai.pipeline.service;
 
+import com.ai.account.domain.event.GuestLinkedToAccountEvent;
+import com.ai.account.domain.event.OwnerErasureRequestedEvent;
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.CustomAgent;
@@ -7,6 +9,7 @@ import com.ai.pipeline.domain.model.CustomAgentId;
 import com.ai.pipeline.domain.repository.CustomAgentRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,5 +81,15 @@ public class CustomAgentService {
       throw DomainException.createConflictError(
           "SAVED_AGENT_TYPE_CONFLICT", "Agent type key already exists: " + agentType);
     }
+  }
+
+  @EventListener
+  void handleOwnerErasureRequestedEvent(OwnerErasureRequestedEvent event) {
+    repository.deleteAllByOwnerKey(event.ownerKey());
+  }
+
+  @EventListener
+  void handleGuestLinkedToAccountEvent(GuestLinkedToAccountEvent event) {
+    repository.reassignOwnerKey(event.fromOwnerKey(), event.toOwnerKey());
   }
 }

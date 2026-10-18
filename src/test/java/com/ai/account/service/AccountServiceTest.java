@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.dto.AccountMode;
 import com.ai.account.controller.dto.LoginProvider;
+import com.ai.account.domain.event.GuestLinkedToAccountEvent;
 import com.ai.account.domain.model.Account;
 import com.ai.account.domain.model.ClientId;
 import com.ai.account.domain.model.ContactEmail;
@@ -16,6 +17,7 @@ import com.ai.account.infra.config.OAuthGithubProperties;
 import com.ai.account.infra.config.OAuthGoogleProperties;
 import com.ai.billing.infra.config.BillingProperties;
 import com.ai.billing.service.BillingPlanService;
+import com.ai.common.domain.model.OwnerKey;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,6 +52,7 @@ class AccountServiceTest {
   private static final String CID_SHARED = "44444444-4444-4444-4444-444444444444";
 
   @Mock private AccountRepository accountRepository;
+  @Mock private ApplicationEventPublisher eventPublisher;
 
   private AccountService useCase;
   private OAuthGoogleProperties oauthGoogleProperties;
@@ -70,6 +74,7 @@ class AccountServiceTest {
             accountRepository,
             new IamAccountService(accountRepository),
             new BillingPlanService(billing),
+            eventPublisher,
             oauthGoogleProperties,
             oauthGithubProperties,
             oauthExploreIamProperties);
@@ -189,6 +194,23 @@ class AccountServiceTest {
   }
 
   @Test
+  @DisplayName("should hand the guest data to the account when linking a browser")
+  void shouldHandTheGuestDataToTheAccountWhenLinkingABrowser() {
+    when(accountRepository.findByIdentity(ExternalIdentity.createIdentity("google", "sub-9")))
+        .thenReturn(Optional.empty());
+    when(accountRepository.save(org.mockito.ArgumentMatchers.any(Account.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+    Account account = useCase.linkOAuthUser(signIn("google", "sub-9", "a@b.com"), client(CID_1));
+
+    verify(eventPublisher)
+        .publishEvent(
+            new GuestLinkedToAccountEvent(
+                OwnerKey.createClientKey(CID_1),
+                OwnerKey.createAccountKey(account.getId().toString())));
+  }
+
+  @Test
   @DisplayName("should unlink the previous account when another account signs in on the browser")
   void shouldUnlinkThePreviousAccountWhenAnotherAccountSignsInOnTheBrowser() {
     Account previous = account("google", "sub-a", "a@example.com", CID_SHARED);
@@ -196,6 +218,8 @@ class AccountServiceTest {
         .thenReturn(Optional.empty());
     when(accountRepository.findByLinkedClientId(ClientId.parseId(CID_SHARED)))
         .thenReturn(Optional.of(previous));
+    when(accountRepository.save(org.mockito.ArgumentMatchers.any(Account.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     useCase.linkOAuthUser(signIn("github", "sub-b", "b@example.com"), client(CID_SHARED));
 
@@ -211,6 +235,8 @@ class AccountServiceTest {
         .thenReturn(Optional.of(account));
     when(accountRepository.findByLinkedClientId(ClientId.parseId(CID_SHARED)))
         .thenReturn(Optional.of(account));
+    when(accountRepository.save(org.mockito.ArgumentMatchers.any(Account.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     useCase.linkOAuthUser(signIn("google", "sub-a", "a@example.com"), client(CID_SHARED));
 
