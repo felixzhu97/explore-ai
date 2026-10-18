@@ -32,8 +32,14 @@ public interface AccountRepository extends Repository<Account, AccountId> {
   /** Pages the accounts of one provider, oldest first. */
   Page<Account> findByProviderOrderByCreatedAtAsc(String provider, Pageable pageable);
 
+  /** Counts the accounts of one provider. */
+  long countByProvider(String provider);
+
   /** Saves the account and returns the stored copy. */
   Account save(Account account);
+
+  /** Saves the account and flushes, so the returned copy carries the new version. */
+  Account saveAndFlush(Account account);
 
   /** Deletes the account. */
   void delete(Account account);

@@ -3,6 +3,7 @@ package com.ai.account.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.account.domain.model.Account;
@@ -11,6 +12,7 @@ import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.account.domain.repository.AccountRepository;
 import com.ai.common.exception.DomainException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -74,6 +76,24 @@ class IamAccountServiceTest {
         .isInstanceOfSatisfying(
             DomainException.class,
             e -> assertThat(e.getKind()).isEqualTo(DomainException.Kind.FORBIDDEN));
+  }
+
+  @Test
+  @DisplayName("should refuse a client credentials token whose subject is its audience")
+  void shouldRefuseAClientCredentialsTokenWhoseSubjectIsItsAudience() {
+    Jwt jwt =
+        Jwt.withTokenValue("t")
+            .header("alg", "none")
+            .subject("iam-scim-outbound")
+            .audience(List.of("iam-scim-outbound"))
+            .issuedAt(Instant.now())
+            .expiresAt(Instant.now().plusSeconds(60))
+            .build();
+
+    assertThatThrownBy(() -> service.signIn(jwt))
+        .isInstanceOfSatisfying(
+            DomainException.class, e -> assertThat(e.getCode()).isEqualTo("MACHINE_TOKEN"));
+    verifyNoInteractions(accountRepository);
   }
 
   @Test
