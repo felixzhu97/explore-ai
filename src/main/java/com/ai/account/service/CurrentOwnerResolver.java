@@ -51,7 +51,10 @@ public class CurrentOwnerResolver {
     if (authentication instanceof JwtAuthenticationToken jwtAuth) {
       return Optional.of(iamAccountService.signIn(jwtAuth.getToken()));
     }
-    return OAuthSignIn.createSignIn(authentication)
-        .flatMap(signIn -> accountRepository.findByIdentity(signIn.identity()));
+    Optional<Account> account =
+        OAuthSignIn.createSignIn(authentication)
+            .flatMap(signIn -> accountRepository.findByIdentity(signIn.identity()));
+    account.ifPresent(Account::requireActive);
+    return account;
   }
 }

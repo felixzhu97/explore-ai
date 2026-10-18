@@ -1,6 +1,7 @@
 package com.ai.account.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -9,6 +10,7 @@ import com.ai.account.domain.model.ClientId;
 import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.account.domain.repository.AccountRepository;
 import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.exception.DomainException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +93,29 @@ class CurrentOwnerResolverTest {
     OwnerKey key = resolver.resolveOwner(CLIENT_ID, auth);
 
     assertThat(key).isEqualTo(account.createOwnerKey());
+  }
+
+  @Test
+  @DisplayName("should refuse the OAuth session when the account was deactivated")
+  void shouldRefuseTheOAuthSessionWhenTheAccountWasDeactivated() {
+    Account account =
+        Account.createAccount(ExternalIdentity.createIdentity("google", "sub-off"), null, null);
+    account.deactivateAccount();
+    when(accountRepository.findByIdentity(ExternalIdentity.createIdentity("google", "sub-off")))
+        .thenReturn(Optional.of(account));
+    OidcIdToken idToken =
+        new OidcIdToken(
+            "token", Instant.now(), Instant.now().plusSeconds(60), Map.of("sub", "sub-off"));
+    OAuth2AuthenticationToken auth =
+        new OAuth2AuthenticationToken(
+            new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), idToken),
+            List.of(),
+            "google");
+
+    assertThatThrownBy(() -> resolver.resolveOwner(CLIENT_ID, auth))
+        .isInstanceOfSatisfying(
+            DomainException.class,
+            e -> assertThat(e.getKind()).isEqualTo(DomainException.Kind.FORBIDDEN));
   }
 
   @Test

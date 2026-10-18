@@ -1,8 +1,10 @@
 package com.ai.account.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.exception.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -108,6 +110,79 @@ class AccountTest {
     Account account = account(new ContactEmail("secret@example.com"), "octocat");
 
     assertThat(account.toString()).doesNotContain("secret@example.com").doesNotContain("octocat");
+  }
+
+  @Test
+  @DisplayName("should create an active provisioned account with the IAM identity")
+  void shouldCreateAnActiveProvisionedAccountWithTheIamIdentity() {
+    Account account = provisioned();
+
+    assertThat(account.getIdentity()).isEqualTo(ExternalIdentity.createIamIdentity("iam-user-1"));
+    assertThat(account.getUserName()).isEqualTo("alice");
+    assertThat(account.getDisplayName()).isEqualTo("Alice");
+    assertThat(account.isActive()).isTrue();
+  }
+
+  @Test
+  @DisplayName("should reject a provisioned account without a user name")
+  void shouldRejectAProvisionedAccountWithoutAUserName() {
+    assertThatThrownBy(
+            () ->
+                Account.createProvisionedAccount(
+                    ExternalIdentity.createIamIdentity("iam-user-1"), " ", null, null))
+        .isInstanceOfSatisfying(
+            DomainException.class, e -> assertThat(e.getCode()).isEqualTo("USER_NAME_REQUIRED"));
+  }
+
+  @Test
+  @DisplayName("should clear values left out when the profile is replaced")
+  void shouldClearValuesLeftOutWhenTheProfileIsReplaced() {
+    Account account = provisioned();
+
+    account.replaceProfile(" alice2 ", null, null);
+
+    assertThat(account.getUserName()).isEqualTo("alice2");
+    assertThat(account.getEmail()).isNull();
+    assertThat(account.getDisplayName()).isNull();
+  }
+
+  @Test
+  @DisplayName("should refuse sign-in and unlink the browser when deactivated")
+  void shouldRefuseSignInAndUnlinkTheBrowserWhenDeactivated() {
+    Account account = provisioned();
+    account.linkBrowser(CLIENT, null, null);
+
+    account.deactivateAccount();
+
+    assertThat(account.isActive()).isFalse();
+    assertThat(account.getLinkedClientId()).isNull();
+    assertThatThrownBy(() -> account.recordSignIn(null, null))
+        .isInstanceOfSatisfying(
+            DomainException.class,
+            e -> {
+              assertThat(e.getKind()).isEqualTo(DomainException.Kind.FORBIDDEN);
+              assertThat(e.getCode()).isEqualTo("ACCOUNT_INACTIVE");
+            });
+    assertThatThrownBy(() -> account.linkBrowser(CLIENT, null, null))
+        .isInstanceOf(DomainException.class);
+  }
+
+  @Test
+  @DisplayName("should allow sign-in again when reactivated")
+  void shouldAllowSignInAgainWhenReactivated() {
+    Account account = provisioned();
+    account.deactivateAccount();
+
+    account.reactivateAccount();
+    account.recordSignIn(new ContactEmail("alice@example.com"), null);
+
+    assertThat(account.isActive()).isTrue();
+    assertThat(account.getEmail()).isEqualTo(new ContactEmail("alice@example.com"));
+  }
+
+  private static Account provisioned() {
+    return Account.createProvisionedAccount(
+        ExternalIdentity.createIamIdentity("iam-user-1"), "alice", null, "Alice");
   }
 
   private static Account account(ContactEmail email, String displayName) {

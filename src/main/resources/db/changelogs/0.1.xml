@@ -472,4 +472,17 @@
       columnNames="linked_client_id"
       constraintName="uk_account_linked_client_id"/>
   </changeSet>
+
+  <changeSet author="felix.zhu" id="6df99825-1d1a-484b-8e50-a944f907ae9c" dbms="h2">
+    <addColumn tableName="account">
+      <column name="user_name" type="${string.type}(256)"/>
+      <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+    <addUniqueConstraint
+      tableName="account"
+      columnNames="provider, user_name"
+      constraintName="uk_account_provider_user_name"/>
+  </changeSet>
 </databaseChangeLog>

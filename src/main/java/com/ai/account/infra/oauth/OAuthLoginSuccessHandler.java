@@ -7,6 +7,7 @@ import com.ai.account.service.AccountService;
 import com.ai.account.service.OAuthSignIn;
 import com.ai.account.service.OwnerMergeService;
 import com.ai.common.controller.ClientIdentity;
+import com.ai.common.exception.DomainException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -50,7 +51,21 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     Object attribute = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
     Optional<OAuthSignIn> signIn = OAuthSignIn.createSignIn(authentication);
     if (attribute instanceof String raw && ClientId.isValid(raw) && signIn.isPresent()) {
-      Account account = accountService.linkOAuthUser(signIn.get(), ClientId.parseId(raw));
+      Account account;
+      try {
+        account = accountService.linkOAuthUser(signIn.get(), ClientId.parseId(raw));
+      } catch (DomainException e) {
+        if (e.getKind() != DomainException.Kind.FORBIDDEN) {
+          throw e;
+        }
+        SecurityContext empty = SecurityContextHolder.createEmptyContext();
+        SecurityContextHolder.setContext(empty);
+        securityContextRepository.saveContext(empty, request, response);
+        response.sendRedirect(
+            OAuthSpaRedirects.buildAfterLoginUrl(
+                request, spaProperties.getSuccessRedirectUrl(), "error"));
+        return;
+      }
       ownerMergeService.mergeGuestIntoAccount(account);
     }
 
