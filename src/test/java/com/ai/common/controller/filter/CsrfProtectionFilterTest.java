@@ -53,6 +53,20 @@ class CsrfProtectionFilterTest {
   }
 
   @Test
+  @DisplayName("should pass a post through when sibling BFF service auth headers are present")
+  void shouldPassAPostThroughWhenSiblingBffServiceAuthHeadersArePresent() throws Exception {
+    MockHttpServletRequest request =
+        new MockHttpServletRequest("POST", "/api/agents/support/invoke");
+    request.addHeader(ClientIdentityFilter.SERVICE_KEY_HEADER, "dev-service-key");
+    request.addHeader(
+        ClientIdentityFilter.CLIENT_ID_HEADER, "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+    filter.doFilter(request, response, chain);
+
+    assertThat(chain.getRequest()).isSameAs(request);
+  }
+
+  @Test
   @DisplayName("should pass a get through without the csrf header")
   void shouldPassAGetThroughWithoutTheCsrfHeader() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest("GET", API_PATH);
