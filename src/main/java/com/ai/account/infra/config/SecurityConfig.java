@@ -147,6 +147,7 @@ public class SecurityConfig {
         .requestMatchers(
             "/api/pipelines/**",
             "/api/agents/**",
+            "/a2a/**",
             "/api/workflows/**",
             "/api/automations/**",
             "/api/skills/**")
