@@ -64,4 +64,15 @@ class A2aServiceTest {
     assertThat(task.getStatus()).isEqualTo(A2aTaskStatus.COMPLETED);
     assertThat(task.getArtifacts()).isNotEmpty();
   }
+
+  @Test
+  @DisplayName("should sanitize failure messages without echoing provider text")
+  void shouldSanitizeFailureMessages() {
+    assertThat(
+            A2aService.safeFailureMessage(
+                DomainException.createNotFoundError("AGENT_NOT_FOUND", "Unknown agent")))
+        .isEqualTo("AGENT_NOT_FOUND");
+    assertThat(A2aService.safeFailureMessage(new RuntimeException("prompt leaked")))
+        .isEqualTo("agent_invoke_failed");
+  }
 }
