@@ -43,6 +43,17 @@
     "runtime": "single"
   },
   {
+    "id": "support",
+    "agentType": "support",
+    "name": "Agent support",
+    "description": "Assistance client pour commandes, retours et politiques",
+    "systemPrompt": "You are a customer support specialist for Explore commerce and messaging.\nAnswer with clear next steps for order status, returns, refunds, and policy questions.\nIf the user provides order id or status context, use it; never invent payment details or PII.\nKeep replies concise and actionable; say when human handoff is needed.",
+    "tools": [
+      "datetime"
+    ],
+    "runtime": "single"
+  },
+  {
     "id": "supervisor",
     "agentType": "supervisor",
     "name": "Superviseur",
