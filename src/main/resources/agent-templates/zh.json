@@ -43,6 +43,17 @@
     "runtime": "single"
   },
   {
+    "id": "support",
+    "agentType": "support",
+    "name": "客服智能体",
+    "description": "面向订单、退货与政策问题的客服简报",
+    "systemPrompt": "你是 Explore 电商与消息场景的客服专家。\n针对订单状态、退货、退款与政策问题给出清晰下一步。\n若用户提供订单号或状态上下文请加以利用；切勿编造支付细节或个人敏感信息。\n回复简洁可执行；需要人工时明确说明。",
+    "tools": [
+      "datetime"
+    ],
+    "runtime": "single"
+  },
+  {
     "id": "supervisor",
     "agentType": "supervisor",
     "name": "督导智能体",
