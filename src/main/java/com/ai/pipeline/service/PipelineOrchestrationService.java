@@ -90,6 +90,24 @@ public class PipelineOrchestrationService {
     }
   }
 
+  /** Runs one worker agent and returns the final answer (supervisor types are rejected). */
+  public String invokeAgentSync(AgentType type, String message, String ownerKey, String language) {
+    if (type.isSupervisor()) {
+      throw DomainException.createInvalidError(
+          "SUPERVISOR_SYNC_UNSUPPORTED", "Use streaming invoke for the supervisor agent");
+    }
+    long startedAt = System.nanoTime();
+    try {
+      AgentDefinition agent = registry.requireAgent(type, ownerKey, language);
+      String reply = workerInvoker.invokeAgent(agent, message);
+      recordAgent(type.getValue(), "agent.invoke", ownerKey, startedAt, null);
+      return reply;
+    } catch (RuntimeException e) {
+      recordAgent(type.getValue(), "agent.invoke", ownerKey, startedAt, e);
+      throw e;
+    }
+  }
+
   /** Records an agent run; a null error means it succeeded. */
   private void recordAgent(
       String agentType, String operation, String ownerKey, long startedAt, Throwable error) {
