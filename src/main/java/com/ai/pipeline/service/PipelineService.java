@@ -51,6 +51,13 @@ public class PipelineService {
     return orchestrator.invokeAgent(AgentType.createType(agentType), message, ownerKey, language);
   }
 
+  /** Runs a single agent and returns the final answer. */
+  public String invokeAgentSync(
+      String agentType, String message, String ownerKey, String language) {
+    return orchestrator.invokeAgentSync(
+        AgentType.createType(agentType), message, ownerKey, language);
+  }
+
   /** Runs a pipeline and returns the final answer. */
   public String invokePipelineSync(
       String message, AgentPipeline pipeline, String ownerKey, String language) {

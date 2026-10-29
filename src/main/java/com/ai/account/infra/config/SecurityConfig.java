@@ -145,7 +145,11 @@ public class SecurityConfig {
         .requestMatchers("/api/images/**", "/api/vision/**")
         .access(JwtPresentScopeAuthorization.requireScope("write:ai_media"))
         .requestMatchers(
-            "/api/pipelines/**", "/api/workflows/**", "/api/automations/**", "/api/skills/**")
+            "/api/pipelines/**",
+            "/api/agents/**",
+            "/api/workflows/**",
+            "/api/automations/**",
+            "/api/skills/**")
         .access(JwtPresentScopeAuthorization.requireScope("write:ai_agent"))
         .requestMatchers("/api/mcp/**", "/api/tools/**", "/api/text-analysis", "/api/eval/**")
         .access(JwtPresentScopeAuthorization.requireScope("write:ai_tools"))

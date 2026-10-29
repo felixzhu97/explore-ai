@@ -7,6 +7,8 @@ public enum ModuleFlag {
   MCP("module-mcp", "/api/mcp"),
   EVAL("module-eval", "/api/eval"),
   PIPELINES("module-pipelines", "/api/pipelines"),
+  /** Same LaunchDarkly key as Pipeline — published Agent façade for siblings. */
+  AGENTS("module-pipelines", "/api/agents"),
   AUTOMATIONS("module-automations", "/api/automations"),
   SKILLS("module-skills", "/api/skills");
 
