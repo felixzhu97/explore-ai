@@ -10,6 +10,7 @@ import com.ai.a2a.domain.model.A2aTaskStatus;
 import com.ai.a2a.domain.model.AgentCard;
 import com.ai.agent.domain.model.AgentRun;
 import com.ai.agent.service.AgentService;
+import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentType;
 import com.ai.pipeline.domain.repository.AgentRegistry;

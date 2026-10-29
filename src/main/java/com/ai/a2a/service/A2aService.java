@@ -7,6 +7,7 @@ import com.ai.a2a.domain.model.A2aTaskStatus;
 import com.ai.a2a.domain.model.AgentCard;
 import com.ai.agent.domain.model.AgentRun;
 import com.ai.agent.service.AgentService;
+import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.repository.AgentRegistry;
 import java.util.List;
@@ -50,7 +51,7 @@ public class A2aService {
       AgentRun run = agentService.invoke(agentType, message.extractText(), ownerKey, language);
       task.completeWithText(run.getReply());
     } catch (RuntimeException e) {
-      task.failWithMessage(e.getMessage());
+      task.failWithMessage(safeFailureMessage(e));
     }
     return task;
   }
@@ -88,9 +89,17 @@ public class A2aService {
       AgentRun run = agentService.invoke(agentType, message.extractText(), ownerKey, language);
       task.completeWithText(run.getReply());
     } catch (RuntimeException e) {
-      task.failWithMessage(e.getMessage());
+      task.failWithMessage(safeFailureMessage(e));
     }
     return task;
+  }
+
+  /** Avoid echoing provider/runtime text that may include prompt fragments. */
+  static String safeFailureMessage(RuntimeException error) {
+    if (error instanceof DomainException domain) {
+      return domain.getCode();
+    }
+    return "agent_invoke_failed";
   }
 
   private static ServerSentEvent<Map<String, Object>> event(
