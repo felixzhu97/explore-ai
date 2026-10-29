@@ -17,6 +17,7 @@ import type { AgentInfoResponse } from '../pipelines/pipelines.service';
 import { ZardButtonComponent } from '../ui/button';
 import { requiredText } from '../forms/required-text';
 import { hasText } from '../shared/presence';
+import { AgentsAskPanelComponent } from './agents-ask-panel.component';
 
 const TOOL_KEYS = ['web', 'weather', 'datetime', 'document'] as const;
 
@@ -26,6 +27,20 @@ interface AgentDraft {
   description: string;
   systemPrompt: string;
   tools: string[];
+}
+
+interface GalleryAgent {
+  type: string;
+  name: string;
+  description: string;
+  tools: string[];
+  source: 'builtin' | 'custom';
+  custom?: CustomAgent;
+}
+
+interface ChatTurn {
+  role: 'user' | 'assistant';
+  text: string;
 }
 
 const EMPTY_DRAFT: AgentDraft = {
@@ -38,10 +53,11 @@ const EMPTY_DRAFT: AgentDraft = {
 
 @Component({
   selector: 'app-agents-page',
-  imports: [FormField, ZardButtonComponent],
+  imports: [FormField, ZardButtonComponent, AgentsAskPanelComponent],
   templateUrl: './agents.page.html',
   host: {
-    class: 'flex flex-1 min-h-0 w-full flex-col overflow-y-auto bg-surface px-4 py-6',
+    class:
+      'flex min-h-0 w-full flex-1 flex-col overflow-x-hidden overflow-y-auto bg-surface px-4 py-6 lg:overflow-hidden',
   },
 })
 export class AgentsPageComponent implements OnInit {
@@ -68,14 +84,62 @@ export class AgentsPageComponent implements OnInit {
 
   readonly isLoading = signal(true);
   readonly catalog = signal<AgentInfoResponse[]>([]);
+  readonly customAgents = signal<CustomAgent[]>([]);
 
-  readonly builtins = computed(() => this.catalog().filter(agent => !agent.supervisor),
+  readonly builtins = computed((): GalleryAgent[] => this.catalog()
+    .filter(agent => !agent.supervisor)
+    .map(agent => ({
+      type: agent.type,
+      name: agent.name,
+      description: agent.description,
+      tools: [...agent.tools],
+      source: 'builtin' as const,
+    })),
   );
 
-  readonly customAgents = signal<CustomAgent[]>([]);
+  readonly library = computed((): GalleryAgent[] => this.customAgents().map(agent => ({
+    type: agent.agentType,
+    name: agent.name,
+    description: agent.description,
+    tools: [...agent.tools],
+    source: 'custom' as const,
+    custom: agent,
+  })),
+  );
+
+  readonly selected = signal<GalleryAgent | null>(null);
+  readonly composer = signal('');
+  readonly turns = signal<ChatTurn[]>([]);
+  readonly isAsking = signal(false);
+  readonly partnerReady = signal(false);
+  readonly partnerSkills = signal<string[]>([]);
+  readonly partnerSkillsLine = computed(() => this.partnerSkills().join(' · '));
+
+  readonly suggestions = computed(() => {
+    const agent = this.selected();
+    if (agent === null) {
+      return [] as string[];
+    }
+    const map = this.i18n.t().agents.suggestions;
+    const typed = agent.type as keyof typeof map;
+    if (Object.hasOwn(map, typed)) {
+      return map[typed];
+    }
+    return map.default;
+  });
 
   ngOnInit(): void {
     this.reload();
+    this.#agentsApi.getAgentCard().subscribe({
+      next: (card) => {
+        this.partnerReady.set(true);
+        this.partnerSkills.set(
+          (card.skills ?? []).map(skill => skill.name !== '' ? skill.name : skill.id,
+          ),
+        );
+      },
+      error: () => this.partnerReady.set(false),
+    });
   }
 
   /** Opens the create form with an empty draft. */
@@ -138,6 +202,58 @@ export class AgentsPageComponent implements OnInit {
     this.editingId.set(null);
   }
 
+  /** Selects an agent and opens the ask panel. */
+  selectAgent(agent: GalleryAgent): void {
+    const current = this.selected();
+    if (
+      current !== null
+      && current.type === agent.type
+      && current.source === agent.source
+    ) {
+      return;
+    }
+    this.selected.set(agent);
+    this.turns.set([]);
+    this.composer.set('');
+    this.error.set(null);
+  }
+
+  /** Whether this gallery card is the active selection. */
+  isSelected(agent: GalleryAgent): boolean {
+    const current = this.selected();
+    return current !== null
+      && current.type === agent.type
+      && current.source === agent.source;
+  }
+
+  /** Fills the composer from a suggestion chip. */
+  useSuggestion(text: string): void {
+    this.composer.set(text);
+  }
+
+  /** Sends the composer text to the selected agent. */
+  ask(): void {
+    const agent = this.selected();
+    const prompt = this.composer().trim();
+    if (agent === null || !hasText(prompt) || this.isAsking()) {
+      return;
+    }
+    this.turns.update(turns => [...turns, { role: 'user', text: prompt }]);
+    this.composer.set('');
+    this.isAsking.set(true);
+    this.error.set(null);
+    this.#agentsApi.invokePublished(agent.type, prompt).subscribe({
+      next: (response) => {
+        this.turns.update(turns => [...turns, { role: 'assistant', text: response.reply }]);
+        this.isAsking.set(false);
+      },
+      error: () => {
+        this.error.set(this.i18n.t().agents.errors.tryRunFailed);
+        this.isAsking.set(false);
+      },
+    });
+  }
+
   /** Open form to override a builtin: create or edit its custom agent. */
   customizeBuiltin(agent: AgentInfoResponse): void {
     const existing = this.findCustomAgentForType(agent.type);
@@ -155,6 +271,18 @@ export class AgentsPageComponent implements OnInit {
       tools: [...agent.tools],
     });
     this.showForm.set(true);
+  }
+
+  /** Customize from a gallery card (builtin or library). */
+  customizeFromGallery(agent: GalleryAgent): void {
+    if (agent.source === 'custom' && agent.custom !== undefined) {
+      this.startEditCustomAgent(agent.custom);
+      return;
+    }
+    const builtin = this.catalog().find(item => item.type === agent.type);
+    if (builtin !== undefined) {
+      this.customizeBuiltin(builtin);
+    }
   }
 
   /** Opens the form to edit a custom agent. */
@@ -186,7 +314,13 @@ export class AgentsPageComponent implements OnInit {
       return;
     }
     this.#agentsApi.deleteAgent(agent.id).subscribe({
-      next: () => this.reload(),
+      next: () => {
+        if (this.selected()?.custom?.id === agent.id) {
+          this.selected.set(null);
+          this.turns.set([]);
+        }
+        this.reload();
+      },
       error: () => this.error.set(this.i18n.t().agents.errors.deleteFailed),
     });
   }
@@ -199,6 +333,19 @@ export class AgentsPageComponent implements OnInit {
       next: (catalog) => {
         this.catalog.set(catalog);
         this.isLoading.set(false);
+        const current = this.selected();
+        if (current === null) {
+          const first = catalog.find(agent => !agent.supervisor);
+          if (first !== undefined) {
+            this.selectAgent({
+              type: first.type,
+              name: first.name,
+              description: first.description,
+              tools: [...first.tools],
+              source: 'builtin',
+            });
+          }
+        }
       },
       error: () => {
         this.error.set(this.i18n.t().agents.errors.loadFailed);

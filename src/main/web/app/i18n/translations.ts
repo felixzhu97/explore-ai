@@ -421,12 +421,28 @@ export interface Translations {
     editOverride: string;
     createTitle: string;
     editTitle: string;
+    askCta: string;
+    askLabel: string;
+    askEmpty: string;
+    askPick: string;
+    askPlaceholder: string;
+    askSend: string;
+    tryRunRunning: string;
+    partnerReady: string;
+    suggestions: {
+      research: string[];
+      weather: string[];
+      vectordb: string[];
+      analyst: string[];
+      default: string[];
+    };
     errors: {
       loadFailed: string;
       saveFailed: string;
       deleteFailed: string;
       updateFailed: string;
       nameRequired: string;
+      tryRunFailed: string;
     };
   };
   automations: {

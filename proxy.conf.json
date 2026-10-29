@@ -5,6 +5,18 @@
     "changeOrigin": false,
     "logLevel": "debug"
   },
+  "/a2a": {
+    "target": "http://localhost:9000",
+    "secure": false,
+    "changeOrigin": false,
+    "logLevel": "debug"
+  },
+  "/.well-known": {
+    "target": "http://localhost:9000",
+    "secure": false,
+    "changeOrigin": false,
+    "logLevel": "debug"
+  },
   "/oauth2": {
     "target": "http://localhost:9000",
     "secure": false,
