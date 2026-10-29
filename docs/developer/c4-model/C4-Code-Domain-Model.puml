@@ -313,6 +313,49 @@ package "Pipeline" as pkg_pipeline {
   }
 }
 
+package "Agent" as pkg_agent {
+  class AgentRun <<Entity>> {
+    +agentType: String
+    +message: String
+    +reply: String
+    --
+    +{static} createCompleted(agentType, message, reply)
+  }
+}
+
+package "A2A" as pkg_a2a {
+  class AgentCard <<ValueObject>> {
+    +name: String
+    +skills: List
+    +supportedInterfaces: List
+    --
+    +{static} createCard(baseUrl, skills)
+  }
+  class A2aSkill <<ValueObject>> {
+    +id: String
+    +name: String
+    +description: String
+  }
+  class A2aTask <<Entity>> {
+    +id: String
+    +status: A2aTaskStatus
+    +artifacts: List
+    --
+    +{static} createSubmitted(id)
+    +markWorking()
+    +completeWithText(text)
+    +failWithMessage(message)
+  }
+  class A2aMessage <<ValueObject>> {
+    +messageId: String
+    +role: String
+    +parts: List
+    --
+    +extractText()
+    +resolveAgentType(defaultType)
+  }
+}
+
 package "Skill" as pkg_skill {
   class Skill <<AggregateRoot>> {
     +id: SkillId
@@ -606,6 +649,10 @@ AiInvocationFailedEvent ..> AiInvocationEvent : recorded as
 ChatSessionsErasedEvent ..> AiInvocationEvent : deletes by session
 PipelineTemplate ..> AgentPipeline : builds linear
 CustomAgent ..> AgentDefinition : overrides builtin
+AgentRun ..> AgentDefinition : invokes worker
+A2aTask ..> AgentRun : maps one run
+AgentCard "1" *-- "*" A2aSkill
+A2aMessage ..> A2aTask : starts
 
 N_LAYERS .. pkg_chat
 N_LAYERS .. pkg_base

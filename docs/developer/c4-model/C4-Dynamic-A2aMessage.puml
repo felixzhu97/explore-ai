@@ -1,0 +1,49 @@
+@startuml C4-Dynamic-A2aMessage
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+
+title Dynamic — A2A Client discovers Explore AI and runs a Task
+
+autonumber
+actor "Sibling BFF\nor A2A Client" as client
+participant "AgentCardController\n/.well-known/agent-card.json" as card <<java>>
+participant "A2aMessageController\n/a2a/v1" as a2a <<java>>
+participant "A2aService" as svc <<java>>
+participant "AgentService" as agent <<java>>
+participant "PipelineService\nWorkerAgentInvoker" as pipe <<java>>
+participant "Explore IAM" as iam <<java>>
+
+client -> card: GET /.well-known/agent-card.json
+card -> svc: buildAgentCard(baseUrl)
+svc --> card: Agent Card (skills = builtin workers)
+card --> client: 200 JSON (no system prompts)
+
+client -> iam: OIDC token (scope write:ai_agent)
+iam --> client: Access token
+
+alt message:send
+  client -> a2a: POST /a2a/v1/message:send\nBearer + Message (text parts)
+  a2a -> svc: sendMessage
+  svc -> svc: Task submitted → working
+  svc -> agent: invoke(agentType, text)\ndefault type research
+  agent -> pipe: invokeAgentSync
+  pipe --> agent: reply
+  agent --> svc: AgentRun
+  svc -> svc: Task completed + text artifact
+  svc --> a2a: Task wire map
+  a2a --> client: 200 Task
+else message:stream
+  client -> a2a: POST /a2a/v1/message:stream
+  a2a -> svc: streamMessage
+  svc --> client: SSE task / status-update / artifact-update
+end
+
+note over card, pipe
+  MCP stays a peer for tools inside one Agent.
+  A2A exposes opaque Agents to other systems.
+  Published REST alternative: GET/POST /api/agents.
+end note
+
+@enduml

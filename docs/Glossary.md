@@ -54,6 +54,8 @@ Classes (entities, value objects, aggregates, services, DTOs) are nouns for what
 | ---------------- | --------- | ----------------- | ----------------------- | ----------------------------------------- | ----------------------------- | ------------------------------------- |
 | Chat             | 对话        | `com.ai.chat`     | `/chat`, `/privacy`     | `/api/chat`, `/api/chat/sessions`, `/api/privacy` | —                             | UI under `app/chat/` + `app/privacy/`  |
 | Pipeline         | 工作流画布      | `com.ai.pipeline` | `/pipelines`            | `/api/pipelines`                          | `module-pipelines`            | Canvas DAG; per-node editable agent copies; multilingual builtin catalog |
+| Agent            | Agent 门面     | `com.ai.agent`    | —                       | `/api/agents`                             | `module-pipelines`            | Published Language for siblings; delegates to Pipeline workers; default type `research` |
+| A2A              | Agent2Agent    | `com.ai.a2a`      | —                       | `/.well-known/agent-card.json`, `/a2a/v1` | `module-pipelines`            | Minimal A2A Server (Agent Card + message:send / message:stream); peer to MCP |
 | Automation       | 定时自动化      | `com.ai.automation` | `/automations`        | `/api/automations`                        | `module-automations`          | Schedule saved workflows; email result summary |
 | Skill            | 技能指令包    | `com.ai.skill`    | `/skills`               | `/api/skills`                             | `module-skills`               | User-managed packs applied in Chat    |
 | RAG              | 知识问答      | `com.ai.rag`      | `/rag`                  | `/api/rag`                                | —                             | ETL interfaces in `domain.repository` |
@@ -79,6 +81,8 @@ Classes (entities, value objects, aggregates, services, DTOs) are nouns for what
 | ----------------- | ---------------- | ------------------------------- |
 | `/chat`, `/chat/:sessionId` | Chat      | `/api/chat`, `/api/chat/sessions`    |
 | `/pipelines`      | Pipeline         | `/api/pipelines`                |
+| —                 | Agent            | `/api/agents`                   |
+| —                 | A2A              | `/.well-known/agent-card.json`, `/a2a/v1` |
 | `/automations`    | Automation       | `/api/automations`              |
 | `/skills`         | Skill            | `/api/skills`                   |
 | `/generate`       | Generation       | —                               |
@@ -243,6 +247,8 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Pipeline Orchestration   | 编排服务          | Runs Worker Agents according to a routing or pipeline plan    | Application Service | `PipelineOrchestrationService`                | Prefers node snapshot prompt/tools when present         |
 | Supervisor Router        | Supervisor 路由 | Chooses next Agent / subtasks for a user message              | Application    | `SupervisorRouter`, `SpringAiSupervisorRouter`     | Workers exclude supervisor               |
 | Worker Agent Invoker     | Worker 调用器    | Invokes a single Worker Agent with streaming                  | Application    | `WorkerAgentInvoker.invokeAgent`, `SpringAiWorkerAgentInvoker` | Tools from the `tools` whitelist                |
+| Agent Service            | Agent 门面服务   | Sibling-facing list and invoke for catalog Agent types        | Application    | `AgentService` (`com.ai.agent`)                    | Wraps Pipeline workers; no canvas graph required |
+| Default Agent Type       | 默认 Agent 类型  | Catalog type used when A2A skill is omitted                   | Convention     | `research`                                         | Documented for A2A Task mapping                 |
 | Tool Call Markup Filter  | 工具标记过滤器   | Strips DeepSeek DSML tool markup from model text              | Utility        | `ToolCallMarkupFilter`, `SanitizingChatMemory`     | Chat SSE, ChatMemory, Pipeline workers             |
 | Tool Call Loop Guard     | 工具循环守卫     | Allows datetime bridge then forces final answer after search; repairs DSML-only turns | Utility        | `ToolCallLoopGuard`, `ToolCallLoopGuardAdvisor`, `LoopGuardToolCallingManager` | Prevents DSML / phantom fetch after searchWeb   |
 | Routing Plan             | 路由计划          | Planned subtasks for Supervisor orchestration                 | Value Object   | `RoutingPlan`                                      | —                                               |
@@ -393,7 +399,7 @@ PROCESSING → READY
 
 ## 10. MCP | MCP
 
-Package: `com.ai.mcp` (Server + Client).
+Package: `com.ai.mcp` (Server + Client). MCP connects **one** Agent to tools and resources. Cross-agent collaboration uses **A2A** (§10.1), not MCP.
 
 
 | Preferred Term (English) | 中文        | Definition                                    | Type              | Code Mapping                         | Notes                          |
@@ -405,6 +411,22 @@ Package: `com.ai.mcp` (Server + Client).
 | MCP Session              | MCP 会话    | Active connection session to an MCP server    | Entity            | `McpSession`                         | Held by the MCP client in infra |
 | MCP Server Connection    | MCP 服务端连接 | Connection metadata to an external MCP server | Value Object      | `McpServerConnection`                | —                              |
 | MCP Chat                 | MCP 对话    | AI conversation initiated via MCP Client      | Use Case Behavior | `McpClientController.chat()`         | —                              |
+
+
+### 10.1 A2A | Agent2Agent
+
+Package: `com.ai.a2a`. Linux Foundation Agent2Agent Protocol v1.0 — peer to MCP. Opaque execution: Card declares skills only; tools and system prompts stay inside Explore AI.
+
+
+| Preferred Term (English) | 中文           | Definition                                                         | Type           | Code Mapping                                      | Notes |
+| ------------------------ | ------------ | ------------------------------------------------------------------ | -------------- | ------------------------------------------------- | ----- |
+| A2A Server               | A2A 服务端      | Serves Agent Card and message APIs for other agents                | Application    | `A2aService`, `A2aMessageController`              | HTTP+JSON binding |
+| Agent Card               | Agent 名片     | Self-describing manifest of name, skills, interfaces, security     | Value Object   | `AgentCard`                                       | `GET /.well-known/agent-card.json` (public) |
+| A2A Skill                | A2A 技能       | Declared capability on the Card; id maps to catalog Agent Type     | Value Object   | `A2aSkill`                                        | e.g. id `research` |
+| A2A Task                 | A2A 任务       | One baseline Agent run with status lifecycle                       | Entity         | `A2aTask`                                         | submitted → working → completed / failed |
+| A2A Message              | A2A 消息       | User or agent message with text (and optional) parts               | Value Object   | `A2aMessage`                                      | Text parts → Agent invoke message |
+| Send Message             | 发送消息         | Synchronous Task completion for one message                        | Use Case       | `POST /a2a/v1/message:send`                       | IAM Bearer required |
+| Stream Message           | 流式发送消息       | SSE Task status and artifact updates for one message               | Use Case       | `POST /a2a/v1/message:stream`                     | IAM Bearer required |
 
 
 ---
@@ -534,7 +556,8 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | Tool Callback                        | 工具回调    | Spring AI mechanism for LLM-initiated tool invocation      | Technical | `ToolCallback`, `McpToolCallbackRegistry`     | Bridges LLM and Tools               |
 | Advisor                              | 顾问      | Interceptor/enhancer in the ChatClient call chain          | Technical | Spring AI Advisors                            | e.g. structured output              |
 | Multimodal                           | 多模态     | Input combining text and other modalities (e.g. image)     | Technical | `VisionChatService`                           | Ollama qwen3.5 / qwen3-vl; see Appendix D **Vision Encoder** |
-| Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for exposing Tools and Resources to LLMs | Protocol  | `McpServerToolsProvider`                          | Anthropic-initiated standard        |
+| Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for exposing Tools and Resources to LLMs | Protocol  | `McpServerToolsProvider`                          | Anthropic-initiated standard; peer to A2A |
+| Agent2Agent Protocol (A2A)           | Agent 互操作协议 | Open standard for discovery and task messaging between opaque agents | Protocol | `com.ai.a2a` | Linux Foundation; Agent Card + Tasks |
 | Orchestrator                         | 编排器     | Agent that delegates tasks to specialized Subagents        | Pattern   | `.cursor/agents/orchestrator.md`              | Cursor agent routing (dev tooling)  |
 | Subagent                             | 子智能体    | Specialized Agent focused on a single responsibility       | Pattern   | `.cursor/agents/*.md`                         | e.g. business-analyst, market-analyst, developer |
 | Grounding                            | 事实锚定    | Constraining LLM answers to retrieved Source Documents     | Pattern   | `LocalizedRagPromptBuilder`, `RagChatService` | Reduces unsupported claims          |
