@@ -52,7 +52,9 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
       return true;
     }
     // Include OAuth callback paths so login can link the browser Client Identity cookie.
+    // A2A message APIs also need Owner Key from Client Identity (or trusted BFF headers).
     return !path.startsWith("/api/")
+        && !path.startsWith("/a2a/")
         && !path.startsWith("/login/oauth2/")
         && !path.startsWith("/oauth2/");
   }
