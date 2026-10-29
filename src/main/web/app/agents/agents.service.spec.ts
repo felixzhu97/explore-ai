@@ -82,4 +82,37 @@ describe('AgentsService', () => {
     };
     request.flush(response);
   });
+
+  it('should invoke published agent', () => {
+    service.invokePublished('research', 'hello').subscribe((result) => {
+      expect(result.reply).toBe('ok');
+    });
+
+    const request = httpMock.expectOne(
+      req => req.url === `${API_BASE_URL}/agents/research/invoke` && req.method === 'POST',
+    );
+    expect(request.request.body).toEqual({ message: 'hello' });
+    request.flush({ type: 'research', message: 'hello', reply: 'ok' });
+  });
+
+  it('should load agent card and send a2a message', () => {
+    service.getAgentCard().subscribe((card) => {
+      expect(card.name).toBe('Explore AI');
+    });
+    const cardReq = httpMock.expectOne('/.well-known/agent-card.json');
+    expect(cardReq.request.method).toBe('GET');
+    cardReq.flush({ name: 'Explore AI', skills: [{ id: 'research', name: 'Research' }] });
+
+    service.sendA2aMessage('ping', 'research').subscribe((task) => {
+      expect(task.status.state).toBe('completed');
+    });
+    const sendReq = httpMock.expectOne('/a2a/v1/message:send');
+    expect(sendReq.request.method).toBe('POST');
+    expect(sendReq.request.body.message.parts[0].text).toBe('ping');
+    sendReq.flush({
+      id: 't1',
+      status: { state: 'completed' },
+      artifacts: [{ artifactId: 'a1', name: 'reply', parts: [{ text: 'pong' }] }],
+    });
+  });
 });

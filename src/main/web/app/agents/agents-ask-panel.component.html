@@ -1,0 +1,88 @@
+@if (agent(); as selected) {
+  <section
+    class="flex h-[min(32rem,calc(100dvh-11rem))] min-h-0 flex-col overflow-hidden rounded-xl border border-black/8 bg-white lg:h-auto lg:min-h-0 lg:flex-1"
+  >
+    <header class="shrink-0 border-b border-black/8 px-4 py-3">
+      <p class="text-[11px] tracking-wide text-foreground/45 uppercase">
+        {{ i18n.t().agents.askLabel }}
+      </p>
+      <h2 class="mt-0.5 truncate text-sm font-semibold text-foreground">
+        {{ selected.name }}
+      </h2>
+      <p class="mt-1 line-clamp-2 text-xs leading-relaxed text-foreground/55">
+        {{ selected.description }}
+      </p>
+    </header>
+
+    <div class="min-h-0 flex-1 overflow-y-auto px-4 py-3">
+      @if (showEmpty()) {
+        <div class="flex h-full min-h-40 flex-col justify-center gap-3">
+          <p class="text-sm text-foreground/55">{{ i18n.t().agents.askEmpty }}</p>
+          <div class="flex flex-wrap gap-2">
+            @for (hint of suggestions(); track hint) {
+              <button
+                type="button"
+                class="max-w-full rounded-full border border-black/10 px-3 py-1.5 text-left text-xs text-foreground/70 transition hover:border-primary/40 hover:text-primary"
+                (click)="useSuggestion(hint)"
+              >
+                {{ hint }}
+              </button>
+            }
+          </div>
+        </div>
+      } @else {
+        <ul class="flex flex-col gap-2.5">
+          @for (turn of turns(); track $index) {
+            <li
+              class="max-w-[90%] rounded-2xl px-3 py-2 text-sm leading-relaxed wrap-break-word whitespace-pre-wrap"
+              [class.ml-auto]="turn.role === 'user'"
+              [class.bg-primary]="turn.role === 'user'"
+              [class.text-primary-foreground]="turn.role === 'user'"
+              [class.bg-black/[0.04]]="turn.role === 'assistant'"
+              [class.text-foreground]="turn.role === 'assistant'"
+            >
+              {{ turn.text }}
+            </li>
+          }
+          @if (isAsking()) {
+            <li class="rounded-2xl bg-black/[0.04] px-3 py-2 text-xs text-foreground/45">
+              {{ i18n.t().agents.tryRunRunning }}
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <div class="shrink-0 border-t border-black/8 p-3">
+      <div
+        class="flex items-end gap-2 rounded-xl border border-black/10 bg-[#f5f5f7] px-2.5 py-2"
+      >
+        <textarea
+          class="max-h-24 min-h-10 min-w-0 flex-1 resize-none bg-transparent px-1 py-1.5 text-sm outline-none"
+          rows="1"
+          [attr.placeholder]="i18n.t().agents.askPlaceholder"
+          [value]="composer()"
+          (input)="onComposerInput($event)"
+          (keydown)="onComposerKeydown($event)"
+        ></textarea>
+        <button
+          type="button"
+          z-button
+          zType="default"
+          zSize="sm"
+          class="shrink-0"
+          [zDisabled]="isAsking() || composer().trim().length === 0"
+          (click)="ask.emit()"
+        >
+          {{ i18n.t().agents.askSend }}
+        </button>
+      </div>
+    </div>
+  </section>
+} @else {
+  <section
+    class="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-dashed border-black/10 bg-white/60 px-6 text-center"
+  >
+    <p class="text-sm text-foreground/50">{{ i18n.t().agents.askPick }}</p>
+  </section>
+}

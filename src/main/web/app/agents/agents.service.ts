@@ -54,16 +54,83 @@ export interface UpdateCustomAgentRequest {
   tools?: string[];
 }
 
+/** Published Language summary from `/api/agents` (no system prompt). */
+export interface AgentSummaryResponse {
+  type: string;
+  name: string;
+  description: string;
+  healthy: boolean;
+  tools: string[];
+}
+
+export interface AgentInvokeResponse {
+  type: string;
+  message: string;
+  reply: string;
+}
+
+export interface AgentCardWire {
+  name: string;
+  description?: string;
+  version?: string;
+  url?: string;
+  skills?: { id: string; name: string; description?: string }[];
+}
+
+export interface A2aTaskWire {
+  id: string;
+  status: { state: string };
+  artifacts?: {
+    artifactId: string;
+    name: string;
+    parts: { text?: string }[];
+  }[];
+}
+
 @Service()
 export class AgentsService {
   readonly #http = inject(HttpClient);
   readonly #i18n = inject(I18nService);
   readonly #customAgentsBase = `${API_BASE_URL}/pipelines/agents`;
+  readonly #publishedBase = `${API_BASE_URL}/agents`;
 
   /** Merged builtins + enabled library (for display of effective catalog). */
   listCatalog(): Observable<AgentInfoResponse[]> {
     return this.#http.get<AgentInfoResponse[]>(`${API_BASE_URL}/pipelines/agent-types`, {
       params: new HttpParams().set('lang', this.#i18n.language()),
+    });
+  }
+
+  /** Sibling Published Language list (opaque; no system prompt). */
+  listPublishedAgents(): Observable<AgentSummaryResponse[]> {
+    return this.#http.get<AgentSummaryResponse[]>(this.#publishedBase, {
+      params: new HttpParams().set('lang', this.#i18n.language()),
+    });
+  }
+
+  /** Runs one catalog Agent via Published Language. */
+  invokePublished(agentType: string, message: string): Observable<AgentInvokeResponse> {
+    return this.#http.post<AgentInvokeResponse>(
+      `${this.#publishedBase}/${encodeURIComponent(agentType)}/invoke`,
+      { message },
+      { params: new HttpParams().set('lang', this.#i18n.language()) },
+    );
+  }
+
+  /** Fetches the local A2A Agent Card. */
+  getAgentCard(): Observable<AgentCardWire> {
+    return this.#http.get<AgentCardWire>('/.well-known/agent-card.json');
+  }
+
+  /** Sends one A2A Task to the local A2A Server. */
+  sendA2aMessage(text: string, skill = 'research'): Observable<A2aTaskWire> {
+    return this.#http.post<A2aTaskWire>('/a2a/v1/message:send', {
+      message: {
+        messageId: crypto.randomUUID(),
+        role: 'user',
+        parts: [{ text }],
+        metadata: { skill },
+      },
     });
   }
 

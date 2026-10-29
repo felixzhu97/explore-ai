@@ -1,119 +1,164 @@
-<div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
-  <header class="flex flex-wrap items-end justify-between gap-3">
-    <div>
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-6 lg:h-full lg:min-h-0">
+  <header class="flex shrink-0 flex-wrap items-end justify-between gap-3">
+    <div class="w-full min-w-0 sm:w-auto sm:max-w-2xl sm:flex-1">
       <p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">ExploreAI</p>
       <h1 class="mt-1 text-2xl font-semibold tracking-tight text-foreground">
         {{ i18n.t().agents.title }}
       </h1>
-      <p class="mt-1 text-sm text-muted-foreground">{{ i18n.t().agents.subtitle }}</p>
+      <p class="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+        {{ i18n.t().agents.subtitle }}
+      </p>
     </div>
-    <button type="button" z-button zType="default" zSize="sm" (click)="startCreate()">
+    <button
+      type="button"
+      class="shrink-0"
+      z-button
+      zType="default"
+      zSize="sm"
+      (click)="startCreate()"
+    >
       {{ i18n.t().agents.newAgent }}
     </button>
   </header>
 
-  <div class="flex flex-col gap-6">
-      @if (error() !== null) {
-        <p class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {{ error() }}
-        </p>
-      }
+  @if (error() !== null) {
+    <p class="shrink-0 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      {{ error() }}
+    </p>
+  }
 
-      @if (showForm()) {
-        <section class="rounded-xl border border-black/8 bg-white p-4">
-          <h2 class="text-sm font-semibold text-foreground">
-            {{ editingId() !== null ? i18n.t().agents.editTitle : i18n.t().agents.createTitle }}
-          </h2>
-          <div class="mt-3 flex flex-col gap-3">
-            <label class="text-xs font-medium text-foreground/70">
-              {{ i18n.t().agents.agentType }}
-              <input
-                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60"
-                [formField]="draftForm.agentType"
-              />
-            </label>
-            <label class="text-xs font-medium text-foreground/70">
-              {{ i18n.t().common.name }}
-              <input
-                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
-                [formField]="draftForm.name"
-              />
-            </label>
-            <label class="text-xs font-medium text-foreground/70">
-              {{ i18n.t().agents.description }}
-              <input
-                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
-                [formField]="draftForm.description"
-              />
-            </label>
-            <div>
-              <p class="text-xs font-medium text-foreground/70">{{ i18n.t().agents.tools }}</p>
-              <div class="mt-2 flex flex-wrap gap-1.5">
-                @for (toolKey of availableTools; track toolKey) {
-                  <button
-                    type="button"
-                    class="rounded-md border px-2.5 py-1.5 text-xs transition"
-                    [class.border-primary]="isToolSelected(toolKey)"
-                    [class.bg-primary/10]="isToolSelected(toolKey)"
-                    [class.border-black/10]="!isToolSelected(toolKey)"
-                    (click)="toggleTool(toolKey)"
-                  >
-                    {{ toolKey }}
-                  </button>
-                }
-              </div>
-            </div>
-            <label class="text-xs font-medium text-foreground/70">
-              {{ i18n.t().agents.systemPrompt }}
-              <textarea
-                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 font-mono text-sm outline-none focus:border-foreground/30"
-                rows="10"
-                [formField]="draftForm.systemPrompt"
-              ></textarea>
-            </label>
-            <div class="flex gap-2">
+  @if (showForm()) {
+    <section class="shrink-0 overflow-y-auto rounded-xl border border-black/8 bg-white p-4">
+      <h2 class="text-sm font-semibold text-foreground">
+        {{ editingId() !== null ? i18n.t().agents.editTitle : i18n.t().agents.createTitle }}
+      </h2>
+      <div class="mt-3 flex flex-col gap-3">
+        <label class="text-xs font-medium text-foreground/70">
+          {{ i18n.t().agents.agentType }}
+          <input
+            class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60"
+            [formField]="draftForm.agentType"
+          />
+        </label>
+        <label class="text-xs font-medium text-foreground/70">
+          {{ i18n.t().common.name }}
+          <input
+            class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
+            [formField]="draftForm.name"
+          />
+        </label>
+        <label class="text-xs font-medium text-foreground/70">
+          {{ i18n.t().agents.description }}
+          <input
+            class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
+            [formField]="draftForm.description"
+          />
+        </label>
+        <div>
+          <p class="text-xs font-medium text-foreground/70">{{ i18n.t().agents.tools }}</p>
+          <div class="mt-2 flex flex-wrap gap-1.5">
+            @for (toolKey of availableTools; track toolKey) {
               <button
                 type="button"
-                z-button
-                zType="default"
-                [zDisabled]="isSaving()"
-                (click)="save()"
+                class="rounded-md border px-2.5 py-1.5 text-xs transition"
+                [class.border-primary]="isToolSelected(toolKey)"
+                [class.bg-primary/10]="isToolSelected(toolKey)"
+                [class.border-black/10]="!isToolSelected(toolKey)"
+                (click)="toggleTool(toolKey)"
               >
-                {{ isSaving() ? i18n.t().common.saving : i18n.t().common.save }}
+                {{ toolKey }}
               </button>
-              <button type="button" z-button zType="ghost" (click)="cancelForm()">
-                {{ i18n.t().common.cancel }}
-              </button>
-            </div>
+            }
           </div>
-        </section>
-      }
+        </div>
+        <label class="text-xs font-medium text-foreground/70">
+          {{ i18n.t().agents.systemPrompt }}
+          <textarea
+            class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm outline-none focus:border-foreground/30"
+            rows="8"
+            [formField]="draftForm.systemPrompt"
+          ></textarea>
+        </label>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            z-button
+            zType="default"
+            [zDisabled]="isSaving()"
+            (click)="save()"
+          >
+            {{ isSaving() ? i18n.t().common.saving : i18n.t().common.save }}
+          </button>
+          <button type="button" z-button zType="ghost" (click)="cancelForm()">
+            {{ i18n.t().common.cancel }}
+          </button>
+        </div>
+      </div>
+    </section>
+  }
 
-      <section>
+  <div
+    class="grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-2 lg:items-stretch"
+  >
+    <div class="flex min-w-0 flex-col gap-6 lg:min-h-0 lg:overflow-y-auto lg:pr-1">
+      <section class="shrink-0">
         <div class="flex flex-wrap items-end justify-between gap-2">
           <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().agents.builtins }}</h2>
           <p class="text-xs text-foreground/50">{{ i18n.t().agents.builtinsHint }}</p>
         </div>
+
         @if (isLoading()) {
           <p class="mt-3 text-xs text-foreground/50">{{ i18n.t().agents.loading }}</p>
         } @else {
-          <ul class="mt-3 grid gap-3 sm:grid-cols-2">
+          <ul class="mt-3 grid gap-3">
             @for (agent of builtins(); track agent.type) {
-              <li class="flex flex-col gap-3 rounded-xl border border-black/8 bg-white p-4">
-                <div class="min-w-0 flex-1">
-                  <p class="text-sm font-medium text-foreground">{{ agent.name }}</p>
-                  <p class="mt-0.5 font-mono text-[10px] text-foreground/45">{{ agent.type }}</p>
-                  <p class="mt-1 text-sm leading-relaxed text-foreground/60">{{ agent.description }}</p>
-                </div>
-                <div class="flex flex-wrap gap-2">
+              <li
+                class="flex min-w-0 flex-col gap-3 rounded-xl border bg-white p-4"
+                [class.border-primary]="isSelected(agent)"
+                [class.bg-primary/5]="isSelected(agent)"
+                [class.border-black/8]="!isSelected(agent)"
+              >
+                <button
+                  type="button"
+                  class="min-w-0 flex-1 text-left"
+                  (click)="selectAgent(agent)"
+                >
+                  <p class="truncate text-sm font-medium text-foreground">
+                    {{ agent.name }}
+                  </p>
+                  <p class="mt-1 line-clamp-3 text-sm leading-relaxed text-foreground/60">
+                    {{ agent.description }}
+                  </p>
+                  @if (agent.tools.length > 0) {
+                    <ul class="mt-2 flex flex-wrap gap-1.5">
+                      @for (tool of agent.tools; track tool) {
+                        <li
+                          class="rounded-md bg-black/[0.04] px-2 py-0.5 text-[11px] text-foreground/55"
+                        >
+                          {{ tool }}
+                        </li>
+                      }
+                    </ul>
+                  }
+                </button>
+                <div class="flex items-center justify-between gap-2">
                   <button
                     type="button"
                     z-button
                     zType="default"
                     zSize="sm"
-                    (click)="customizeBuiltin(agent)"
+                    (click)="selectAgent(agent)"
                   >
-                    {{ i18n.t().common.edit }}
+                    {{ i18n.t().agents.askCta }}
+                  </button>
+                  <button
+                    type="button"
+                    z-button
+                    zType="ghost"
+                    zSize="sm"
+                    (click)="customizeFromGallery(agent)"
+                  >
+                    {{ i18n.t().agents.customize }}
                   </button>
                 </div>
               </li>
@@ -122,65 +167,99 @@
         }
       </section>
 
-      <section>
+      <section class="shrink-0">
         <h2 class="text-sm font-semibold text-foreground">{{ i18n.t().agents.myAgents }}</h2>
-        @if (customAgents().length === 0) {
+
+        @if (library().length === 0) {
           <p class="mt-3 text-sm text-foreground/60">{{ i18n.t().agents.emptyState }}</p>
         } @else {
-          <ul class="mt-3 overflow-hidden rounded-xl border border-black/8 bg-white">
-            @for (agent of customAgents(); track agent.id) {
+          <ul class="mt-3 grid gap-3">
+            @for (agent of library(); track agent.custom?.id ?? agent.type) {
               <li
-                class="flex flex-wrap items-start justify-between gap-3 border-b border-black/8 px-4 py-3 last:border-b-0"
+                class="flex min-w-0 flex-col gap-3 rounded-xl border bg-white p-4"
+                [class.border-primary]="isSelected(agent)"
+                [class.bg-primary/5]="isSelected(agent)"
+                [class.border-black/8]="!isSelected(agent)"
               >
-                <div class="min-w-0 flex-1">
-                  <p class="text-sm font-medium text-foreground">
+                <button
+                  type="button"
+                  class="min-w-0 flex-1 text-left"
+                  (click)="selectAgent(agent)"
+                >
+                  <p class="truncate text-sm font-medium text-foreground">
                     {{ agent.name }}
-                    @if (!agent.enabled) {
+                    @if (agent.custom && !agent.custom.enabled) {
                       <span class="ml-2 text-xs font-normal text-foreground/50">
                         {{ i18n.t().agents.statusDisabled }}
                       </span>
                     }
                   </p>
-                  <p class="mt-0.5 font-mono text-[10px] text-foreground/45">{{ agent.agentType }}</p>
-                  <p class="mt-0.5 text-sm text-foreground/60">{{ agent.description }}</p>
-                </div>
-                <div class="flex shrink-0 flex-wrap gap-1">
+                  <p class="mt-1 line-clamp-3 text-sm leading-relaxed text-foreground/60">
+                    {{ agent.description }}
+                  </p>
+                </button>
+                <div class="flex flex-wrap gap-1">
                   <button
                     type="button"
                     z-button
                     zType="ghost"
                     zSize="sm"
-                    (click)="startEditCustomAgent(agent)"
+                    (click)="selectAgent(agent)"
+                  >
+                    {{ i18n.t().agents.askCta }}
+                  </button>
+                  <button
+                    type="button"
+                    z-button
+                    zType="ghost"
+                    zSize="sm"
+                    (click)="customizeFromGallery(agent)"
                   >
                     {{ i18n.t().common.edit }}
                   </button>
-                  <button
-                    type="button"
-                    z-button
-                    zType="ghost"
-                    zSize="sm"
-                    (click)="toggleEnabled(agent)"
-                  >
-                    {{
-                      agent.enabled
-                        ? i18n.t().agents.disable
-                        : i18n.t().agents.enable
-                    }}
-                  </button>
-                  <button
-                    type="button"
-                    z-button
-                    zType="ghost"
-                    zSize="sm"
-                    (click)="delete(agent)"
-                  >
-                    {{ i18n.t().common.delete }}
-                  </button>
+                  @if (agent.custom; as custom) {
+                    <button
+                      type="button"
+                      z-button
+                      zType="ghost"
+                      zSize="sm"
+                      (click)="toggleEnabled(custom)"
+                    >
+                      {{ custom.enabled ? i18n.t().agents.disable : i18n.t().agents.enable }}
+                    </button>
+                    <button
+                      type="button"
+                      z-button
+                      zType="ghost"
+                      zSize="sm"
+                      (click)="delete(custom)"
+                    >
+                      {{ i18n.t().common.delete }}
+                    </button>
+                  }
                 </div>
               </li>
             }
           </ul>
         }
       </section>
+
+      @if (partnerReady()) {
+        <p class="shrink-0 pb-2 text-xs leading-relaxed text-foreground/40">
+          {{ i18n.t().agents.partnerReady }}
+          <span class="text-foreground/55">{{ partnerSkillsLine() }}</span>
+        </p>
+      }
+    </div>
+
+    <app-agents-ask-panel
+      [agent]="selected()"
+      [turns]="turns()"
+      [isAsking]="isAsking()"
+      [suggestions]="suggestions()"
+      [(composer)]="composer"
+      (ask)="ask()"
+      (suggestionUsed)="useSuggestion($event)"
+    />
   </div>
 </div>
