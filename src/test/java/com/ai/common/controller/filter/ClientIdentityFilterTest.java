@@ -97,6 +97,19 @@ class ClientIdentityFilterTest {
     verify(filterChain).doFilter(request, response);
   }
 
+  @Test
+  @DisplayName("should issue Client Identity for A2A message paths")
+  void shouldFilterA2aMessagePaths() throws Exception {
+    when(request.getRequestURI()).thenReturn("/a2a/v1/message:send");
+    when(request.getCookies()).thenReturn(null);
+
+    filter.doFilter(request, response, filterChain);
+
+    verify(request).setAttribute(eq(ClientIdentity.REQUEST_ATTRIBUTE), anyString());
+    verify(response).addHeader(eq(HttpHeaders.SET_COOKIE), anyString());
+    verify(filterChain).doFilter(request, response);
+  }
+
   @Nested
   @DisplayName("service-key path")
   class ServiceKeyPath {
