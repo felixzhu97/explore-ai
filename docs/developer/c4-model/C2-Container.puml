@@ -49,7 +49,18 @@ Container_Boundary(pipeline_domain, "Pipeline Domain") {
 }
 
 ' ============================================================
-' DOMAIN 2b: DEEP AGENT [flag-guarded]
+' DOMAIN 2a: AGENT FAÇADE + A2A (same module-pipelines flag)
+' ============================================================
+Container_Boundary(agent_a2a_domain, "Agent + A2A Domain") {
+    Container(agent_controller, "AgentController", "@RestController", "/api/agents list + invoke (+ SSE)")
+    Container(agent_service, "AgentService", "Application Service", "Published Language → Pipeline workers")
+    Container(agent_card_controller, "AgentCardController", "@RestController", "GET /.well-known/agent-card.json")
+    Container(a2a_message_controller, "A2aMessageController", "@RestController", "/a2a/v1/message:send|stream")
+    Container(a2a_service, "A2aService", "Application Service", "Agent Card + Task ↔ AgentRun")
+}
+
+' ============================================================
+' DOMAIN 2b: SKILL [flag-guarded]
 ' ============================================================
 Container_Boundary(skill_domain, "Skill Domain") {
     Container(skill_controller, "SkillController", "@RestController", "/api/skills CRUD + templates")
@@ -198,6 +209,7 @@ Container_Ext(serper_api, "Serper.dev API", "REST API", "Web 搜索", "HTTPS")
 Container_Ext(launchdarkly, "LaunchDarkly", "SaaS", "功能开关", "HTTPS")
 Container_Ext(datadog, "Datadog us5", "SaaS", "APM (javaagent → Agent)", "HTTPS")
 Container_Ext(explore_iam, "Explore IAM", "OIDC Provider + SCIM Client", "authorize / token / JWKS :9100\nSCIM push (iam-scim-outbound)", "HTTPS")
+Container_Ext(a2a_client, "Sibling / A2A Client", "Agent or BFF", "Discover Card + message:send/stream", "HTTPS")
 
 ' ============================================================
 ' RELATIONSHIPS
@@ -207,6 +219,9 @@ Rel(user, ios_app, "使用 iOS", "SwiftUI")
 Rel(admin, eval_controller, "质量评估", "HTTP")
 Rel(admin, text_analysis_controller, "文本分析", "HTTP")
 Rel(admin, metrics_controller, "AI 指标看板", "HTTP")
+Rel(a2a_client, agent_card_controller, "GET Agent Card", "HTTPS")
+Rel(a2a_client, a2a_message_controller, "message:send / stream", "HTTPS + IAM Bearer")
+Rel(a2a_client, agent_controller, "Optional /api/agents", "HTTPS + IAM Bearer")
 
 Rel(ios_app, explore_iam, "OIDC + PKCE", "HTTPS :9100")
 Rel(ios_app, backend, "Bearer access_token", "HTTPS :9000")
@@ -247,6 +262,12 @@ Rel(chat_service, deepseek_api, "LLM", "HTTPS")
 Rel(chat_service, prompt_templates, "defaultSystem")
 
 Rel(pipeline_controller, pipeline_service, "调用")
+Rel(agent_controller, agent_service, "调用")
+Rel(agent_service, pipeline_service, "list / invoke / invokeSync")
+Rel(agent_card_controller, a2a_service, "build Card")
+Rel(a2a_message_controller, a2a_service, "Task messaging")
+Rel(a2a_service, agent_service, "AgentRun")
+Rel(a2a_service, agent_registry, "listBuiltins for Card")
 Rel(pipeline_template_controller, pipeline_template_service, "调用")
 Rel(pipeline_template_service, pipeline_template_repo, "持久化")
 Rel(pipeline_template_repo, h2_db, "JDBC")
