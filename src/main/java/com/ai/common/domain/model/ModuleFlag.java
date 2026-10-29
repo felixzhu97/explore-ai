@@ -7,6 +7,10 @@ public enum ModuleFlag {
   MCP("module-mcp", "/api/mcp"),
   EVAL("module-eval", "/api/eval"),
   PIPELINES("module-pipelines", "/api/pipelines"),
+  /** Same LaunchDarkly key as Pipeline — published Agent façade for siblings. */
+  AGENTS("module-pipelines", "/api/agents"),
+  /** Same LaunchDarkly key as Pipeline — minimal A2A Server message APIs. */
+  A2A("module-pipelines", "/a2a"),
   AUTOMATIONS("module-automations", "/api/automations"),
   SKILLS("module-skills", "/api/skills");
 

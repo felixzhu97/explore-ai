@@ -29,6 +29,7 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 | `C4-Dynamic-Chat-Tools.puml` | Dynamic | Chat 工具 SSE + A2UI 图表 |
 | `C4-Dynamic-IamNativeSignIn.puml` | Dynamic | AI iOS PKCE → IAM → Bearer `/api/account/me` → Home |
 | `C4-Dynamic-ScimProvisioning.puml` | Dynamic | Explore IAM → `/scim/v2/Users`（`write:ai_scim`）→ Account 生命周期 + 删除擦除 |
+| `C4-Dynamic-A2aMessage.puml` | Dynamic | A2A Client → Agent Card → `message:send` / `stream` → AgentService → Worker |
 
 > **Code vs Deployment**：C4 官方第 4 层是 **Code**（类与关系）。本仓 `C4-Deployment.puml` 是部署视图；领域类型总览见 `C4-Code-Domain-Model.puml`。图中 stereotype 表示约定，**没有**共享 Java `Entity`/`AggregateRoot` 基类。
 
@@ -88,8 +89,11 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 | [C4-Dynamic-Chat-Tools.puml](C4-Dynamic-Chat-Tools.puml) | Chat 工具调用 → SSE → A2UI 图表 |
 | [C4-Dynamic-IamNativeSignIn.puml](C4-Dynamic-IamNativeSignIn.puml) | AI iOS IAM PKCE 登录 → Bearer me → Home |
 | [C4-Dynamic-ScimProvisioning.puml](C4-Dynamic-ScimProvisioning.puml) | Explore IAM SCIM 推送 → `write:ai_scim` → 创建 / 替换 / 停用 / 删除并擦除 Account |
+| [C4-Dynamic-A2aMessage.puml](C4-Dynamic-A2aMessage.puml) | A2A Agent Card 发现 → IAM Bearer → Task → baseline Agent |
 
 ![C4-Dynamic-Rag-Ask](png/C4-Dynamic-Rag-Ask.png)
+
+![C4-Dynamic-A2aMessage](png/C4-Dynamic-A2aMessage.png)
 
 ---
 
@@ -100,7 +104,7 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 - **运行时**: Spring Boot 4.1 / Java 25 / Spring AI 2.0
 - **架构**: Clean Architecture（`domain/repository/`，非 Hexagonal `domain/port/`）
 - **端口**: dev **9000** / prod **8080** (Render `PORT`)
-- **子域 (13)**: Chat / Pipeline / Skill / RAG / Tools / Text Analysis (`textanalysis`) / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
+- **子域**: Chat / Pipeline / Agent façade / A2A / Skill / RAG / Tools / Text Analysis (`textanalysis`) / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
 - **持久化**: H2 嵌入式（会话元数据 `ChatSessionRepository` + 消息 `JdbcChatMemoryRepository` + 向量 + AI 调用事件 `ai_invocation_event`）
 - **JPA / Hibernate**: 归属聚合继承 `AbstractOwnerAwareEntity`（运行记录与调用事件继承 `AbstractOwnerAwareImmutable`）（`owner_key` NOT NULL，Liquibase `0.1-012` 回填遗留会话为 `c:legacy-orphan`）；领域仓储继承 Spring Data `Repository<T, ID>`，按归属读写以 `OwnerKey` 作为显式查询参数（如 `findByIdAndOwnerKey`），后台任务使用不带归属的查询；类型化 ID 映射原生 UUID 列；`AiInvocationEvent` 为 `@Immutable`；`Account` 以 `@NaturalId`（provider + subject）查找
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`）
@@ -120,6 +124,17 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 | 画布图 SSE | `POST /api/pipelines/invoke/sse` | `PipelineOrchestrationService`；节点可带 `systemPrompt`/`tools` 快照 |
 
 Worker 定义来自 Pipeline 内置目录：`AgentTemplateCatalog`（`classpath:agent-templates/{lang}.json`）经 `CatalogAgentRegistry` 提供调色板种子；画布双击编辑的是**图内节点副本**。Classpath Agent Skills：`AgentSkillsRuntime`（`com.ai.common`，`app.agent-skills`）。
+
+### Agent façade + A2A（同 `module-pipelines`）
+
+Sibling / 外部 Agent 的 Published Language；不暴露 system prompt。默认 A2A skill / Agent Type：`research`。MCP 仍是工具协议（peer），不是跨 Agent 协议。
+
+| 能力 | API | 主要组件 |
+| --- | --- | --- |
+| 列表 / 详情 | `GET /api/agents`, `GET /api/agents/{type}` | `AgentController`, `AgentService` |
+| 同步 / SSE 调用 | `POST /api/agents/{type}/invoke`, `.../invoke/sse` | 委托 `PipelineService` |
+| Agent Card | `GET /.well-known/agent-card.json` | `AgentCardController`（公开） |
+| A2A Task | `POST /a2a/v1/message:send`, `.../message:stream` | `A2aMessageController`（IAM `write:ai_agent`） |
 
 ### Prompt Catalog（横切）
 
