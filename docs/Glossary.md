@@ -427,6 +427,31 @@ Package: `com.ai.a2a`. Linux Foundation Agent2Agent Protocol v1.0 — peer to MC
 | A2A Message              | A2A 消息       | User or agent message with text (and optional) parts               | Value Object   | `A2aMessage`                                      | Text parts → Agent invoke message |
 | Send Message             | 发送消息         | Synchronous Task completion for one message                        | Use Case       | `POST /a2a/v1/message:send`                       | IAM Bearer required |
 | Stream Message           | 流式发送消息       | SSE Task status and artifact updates for one message               | Use Case       | `POST /a2a/v1/message:stream`                     | IAM Bearer required |
+| Agent Gallery            | Agent 目录       | Built-in + custom Agents shown for pick-and-run (product pattern)  | UI Concept     | `/agents`, catalog templates                      | Aligns with Gemini Enterprise / Copilot Gallery |
+| Agent Studio             | Agent 工作室      | Canvas that composes worker Agents into a runnable graph           | UI Concept     | `/pipelines`                                      | Aligns with Copilot Studio / Joule Studio |
+| A2A Client               | A2A 客户端        | Discovers a remote Agent Card and sends Tasks                      | Application    | Agents page self-test; future `com.ai.a2a` client | Peer platforms: Foundry, AgentCore, Agentforce |
+
+
+### 10.2 Reference products | 对标产品（学形态，不接云账号）
+
+Enterprise Agent Platforms to copy **shape** from (Gallery + Studio + Runtime API + Interop + Governance). Explore stays vendor-neutral; only Explore AI is the hub.
+
+
+| Reference product | Steal for Explore | Home repo |
+| ----------------- | ----------------- | --------- |
+| Google Gemini Enterprise | Agent Gallery; search-grounded agents; one shell hosts many agents | explore-ai `/agents`, RAG |
+| Microsoft Copilot Studio + Agent Registry | Low-code compose; **Scope Catalog + client scopes** as registry; SSO/SCIM | explore-ai `/pipelines`; explore-iam `write:ai_agent` |
+| Azure AI Foundry Agents | Engineer Runtime API beside Studio | `/api/agents`, A2A Card |
+| Salesforce Agentforce — Topics / Builder | Gallery Agent Type + A2A Skill id | explore-ai catalog + Card |
+| Salesforce Agentforce — Actions | Catalog tools; domain side-effects stay in sibling BFF | tools; Chat/Commerce BFF |
+| Salesforce Agentforce — Grounding | BFF injects order/case summary into invoke `message` | explore-commerce AI proxy |
+| Salesforce Agentforce — Service Agent | Ask Agent inside messaging shell | explore-chat `/ai/explore/agents` |
+| AWS Bedrock AgentCore | Multi-model runtime; tools ≠ agents | module flags; explore-ml as tools |
+| SAP Joule / ServiceNow AI Agent Studio | Domain grounding + A2A discoverability | explore-portfolio / ops stories; Card exposure |
+| IBM watsonx Orchestrate | Skill catalog + router | Skill + Supervisor |
+| OpenAI Agents / Assistants | Thin public invoke + streaming | `/api/agents` façade |
+
+**Trust split:** peer/user A2A → IAM Bearer + `write:ai_agent`; sibling BFF → `X-Service-Key` + `X-Client-Id`. Siblings **consume** Explore AI. They do not embed vendor agent SDKs.
 
 
 ---
