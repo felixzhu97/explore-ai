@@ -124,9 +124,10 @@ journey
 
 ### 未来（规划中）
 
-| 企业与 Lab |
-|------------|
-| [US-23](./user-stories/E9-enterprise-future.md#us-23-aiops-智能运维) AIOps |
+| Agent 调用治理 | 企业与 Lab |
+|----------------|------------|
+| [US-47](./user-stories/E15-agent-governance.md#us-47-无权限客户端调用被拒绝且可感知) 无权调用可感知拒绝 | [US-23](./user-stories/E9-enterprise-future.md#us-23-aiops-智能运维) AIOps |
+| [US-48](./user-stories/E15-agent-governance.md#us-48-调用成败可追查) 调用成败可追查 | |
 | [US-24](./user-stories/E9-enterprise-future.md#us-24-知识与制度) 知识与制度 |
 | [US-25](./user-stories/E9-enterprise-future.md#us-25-沟通与内容生产) 沟通与内容 |
 | [US-26](./user-stories/E9-enterprise-future.md#us-26-决策支持与运营轻量) 决策支持 |
@@ -154,6 +155,7 @@ journey
 | E12 SCIM 用户同步 | [E12-scim-provisioning.md](./user-stories/E12-scim-provisioning.md) | US-37 – US-38 | 已实现 |
 | E13 Agent façade + A2A | [E13-agent-a2a.md](./user-stories/E13-agent-a2a.md) | US-40 – US-41 | 已实现 |
 | E14 Agent Gallery 与互操作 | [E14-agent-gallery-interop.md](./user-stories/E14-agent-gallery-interop.md) | US-42 – US-46 | 已实现 |
+| E15 Agent 调用治理 | [E15-agent-governance.md](./user-stories/E15-agent-governance.md) | US-47 – US-48 | 规划中 |
 
 ## 参考
 
