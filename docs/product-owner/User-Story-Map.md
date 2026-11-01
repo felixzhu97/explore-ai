@@ -140,7 +140,7 @@ journey
 
 | Epic | 文件 | 故事 | 状态 |
 |------|------|------|------|
-| E1 对话与会话 | [E1-chat-session.md](./user-stories/E1-chat-session.md) | US-01 – US-03d | 已实现（US-03d 进行中） |
+| E1 对话与会话 | [E1-chat-session.md](./user-stories/E1-chat-session.md) | US-01 – US-03e | 已实现（US-03e 进行中） |
 | E2 隐私与隔离 | [E2-privacy-isolation.md](./user-stories/E2-privacy-isolation.md) | US-04 – US-05b, US-39 | 已实现 |
 | E3 RAG 与视觉 | [E3-rag-vision.md](./user-stories/E3-rag-vision.md) | US-06 – US-08 | 已实现 |
 | E4 媒体 | [E4-media.md](./user-stories/E4-media.md) | US-09 – US-11 | 已实现 |
