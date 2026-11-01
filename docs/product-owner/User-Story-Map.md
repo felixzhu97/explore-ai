@@ -5,7 +5,7 @@ title: AI Chat & Agent Platform - 用户故事地图
 # 用户故事地图
 
 > 格式：Jeff Patton 故事地图 + Mermaid journey + GWT（Epic 分文件）。  
-> 故事正文与验收标准见 [user-stories/](./user-stories/)；本页只做索引，避免双源。
+> 本页为索引；正文与验收标准见 [user-stories/](./user-stories/)。
 
 ## 用户画像
 

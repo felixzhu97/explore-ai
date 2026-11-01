@@ -4,7 +4,7 @@
 
 ## 背景
 
-对标 Gemini Enterprise / Copilot Studio（Registry）/ Agentforce / Foundry：Explore AI 提供 Gallery（目录）、Studio（Pipeline）、Runtime API（`/api/agents` + A2A Card）。兄弟系统经 BFF 消费；IAM 用 `write:ai_agent` 做客户端可调用治理。不各自接入巨头 Agent SDK。
+Explore AI 提供 Gallery（目录）、Studio（Pipeline）与 Runtime API（`/api/agents` + A2A Card）。兄弟系统经各自 BFF 调用；IAM 以 `write:ai_agent` 约束可调用客户端。产品对照见文末表。
 
 ---
 
@@ -50,7 +50,7 @@
 
 **As a** Chat 用户  
 **I want** 在消息页通过 Chat BFF 向 Gallery Agent（含 support）提问  
-**So that** 我获得类似 Agentforce Service Agent 的客服/助手体验，且浏览器不直连 Explore AI
+**So that** 浏览器经本产品 BFF 调用客服/助手 Agent，不直连 Explore AI
 
 ### 验收标准
 
@@ -69,7 +69,7 @@
 
 **As a** IAM 管理员  
 **I want** 为 OAuth 客户端授予或撤销 `write:ai_agent`  
-**So that** 只有获准的应用能调用 A2A / 受保护的 Agent 面（Copilot Registry + Entra 形态）
+**So that** 仅获准客户端可调用 A2A 与受保护的 Agent 接口
 
 ### 验收标准
 
@@ -93,7 +93,7 @@
 
 **As a** Commerce API 调用方  
 **I want** 经 Commerce 代理列出并调用 Explore AI Agents（可选订单摘要 grounding）  
-**So that** 客服场景贴近 Agentforce 领域 Agent，而不嵌入 Salesforce SDK
+**So that** 订单等业务摘要可经 BFF 注入 invoke，且不嵌入第三方 Agent SDK
 
 ### 验收标准
 
