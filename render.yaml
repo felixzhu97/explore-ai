@@ -69,3 +69,6 @@ services:
         sync: false
       - key: APP_OAUTH_GITHUB_REDIRECT_URI
         value: https://www.felixzhu.chat/login/oauth2/code/github
+      # Explore IAM is not deployed yet; without this the issuer falls back to localhost:9100.
+      - key: APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER
+        value: "false"
