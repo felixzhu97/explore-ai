@@ -37,5 +37,6 @@ jobs:
 
       - uses: ./.github/actions/setup-web-env
 
+      - run: pnpm verify:docs
       - run: pnpm verify:web
       - run: pnpm build

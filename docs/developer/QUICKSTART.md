@@ -369,7 +369,7 @@ Live Chat/RAG quality regression (flag-gated IT): see [golden-eval.md](./golden-
 
 - **Backend Issues**: Check logs in `build.gradle.kts`
 - **Frontend Issues**: Check root `package.json`
-- **Architecture Docs**: See [ARCHITECTURE.md](./ARCHITECTURE.md)
+- **Architecture Docs**: See the [C4 model](./c4-model/)
 
 ---
 

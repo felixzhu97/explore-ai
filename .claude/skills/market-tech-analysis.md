@@ -1,1 +1,0 @@
-../../.cursor/skills/market-tech-analysis/SKILL.md

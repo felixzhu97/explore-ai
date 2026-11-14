@@ -1,0 +1,1 @@
+../../.cursor/agents/customer.md

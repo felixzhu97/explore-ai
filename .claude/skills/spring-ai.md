@@ -1,1 +1,0 @@
-../../.cursor/skills/spring-ai/SKILL.md

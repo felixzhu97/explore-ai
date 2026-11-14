@@ -8,13 +8,13 @@ is_background: true
 
 遵循 TDD/BDD，极简测试。
 
-**必读**：测试核心见 [developer skill](~/.cursor/skills/scrum-team/developers/developer/SKILL.md) § Testing 与 [references/testing.md](~/.cursor/skills/scrum-team/developers/developer/references/testing.md)。
+**必读**：测试核心见 [developer skill](~/.cursor/skills/developers/developer/SKILL.md) § Testing 与 [references/testing.md](~/.cursor/skills/developers/developer/references/testing.md)。
 
 ## 项目测试规范
 
 ### Java 测试
 
-**位置**：`src/test/java/com/ai/{module}/`
+**位置**：`src/test/java/<基础包>/{module}/`，与生产代码同包
 
 **命名**：`{ClassName}Test.java`
 
@@ -47,7 +47,7 @@ class ChatSessionTest {
 
 ### TypeScript 测试
 
-**位置**：`src/main/web/app/**/*.spec.ts`
+**位置**：与被测文件同目录，路径约定见仓库 `AGENTS.md`
 
 **命名**：`{name}.component.spec.ts`
 

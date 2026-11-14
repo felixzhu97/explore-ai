@@ -32,13 +32,18 @@ Start here, then follow links. This file is a map; detail lives in `docs/`.
 | Verify everything (run before every commit) | `pnpm verify` |
 | Backend only: format, style, tests, ArchUnit | `pnpm verify:server` |
 | Frontend only: types, lint, unit tests | `pnpm verify:web` |
+| Docs only: relative Markdown links | `pnpm verify:docs` |
 | Apply Java formatting | `./gradlew spotlessApply` |
+| Start backend + frontend in background, wait until healthy | `scripts/dev-up.sh` (`stop`, `status`) |
+| Logs from `dev-up` | `logs/backend.log`, `logs/frontend.log` |
 | Start backend (→ :9000) | `./gradlew bootRun` |
 | Start frontend (→ :4200) | `pnpm start` |
 | Playwright smoke | `pnpm e2e` |
 
 Copy `.env.example` to `.env` and set at least `DEEPSEEK_API_KEY` before
 running the app. `verify` needs no keys, network or running services.
+With `APP_OAUTH_EXPLORE_IAM_ENABLED=true`, start `../explore-iam` (:9100)
+first or the backend exits and the dev proxy answers 502.
 
 ## Hard rules (enforced by `verify`)
 

@@ -1,1 +1,0 @@
-../../.cursor/skills/developer/SKILL.md

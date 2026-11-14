@@ -1,0 +1,1 @@
+../../.cursor/agents/tech-analyst.md

@@ -1,1 +1,0 @@
-../../.cursor/skills/product-owner/SKILL.md
