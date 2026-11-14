@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
-import com.tngtech.archunit.core.importer.ImportOption;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
@@ -13,10 +11,7 @@ import org.junit.jupiter.api.Test;
 
 class LayerPackageNamingRulesTest {
 
-  private static final JavaClasses CLASSES =
-      new ClassFileImporter()
-          .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
-          .importPackages("com.ai");
+  private static final JavaClasses CLASSES = ProductionClasses.ALL;
 
   private static final Set<String> FORBIDDEN_PACKAGE_SEGMENTS =
       Set.of("usecase", "adapter", "port");
@@ -27,50 +22,71 @@ class LayerPackageNamingRulesTest {
   @Test
   @DisplayName("should not use legacy web application or infrastructure layer package names")
   void shouldNotUseLegacyLayerPackageNames() {
-    long violations =
+    List<String> violations =
         CLASSES.stream()
             .filter(LayerPackageNamingRulesTest::isFeatureModuleClass)
             .filter(LayerPackageNamingRulesTest::usesLegacyLayerPackage)
-            .count();
-    assertEquals(0, violations);
+            .map(JavaClass::getName)
+            .toList();
+    assertEquals(
+        List.of(),
+        violations,
+        "Feature modules use controller / service / domain / infra / mapper packages."
+            + " Fix: move web -> controller, application -> service,"
+            + " infrastructure -> infra");
   }
 
   @Test
   @DisplayName("should not use use case adapter or port package names")
   void shouldNotUseUseCaseAdapterOrPortPackageNames() {
-    long violations =
+    List<String> violations =
         CLASSES.stream()
             .map(JavaClass::getPackageName)
             .filter(name -> name.startsWith("com.ai."))
             .filter(LayerPackageNamingRulesTest::hasForbiddenPackageSegment)
-            .count();
-    assertEquals(0, violations);
+            .distinct()
+            .toList();
+    assertEquals(
+        List.of(),
+        violations,
+        "Hexagonal port/adapter naming is not used here."
+            + " Fix: put interfaces in <feature>/domain/repository, implementations in"
+            + " <feature>/infra, orchestration in <feature>/service");
   }
 
   @Test
   @DisplayName("should not use vague class name suffixes")
   void shouldNotUseVagueClassNameSuffixes() {
-    long violations =
+    List<String> violations =
         CLASSES.stream()
             .filter(javaClass -> javaClass.getPackageName().startsWith("com.ai"))
             .filter(javaClass -> javaClass.getEnclosingClass().isEmpty())
-            .map(JavaClass::getSimpleName)
-            .filter(LayerPackageNamingRulesTest::hasForbiddenSuffix)
-            .count();
-    assertEquals(0, violations);
+            .filter(javaClass -> hasForbiddenSuffix(javaClass.getSimpleName()))
+            .map(JavaClass::getName)
+            .toList();
+    assertEquals(
+        List.of(),
+        violations,
+        "UseCase, Facade, Impl, Adapter and Port say nothing about the domain."
+            + " Fix: name the class after its role, e.g. ChatService, JdbcChatRepository,"
+            + " SerperWebSearchGateway");
   }
 
   @Test
   @DisplayName("should not prefix interfaces with I")
   void shouldNotPrefixInterfacesWithI() {
-    long violations =
+    List<String> violations =
         CLASSES.stream()
             .filter(javaClass -> javaClass.getPackageName().startsWith("com.ai"))
             .filter(JavaClass::isInterface)
-            .map(JavaClass::getSimpleName)
-            .filter(name -> name.matches("I[A-Z][a-z]\\w*"))
-            .count();
-    assertEquals(0, violations);
+            .filter(javaClass -> javaClass.getSimpleName().matches("I[A-Z][a-z]\\w*"))
+            .map(JavaClass::getName)
+            .toList();
+    assertEquals(
+        List.of(),
+        violations,
+        "Interfaces carry the domain name. Fix: rename IChatRepository to"
+            + " ChatRepository and give the implementation a specific name");
   }
 
   private static boolean hasForbiddenPackageSegment(String packageName) {

@@ -56,6 +56,7 @@ running the app. `verify` needs no keys, network or running services.
    (`log-prompt: false` stays off).
 
 When an ArchUnit rule fails, its message ends with `Fix:` — do that.
+Never add lines to `src/test/resources/archunit_store/`; it only shrinks.
 
 ## Conventions
 

@@ -9,8 +9,6 @@ import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaParameterizedType;
 import com.tngtech.archunit.core.domain.JavaType;
 import com.tngtech.archunit.core.domain.JavaWildcardType;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
-import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
@@ -21,10 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 class ControllerContractRulesTest {
 
-  private static final JavaClasses CLASSES =
-      new ClassFileImporter()
-          .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
-          .importPackages("com.ai");
+  private static final JavaClasses CLASSES = ProductionClasses.ALL;
 
   @Test
   @DisplayName("should return named records when a controller answers a request")
@@ -45,6 +40,9 @@ class ControllerContractRulesTest {
                 }
               }
             })
+        .because(
+            "the OpenAPI contract and the Angular client need named types."
+                + " Fix: return a record from controller/dto, e.g. ChatResponse")
         .check(CLASSES);
   }
 
@@ -66,6 +64,9 @@ class ControllerContractRulesTest {
                 }
               }
             })
+        .because(
+            "loose fields hide the contract from clients."
+                + " Fix: replace Object or ? with a concrete record or enum")
         .check(CLASSES);
   }
 

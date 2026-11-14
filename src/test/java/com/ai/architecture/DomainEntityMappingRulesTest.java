@@ -4,42 +4,49 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
-import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.core.domain.JavaField;
 import jakarta.persistence.Id;
 import jakarta.persistence.Version;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class DomainEntityMappingRulesTest {
 
-  private static final JavaClasses CLASSES =
-      new ClassFileImporter()
-          .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
-          .importPackages("com.ai");
+  private static final JavaClasses CLASSES = ProductionClasses.ALL;
 
   @Test
   @DisplayName("should not declare Id on feature domain models outside kernel packages")
   void shouldNotDeclareIdOnFeatureDomainModelsOutsideKernelPackages() {
-    long violations =
+    List<String> violations =
         CLASSES.stream()
             .filter(DomainEntityMappingRulesTest::isFeatureDomainModel)
             .flatMap(javaClass -> javaClass.getFields().stream())
             .filter(field -> field.isAnnotatedWith(Id.class))
-            .count();
-    assertEquals(0, violations);
+            .map(JavaField::getFullName)
+            .toList();
+    assertEquals(
+        List.of(),
+        violations,
+        "@Id is declared once on the common.domain.model base classes."
+            + " Fix: extend AbstractEntity or AbstractImmutable and remove the field");
   }
 
   @Test
   @DisplayName("should not declare Version on feature domain models outside kernel packages")
   void shouldNotDeclareVersionOnFeatureDomainModelsOutsideKernelPackages() {
-    long violations =
+    List<String> violations =
         CLASSES.stream()
             .filter(DomainEntityMappingRulesTest::isFeatureDomainModel)
             .flatMap(javaClass -> javaClass.getFields().stream())
             .filter(field -> field.isAnnotatedWith(Version.class))
-            .count();
-    assertEquals(0, violations);
+            .map(JavaField::getFullName)
+            .toList();
+    assertEquals(
+        List.of(),
+        violations,
+        "@Version is declared once on the common.domain.model base classes."
+            + " Fix: extend AbstractEntity or AbstractImmutable and remove the field");
   }
 
   private static boolean isFeatureDomainModel(JavaClass javaClass) {
