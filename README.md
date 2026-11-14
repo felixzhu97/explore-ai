@@ -2,7 +2,7 @@
 
 `explore-ai` is a full-stack platform for conversational AI. You can chat with multiple LLM providers, upload documents for RAG retrieval, call tools (weather, web search, datetime), and run Golden Eval regression checks against chat and RAG quality.
 
-The backend uses Java 25, Spring Boot 4.1, and Spring AI 2.0; the frontend uses Angular 22. A native SwiftUI hello-world app (**AI**) lives under `src/main/ios`. Architecture follows `web → application → domain ← infrastructure`. See the [C4 model](docs/developer/c4-model/) and [Glossary](docs/Glossary.md) for boundaries and ubiquitous language.
+The backend uses Java 25, Spring Boot 4.1, and Spring AI 2.0; the frontend uses Angular 22. A native SwiftUI hello-world app (**AI**) lives under `src/main/ios`. Each feature module follows `controller → service → domain ← infra`. See the [C4 model](docs/developer/c4-model/) and [Glossary](docs/Glossary.md) for boundaries and ubiquitous language.
 
 Optional modules—agents, MCP, vision, audio, image generation, metrics, and more—are tracked in the [User Story Map](docs/product-owner/User-Story-Map.md).
 
